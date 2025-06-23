@@ -1,0 +1,110 @@
+.add-course {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 50px;
+}
+
+.add-course .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.add-course .name {
+    margin-top: 50px;
+}
+
+
+.add-course .add-course-btn {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.add-course .add-publisher {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+
+.add-course .add-part-btn {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.add-course .add-part {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    z-index: 10;
+}
+
+
+.add-course .add-unit-btn {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.add-course .add-unit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.add-course .add-unit .unit-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.add-course .add-unit .btns {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.add-course .subunit-container .add-subunit-btn {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+}
+
+.add-course .subunit-container .add-subunit-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+
+}
+
+@media only screen and (max-width:430px) {
+    .add-course {
+        padding: 0 20px;
+    }
+
+    .add-course .add-course-btn {
+        justify-content: center;
+    }
+
+    .add-course .add-publisher {
+        flex-direction: column;
+    }
+}

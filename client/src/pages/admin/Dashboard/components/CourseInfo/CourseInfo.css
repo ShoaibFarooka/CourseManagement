@@ -1,0 +1,52 @@
+.course-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 70px;
+    margin-top: 10px;
+    margin-left: 30px;
+    margin-right: 30px;
+    border-radius: 10px;
+    background-color: var(--accent);
+}
+
+.course-info .actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.course-info .actions img {
+    width: 21px;
+}
+
+@media only screen and (max-width:768px) {
+
+    .course-info {
+        padding: 10px 70px;
+    }
+
+    .course-info .actions img {
+        width: 15px;
+    }
+
+    .course-info .actions {
+        gap: 10px;
+    }
+}
+
+@media only screen and (max-width:450px) {
+
+    .course-info {
+        padding: 10px 30px;
+    }
+
+    .course-info .actions img {
+        width: 15px;
+    }
+
+    .course-info .actions {
+        gap: 10px;
+    }
+}

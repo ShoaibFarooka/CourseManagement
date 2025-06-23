@@ -1,0 +1,474 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+body {
+  background-color: var(--bg-main);
+}
+
+
+
+html {
+  font-size: 16px;
+}
+
+@media only screen and (max-width:768px) {
+  html {
+    font-size: 12px;
+  }
+}
+
+@media only screen and (max-width:425px) {
+  html {
+    font-size: 10px;
+  }
+}
+
+:root {
+  /* Backgrounds */
+  --bg-main: #f2f3f5;
+  /* Overall app background */
+  --bg-sidebar: #dce3ea;
+  /* Sidebar light blue-gray */
+  --bg-surface: #ffffff;
+  /* Card & section background */
+
+  /* Primary Colors */
+  --primary: #0d63af;
+  /* Button & top nav */
+  --primary-light: #2576c5;
+  /* Hover effect on buttons */
+
+  /* Accent */
+  --accent: #3b9edb;
+  /* For future accents if needed */
+
+  /* Text */
+  --text-main: #1e1e1e;
+  /* Main text */
+  --text-muted: #6b7280;
+  /* Subtle grayish text (for secondary text) */
+
+  /* Buttons */
+  --btn-bg: var(--primary);
+  --btn-text: #ffffff;
+  --btn-hover: var(--primary-light);
+
+  /* Cards / Boxes */
+  --card-bg: #c4d3e0;
+  /* Course cards */
+  --card-text: #0f2e4d;
+
+  /* Border & Effects */
+  --border: #ccd6dd;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --radius: 0.5rem;
+
+  --hover-text: #e0e7ff;
+  /* Soft Indigo-100 for background hover */
+  --hover-bg: #e0e7ff;
+  /* Indigo-100 */
+
+  --modal-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+
+  --select-bg: #ffffff;
+  --select-text: #1e1e1e;
+  --select-border: #d1d5db;
+  --select-hover: #f3f4f6;
+}
+
+
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-main: #0f1116;
+  /* Deep dark canvas */
+  --bg-sidebar: #1c1f26;
+  /* Sidebar - slightly lighter than main */
+  --bg-surface: #1a1d23;
+  /* Cards / panels */
+
+  /* Primary Color */
+  --primary: #1d4ed8;
+  /* Bright blue for CTAs */
+  --primary-light: #3b82f6;
+  /* Hover tone */
+
+  /* Accent Color */
+  --accent: #2563eb;
+  /* Accent - slightly brighter blue */
+
+  /* Text */
+  --text-main: #f8fafc;
+  /* Main readable white */
+  --text-muted: #9ca3af;
+  /* Soft muted gray */
+
+  /* Buttons */
+  --btn-bg: var(--primary);
+  --btn-text: #ffffff;
+  --btn-hover: var(--primary-light);
+
+  /* Cards / Boxes */
+  --card-bg: #252a33;
+  /* Course card background */
+  --card-text: #d1d5db;
+  /* Card text */
+
+  /* Borders and shadows */
+  --border: #334155;
+  /* Subtle border tone */
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --radius: 0.5rem;
+
+  --hover-text: #1e3a8a;
+  /* Deep Indigo-900 for background hover */
+  --hover-bg: #1e3a8a;
+  /* Indigo-900 or a deep variant */
+
+  --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+
+
+  --select-bg: #1a1d23;
+  --select-text: #f8fafc;
+  --select-border: #334155;
+  --select-hover: #252a33;
+}
+
+/* Button base */
+.btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--btn-text);
+  background-color: var(--btn-bg);
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+.btn:hover {
+  background-color: var(--btn-hover);
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+/* Optional: Disabled state */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* Typography */
+
+/* Headings */
+.heading-xl {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.heading-lg {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.heading-md {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.heading-sm {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+/* Body text */
+.text-body {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+.text-muted {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Small text */
+.text-sm {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+input {
+  max-width: 400px;
+  width: 100%;
+  padding: 5px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  outline: none;
+  background-color: var(--select-bg);
+  color: var(--select-text);
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Focus effect */
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+  /* soft blue glow */
+}
+
+.global-select {
+  max-width: 400px;
+  width: 100%;
+  padding: 5px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  outline: none;
+  background-color: var(--select-bg);
+  color: var(--select-text);
+  font-size: 1rem;
+  cursor: pointer;
+  appearance: none;
+  /* Hide default OS arrow */
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231e1e1e' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px 8px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.global-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+}
+
+.global-select option {
+  background-color: var(--select-bg);
+  color: var(--select-text);
+}
+
+
+.action-btn-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+.action-btn:hover {
+  filter: brightness(1.2);
+}
+
+.action-btn img {
+  width: 21px;
+}
+
+.manage-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.manage-btn:hover {
+  background-color: var(--btn-hover);
+  opacity: 0.9;
+}
+
+
+@media only screen and (max-width:768px) {
+  .action-btn img {
+    width: 15px;
+  }
+
+  .action-btn-wrapper {
+    gap: 15px;
+  }
+
+}
+
+@media only screen and (max-width:430px) {
+  .action-btn-wrapper {
+    gap: 10px;
+  }
+
+}
+
+/* === Global Table Styling === */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  font-size: 0.95rem;
+}
+
+/* Header */
+.table th {
+  background-color: var(--bg-sidebar);
+  color: var(--text-main);
+  font-weight: 600;
+  padding: 20px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Cell */
+.table td {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Hover */
+.table tbody tr:hover {
+  background-color: var(--hover-text);
+  /* will be light/dark depending on theme */
+  transition: background-color 0.2s ease;
+}
+
+/* Optional striped rows */
+.table-striped tbody tr:nth-child(odd) {
+  background-color: var(--bg-main);
+}
+
+/* In dark mode, adjust stripes */
+[data-theme="dark"] .table-striped tbody tr:nth-child(odd) {
+  background-color: #1c1f26;
+}
+
+/* Responsive wrapper */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius);
+}
+
+.table-h1 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.table-h2 {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+
+
+
+
+/* ========== Responsive Table Adjustments ========== */
+
+@media only screen and (max-width: 1024px) {
+
+  .table th,
+  .table td {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+
+  .table th,
+  .table td {
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    border-left: none;
+    border-right: none;
+  }
+
+  .table {
+    font-size: 0.9rem;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 12px;
+    border-left: none;
+    border-right: none;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px 10px;
+    border-left: none;
+    border-right: none;
+  }
+
+  .table th {
+    font-size: 0.9rem;
+  }
+}
