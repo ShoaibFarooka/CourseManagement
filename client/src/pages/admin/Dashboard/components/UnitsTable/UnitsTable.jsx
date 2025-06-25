@@ -2,7 +2,7 @@ import React from 'react';
 import './UnitsTable.css';
 import edit from '../../../../../assets/icons/edit.png';
 import del from '../../../../../assets/icons/del.png';
-
+import { Popconfirm } from 'antd';
 const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete }) => {
 
     return (
@@ -32,9 +32,16 @@ const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete }) => {
                                     <button className="action-btn" onClick={() => onEdit(index)}>
                                         <img src={edit} alt="Edit" />
                                     </button>
-                                    <button className="action-btn" onClick={() => onDelete(index)}>
-                                        <img src={del} alt="Delete" />
-                                    </button>
+                                    <Popconfirm
+                                        title="Are you sure you want to Delete?"
+                                        onConfirm={() => onDelete(index)}
+                                        okText="Yes"
+                                        cancelText="No"
+                                    >
+                                        <button className="action-btn">
+                                            <img src={del} alt="Delete" />
+                                        </button>
+                                    </Popconfirm>
                                 </div>
                             </td>
                         </tr>

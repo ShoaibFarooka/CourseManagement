@@ -1,26 +1,34 @@
 .add-course {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 0 50px;
+    gap: 10px;
+    padding: 50px 50px;
 }
 
 .add-course .title {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 40px;
 }
 
-.add-course .name {
+.add-course .course-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.add-course .course-form .name {
+    padding-left: 10px;
     margin-top: 50px;
 }
 
 
-.add-course .add-course-btn {
+.add-course .add-publisher-btn {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+    padding: 0 10px;
+    padding-top: 50px;
 }
 
 .add-course .add-publisher {
@@ -28,14 +36,34 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    z-index: 10;
+}
+
+.add-course .add-publisher .add-publisher-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+.add-course .add-publisher .add-publisher-btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 35px;
+}
+
+.add-course .add-publisher .publisher-name {
+    padding-left: 10px;
 }
 
 
 .add-course .add-part-btn {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
+    padding: 50px 10px 0 10px;
 }
 
 .add-course .add-part {
@@ -46,13 +74,30 @@
     z-index: 10;
 }
 
+.add-course .add-part-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.add-course .add-part .add-part-form .part-name {
+    padding-left: 10px;
+}
+
+.add-course .add-part .add-part-btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 35px;
+}
+
 
 .add-course .add-unit-btn {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    padding: 50px 10px 10px 10px;
 }
 
 .add-course .add-unit {
@@ -60,47 +105,85 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+}
+
+.add-course .add-unit .unit-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.add-course .add-unit .unit-form .unit-name {
+    padding-left: 10px;
+}
+
+.add-course .add-unit .unit-form-2 {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 
-.add-course .add-unit .unit-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
+.add-course .add-unit .unit-form-2 .question-type {
+    padding-left: 10px;
 }
 
 .add-course .add-unit .btns {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 20px;
+    padding-top: 30px;
 }
 
 .add-course .subunit-container .add-subunit-btn {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    padding: 50px 10px 10px 10px;
 
 }
 
-.add-course .subunit-container .add-subunit-form {
+.add-course .subunit-container .add-subunit {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    margin-bottom: 20px;
-
+    padding-top: 20px;
+    padding-bottom: 10px;
 }
+
+.add-course .subunit-container .add-subunit .subunit-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.add-course .subunit-container .add-subunit .subunit-form .subunit-name {
+    padding-left: 10px;
+}
+
+.add-course .subunit-container .add-subunit .subunit-btns {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-top: 20px;
+}
+
+.add-course .submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 30px;
+}
+
 
 @media only screen and (max-width:430px) {
     .add-course {
         padding: 0 20px;
     }
 
-    .add-course .add-course-btn {
+    .add-course .add-publisher-btn {
         justify-content: center;
     }
 

@@ -411,6 +411,14 @@ input:focus {
   align-items: center;
 }
 
+.error-text {
+  color: red;
+  font-size: 1rem;
+  margin-top: 10px;
+  padding-left: 10px;
+}
+
+
 
 
 

@@ -7,6 +7,20 @@ import CustomModal from '../../../components/CustomModal/CustomModal';
 import AddCourse from './components/AddCourse/AddCourse';
 const DashBoard = () => {
 
+    const [courseData, setCourseData] = useState({
+        name: "",
+        publishers: [],
+        parts: []
+    });
+
+    const [courses, setCourses] = useState([]);
+
+    const handleSubmitCourse = (courseData) => {
+        setCourses(prev => [...prev, courseData]);
+        setIsOpenCourseModal(false);
+    };
+
+
     const [isOpenAddCourseModal, setIsOpenCourseModal] = useState(false);
 
     const handleClickAddCourse = () => {
@@ -25,10 +39,16 @@ const DashBoard = () => {
                 <div className='heading-md h1'>Course name</div>
                 <div className='heading-md h2'>Actions</div>
             </div>
-            <CourseInfo />
+
+            {courses.map((course, index) => (
+                <CourseInfo key={index} courseData={course} />
+            ))}
 
             <CustomModal isOpen={isOpenAddCourseModal} onRequestClose={handleClickCloseAddCourseModal} contentLabel='Add Course'>
-                <AddCourse />
+                <AddCourse
+                    courseData={courseData}
+                    setCourseData={setCourseData}
+                    onSubmitCourse={handleSubmitCourse} />
             </CustomModal>
         </div>
     )

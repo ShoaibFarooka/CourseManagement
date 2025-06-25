@@ -1,18 +1,76 @@
-import React from 'react'
 import './AddCourse.css'
-import { message } from 'antd';
 import PublisherTable from '../PublisherTable/PublisherTable'
 import { useState } from 'react'
 import PartsTable from '../PartsTable/PartsTable'
 import UnitsTable from '../UnitsTable/UnitsTable'
 import SubunitTable from '../SubUnitTable/SubunitTable';
-const AddCourse = () => {
+import { useRef } from 'react';
+import { message } from 'antd';
+const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
 
-    const [courseData, setCourseData] = useState({
-        name: "",
-        publishers: [],
-        parts: []
-    });
+    const partInputRef = useRef(null);
+    const publisherInputRef = useRef(null);
+    const unitInputRef = useRef(null);
+    const subUnitInputRef = useRef(null);
+    const unitSectionRef = useRef(null);
+    const subUnitSectionRef = useRef(null);
+
+    const [errors, setErrors] = useState({});
+
+    const setFieldError = (field, message) => {
+        setErrors(prev => ({
+            ...prev,
+            [field]: message
+        }));
+    };
+
+    const clearFieldError = (field) => {
+        setErrors(prev => {
+            const updated = { ...prev };
+            delete updated[field];
+            return updated;
+        });
+    };
+
+
+    const validateField = ({
+        value,
+        fieldKey,
+        label,
+        existingItems = [],
+        duplicateCheck = true,
+        duplicateCompare = (item) => item?.toLowerCase(),
+        excludeIndex = null,
+    }) => {
+        const trimmedValue = value.trim();
+
+        if (!trimmedValue) {
+            setFieldError(fieldKey, `Please enter ${label}`);
+            return { isValid: false, value: trimmedValue };
+        }
+
+        if (duplicateCheck) {
+            const isDuplicate = existingItems.some((item, idx) => {
+                if (excludeIndex !== null && idx === excludeIndex) return false;
+                return duplicateCompare(item) === trimmedValue.toLowerCase();
+            });
+
+            if (isDuplicate) {
+                setFieldError(fieldKey, `${label} already exists`);
+                return { isValid: false, value: trimmedValue };
+            }
+        }
+
+        clearFieldError(fieldKey);
+        return { isValid: true, value: trimmedValue };
+    };
+
+    const handleCourseInputchange = (e) => {
+        setCourseData(prev => ({ ...prev, name: e.target.value }));
+    };
+
+
+
 
     const [tempPublisher, setTempPublisher] = useState([]);
     const [showAddPublisher, setShowAddpublisher] = useState(false);
@@ -36,27 +94,33 @@ const AddCourse = () => {
         setShowAddpublisher(true);
     };
 
+    const handleCloseEditPublisher = () => {
+        setEditingPublisherIndex(null);
+        setEditingPublisherValue("");
+        setTempPublisher({ name: "" });
+        setShowAddpublisher(false);
+    }
+
     const handleClickAddPublisher = () => {
         setTempPublisher({ name: "" });
+        clearFieldError("publisher");
         setShowAddpublisher(true);
+
+        setTimeout(() => {
+            publisherInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            publisherInputRef.current?.focus();
+        }, 100);
     };
 
     const handleClickSavePublisher = () => {
-        const trimmedName = tempPublisher.name?.trim() || "";
+        const { isValid, value: trimmedName } = validateField({
+            value: tempPublisher.name,
+            fieldKey: "publisher",
+            label: "Publisher",
+            existingItems: courseData.publishers.map(p => p.name),
+        });
 
-        if (trimmedName === "") {
-            message.error("Please Enter Publisher Name");
-            return;
-        }
-
-        const alreadyExists = courseData.publishers.some(
-            (pub) => pub.name.trim().toLowerCase() === trimmedName.toLowerCase()
-        );
-
-        if (alreadyExists) {
-            message.warning("This publisher already exists.");
-            return;
-        }
+        if (!isValid) return;
 
         setCourseData((prev) => ({
             ...prev,
@@ -68,22 +132,15 @@ const AddCourse = () => {
     };
 
     const handleSaveEditPublisher = () => {
-        const trimmedName = editingPublisherValue.trim();
-        if (!trimmedName) {
-            message.error("Publisher name cannot be empty.");
-            return;
-        }
+        const { isValid, value: trimmedName } = validateField({
+            value: editingPublisherValue,
+            fieldKey: "publisher",
+            label: "Publisher",
+            existingItems: courseData.publishers.map(p => p.name),
+            excludeIndex: editingPublisherIndex
+        });
 
-        const alreadyExists = courseData.publishers.some((pub, idx) =>
-            idx !== editingPublisherIndex &&
-            pub.name.trim().toLowerCase() === trimmedName.toLowerCase()
-        );
-
-        if (alreadyExists) {
-            message.warning("Another publisher with this name already exists.");
-            setShowAddpublisher(false);
-            return;
-        }
+        if (!isValid) return;
 
         const updated = [...courseData.publishers];
         updated[editingPublisherIndex] = { name: trimmedName };
@@ -111,6 +168,7 @@ const AddCourse = () => {
 
 
 
+
     const [tempPart, setTempPart] = useState({ name: "" });
     const [editingPartIndex, setEditingPartIndex] = useState(null);
     const [editingPartValue, setEditingPartValue] = useState("");
@@ -119,14 +177,15 @@ const AddCourse = () => {
 
 
 
-    const handleManageUnits = (partIndex) => {
-        setManagedPartIndex(prev => prev === partIndex ? null : partIndex);
-    };
-
-
     const handleClickAddPart = () => {
         setTempPart({ name: "" });
+        clearFieldError("part");
         setShowAddPart(true);
+
+        setTimeout(() => {
+            partInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            partInputRef.current?.focus();
+        }, 100);
     };
 
     const handlePartInputChange = (e) => {
@@ -139,20 +198,15 @@ const AddCourse = () => {
     };
 
     const handleClickSavePart = () => {
-        const trimmedName = tempPart.name.trim();
-        if (trimmedName === "") {
-            message.error("Please enter part name");
-            return;
-        }
 
-        const alreadyExists = courseData.parts.some(
-            (part) => part.name.trim().toLowerCase() === trimmedName.toLowerCase()
-        );
+        const { isValid, value: trimmedName } = validateField({
+            value: tempPart.name,
+            fieldKey: "part",
+            label: "Part",
+            existingItems: courseData.parts.map(part => part.name)
+        });
 
-        if (alreadyExists) {
-            message.warning("This part already exists.");
-            return;
-        }
+        if (!isValid) return;
 
         const newPart = {
             name: trimmedName,
@@ -176,24 +230,30 @@ const AddCourse = () => {
         setShowAddPart(true);
     };
 
+    const handleCloseEditPart = () => {
+        setEditingPartIndex(null);
+        setEditingPartValue("");
+        setTempPart({ name: "" });
+        setShowAddPart(false);
+    };
+
+
     const handleSaveEditPart = () => {
-        const trimmedName = editingPartValue.trim();
-        if (!trimmedName) return;
+        const { isValid, value: trimmedName } = validateField({
+            value: editingPartValue,
+            fieldKey: "part",
+            label: "Part",
+            existingItems: courseData.parts.map(part => part.name),
+            excludeIndex: editingPartIndex
+        });
 
-        const alreadyExists = courseData.parts.some((part, idx) =>
-            idx !== editingPartIndex &&
-            part.name.trim().toLowerCase() === trimmedName.toLowerCase()
-        );
-
-        if (alreadyExists) {
-            message.warning("Another part with this name already exists.");
-            setShowAddPart(false);
-            return;
-        }
+        if (!isValid) return;
 
         const updatedParts = [...courseData.parts];
-        updatedParts[editingPartIndex] = { name: trimmedName, units: courseData.parts[editingPartIndex].units };
-
+        updatedParts[editingPartIndex] = {
+            name: trimmedName,
+            units: courseData.parts[editingPartIndex].units
+        };
         setCourseData(prev => ({
             ...prev,
             parts: updatedParts
@@ -232,10 +292,26 @@ const AddCourse = () => {
     const [selectedPartIndex, setSelectedPartIndex] = useState(null);
     const [editingUnitIndex, setEditingUnitIndex] = useState(null);
 
+    const handleManageUnits = (partIndex) => {
+        setManagedPartIndex(prev => prev === partIndex ? null : partIndex);
+
+        setTimeout(() => {
+            unitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    };
+
+
     const handleClickAddUnit = (partIndex) => {
         setSelectedPartIndex(partIndex);
         setEditingUnitIndex(null);
+        clearFieldError("unitName");
+        clearFieldError("unitType");
         setTempUnit({ name: "", type: "" });
+
+        setTimeout(() => {
+            unitInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            unitInputRef.current?.focus();
+        }, 100);
     };
 
     const handleEditUnit = (partIndex, unitIndex) => {
@@ -243,6 +319,7 @@ const AddCourse = () => {
         setSelectedPartIndex(partIndex);
         setEditingUnitIndex(unitIndex);
         setTempUnit({ name: unit.name, type: unit.type });
+
     };
 
     const handleInputChangeUnit = (e) => {
@@ -261,72 +338,83 @@ const AddCourse = () => {
 
 
     const handleClickSaveUnit = () => {
-        const unitName = tempUnit.name?.trim() || "";
-        const unitType = tempUnit.type?.trim() || "";
+        const nameCheck = validateField({
+            value: tempUnit.name,
+            fieldKey: "unitName",
+            label: "Unit name",
+            existingItems: courseData.parts[selectedPartIndex]?.units.map(u => u.name),
+            duplicateCheck: false
+        });
 
-        if (!unitName || !unitType) {
-            message.error("Please fill both Unit name and type");
-            return;
-        }
+        const typeCheck = validateField({
+            value: tempUnit.type,
+            fieldKey: "unitType",
+            label: "Unit type",
+            existingItems: courseData.parts[selectedPartIndex]?.units.map(u => u.type),
+            duplicateCheck: false
+        });
+
+        if (!nameCheck.isValid || !typeCheck.isValid) return;
 
         const existingUnits = courseData.parts[selectedPartIndex]?.units || [];
-
-        const alreadyExists = existingUnits.some((u) =>
-            u.name.trim().toLowerCase() === unitName.toLowerCase() &&
-            u.type.trim().toLowerCase() === unitType.toLowerCase()
+        const alreadyExists = existingUnits.some(
+            (u) =>
+                u.name.trim().toLowerCase() === nameCheck.value.toLowerCase() &&
+                u.type.trim().toLowerCase() === typeCheck.value.toLowerCase()
         );
 
         if (alreadyExists) {
-            message.warning("This unit already exists.");
+            setFieldError("unitName", "This unit already exists");
+            setFieldError("unitType", "This unit already exists");
             return;
         }
 
-        const newUnit = { name: unitName, type: unitType, subunits: [] };
+        const newUnit = {
+            name: nameCheck.value,
+            type: typeCheck.value,
+            subunits: []
+        };
 
         setCourseData((prev) => {
             const updatedParts = [...prev.parts];
-            const units = [...updatedParts[selectedPartIndex].units, newUnit];
             updatedParts[selectedPartIndex] = {
                 ...updatedParts[selectedPartIndex],
-                units
+                units: [...updatedParts[selectedPartIndex].units, newUnit]
             };
             return { ...prev, parts: updatedParts };
         });
 
         resetUnitForm();
+        clearFieldError("unitName");
+        clearFieldError("unitType");
     };
 
 
     const handleSaveUnit = () => {
-        const unitName = tempUnit.name?.trim() || "";
-        const unitType = tempUnit.type?.trim() || "";
+        const { isValid: isNameValid, value: unitName } = validateField({
+            value: tempUnit.name,
+            fieldKey: "unitName",
+            label: "Unit name",
+            existingItems: (courseData.parts[selectedPartIndex]?.units || []).map((u, idx) =>
+                idx !== editingUnitIndex ? u.name + u.type : ""
+            ),
+            duplicateCompare: item => item.toLowerCase()
+        });
 
-        if (!unitName || !unitType) {
-            message.error("Please fill both Unit name and type");
-            return;
-        }
+        const { isValid: isTypeValid, value: unitType } = validateField({
+            value: tempUnit.type,
+            fieldKey: "unitType",
+            label: "Unit type",
+            duplicateCheck: false
+        });
 
-        const existingUnits = courseData.parts[selectedPartIndex]?.units || [];
-
-        const alreadyExists = existingUnits.some((u, idx) =>
-            idx !== editingUnitIndex &&
-            u.name.trim().toLowerCase() === unitName.toLowerCase() &&
-            u.type.trim().toLowerCase() === unitType.toLowerCase()
-        );
-
-        if (alreadyExists) {
-            message.warning("Another unit with this name and type already exists.");
-            return;
-        }
+        if (!isNameValid || !isTypeValid) return;
 
         const updatedParts = [...courseData.parts];
-        const updatedUnits = [...updatedParts[selectedPartIndex].units];
-        updatedUnits[editingUnitIndex] = {
-            ...updatedUnits[editingUnitIndex],
+        updatedParts[selectedPartIndex].units[editingUnitIndex] = {
             name: unitName,
             type: unitType
         };
-        updatedParts[selectedPartIndex].units = updatedUnits;
 
         setCourseData({ ...courseData, parts: updatedParts });
         resetUnitForm();
@@ -363,44 +451,47 @@ const AddCourse = () => {
         setSelectedUnitIndexes({ partIndex, unitIndex });
         setTempSubUnit({ name: "" });
         setEditingSubunitIndex(null);
+        clearFieldError("subunit");
         setShowSubunitInput(true);
+
+        setTimeout(() => {
+            subUnitInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            subUnitInputRef.current?.focus();
+        }, 100);
 
     };
 
 
     const handleClickSaveSubUnit = () => {
-        const name = tempSubUnit.name.trim();
         const { partIndex, unitIndex } = selectedUnitIndexes;
 
-        if (!name) {
-            message.error("Please enter subunit name");
-            return;
-        }
+        const part = courseData.parts?.[partIndex];
+        const unit = part?.units?.[unitIndex];
+        const subunits = unit?.subunits || [];
 
-        const existingSubunits = courseData.parts[partIndex].units[unitIndex].subunits || [];
+        const { isValid, value: trimmedName } = validateField({
+            value: tempSubUnit.name,
+            fieldKey: "subunit",
+            label: "Subunit",
+            existingItems: subunits.map(s => s.name)
+        });
 
-        const alreadyExists = existingSubunits.some(
-            (s) => s.name.toLowerCase() === name.toLowerCase()
-        );
-
-        if (alreadyExists) {
-            message.warning("This subunit already exists");
-            return;
-        }
+        if (!isValid) return;
 
         const updatedParts = [...courseData.parts];
         const updatedUnits = [...updatedParts[partIndex].units];
         const targetUnit = { ...updatedUnits[unitIndex] };
 
-        targetUnit.subunits = [...(targetUnit.subunits || []), { name }];
+        targetUnit.subunits = [...(targetUnit.subunits || []), { name: trimmedName }];
         updatedUnits[unitIndex] = targetUnit;
         updatedParts[partIndex].units = updatedUnits;
 
         setCourseData({ ...courseData, parts: updatedParts });
         setTempSubUnit({ name: "" });
         setShowSubunitInput(false);
-
+        clearFieldError("subunit");
     };
+
 
     const handleManageSubunits = (partIndex, unitIndex) => {
         if (
@@ -420,6 +511,12 @@ const AddCourse = () => {
             setTempSubUnit({ name: "" });
             setShowSubunitInput(false);
         }
+
+
+        setTimeout(() => {
+            subUnitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+
     };
 
 
@@ -432,38 +529,36 @@ const AddCourse = () => {
         setShowSubunitInput(true);
     };
 
+    const handleCloseEditSubunit = () => {
+        setTempSubUnit({ name: "" });
+        setEditingSubunitIndex(null);
+        setShowSubunitInput(false);
+    };
+
+
     const handleSaveSubunit = () => {
-        if (!tempSubUnit.name.trim()) {
-            message.error("Subunit name required");
-            return;
-        }
-
         const { partIndex, unitIndex } = selectedUnitIndexes;
-        const updatedCourse = { ...courseData };
 
+        const { isValid, value: trimmedName } = validateField({
+            value: tempSubUnit.name,
+            fieldKey: "subunit",
+            label: "Subunit",
+            existingItems: courseData.parts[partIndex]?.units[unitIndex]?.subunits.map(s => s.name) || [],
+            excludeIndex: editingSubunitIndex
+        });
+
+        if (!isValid) return;
+
+        const updatedCourse = { ...courseData };
         const subunits = updatedCourse.parts[partIndex].units[unitIndex].subunits;
 
-        const alreadyExists = subunits.some(
-            (s, idx) =>
-                s.name.toLowerCase() === tempSubUnit.name.trim().toLowerCase() &&
-                idx !== editingSubunitIndex
-        );
-
-        if (alreadyExists) {
-            message.warning("This subunit already exists");
-            return;
-        }
-
-        if (editingSubunitIndex !== null) {
-            subunits[editingSubunitIndex] = { name: tempSubUnit.name };
-        } else {
-            subunits.push({ name: tempSubUnit.name });
-        }
+        subunits[editingSubunitIndex] = { name: trimmedName };
 
         setCourseData(updatedCourse);
         setTempSubUnit({ name: "" });
         setEditingSubunitIndex(null);
         setShowSubunitInput(false);
+        clearFieldError("subunit");
     };
 
     const handleDeleteSubunit = (index) => {
@@ -480,32 +575,78 @@ const AddCourse = () => {
     };
 
 
+    const handleSubmitCourse = () => {
+        if (!courseData.name.trim()) {
+            message.error("Please enter the course name");
+            return;
+        }
+
+        if (courseData.publishers.length === 0) {
+            message.error("Please add at least one publisher");
+            return;
+        }
+
+        if (courseData.parts.length === 0) {
+            message.error("Please add at least one part");
+            return;
+        }
+
+        onSubmitCourse(courseData);
+
+        console.log("Final course data submitted:", courseData);
+        message.success("Course submitted successfully!");
+        console.log("Course Data", courseData);
+
+    };
+
+
 
     return (
         <div className='add-course'>
-            <div className='heading-lg title' >Course Info</div>
-            <label htmlFor="course name" className='heading-md name'>Course Name</label>
-            <input type="text" name='name' placeholder='Course Name' />
 
-            <div className='add-course-btn'>
+            <div className='heading-lg title' >Course Info</div>
+
+            <div className='course-form'>
+                <label htmlFor="name" className='heading-md name'>Course Name</label>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Course Name"
+                    value={courseData.name}
+                    onChange={handleCourseInputchange}
+                />
+
+            </div>
+
+            <div className='add-publisher-btn'>
+                <div className='heading-md publisher-h1'>Publishers</div>
                 <button className='btn' onClick={handleClickAddPublisher}>Add Publisher</button>
             </div>
 
 
             {showAddPublisher && (
                 <div className='add-publisher'>
-                    <input
-                        type="text"
-                        placeholder="Publisher Name"
-                        value={editingPublisherIndex !== null ? editingPublisherValue : tempPublisher.name}
-                        onChange={handlePublisherInputChange}
-                    />
-                    <button
-                        className="btn"
-                        onClick={editingPublisherIndex !== null ? handleSaveEditPublisher : handleClickSavePublisher}
-                    >
-                        {editingPublisherIndex !== null ? "Save" : "Add"}
-                    </button>
+                    <div className='add-publisher-form'>
+                        <label htmlFor="publishers" className='heading-sm publisher-name'>Publisher Name</label>
+                        <input
+                            ref={publisherInputRef}
+                            type="text"
+                            placeholder="Publisher Name"
+                            name='publishers'
+                            value={editingPublisherIndex !== null ? editingPublisherValue : tempPublisher.name}
+                            onChange={handlePublisherInputChange}
+                        />
+                        {errors.publisher && <span className='error-text'>{errors.publisher}</span>}
+                    </div>
+                    <div className='add-publisher-btns'>
+                        <button
+                            className="btn"
+                            onClick={editingPublisherIndex !== null ? handleSaveEditPublisher : handleClickSavePublisher}
+                        >
+                            {editingPublisherIndex !== null ? "Save" : "Add"}
+                        </button>
+                        <button className='btn' onClick={handleCloseEditPublisher}>Cancel</button>
+                    </div>
                 </div>
             )}
 
@@ -516,23 +657,34 @@ const AddCourse = () => {
             />
 
             <div className='add-part-btn'>
+                <div className='heading-md'>Parts</div>
                 <button className='btn' onClick={handleClickAddPart}>Add Part</button>
             </div>
 
             {showAddPart && (
                 <div className='add-part' >
-                    <input
-                        type="text"
-                        placeholder="Part"
-                        value={editingPartIndex !== null ? editingPartValue : tempPart.name}
-                        onChange={handlePartInputChange}
-                    />
-                    <button
-                        className="btn"
-                        onClick={editingPartIndex !== null ? handleSaveEditPart : handleClickSavePart}
-                    >
-                        Save
-                    </button>
+                    <div className='add-part-form'>
+                        <label htmlFor="parts" className='heading-sm part-name'>Part Name</label>
+                        <input
+                            ref={partInputRef}
+                            type="text"
+                            name='parts'
+                            placeholder="Part"
+                            value={editingPartIndex !== null ? editingPartValue : tempPart.name}
+                            onChange={handlePartInputChange}
+                        />
+                        {errors.part && <span className='error-text'>{errors.part}</span>}
+                    </div>
+
+                    <div className='add-part-btns'>
+                        <button
+                            className="btn"
+                            onClick={editingPartIndex !== null ? handleSaveEditPart : handleClickSavePart}
+                        >
+                            {editingPartIndex !== null ? "Save" : "Add"}
+                        </button>
+                        <button className='btn' onClick={handleCloseEditPart}>Cancel</button>
+                    </div>
                 </div>
             )}
 
@@ -549,43 +701,56 @@ const AddCourse = () => {
                 <div className='unit' key={index}>
                     {managedPartIndex === index && courseData.parts[managedPartIndex] && (
                         <>
-                            <div className='add-unit-btn'>
+                            <div className='add-unit-btn' ref={unitSectionRef}>
+                                <div className='heading-md'>{`${part.name}/Units`}</div>
                                 <button
                                     type='button'
                                     className='btn'
                                     onClick={() => handleClickAddUnit(index)}
                                 >
-                                    Add Unit to {part.name}
+                                    Add Unit
                                 </button>
                             </div>
 
                             {selectedPartIndex === index && (
                                 <div className='add-unit'>
-                                    <div className='unit-content'>
+                                    <div className='unit-form'>
+                                        <label htmlFor="name" className='heading-sm unit-name'>
+                                            Unit Name
+                                        </label>
                                         <input
+                                            ref={unitInputRef}
                                             type="text"
                                             name="name"
                                             placeholder="Unit Name"
                                             value={tempUnit.name}
                                             onChange={handleInputChangeUnit}
                                         />
-                                        <select
-                                            name="type"
-                                            value={tempUnit.type}
-                                            onChange={handleInputChangeUnit}
-                                            className="global-select"
-                                        >
-                                            <option value="">Select Unit Type</option>
-                                            <option value="rapid">Rapid</option>
-                                            <option value="mcq">MCQ</option>
-                                            <option value="essay">Essay</option>
-                                        </select>
+
+                                        {errors.unitName && <span className='error-text'>{errors.unitName}</span>}
+                                        <div className='unit-form-2'>
+                                            <label htmlFor="type" className='heading-sm question-type'>
+                                                Question Type
+                                            </label>
+                                            <select
+                                                name="type"
+                                                value={tempUnit.type}
+                                                onChange={handleInputChangeUnit}
+                                                className="global-select"
+                                            >
+                                                <option value="">Select Unit Type</option>
+                                                <option value="rapid">Rapid</option>
+                                                <option value="mcq">MCQ</option>
+                                                <option value="essay">Essay</option>
+                                            </select>
+                                            {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
+                                        </div>
                                     </div>
                                     <div className='btns'>
                                         <button className='btn' onClick={editingUnitIndex !== null ? handleSaveUnit : handleClickSaveUnit}>
                                             {editingUnitIndex !== null ? "Save" : "Add"}
                                         </button>
-
+                                        <button className='btn' onClick={resetUnitForm}>Cancel</button>
                                     </div>
                                 </div>
                             )}
@@ -607,7 +772,8 @@ const AddCourse = () => {
                 courseData.parts[managedPartIndex].units[selectedUnitIndexes.unitIndex] && (
                     <div className="subunit-container">
 
-                        <div className="add-subunit-btn">
+                        <div className="add-subunit-btn" ref={subUnitSectionRef}>
+                            <div className='heading-md'>{`${courseData.parts[managedPartIndex].name}/${courseData.parts[managedPartIndex].units[selectedUnitIndexes.unitIndex].name}/Subunits`}</div>
                             <button
                                 className="btn"
                                 onClick={() =>
@@ -623,24 +789,32 @@ const AddCourse = () => {
 
 
                         {showSubunitInput && (
-                            <div className="add-subunit-form">
-                                <input
-                                    type="text"
-                                    name="subunit"
-                                    placeholder="Subunit Name"
-                                    value={tempSubUnit.name}
-                                    onChange={handleChangeSubUnit}
-                                />
-                                <button
-                                    className="btn"
-                                    onClick={
-                                        editingSubunitIndex !== null
-                                            ? handleSaveSubunit
-                                            : handleClickSaveSubUnit
-                                    }
-                                >
-                                    {editingSubunitIndex !== null ? "Save" : "Add"}
-                                </button>
+                            <div className="add-subunit">
+                                <div className='subunit-form'>
+                                    <label htmlFor="subunit" className='heading-sm subunit-name'>Subunit</label>
+                                    <input
+                                        ref={subUnitInputRef}
+                                        type="text"
+                                        name="subunit"
+                                        placeholder="Subunit Name"
+                                        value={tempSubUnit.name}
+                                        onChange={handleChangeSubUnit}
+                                    />
+                                    {errors.subunit && <span className='error-text'>{errors.subunit}</span>}
+                                </div>
+                                <div className='subunit-btns'>
+                                    <button
+                                        className="btn"
+                                        onClick={
+                                            editingSubunitIndex !== null
+                                                ? handleSaveSubunit
+                                                : handleClickSaveSubUnit
+                                        }
+                                    >
+                                        {editingSubunitIndex !== null ? "Save" : "Add"}
+                                    </button>
+                                    <button className='btn' onClick={handleCloseEditSubunit}>Cancel</button>
+                                </div>
                             </div>
                         )}
 
@@ -655,6 +829,10 @@ const AddCourse = () => {
                         />
                     </div>
                 )}
+
+            <div className='submit'>
+                <button className='btn' onClick={handleSubmitCourse}>Submit</button>
+            </div>
 
         </div>
     )
