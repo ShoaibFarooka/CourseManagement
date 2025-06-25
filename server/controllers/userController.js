@@ -59,20 +59,9 @@ const FetchUserInfo = async (req, res, next) => {
   }
 };
 
-const AddLead = async (req, res, next) => {
-  try {
-    const { email } = req.body;
-    const lead = await userService.addLead(email);
-    res.status(201).json({ message: "Lead added successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
-
 module.exports = {
   Login,
   RefreshToken,
   Logout,
   FetchUserInfo,
-  AddLead
 };

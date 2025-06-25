@@ -1,5 +1,4 @@
 const User = require("../models/userModel");
-const Lead = require("../models/leadModel");
 const authUtils = require("../utils/authUtils");
 
 const createUser = async (userData, role) => {
@@ -111,18 +110,6 @@ const fetchUser = async (userId) => {
     throw error;
   }
   return user;
-};
-
-const addLead = async (email) => {
-  const existingLead = await Lead.findOne({ email });
-  if (existingLead) {
-    const error = new Error("A lead with that email already exists.");
-    error.code = 409;
-    throw error;
-  }
-
-  const lead = await Lead.create({ email });
-  return lead;
 };
 
 module.exports = {
