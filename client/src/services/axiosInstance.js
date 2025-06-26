@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import userService from '../services/userServices';
+import userService from '../services/userServices.js';
 
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,

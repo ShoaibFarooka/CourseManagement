@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 import { menuItems } from '../constants/menuItems';
 
 const isAuthenticated = () => {
-    const token = Cookies.get('truck-jwt-token');
+    const token = Cookies.get('course-managment-jwt-token');
     return !!token;
 };
 

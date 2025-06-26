@@ -38,47 +38,20 @@
     gap: 20px;
 }
 
+.login .login-form .form .input-field {
+    width: 100%;
+    max-width: 400px;
+}
+
 .form .login-btn {
     margin-top: 20px;
 }
 
-.form input {
-    width: 100%;
-    max-width: 300px;
-    padding: 10px 15px;
-    border-radius: 29px;
-    outline: none;
-    border: none;
-}
-
-.form input::placeholder {
-    font-size: 1rem;
-}
-
-.form .error {
-    color: red;
-    font-size: 1rem;
-}
 
 .password-field {
     position: relative;
     width: 100%;
-    max-width: 300px;
-}
-
-.password-field input {
-    width: 100%;
-    padding: 10px 45px 10px 15px;
-    /* same vertical, extra right padding for the icon */
-    border-radius: 29px;
-    outline: none;
-    border: none;
-    background-color: var(--bg-surface);
-    color: var(--text-main);
-}
-
-.password-field input::placeholder {
-    font-size: 1rem;
+    max-width: 400px;
 }
 
 .eye-icon {

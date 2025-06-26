@@ -30,7 +30,7 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete }) => {
                                     <button className='manage-btn'
                                         onClick={() => onManageUnits(index)}
                                     >
-                                        manage unit</button>
+                                        Manage Unit</button>
                                     <button className="action-btn" onClick={() => onEdit(index)}>
                                         <img src={edit} alt="Edit" />
                                     </button>

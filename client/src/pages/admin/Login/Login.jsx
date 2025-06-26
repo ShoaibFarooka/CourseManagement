@@ -1,13 +1,16 @@
 import './Login.css'
 import { useState } from 'react';
-import { useNavigate, NavLink } from 'react-router-dom';
+import { useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { message } from 'antd';
 import ThemeToggle from '../../../components/ThemeToggel/ThemeToggel';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import Cookies from 'js-cookie';
+import userService from '../../../services/userServices';
 
 const Login = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -56,13 +59,27 @@ const Login = () => {
         return !hasErrors;
     };
 
-    const handleClickLogin = (e) => {
+    const handleClickLogin = async (e) => {
         e.preventDefault();
         if (!validateData()) {
             return;
         }
-        message.success("Logged in Successfully!", 2);
-        navigate('/admin/dashboard');
+        try {
+            //show loading
+            const response = await userService.loginUser(formData);
+            if (response.token) {
+                Cookies.set('course-managment-jwt-token', response.token, {
+                    secure: true,
+                    sameSite: 'Lax'
+                });
+                const from = location.state?.from?.pathname;
+                navigate(from || '/admin/dashboard');
+            }
+        } catch (error) {
+            message.error(error?.response?.data?.error || "Something went wrong");
+        } finally {
+            //hide loading
+        }
     }
 
     return (
@@ -81,8 +98,11 @@ const Login = () => {
 
                 <form onSubmit={handleClickLogin} className='form'>
                     <div className='heading-lg h1'>Admin Login</div>
-                    <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} />
-                    {error.email && <span className='error'>{error.email}</span>}
+                    <div className='input-field'>
+                        <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} />
+                        {error.email && <span className='error-text'>{error.email}</span>}
+                    </div>
+
                     <div className="password-field">
                         <input
                             type={showPassword ? 'text' : 'password'}
@@ -91,11 +111,11 @@ const Login = () => {
                             placeholder="Password"
                             onChange={handleInputChange}
                         />
+                        {error.password && <span className='error-text'>{error.password}</span>}
                         <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
                             {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                         </span>
                     </div>
-                    {error.password && <span className='error'>{error.password}</span>}
                     <button type='submit' className='btn login-btn'>Login</button>
                 </form>
 

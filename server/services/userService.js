@@ -118,5 +118,4 @@ module.exports = {
   refreshToken,
   logoutUser,
   fetchUser,
-  addLead
 };
