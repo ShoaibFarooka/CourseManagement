@@ -17,11 +17,13 @@ const seedAdmin = async (userData) => {
         await stopLoader({ finalMessage: '🧹 Deleted existing users!', color: 'yellow' });
 
         startLoader({ message: '🌱 Seeding admin user', color: 'cyan', wait: true });
-        const { name, email, password, role } = userData;
+        const { name, email, country, phone, password, role } = userData;
         const passwordDigest = await authUtils.hashPassword(password);
         await User.create({
             name,
             email,
+            country,
+            phone,
             password: passwordDigest,
             role
         });
@@ -40,6 +42,8 @@ const seedAdmin = async (userData) => {
 const admin = {
     name: "Admin Test",
     email: "admin@gmail.com",
+    country: "Pakistan",
+    phone: 3071204478,
     password: "12345678",
     role: "admin"
 };

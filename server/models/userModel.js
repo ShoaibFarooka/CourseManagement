@@ -13,6 +13,17 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    country: {
+      type: String,
+      trim: true,
+      required: true
+    },
+    phone: {
+      type: Number,
+      trim: true,
+      unique: true,
+      required: true
+    },
     password: {
       type: String,
       required: true,
@@ -23,10 +34,26 @@ const userSchema = new mongoose.Schema(
       default: "user",
       enum: ["admin", "user"],
     },
+    paymentStatus: {
+      type: Boolean,
+      default: false,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
     refreshToken: {
       type: String,
       default: null,
-    }
+    },
+    resetToken: {
+      type: String,
+      default: null
+    },
+    resetTokenExpiry: {
+      type: Date,
+      default: null
+    },
   },
   { timestamps: true }
 );
