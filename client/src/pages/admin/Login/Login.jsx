@@ -2,15 +2,17 @@ import './Login.css'
 import { useState } from 'react';
 import { useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { message } from 'antd';
-import ThemeToggle from '../../../components/ThemeToggel/ThemeToggel';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import userService from '../../../services/userServices';
+import { useDispatch } from 'react-redux';
+import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 
 const Login = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
+    const dispatch = useDispatch();
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -65,7 +67,7 @@ const Login = () => {
             return;
         }
         try {
-            //show loading
+            dispatch(ShowLoading());
             const response = await userService.loginUser(formData);
             if (response.token) {
                 Cookies.set('course-managment-jwt-token', response.token, {
@@ -74,52 +76,43 @@ const Login = () => {
                 });
                 const from = location.state?.from?.pathname;
                 navigate(from || '/admin/dashboard');
+                message.success("Successfully Logged In");
+            } else {
+                message.error(response.error || "Login Failed");
             }
         } catch (error) {
             message.error(error?.response?.data?.error || "Something went wrong");
         } finally {
-            //hide loading
+            dispatch(HideLoading());
         }
     }
 
     return (
         <div className='login'>
 
-            <div className='login-navbar'>
-                <NavLink className='logo'>
-                    <img src="" alt="Logo" />
-                </NavLink>
+            <form onSubmit={handleClickLogin} className='form'>
+                <div className='heading-lg h1'>Admin Login</div>
+                <div className='input-field'>
+                    <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} />
+                    {error.email && <span className='error-text'>{error.email}</span>}
+                </div>
 
-                <ThemeToggle />
-            </div>
+                <div className="password-field">
+                    <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        placeholder="Password"
+                        onChange={handleInputChange}
+                    />
+                    {error.password && <span className='error-text'>{error.password}</span>}
+                    <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                    </span>
+                </div>
+                <button type='submit' className='btn login-btn'>Login</button>
+            </form>
 
-
-            <div className='login-form'>
-
-                <form onSubmit={handleClickLogin} className='form'>
-                    <div className='heading-lg h1'>Admin Login</div>
-                    <div className='input-field'>
-                        <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} />
-                        {error.email && <span className='error-text'>{error.email}</span>}
-                    </div>
-
-                    <div className="password-field">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            name="password"
-                            value={formData.password}
-                            placeholder="Password"
-                            onChange={handleInputChange}
-                        />
-                        {error.password && <span className='error-text'>{error.password}</span>}
-                        <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
-                            {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </span>
-                    </div>
-                    <button type='submit' className='btn login-btn'>Login</button>
-                </form>
-
-            </div>
         </div>
     )
 }

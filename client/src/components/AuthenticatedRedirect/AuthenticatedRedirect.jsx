@@ -7,10 +7,8 @@ const AuthenticatedRedirect = ({ children, ...rest }) => {
     const isAuth = isAuthenticated();
 
     if (isAuth) {
-        // Default redirect path
-        return <Navigate to="/" replace state={{ from: location }} />;
+        return <Navigate to="/admin/dashboard" replace state={{ from: location }} />;
     }
-
     return React.cloneElement(children, { ...rest });
 };
 

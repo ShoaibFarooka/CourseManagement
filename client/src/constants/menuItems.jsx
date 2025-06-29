@@ -1,5 +1,7 @@
 export const menuItems = {
     admin: [
+        { path: '/admin/login' },
+        { path: '/admin/dashboard' }
     ],
     /*  seller: [
          { path: '/seller/listing' },

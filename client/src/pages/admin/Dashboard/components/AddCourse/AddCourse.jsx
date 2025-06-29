@@ -1,19 +1,45 @@
 import './AddCourse.css'
 import PublisherTable from '../PublisherTable/PublisherTable'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PartsTable from '../PartsTable/PartsTable'
 import UnitsTable from '../UnitsTable/UnitsTable'
 import SubunitTable from '../SubUnitTable/SubunitTable';
 import { useRef } from 'react';
 import { message } from 'antd';
-const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
+import courseService from '../../../../../services/courseService';
 
-    const partInputRef = useRef(null);
-    const publisherInputRef = useRef(null);
-    const unitInputRef = useRef(null);
-    const subUnitInputRef = useRef(null);
-    const unitSectionRef = useRef(null);
-    const subUnitSectionRef = useRef(null);
+
+const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
+
+    const [tempPublisher, setTempPublisher] = useState([]);
+    const [showAddPublisher, setShowAddpublisher] = useState(false);
+    const [editingPublisherIndex, setEditingPublisherIndex] = useState(null);
+    const [editingPublisherValue, setEditingPublisherValue] = useState("");
+
+
+    const [tempPart, setTempPart] = useState({ name: "" });
+    const [editingPartIndex, setEditingPartIndex] = useState(null);
+    const [editingPartValue, setEditingPartValue] = useState("");
+    const [showAddPart, setShowAddPart] = useState(false);
+    const [managedPartIndex, setManagedPartIndex] = useState(null);
+
+    const [tempUnit, setTempUnit] = useState({ name: "", type: "" });
+    const [selectedPartIndex, setSelectedPartIndex] = useState(null);
+    const [editingUnitIndex, setEditingUnitIndex] = useState(null);
+
+
+    const [tempSubUnit, setTempSubUnit] = useState({ name: "" });
+    const [selectedUnitIndexes, setSelectedUnitIndexes] = useState({ partIndex: null, unitIndex: null });
+    const [editingSubunitIndex, setEditingSubunitIndex] = useState(null);
+    const [showSubunitInput, setShowSubunitInput] = useState(false);
+
+
+    const [courseData, setCourseData] = useState({
+        name: "",
+        publishers: [],
+        parts: []
+    });
+
 
     const [errors, setErrors] = useState({});
 
@@ -23,6 +49,20 @@ const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
             [field]: message
         }));
     };
+
+
+    const partInputRef = useRef(null);
+    const publisherInputRef = useRef(null);
+    const unitInputRef = useRef(null);
+    const subUnitInputRef = useRef(null);
+    const unitSectionRef = useRef(null);
+    const subUnitSectionRef = useRef(null);
+
+    useEffect(() => {
+        if (initialCourseData) {
+            setCourseData(initialCourseData);
+        }
+    }, [initialCourseData]);
 
     const clearFieldError = (field) => {
         setErrors(prev => {
@@ -69,13 +109,6 @@ const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
         setCourseData(prev => ({ ...prev, name: e.target.value }));
     };
 
-
-
-
-    const [tempPublisher, setTempPublisher] = useState([]);
-    const [showAddPublisher, setShowAddpublisher] = useState(false);
-    const [editingPublisherIndex, setEditingPublisherIndex] = useState(null);
-    const [editingPublisherValue, setEditingPublisherValue] = useState("");
 
     const handlePublisherInputChange = (e) => {
         const val = e.target.value;
@@ -169,11 +202,7 @@ const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
 
 
 
-    const [tempPart, setTempPart] = useState({ name: "" });
-    const [editingPartIndex, setEditingPartIndex] = useState(null);
-    const [editingPartValue, setEditingPartValue] = useState("");
-    const [showAddPart, setShowAddPart] = useState(false);
-    const [managedPartIndex, setManagedPartIndex] = useState(null);
+
 
 
 
@@ -287,10 +316,6 @@ const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
         }
     };
 
-
-    const [tempUnit, setTempUnit] = useState({ name: "", type: "" });
-    const [selectedPartIndex, setSelectedPartIndex] = useState(null);
-    const [editingUnitIndex, setEditingUnitIndex] = useState(null);
 
     const handleManageUnits = (partIndex) => {
         setManagedPartIndex(prev => prev === partIndex ? null : partIndex);
@@ -435,11 +460,6 @@ const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
 
 
 
-    const [tempSubUnit, setTempSubUnit] = useState({ name: "" });
-    const [selectedUnitIndexes, setSelectedUnitIndexes] = useState({ partIndex: null, unitIndex: null });
-    const [editingSubunitIndex, setEditingSubunitIndex] = useState(null);
-    const [showSubunitInput, setShowSubunitInput] = useState(false);
-
 
     const handleChangeSubUnit = (e) => {
         const { value } = e.target;
@@ -575,30 +595,109 @@ const AddCourse = ({ courseData, setCourseData, onSubmitCourse }) => {
     };
 
 
-    const handleSubmitCourse = () => {
-        if (!courseData.name.trim()) {
-            message.error("Please enter the course name");
-            return;
+    const validateCourseData = (courseData) => {
+        if (!courseData.name || !courseData.name.trim()) {
+            message.error("Course name is required");
+            return false;
         }
 
-        if (courseData.publishers.length === 0) {
-            message.error("Please add at least one publisher");
-            return;
+        if (!Array.isArray(courseData.publishers) || courseData.publishers.length === 0) {
+            message.error("At least one publisher is required");
+            return false;
         }
 
-        if (courseData.parts.length === 0) {
-            message.error("Please add at least one part");
-            return;
+        for (const publisher of courseData.publishers) {
+            if (!publisher.name || !publisher.name.trim()) {
+                message.error("Publisher name is required");
+                return false;
+            }
         }
 
-        onSubmitCourse(courseData);
+        if (!Array.isArray(courseData.parts) || courseData.parts.length === 0) {
+            message.error("At least one part is required");
+            return false;
+        }
 
-        console.log("Final course data submitted:", courseData);
-        message.success("Course submitted successfully!");
-        console.log("Course Data", courseData);
+        for (const part of courseData.parts) {
+            if (!part.name || !part.name.trim()) {
+                message.error("Part name is required");
+                return false;
+            }
 
+            if (!Array.isArray(part.units) || part.units.length === 0) {
+                message.error(`At least one unit is required in part "${part.name}"`);
+                return false;
+            }
+
+            for (const unit of part.units) {
+                if (!unit.name || !unit.name.trim()) {
+                    message.error(`Unit name is required in part "${part.name}"`);
+                    return false;
+                }
+
+                if (!unit.type || !unit.type.trim()) {
+                    message.error(`Unit type is required in unit "${unit.name}" under part "${part.name}"`);
+                    return false;
+                }
+
+                if (!Array.isArray(unit.subunits) || unit.subunits.length === 0) {
+                    message.error(`At least one subunit is required in unit "${unit.name}"`);
+                    return false;
+                }
+
+                for (const subunit of unit.subunits) {
+                    if (!subunit.name || !subunit.name.trim()) {
+                        message.error(`Subunit name is required in unit "${unit.name}"`);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     };
 
+    const cleanCourseData = (data) => {
+        return {
+            name: data.name?.trim(),
+            publishers: data.publishers?.map(p => ({ name: p.name?.trim() })) || [],
+            parts: data.parts?.map(part => ({
+                name: part.name?.trim(),
+                units: part.units?.map(unit => ({
+                    name: unit.name?.trim(),
+                    type: unit.type?.trim(),
+                    subunits: unit.subunits?.map(sub => ({ name: sub.name?.trim() })) || []
+                })) || []
+            })) || []
+        };
+    };
+
+
+
+    const handleSubmitCourse = async () => {
+        if (!validateCourseData(courseData)) {
+            return;
+        }
+
+        try {
+            if (initialCourseData?._id) {
+                const cleaned = cleanCourseData(courseData);
+                console.log(cleaned);
+                await courseService.updateCourse(initialCourseData._id, cleaned);
+                message.success("Course updated successfully!");
+            } else {
+                await courseService.addCourse(courseData);
+                message.success("Course submitted successfully!");
+            }
+
+            onRequestClose();
+            fetchAllCourses();
+        } catch (error) {
+            message.error(
+                error?.response?.data?.error || "Failed to save course"
+            );
+        }
+    };
 
 
     return (

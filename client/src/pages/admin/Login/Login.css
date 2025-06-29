@@ -1,57 +1,35 @@
-.login .login-navbar {
-    background-color: var(--primary-light);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 40px;
-    border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow);
-}
-
-.login-navbar .logo {
-    font-weight: bold;
-    font-size: 1.25rem;
-    color: var(--text-main);
-}
-
-.login .login-form {
+.login {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 71px;
-    margin-left: 79px;
-    margin-right: 79px;
 }
 
-.login-form .h1 {
+.login .form .h1 {
     margin-bottom: 20px;
 }
 
-.login .login-form .form {
+.login .form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    margin-top: 86px;
+    margin-top: 170px;
+    padding: 50px 20px;
+    width: 30%;
     gap: 20px;
-}
-
-.login .login-form .form .input-field {
-    width: 100%;
-    max-width: 400px;
+    background-color: var(--bg-surface);
+    box-shadow: var(--modal-shadow);
+    border-radius: var(--radius);
 }
 
 .form .login-btn {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 
 .password-field {
     position: relative;
-    width: 100%;
-    max-width: 400px;
 }
 
 .eye-icon {
@@ -67,16 +45,4 @@
 
 .eye-icon:hover {
     color: var(--text-main);
-}
-
-
-@media only screen and (max-width:440px) {
-    .login .h1 {
-        text-align: center;
-    }
-
-    .login .login-form {
-        margin-left: 40px;
-        margin-right: 40px;
-    }
 }
