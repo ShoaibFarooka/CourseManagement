@@ -7,69 +7,39 @@ const getAllCourses = async () => {
         error.code = 404;
         throw error;
     }
+
     return courses;
 };
 
 const addCourse = async (data) => {
     const { name, publishers, parts } = data;
+
     const course = await Course.create({
-        name: name?.trim(),
-        publishers: publishers?.map(p => ({ name: p.name?.trim() })) || [],
-        parts: parts?.map(part => ({
-            name: part.name?.trim(),
-            units: part.units?.map(unit => ({
-                name: unit.name?.trim(),
-                type: unit.type?.trim(),
-                subunits: unit.subunits?.map(sub => ({
-                    name: sub.name?.trim()
-                }))
-            }))
-        }))
+        name: name,
+        publishers: publishers || [],
+        parts: parts
     });
+
     return course;
 };
 
 
 const updateCourse = async (courseId, data) => {
-    try {
-        const { name, publishers, parts } = data;
+    const { name, publishers, parts } = data;
 
-        if (!name || !Array.isArray(publishers) || !Array.isArray(parts)) {
-            const error = new Error("Invalid input data");
-            error.code = 400;
-            throw error;
-        }
-
-        const course = await Course.findById(courseId);
-        if (!course) {
-            const error = new Error("Course not found!");
-            error.code = 404;
-            throw error;
-        }
-
-        course.name = name?.trim();
-        course.publishers = publishers.map(p => ({
-            name: p.name?.trim()
-        }));
-
-        course.parts = parts.map(part => ({
-            name: part.name?.trim(),
-            units: part.units.map(unit => ({
-                name: unit.name?.trim(),
-                type: unit.type?.trim(),
-                subunits: unit.subunits.map(sub => ({
-                    name: sub.name?.trim()
-                }))
-            }))
-        }));
-
-        const updatedCourse = await course.save();
-        return updatedCourse;
-
-    } catch (err) {
-        console.error("Update course error:", err.message);
-        throw err;
+    const course = await Course.findById(courseId);
+    if (!course) {
+        const error = new Error("Course not found!");
+        error.code = 404;
+        throw error;
     }
+
+    course.name = name;
+    course.publishers = publishers || [];
+    course.parts = parts;
+    const updatedCourse = await course.save();
+
+    return updatedCourse;
 };
 
 const deleteCourse = async (courseId) => {

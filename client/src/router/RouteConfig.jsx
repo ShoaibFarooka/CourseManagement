@@ -1,5 +1,5 @@
 import Login from "../pages/admin/Login/Login";
-import DashBoard from '../pages/admin/Dashboard/DashBoard';
+import DashBoard from '../pages/admin/Dashboard/Dashboard';
 const routes = [
     //Admin
     { path: "/admin/login", element: <Login />, protected: false, authRedirect: true, showHeader: false, showFooter: false },

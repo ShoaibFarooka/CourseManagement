@@ -15,7 +15,6 @@ const AddCourse = async (req, res, next) => {
         await courseService.addCourse(data);
         res.status(201).json({ message: "Course added successfully" });
     } catch (error) {
-        console.error("Error in courseService.addCourse:", error);
         next(error);
     }
 };

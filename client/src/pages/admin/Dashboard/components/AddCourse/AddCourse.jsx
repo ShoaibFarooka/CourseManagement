@@ -659,14 +659,14 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
     const cleanCourseData = (data) => {
         return {
-            name: data.name?.trim(),
-            publishers: data.publishers?.map(p => ({ name: p.name?.trim() })) || [],
+            name: data.name,
+            publishers: data.publishers?.map(p => ({ name: p.name })) || [],
             parts: data.parts?.map(part => ({
-                name: part.name?.trim(),
+                name: part.name,
                 units: part.units?.map(unit => ({
-                    name: unit.name?.trim(),
-                    type: unit.type?.trim(),
-                    subunits: unit.subunits?.map(sub => ({ name: sub.name?.trim() })) || []
+                    name: unit.name,
+                    type: unit.type,
+                    subunits: unit.subunits?.map(sub => ({ name: sub.name })) || []
                 })) || []
             })) || []
         };

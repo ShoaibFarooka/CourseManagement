@@ -1,5 +1,5 @@
-import './DashBoard.css'
-import CourseInfo from '../Dashboard/components/CourseInfo/CourseInfo';
+import './Dashboard.css'
+import CourseInfo from './components/CourseInfo/CourseInfo';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../../components/CustomModal/CustomModal';
 import AddCourse from './components/AddCourse/AddCourse';
@@ -35,8 +35,7 @@ const DashBoard = () => {
 
     useEffect(() => {
         fetchAllCourses();
-    }, [])
-
+    }, []);
 
     return (
         <div className='dashboard'>
