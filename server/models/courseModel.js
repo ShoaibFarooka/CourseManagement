@@ -5,6 +5,7 @@ const subunitSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        unique: true
     }
 });
 
@@ -13,6 +14,7 @@ const unitSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        unique: true
     },
     type: {
         type: String,
@@ -30,6 +32,7 @@ const partSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        unique: true
     },
     units: {
         type: [unitSchema],
@@ -42,6 +45,7 @@ const publisherSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        unique: true
     },
 });
 
@@ -51,6 +55,7 @@ const courseSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
+            unique: true
         },
         publishers: {
             type: [publisherSchema],
