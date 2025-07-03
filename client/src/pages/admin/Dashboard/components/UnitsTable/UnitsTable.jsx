@@ -3,7 +3,7 @@ import './UnitsTable.css';
 import edit from '../../../../../assets/icons/edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm } from 'antd';
-const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete }) => {
+const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete, managedPartIndex, selectedUnitIndexes }) => {
 
     return (
         <div className="table-container">
@@ -28,7 +28,17 @@ const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete }) => {
                             <td>{unit.type}</td>
                             <td>
                                 <div className="action-btn-wrapper">
-                                    <button className='manage-btn' onClick={() => onManageSubunits(index)}>Manage Subunit</button>
+
+                                    <button className='btn' onClick={() => onManageSubunits(index)}>
+                                        {
+                                            managedPartIndex === index &&
+                                                selectedUnitIndexes.unitIndex === index &&
+                                                selectedUnitIndexes.partIndex === index
+                                                ? "Close"
+                                                : "SubUnit's"
+                                        }
+
+                                    </button>
                                     <button className="action-btn" onClick={() => onEdit(index)}>
                                         <img src={edit} alt="Edit" />
                                     </button>

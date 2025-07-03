@@ -1,0 +1,54 @@
+.essay {
+    display: flex;
+    flex-direction: column;
+    padding: 50px 50px;
+    gap: 20px;
+}
+
+
+.essay .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.essay label {
+    padding-left: 10px;
+}
+
+.essay .add-subquestion-btn {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+
+.essay .content {
+    display: flex;
+    flex-direction: column;
+}
+
+.essay .add-subquestions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.essay .submit-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+}
+
+@media only screen and (max-width:768px) {
+    .essay {
+        padding: 50px 30px;
+    }
+}
+
+@media only screen and (max-width:430px) {
+    .essay {
+        padding: 50px 15px;
+    }
+}

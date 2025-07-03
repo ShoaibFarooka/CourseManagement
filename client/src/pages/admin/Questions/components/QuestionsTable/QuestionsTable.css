@@ -1,0 +1,41 @@
+.question-text {
+    display: inline-block;
+    max-width: 500px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.question-text:hover {
+    transform: scale(1.01);
+}
+
+.custom-tooltip .ant-tooltip-inner {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--modal-shadow);
+}
+
+@media only screen and (max-width:768px) {
+    .question-text {
+        max-width: 300px;
+    }
+}
+
+@media only screen and (max-width:550px) {
+    .question-text {
+        max-width: 150px;
+    }
+}
+
+@media only screen and (max-width:350px) {
+    .question-text {
+        max-width: 100px;
+    }
+}

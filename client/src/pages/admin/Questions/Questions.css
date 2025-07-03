@@ -1,0 +1,17 @@
+.questions {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 50px 50px;
+    gap: 20px;
+}
+
+.questions .label {
+    padding-left: 10px;
+}
+
+.questions .add-question-btn {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 10px;
+}

@@ -1,0 +1,73 @@
+.mcqs {
+    display: flex;
+    flex-direction: column;
+    padding: 50px 50px;
+    gap: 20px;
+}
+
+.mcqs .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mcqs label {
+    padding-left: 10px;
+}
+
+
+.mcqs .content {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.mcqs .addquestion-btn {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mcqs .mcqs-sub-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mcqs .options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mcqs .options .option {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mcqs .correct-option {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.mcqs .submit-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 40px;
+}
+
+
+
+@media only screen and (max-width:768px) {
+    .mcqs {
+        padding: 50px 30px;
+    }
+}
+
+@media only screen and (max-width:430px) {
+    .mcqs {
+        padding: 50px 15px;
+    }
+}

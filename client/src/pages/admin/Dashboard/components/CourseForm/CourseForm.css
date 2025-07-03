@@ -36,7 +36,6 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    z-index: 10;
 }
 
 .add-course .add-publisher .add-publisher-form {
@@ -50,8 +49,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    padding-top: 35px;
+    gap: 10px;
+    padding-top: 20px;
 }
 
 .add-course .add-publisher .publisher-name {
@@ -88,8 +87,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    padding-top: 35px;
+    gap: 10px;
+    padding-top: 20px;
 }
 
 
@@ -132,8 +131,8 @@
 .add-course .add-unit .btns {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding-top: 30px;
+    gap: 10px;
+    padding-top: 60px;
 }
 
 .add-course .subunit-container .add-subunit-btn {
@@ -148,7 +147,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     padding-top: 20px;
     padding-bottom: 10px;
 }
@@ -166,7 +165,7 @@
 .add-course .subunit-container .add-subunit .subunit-btns {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     padding-top: 20px;
 }
 
@@ -178,16 +177,20 @@
 }
 
 
-@media only screen and (max-width:430px) {
+@media only screen and (max-width:500px) {
     .add-course {
-        padding: 0 20px;
+        padding: 50px 20px;
+    }
+}
+
+
+@media only screen and (max-width:450px) {
+    .add-course {
+        padding: 50px 10px;
     }
 
-    .add-course .add-publisher-btn {
-        justify-content: center;
+    .add-course .add-unit .btns {
+        padding-top: 50px;
     }
 
-    .add-course .add-publisher {
-        flex-direction: column;
-    }
 }

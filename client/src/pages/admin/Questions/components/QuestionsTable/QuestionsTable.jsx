@@ -1,18 +1,17 @@
-import React from 'react'
-import './PartsTable.css';;
-import edit from '../../../../../assets/icons/Edit.png';
+import './QuestionsTable.css';
+import edit from '../../../../../assets/icons/edit.png';
 import del from '../../../../../assets/icons/del.png';
-import { Popconfirm } from 'antd';
-const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIndex }) => {
+import { Popconfirm, Tooltip } from 'antd';
 
 
+const QuestionsTable = ({ questions, onEdit, onDelete }) => {
     return (
         <div className="table-container">
             <table className="table table-striped">
                 <thead>
                     <tr>
                         <th>
-                            <div className="heading-md table-h1">Name</div>
+                            <div className="heading-md table-h1">Question Statement</div>
                         </th>
                         <th>
                             <div className="heading-md table-h2">Actions</div>
@@ -20,24 +19,26 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                     </tr>
                 </thead>
                 <tbody>
-                    {courseData.parts.map((part, index) => (
-                        <tr key={index}>
+                    {questions.map((question, index) => (
+                        <tr key={question._id || index}>
                             <td>
-                                <div className="heading-sm table-h1">{part.name}</div>
+                                <Tooltip
+                                    title={question.statement || question.content || question.concept}
+                                    rootClassName="custom-tooltip"
+                                >
+                                    <div className="heading-sm table-h1 question-text">
+                                        {question.statement || question.content || question.concept}
+                                    </div>
+                                </Tooltip>
                             </td>
                             <td>
                                 <div className="action-btn-wrapper">
-                                    <button className='manage-btn'
-                                        onClick={() => onManageUnits(index)}
-                                    >
-                                        {managedPartIndex === index ? "Close" : "Manage Unit"}
-                                    </button>
-                                    <button className="action-btn" onClick={() => onEdit(index)}>
+                                    <button className="action-btn" onClick={() => onEdit(question)}>
                                         <img src={edit} alt="Edit" />
                                     </button>
                                     <Popconfirm
-                                        title="Are you sure you want to Delete?"
-                                        onConfirm={() => onDelete(index)}
+                                        title="Are you sure you want to delete this question?"
+                                        onConfirm={() => onDelete(question._id)}
                                         okText="Yes"
                                         cancelText="No"
                                     >
@@ -45,7 +46,6 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                                             <img src={del} alt="Delete" />
                                         </button>
                                     </Popconfirm>
-
                                 </div>
                             </td>
                         </tr>
@@ -53,7 +53,7 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                 </tbody>
             </table>
         </div>
-    )
-}
+    );
+};
 
-export default PartsTable
+export default QuestionsTable;

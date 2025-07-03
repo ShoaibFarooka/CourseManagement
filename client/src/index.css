@@ -250,6 +250,35 @@ input:focus {
   /* soft blue glow */
 }
 
+textarea {
+  width: 100%;
+  padding: 5px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  outline: none;
+  background-color: var(--select-bg);
+  color: var(--select-text);
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  resize: vertical;
+  /* allows user to resize height */
+  min-height: 100px;
+  /* allows multiple lines without forcing scroll */
+  line-height: 1.6;
+}
+
+textarea::placeholder {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Focus effect (same as input) */
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+}
+
+
 .global-select {
   max-width: 400px;
   width: 100%;
@@ -411,17 +440,6 @@ input:focus {
   align-items: center;
 }
 
-.error-text {
-  color: red;
-  font-size: 1rem;
-  margin-top: 1px;
-  padding-left: 10px;
-}
-
-
-
-
-
 
 /* ========== Responsive Table Adjustments ========== */
 
@@ -479,4 +497,11 @@ input:focus {
   .table th {
     font-size: 0.9rem;
   }
+}
+
+.error-text {
+  color: red;
+  font-size: 1rem;
+  margin-top: 1px;
+  padding-left: 10px;
 }

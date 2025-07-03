@@ -1,18 +1,16 @@
-import React from 'react'
-import './PartsTable.css';;
-import edit from '../../../../../assets/icons/Edit.png';
+import './SubQuestions.css';
+import edit from '../../../../../assets/icons/edit.png';
 import del from '../../../../../assets/icons/del.png';
-import { Popconfirm } from 'antd';
-const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIndex }) => {
+import { Popconfirm, Tooltip } from 'antd';
 
-
+const SubQuestions = ({ subquestions = [], onEdit = () => { }, onDelete = () => { } }) => {
     return (
         <div className="table-container">
             <table className="table table-striped">
                 <thead>
                     <tr>
                         <th>
-                            <div className="heading-md table-h1">Name</div>
+                            <div className="heading-md table-h1">Sub-Question</div>
                         </th>
                         <th>
                             <div className="heading-md table-h2">Actions</div>
@@ -20,23 +18,30 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                     </tr>
                 </thead>
                 <tbody>
-                    {courseData.parts.map((part, index) => (
+                    {subquestions.map((sub, index) => (
                         <tr key={index}>
                             <td>
-                                <div className="heading-sm table-h1">{part.name}</div>
+                                <Tooltip
+                                    title={sub.statement}
+                                    rootClassName="custom-tooltip"
+                                >
+                                    <span
+                                        className="heading-sm table-h1 question-text"
+                                        onClick={() => alert("Full sub-question clicked")}
+                                    >
+                                        {sub.statement.length > 60
+                                            ? `${sub.statement.slice(0, 60)}...`
+                                            : sub.statement}
+                                    </span>
+                                </Tooltip>
                             </td>
                             <td>
                                 <div className="action-btn-wrapper">
-                                    <button className='manage-btn'
-                                        onClick={() => onManageUnits(index)}
-                                    >
-                                        {managedPartIndex === index ? "Close" : "Manage Unit"}
-                                    </button>
                                     <button className="action-btn" onClick={() => onEdit(index)}>
                                         <img src={edit} alt="Edit" />
                                     </button>
                                     <Popconfirm
-                                        title="Are you sure you want to Delete?"
+                                        title="Are you sure you want to delete this sub-question?"
                                         onConfirm={() => onDelete(index)}
                                         okText="Yes"
                                         cancelText="No"
@@ -45,7 +50,6 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                                             <img src={del} alt="Delete" />
                                         </button>
                                     </Popconfirm>
-
                                 </div>
                             </td>
                         </tr>
@@ -53,7 +57,7 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                 </tbody>
             </table>
         </div>
-    )
-}
+    );
+};
 
-export default PartsTable
+export default SubQuestions;

@@ -2,13 +2,18 @@ import './Dashboard.css'
 import CourseInfo from './components/CourseInfo/CourseInfo';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../../components/CustomModal/CustomModal';
-import AddCourse from './components/AddCourse/AddCourse';
+import CourseForm from './components/CourseForm/CourseForm';
 import courseService from '../../../services/courseService';
+import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
+import { useDispatch } from 'react-redux';
+
 const DashBoard = () => {
 
     const [isOpenAddCourseModal, setIsOpenCourseModal] = useState(false);
     const [editCourse, setEditCourse] = useState(null);
     const [courses, setCourses] = useState([]);
+
+    const dispatch = useDispatch();
 
     const handleClickAddCourse = () => {
         setEditCourse(null);
@@ -26,10 +31,14 @@ const DashBoard = () => {
 
     const fetchAllCourses = async () => {
         try {
+            dispatch(ShowLoading());
             const response = await courseService.getAllCourses();
             setCourses(response?.courses || []);
         } catch (error) {
             console.error("Failed to fetch courses:", error);
+        }
+        finally {
+            dispatch(HideLoading());
         }
     };
 
@@ -56,8 +65,8 @@ const DashBoard = () => {
                     onEdit={() => handleClickEditCourse(course)} />
             ))}
 
-            <CustomModal isOpen={isOpenAddCourseModal} onRequestClose={handleClickCloseAddCourseModal} contentLabel='Add Course'>
-                <AddCourse
+            <CustomModal isOpen={isOpenAddCourseModal} onRequestClose={handleClickCloseAddCourseModal} contentLabel='Course Form'>
+                <CourseForm
                     onRequestClose={handleClickCloseAddCourseModal}
                     fetchAllCourses={fetchAllCourses}
                     initialCourseData={editCourse}

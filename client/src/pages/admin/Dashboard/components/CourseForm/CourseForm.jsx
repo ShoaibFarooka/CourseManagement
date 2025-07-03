@@ -1,15 +1,17 @@
-import './AddCourse.css'
-import PublisherTable from '../PublisherTable/PublisherTable'
-import { useState, useEffect } from 'react'
-import PartsTable from '../PartsTable/PartsTable'
-import UnitsTable from '../UnitsTable/UnitsTable'
+import './CourseForm.css';
+import PublisherTable from '../PublisherTable/PublisherTable';
+import { useState, useEffect } from 'react';
+import PartsTable from '../PartsTable/PartsTable';
+import UnitsTable from '../UnitsTable/UnitsTable';
 import SubunitTable from '../SubUnitTable/SubunitTable';
 import { useRef } from 'react';
 import { message } from 'antd';
 import courseService from '../../../../../services/courseService';
+import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
+import { useDispatch } from 'react-redux';
 
 
-const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
+const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
     const [tempPublisher, setTempPublisher] = useState([]);
     const [showAddPublisher, setShowAddpublisher] = useState(false);
@@ -43,13 +45,17 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
     const [errors, setErrors] = useState({});
 
-    const setFieldError = (field, message) => {
-        setErrors(prev => ({
-            ...prev,
-            [field]: message
-        }));
-    };
+    const dispatch = useDispatch();
 
+    const [submitBtnToggel, setSubmitBtnToggel] = useState(false);
+
+
+    useEffect(() => {
+        if (initialCourseData) {
+            setCourseData(initialCourseData);
+            setSubmitBtnToggel(true);
+        }
+    }, [initialCourseData]);
 
     const partInputRef = useRef(null);
     const publisherInputRef = useRef(null);
@@ -58,11 +64,14 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
     const unitSectionRef = useRef(null);
     const subUnitSectionRef = useRef(null);
 
-    useEffect(() => {
-        if (initialCourseData) {
-            setCourseData(initialCourseData);
-        }
-    }, [initialCourseData]);
+
+
+    const setFieldError = (field, message) => {
+        setErrors(prev => ({
+            ...prev,
+            [field]: message
+        }));
+    };
 
     const clearFieldError = (field) => {
         setErrors(prev => {
@@ -318,7 +327,14 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
 
     const handleManageUnits = (partIndex) => {
-        setManagedPartIndex(prev => prev === partIndex ? null : partIndex);
+        const isSamePart = managedPartIndex === partIndex;
+
+        setManagedPartIndex(isSamePart ? null : partIndex);
+
+        setSelectedUnitIndexes({ partIndex: null, unitIndex: null });
+        setEditingSubunitIndex(null);
+        setTempSubUnit({ name: "" });
+        setShowSubunitInput(false);
 
         setTimeout(() => {
             unitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -514,30 +530,27 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
 
     const handleManageSubunits = (partIndex, unitIndex) => {
-        if (
-            managedPartIndex === partIndex &&
+        const isSameSubunit =
             selectedUnitIndexes.partIndex === partIndex &&
-            selectedUnitIndexes.unitIndex === unitIndex
-        ) {
+            selectedUnitIndexes.unitIndex === unitIndex;
+
+        if (isSameSubunit) {
             setSelectedUnitIndexes({ partIndex: null, unitIndex: null });
-            setManagedPartIndex(null);
             setEditingSubunitIndex(null);
             setTempSubUnit({ name: "" });
             setShowSubunitInput(false);
         } else {
-            setManagedPartIndex(partIndex);
             setSelectedUnitIndexes({ partIndex, unitIndex });
             setEditingSubunitIndex(null);
             setTempSubUnit({ name: "" });
             setShowSubunitInput(false);
         }
 
-
         setTimeout(() => {
             subUnitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
-
     };
+
 
 
     const handleEditSubunit = (index) => {
@@ -680,22 +693,24 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
         }
 
         try {
+            dispatch(ShowLoading());
             if (initialCourseData?._id) {
                 const cleaned = cleanCourseData(courseData);
-                console.log(cleaned);
                 await courseService.updateCourse(initialCourseData._id, cleaned);
                 message.success("Course updated successfully!");
             } else {
                 await courseService.addCourse(courseData);
                 message.success("Course submitted successfully!");
             }
-
+            setSubmitBtnToggel(false);
             onRequestClose();
             fetchAllCourses();
-        } catch (error) {
-            message.error(
-                error?.response?.data?.error || "Failed to save course"
-            );
+        }
+        catch (error) {
+            message.error(error?.response?.data?.error || "Failed to save course");
+        }
+        finally {
+            dispatch(HideLoading());
         }
     };
 
@@ -793,6 +808,7 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
                 onEdit={handleEditPart}
                 onManageUnits={handleManageUnits}
                 onDelete={handleDeletePart}
+                managedPartIndex={managedPartIndex}
             />
 
 
@@ -859,6 +875,8 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
                                 onEdit={(unitIndex) => handleEditUnit(index, unitIndex)}
                                 onManageSubunits={(unitIndex) => handleManageSubunits(index, unitIndex)}
                                 onDelete={(unitIndex) => handleDeleteUnit(index, unitIndex)}
+                                managedPartIndex={managedPartIndex}
+                                selectedUnitIndexes={selectedUnitIndexes}
                             />
                         </>
                     )}
@@ -930,11 +948,15 @@ const AddCourse = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
                 )}
 
             <div className='submit'>
-                <button className='btn' onClick={handleSubmitCourse}>Submit</button>
+                <button className='btn' onClick={handleSubmitCourse}>
+                    {
+                        submitBtnToggel ? "Save" : "Add"
+                    }
+                </button>
             </div>
 
         </div>
     )
 }
 
-export default AddCourse
+export default CourseForm;

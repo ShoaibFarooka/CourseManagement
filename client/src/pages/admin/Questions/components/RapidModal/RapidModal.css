@@ -1,0 +1,95 @@
+.rapid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 50px 50px;
+}
+
+.rapid .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rapid .add-question-btn {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.rapid label {
+    padding-left: 10px;
+}
+
+.rapid .concept {
+    display: flex;
+    flex-direction: column;
+}
+
+.rapid .definition {
+    display: flex;
+    flex-direction: column;
+}
+
+.rapid .rapid-subquestions {
+    display: flex;
+    flex-direction: column;
+}
+
+.rapid .options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.rapid .options .option-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.rapid .options .option-container .option-A {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.rapid .options .option-container .option-A .opt-A-exp {
+    margin-top: 20px;
+}
+
+.rapid .options .option-container .option-B {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.rapid .options .option-container .option-B .opt-B-exp {
+    margin-top: 20px;
+}
+
+
+.rapid .correct-option {
+    display: flex;
+    flex-direction: column;
+}
+
+.rapid .submit-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 30px;
+}
+
+@media only screen and (max-width:768px) {
+    .rapid {
+        padding: 50px 30px;
+    }
+}
+
+@media only screen and (max-width:430px) {
+    .rapid {
+        padding: 50px 15px;
+    }
+}
