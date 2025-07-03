@@ -14,7 +14,6 @@ const {
 
 const yup = require("yup");
 
-// 🟢 GET all questions for a subunit
 router.get(
     "/get-all/:subunitId",
     authMiddleware.authenticateRequest,
@@ -25,7 +24,6 @@ router.get(
 
 
 
-// 🟢 ADD Essay Question
 router.post(
     "/add/essay/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
@@ -35,7 +33,6 @@ router.post(
     controller.addEssayQuestion
 );
 
-// 🟢 ADD Rapid Question
 router.post(
     "/add/rapid/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
@@ -45,7 +42,6 @@ router.post(
     controller.addRapidQuestion
 );
 
-// 🟢 ADD MCQ Question
 router.post(
     "/add/mcq/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
@@ -55,7 +51,6 @@ router.post(
     controller.addMcqQuestion
 );
 
-// 🟢 UPDATE any Question (dynamic validation based on type)
 router.put(
     "/update/:questionId",
     authMiddleware.authenticateRequest,
@@ -64,7 +59,6 @@ router.put(
     controller.updateQuestion
 );
 
-// 🟢 DELETE a Question by ID
 router.delete(
     "/delete/:questionId",
     authMiddleware.authenticateRequest,

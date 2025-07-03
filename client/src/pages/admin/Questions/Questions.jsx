@@ -26,6 +26,7 @@ const Questions = () => {
 
 
 
+
     const dispatch = useDispatch();
 
 
@@ -260,6 +261,8 @@ const Questions = () => {
                     publisherId={selectedPublisher?._id}
                     question={editingQuestion}
                     onRequestClose={handleCloseModal}
+                    draftSubquestions={draftSubquestions}
+                    setDraftSubquestions={setDraftSubquestions}
                 />}
 
                 {questionType === 'rapid' && <RapidModal

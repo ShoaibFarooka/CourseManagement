@@ -1,6 +1,6 @@
 const Question = require("../models/questionModel");
 
-// ✅ GET all questions by subunitId
+
 const getAllQuestions = async (subunitId) => {
     const questions = await Question.find({ subunitId });
 
@@ -13,7 +13,7 @@ const getAllQuestions = async (subunitId) => {
     return questions;
 };
 
-// ✅ ADD a new question (discriminator: essay, rapid, mcq)
+
 const addQuestion = async (data) => {
     try {
         const question = await Question.create(data);
@@ -26,7 +26,7 @@ const addQuestion = async (data) => {
     }
 };
 
-// ✅ UPDATE an existing question by ID
+
 const updateQuestion = async (questionId, data) => {
     const question = await Question.findById(questionId);
     if (!question) {
@@ -47,7 +47,7 @@ const updateQuestion = async (questionId, data) => {
     }
 };
 
-// ✅ DELETE a question by ID
+
 const deleteQuestion = async (questionId) => {
     const deleted = await Question.findByIdAndDelete(questionId);
     if (!deleted) {

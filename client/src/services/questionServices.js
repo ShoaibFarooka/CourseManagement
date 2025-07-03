@@ -3,7 +3,6 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/question";
 
 const questionService = {
-    // ✅ Get all questions for a specific subunit
     getAllQuestions: async (subunitId) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/get-all/${subunitId}`);
@@ -15,7 +14,6 @@ const questionService = {
 
 
 
-    // ✅ Add an essay question
     addEssayQuestion: async (subunitId, publisherId, payload) => {
         try {
             const response = await axiosInstance.post(
@@ -28,7 +26,6 @@ const questionService = {
         }
     },
 
-    // ✅ Add a rapid question
     addRapidQuestion: async (subunitId, publisherId, payload) => {
         try {
             const response = await axiosInstance.post(
@@ -41,7 +38,6 @@ const questionService = {
         }
     },
 
-    // ✅ Add a multiple choice question
     addMcqQuestion: async (subunitId, publisherId, payload) => {
         try {
             const response = await axiosInstance.post(
@@ -54,7 +50,6 @@ const questionService = {
         }
     },
 
-    // ✅ Update a question by ID
     updateQuestion: async (questionId, payload) => {
         try {
             const response = await axiosInstance.put(
@@ -67,7 +62,6 @@ const questionService = {
         }
     },
 
-    // ✅ Delete a question by ID
     deleteQuestion: async (questionId) => {
         try {
             const response = await axiosInstance.delete(`${BASE_URL}/delete/${questionId}`);
