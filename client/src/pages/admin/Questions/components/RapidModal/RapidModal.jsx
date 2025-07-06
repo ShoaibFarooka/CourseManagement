@@ -1,15 +1,17 @@
 import './RapidModal.css';
 import SubQuestions from '../SubQuestionsTable/SubQuestions';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 import { message } from 'antd';
 import questionServices from '../../../../../services/questionServices';
 
-const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
+const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
     const [showContent, setShowContent] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
     const [showMainFields, setShowMainFields] = useState(false);
+    const [unsavedChanges, setUnsavedChanges] = useState(false);
+
 
     const [formData, setFormData] = useState({
         concept: '',
@@ -41,6 +43,10 @@ const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         }
     }, [question]);
 
+    useImperativeHandle(ref, () => ({
+        hasUnsavedChanges: () => unsavedChanges
+    }));
+
 
     const handleClickAddQuestion = () => {
         setShowContent(true);
@@ -68,6 +74,10 @@ const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setErrors(prev => ({ ...prev, [name]: '' }));
+        if (question?._id || value.trim()) {
+            setShowSubmitFormBtn(true);
+        }
+        setUnsavedChanges(true);
     };
 
     const handleCurrentSubChange = (e) => {
@@ -132,6 +142,7 @@ const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         setShowContent(false);
         setErrors({});
         setShowSubmitFormBtn(true);
+        setUnsavedChanges(true);
     };
 
     const handleEditSubQuestion = (index) => {
@@ -172,6 +183,7 @@ const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
 
             setFormData({ concept: '', definition: '', subquestions: [] });
             setShowSubmitFormBtn(false);
+            setUnsavedChanges(false);
             onRequestClose();
         } catch (err) {
             console.error("Submit error:", err);
@@ -187,6 +199,7 @@ const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         updated.splice(index, 1);
         setFormData(prev => ({ ...prev, subquestions: updated }));
         setShowSubmitFormBtn(true);
+        setUnsavedChanges(true);
     };
 
 
@@ -323,6 +336,6 @@ const RapidModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         </div>
 
     );
-};
+});
 
 export default RapidModal

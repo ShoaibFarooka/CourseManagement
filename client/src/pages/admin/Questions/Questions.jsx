@@ -1,5 +1,5 @@
 import './Questions.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import SelectDropDown from '../../../components/Select/SelectDropDown';
 import courseService from '../../../services/courseService';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
@@ -24,6 +24,9 @@ const Questions = () => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState(null);
 
+    const essayModalRef = useRef(null);
+    const rapidModalRef = useRef(null);
+    const mcqsModalRef = useRef(null);
 
 
 
@@ -119,12 +122,31 @@ const Questions = () => {
         setIsOpenModal(true);
     };
 
-
     const handleCloseModal = () => {
         setIsOpenModal(false);
         setEditingQuestion(null);
-        fetchQuestions(selectedSubunit?._id);
-    }
+        if (selectedSubunit?._id) {
+            fetchQuestions(selectedSubunit._id);
+        }
+    };
+
+
+    const handleModalClose = () => {
+        const hasUnsaved =
+            (questionType === 'essay' && essayModalRef.current?.hasUnsavedChanges?.()) ||
+            (questionType === 'rapid' && rapidModalRef.current?.hasUnsavedChanges?.()) ||
+            (questionType === 'mcq' && mcqsModalRef.current?.hasUnsavedChanges?.());
+
+        if (hasUnsaved) {
+            const confirmClose = window.confirm(
+                "You have unsaved changes. If you close without saving, your changes will be lost. Are you sure?"
+            );
+            if (!confirmClose) return;
+        }
+
+        handleCloseModal();
+    };
+
 
     const onEdit = (questions) => {
         setEditingQuestion(questions);
@@ -254,18 +276,18 @@ const Questions = () => {
             }
 
             <CustomModal
-                isOpen={isOpenModal} onRequestClose={handleCloseModal} contentLabel='Question form'
+                isOpen={isOpenModal} onRequestClose={handleModalClose} contentLabel='Question form'
             >
                 {questionType === 'essay' && <EssayModal
+                    ref={essayModalRef}
                     subUnitId={selectedSubunit?._id}
                     publisherId={selectedPublisher?._id}
                     question={editingQuestion}
                     onRequestClose={handleCloseModal}
-                    draftSubquestions={draftSubquestions}
-                    setDraftSubquestions={setDraftSubquestions}
                 />}
 
                 {questionType === 'rapid' && <RapidModal
+                    ref={rapidModalRef}
                     subUnitId={selectedSubunit?._id}
                     publisherId={selectedPublisher?._id}
                     question={editingQuestion}
@@ -273,6 +295,7 @@ const Questions = () => {
                 />}
 
                 {questionType === 'mcq' && <McqsModal
+                    ref={mcqsModalRef}
                     subUnitId={selectedSubunit?._id}
                     publisherId={selectedPublisher?._id}
                     question={editingQuestion}

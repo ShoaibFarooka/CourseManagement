@@ -37,8 +37,15 @@ const publisherSchema = yup.object().shape({
     name: yup.string().trim().required("Publisher name is required"),
 });
 
+
+
 const addCourseSchema = yup.object().shape({
     name: yup.string().trim().required("Course name is required"),
+    timeRatio: yup
+        .number()
+        .typeError("Time ratio must be a number")
+        .positive("Time ratio must be positive")
+        .required("Time ratio is required"),
     publishers: yup
         .array()
         .of(publisherSchema)
@@ -53,6 +60,11 @@ const addCourseSchema = yup.object().shape({
 
 const updateCourseSchema = yup.object().shape({
     name: yup.string().trim().required("Course name is required"),
+    timeRatio: yup
+        .number()
+        .typeError("Time ratio must be a number")
+        .positive("Time ratio must be positive")
+        .required("Time ratio is required"),
     publishers: yup
         .array()
         .of(publisherSchema)

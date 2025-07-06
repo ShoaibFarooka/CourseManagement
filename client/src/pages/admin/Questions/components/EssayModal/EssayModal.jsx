@@ -1,12 +1,17 @@
 import './EssayModal.css'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import SubQuestions from '../SubQuestionsTable/SubQuestions';
 import { useDispatch } from 'react-redux';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { message } from 'antd';
 import questionServices from '../../../../../services/questionServices';
 
-const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
+const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
+
+    useImperativeHandle(ref, () => ({
+        hasUnsavedChanges: () => unsavedChanges
+    }));
+
     const dispatch = useDispatch();
 
     const [formData, setFormData] = useState({
@@ -21,6 +26,8 @@ const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
     const [showMainFields, setShowMainFields] = useState(false);
     const [showContent, setShowContent] = useState(false);
     const [showSubmitBtn, setShowSubmitBtn] = useState(false);
+    const [unsavedChanges, setUnsavedChanges] = useState(false);
+
 
     useEffect(() => {
         if (question) {
@@ -57,6 +64,11 @@ const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setErrors(prev => ({ ...prev, [name]: '' }));
+
+        if (question?._id || value.trim()) {
+            setShowSubmitBtn(true);
+        }
+        setUnsavedChanges(true);
     };
 
     const handleSubChange = (e) => {
@@ -93,6 +105,7 @@ const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         setEditingIndex(null);
         setShowContent(false);
         setShowSubmitBtn(true);
+        setUnsavedChanges(true);
     };
 
     const handleEditSubQuestion = (index) => {
@@ -108,6 +121,7 @@ const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
         updated.splice(index, 1);
         setFormData(prev => ({ ...prev, subquestions: updated }));
         setShowSubmitBtn(true);
+        setUnsavedChanges(true);
     };
 
     const handleFinalSubmit = async () => {
@@ -132,6 +146,7 @@ const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
 
             setFormData({ content: '', subquestions: [] });
             setShowSubmitBtn(false);
+            setUnsavedChanges(false);
             onRequestClose();
         } catch (err) {
             console.error("Essay submit error:", err);
@@ -207,6 +222,6 @@ const EssayModal = ({ subUnitId, publisherId, question, onRequestClose }) => {
             )}
         </div>
     );
-};
+});
 
 export default EssayModal;

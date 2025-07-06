@@ -12,20 +12,20 @@ const getAllCourses = async () => {
 };
 
 const addCourse = async (data) => {
-    const { name, publishers, parts } = data;
+    const { name, publishers, parts, timeRatio } = data;
 
     const course = await Course.create({
-        name: name,
+        name,
+        timeRatio,
         publishers: publishers || [],
-        parts: parts
+        parts
     });
 
     return course;
 };
 
-
 const updateCourse = async (courseId, data) => {
-    const { name, publishers, parts } = data;
+    const { name, publishers, parts, timeRatio } = data;
 
     const course = await Course.findById(courseId);
     if (!course) {
@@ -35,10 +35,11 @@ const updateCourse = async (courseId, data) => {
     }
 
     course.name = name;
+    course.timeRatio = timeRatio;
     course.publishers = publishers || [];
     course.parts = parts;
-    const updatedCourse = await course.save();
 
+    const updatedCourse = await course.save();
     return updatedCourse;
 };
 

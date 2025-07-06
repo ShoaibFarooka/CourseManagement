@@ -68,6 +68,10 @@ const courseSchema = new mongoose.Schema(
         status: {
             type: Boolean,
             default: true
+        },
+        timeRatio: {
+            type: Number,
+            default: 1
         }
     },
     { timestamps: true }

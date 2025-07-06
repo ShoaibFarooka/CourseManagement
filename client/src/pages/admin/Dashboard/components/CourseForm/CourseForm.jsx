@@ -38,10 +38,10 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
     const [courseData, setCourseData] = useState({
         name: "",
+        timeRatio: "",
         publishers: [],
         parts: []
     });
-
 
     const [errors, setErrors] = useState({});
 
@@ -52,7 +52,10 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
     useEffect(() => {
         if (initialCourseData) {
-            setCourseData(initialCourseData);
+            setCourseData({
+                ...initialCourseData,
+                timeRatio: initialCourseData?.timeRatio || ""
+            });
             setSubmitBtnToggel(true);
         }
     }, [initialCourseData]);
@@ -614,6 +617,14 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
             return false;
         }
 
+        const timeRatioValue = parseFloat(courseData.timeRatio);
+        if (isNaN(timeRatioValue) || timeRatioValue <= 0) {
+            message.error("Time ratio must be a positive number");
+            return false;
+        }
+
+
+
         if (!Array.isArray(courseData.publishers) || courseData.publishers.length === 0) {
             message.error("At least one publisher is required");
             return false;
@@ -673,6 +684,7 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
     const cleanCourseData = (data) => {
         return {
             name: data.name,
+            timeRatio: parseFloat(data.timeRatio),
             publishers: data.publishers?.map(p => ({ name: p.name })) || [],
             parts: data.parts?.map(part => ({
                 name: part.name,
@@ -684,6 +696,7 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
             })) || []
         };
     };
+
 
 
 
@@ -728,6 +741,18 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
                     placeholder="Course Name"
                     value={courseData.name}
                     onChange={handleCourseInputchange}
+                />
+
+                <label htmlFor="timeRatio" className='heading-md name'>Time Ratio</label>
+                <input
+                    type="number"
+                    name="timeRatio"
+                    placeholder="Time Ratio (e.g. 1.5)"
+                    value={courseData.timeRatio}
+                    onChange={(e) => setCourseData(prev => ({
+                        ...prev,
+                        timeRatio: e.target.value
+                    }))}
                 />
 
             </div>
