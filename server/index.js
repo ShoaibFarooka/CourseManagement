@@ -14,6 +14,8 @@ const apiRateLimiter = require('./middleware/rateLimiterMiddleware');
 const trimMiddleware = require('./middleware/trimMiddleware');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const logger = require('./utils/logger');
+const runMCQUploadTest = require('./scripts/run-mcq-upload');
+
 
 //Express Server Setup
 const app = express();
@@ -108,3 +110,15 @@ process.on('SIGINT', () => {
 app.listen(port, () => {
     console.log(`Node/Express Server is Up......\nPort: localhost:${port}`);
 });
+
+/* const test = async () => {
+
+    // Trigger Excel upload once
+    try {
+        await runMCQUploadTest();
+        console.log("✅ MCQ upload completed");
+    } catch (err) {
+        console.error("❌ MCQ upload failed:", err.message);
+    }
+}
+ */
