@@ -78,7 +78,7 @@ const validateQuery = (schema) => async (req, res, next) => {
 };
 
 const validateFile = (options) => (req, res, next) => {
-  const { required } = options;
+  const { required, fileType } = options;
   try {
     if (required && !req.file) {
       return res.status(400).json({ error: 'File upload is mandatory' });
@@ -88,8 +88,20 @@ const validateFile = (options) => (req, res, next) => {
       if (req.file.size > 10 * 1024 * 1024) { // Max file size of 10MB
         return res.status(400).json({ error: 'File size too large' });
       }
-      if (!req.file.mimetype.startsWith('image/')) { // Only allow image files
-        return res.status(400).json({ error: 'File type not allowed' });
+
+      // Validate file type by mimetype prefix
+      const allowedTypes = {
+        image: (type) => type.startsWith('image/'),
+        xlsx: (type) => type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        pdf: (type) => type === 'application/pdf',
+        csv: (type) => type === 'text/csv',
+        any: () => true // skip validation
+      };
+
+      const isValidType = allowedTypes[fileType]?.(req.file.mimetype);
+
+      if (!isValidType) {
+        return res.status(400).json({ error: `File type '${fileType}' not allowed` });
       }
     }
     next();

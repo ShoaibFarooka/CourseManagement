@@ -61,11 +61,15 @@ const deleteQuestion = async (questionId) => {
     return deleted;
 };
 
-const runMCQUploadTest = async () => {
-    const filePath = path.resolve(__dirname, "mcqs.xlsx");
+const addMCQQuestionsFromFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    // Delete the temp file
+    fs.unlink(filePath, (err) => {
+        if (err) console.error("Failed to delete temp file:", err);
+    });
 
     const questions = [];
     const warnings = [];
@@ -148,7 +152,7 @@ const runMCQUploadTest = async () => {
     return { warnings, addedQuestionsCount: questions.length };
 };
 
-// runMCQUploadTest();
+// addQuestionsFromFile();
 
 
 module.exports = {
@@ -156,4 +160,5 @@ module.exports = {
     addQuestion,
     updateQuestion,
     deleteQuestion,
+    addMCQQuestionsFromFile
 };
