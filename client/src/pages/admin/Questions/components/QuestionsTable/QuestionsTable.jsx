@@ -32,7 +32,7 @@ const QuestionsTable = ({ questions, onEdit, onDelete }) => {
                                 </Tooltip>
                             </td>
                             <td>
-                                <div className="action-btn-wrapper">
+                                <div className="action-btn-wrapper cont">
                                     <button className="action-btn" onClick={() => onEdit(question)}>
                                         <img src={edit} alt="Edit" />
                                     </button>

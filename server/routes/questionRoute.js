@@ -2,6 +2,7 @@ const router = require("express").Router();
 const controller = require("../controllers/questionController");
 const authMiddleware = require("../middleware/authMiddleware");
 const validationMiddleware = require("../middleware/validationMiddleware");
+const { upload } = require('../middleware/multerMiddleware');
 
 const {
     essayQuestionSchema,
@@ -67,6 +68,14 @@ router.delete(
     controller.deleteQuestion
 );
 
+router.post(
+    "/upload-mcq",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    upload.single("file"),
+    validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
+    controller.uploadMCQQuestions
+)
 
 
 module.exports = router;

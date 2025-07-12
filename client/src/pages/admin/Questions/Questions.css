@@ -6,6 +6,19 @@
     gap: 20px;
 }
 
+.questions .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.questions .container .upload-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 30px;
+}
+
 .questions .label {
     padding-left: 10px;
 }
@@ -14,4 +27,17 @@
     display: flex;
     justify-content: flex-end;
     padding-right: 10px;
+}
+
+
+@media only screen and (max-width:670px) {
+    .questions .container {
+        flex-direction: column;
+    }
+
+    .questions .container .upload-btn {
+        padding-top: 0;
+        justify-content: flex-start;
+        padding-left: 10px;
+    }
 }

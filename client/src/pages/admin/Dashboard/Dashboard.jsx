@@ -1,11 +1,12 @@
 import './Dashboard.css'
 import CourseInfo from './components/CourseInfo/CourseInfo';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import CustomModal from '../../../components/CustomModal/CustomModal';
 import CourseForm from './components/CourseForm/CourseForm';
 import courseService from '../../../services/courseService';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
+import { Modal } from 'antd';
 
 const DashBoard = () => {
 
@@ -15,6 +16,8 @@ const DashBoard = () => {
 
     const dispatch = useDispatch();
 
+    const courseFormRef = useRef();
+
     const handleClickAddCourse = () => {
         setEditCourse(null);
         setIsOpenCourseModal(true);
@@ -22,6 +25,24 @@ const DashBoard = () => {
 
     const handleClickCloseAddCourseModal = () => {
         setIsOpenCourseModal(false);
+    }
+
+    const handleClickCloseBtn = () => {
+        const hasUnsaved = courseFormRef.current?.hasUnsavedChanges?.();
+
+        if (hasUnsaved) {
+            Modal.confirm({
+                title: 'Unsaved Changes',
+                content: 'Are you sure you want to close without saving?',
+                okText: 'Discard',
+                cancelText: 'Cancel',
+                onOk: () => {
+                    handleClickCloseAddCourseModal();
+                }
+            });
+        } else {
+            handleClickCloseAddCourseModal();
+        }
     }
 
     const handleClickEditCourse = (course) => {
@@ -65,11 +86,12 @@ const DashBoard = () => {
                     onEdit={() => handleClickEditCourse(course)} />
             ))}
 
-            <CustomModal isOpen={isOpenAddCourseModal} onRequestClose={handleClickCloseAddCourseModal} contentLabel='Course Form'>
+            <CustomModal isOpen={isOpenAddCourseModal} onRequestClose={handleClickCloseBtn} contentLabel='Course Form'>
                 <CourseForm
                     onRequestClose={handleClickCloseAddCourseModal}
                     fetchAllCourses={fetchAllCourses}
                     initialCourseData={editCourse}
+                    ref={courseFormRef}
                 />
             </CustomModal>
         </div>

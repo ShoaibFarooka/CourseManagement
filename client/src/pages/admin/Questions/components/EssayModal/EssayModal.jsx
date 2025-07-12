@@ -8,10 +8,6 @@ import questionServices from '../../../../../services/questionServices';
 
 const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
 
-    useImperativeHandle(ref, () => ({
-        hasUnsavedChanges: () => unsavedChanges
-    }));
-
     const dispatch = useDispatch();
 
     const [formData, setFormData] = useState({
@@ -27,6 +23,11 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [showContent, setShowContent] = useState(false);
     const [showSubmitBtn, setShowSubmitBtn] = useState(false);
     const [unsavedChanges, setUnsavedChanges] = useState(false);
+
+    useImperativeHandle(ref, () => ({
+        hasUnsavedChanges: () => unsavedChanges
+    }));
+
 
 
     useEffect(() => {

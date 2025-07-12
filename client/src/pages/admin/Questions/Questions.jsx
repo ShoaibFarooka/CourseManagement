@@ -23,10 +23,17 @@ const Questions = () => {
     const [selectedSubunit, setSelectedSubunit] = useState(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState(null);
+    const [mcqFile, setMcqFile] = useState(null);
+    const [rapidFile, setRapidFile] = useState(null);
+    const [essayFile, setEssayFile] = useState(null);
+
 
     const essayModalRef = useRef(null);
     const rapidModalRef = useRef(null);
     const mcqsModalRef = useRef(null);
+    const mcqFileRef = useRef(null);
+    const essayFileRef = useRef(null);
+    const rapidFileRef = useRef(null);
 
 
 
@@ -153,9 +160,83 @@ const Questions = () => {
         setIsOpenModal(true);
     }
 
+    const handleUpload = async () => {
+        try {
+            if (!mcqFile && !essayFile && !rapidFile) {
+                message.warning("Please select at least one file before uploading");
+                return;
+            }
+
+            const results = [];
+
+            dispatch(ShowLoading());
+
+            if (mcqFile) {
+                const res = await questionServices.uploadMcqExcel(mcqFile);
+                results.push({ type: "MCQ", ...res });
+                setMcqFile(null);
+                if (mcqFileRef.current) mcqFileRef.current.value = "";
+            }
+
+
+            results.forEach(result => {
+                if (result.warnings && result.warnings.length > 0) {
+                    result.warnings.forEach(warning => {
+                        window.confirm(`${result.type} Row ${warning.rowNumber}: ${warning.reason}`);
+                    });
+                } else {
+                    message.success(`${result.type} upload complete (${result.addedQuestionsCount} added)`);
+                }
+            });
+
+        } catch (err) {
+            console.error("Upload failed:", err);
+            message.error("Upload failed");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
+
+
 
     return (
         <div className="questions">
+
+            <div className='container'>
+
+                <div className='mcq-file'>
+                    <div className='heading-md label'>Upload Mcq's</div>
+                    <input
+                        type="file"
+                        name='mcq-file'
+                        onChange={(e) => setMcqFile(e.target.files[0])}
+                        ref={mcqFileRef} />
+                </div>
+
+                <div className='rapid-file'>
+                    <div className='heading-md label'>Upload Rapid</div>
+                    <input
+                        type="file"
+                        name='rapid-file'
+                        onChange={(e) => setRapidFile(e.target.files[0])}
+                        ref={rapidFileRef} />
+                </div>
+
+                <div className='essay-file'>
+                    <div className='heading-md label'>Upload Essay</div>
+                    <input
+                        type="file"
+                        name='essay-file'
+                        onChange={(e) => setEssayFile(e.target.files[0])}
+                        ref={essayFileRef} />
+                </div>
+
+                <div className='upload-btn'>
+                    <button className='btn' onClick={handleUpload}>Upload</button>
+                </div>
+
+            </div>
 
             <div className="select-course">
 
@@ -179,6 +260,8 @@ const Questions = () => {
 
             </div>
 
+
+
             {selectedCourse && (
                 <>
                     <div className="select-part">
@@ -200,6 +283,8 @@ const Questions = () => {
                         />
 
                     </div>
+
+
 
                     <div className="select-publisher">
 
@@ -274,6 +359,8 @@ const Questions = () => {
                     </>
                 )
             }
+
+
 
             <CustomModal
                 isOpen={isOpenModal} onRequestClose={handleModalClose} contentLabel='Question form'

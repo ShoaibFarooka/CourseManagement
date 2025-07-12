@@ -66,7 +66,6 @@ const addMCQQuestionsFromFile = async (filePath) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    // Delete the temp file
     fs.unlink(filePath, (err) => {
         if (err) console.error("Failed to delete temp file:", err);
     });
@@ -108,6 +107,15 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
                 continue;
             }
+
+            if (
+                !unit.type ||
+                (Array.isArray(unit.type) ? !unit.type.includes("mcq") : unit.type !== "mcq")
+            ) {
+                warnings.push({ rowNumber, reason: `Unit does not support MCQ type questions` });
+                continue;
+            }
+
 
             const subunit = unit.subunits.find(s =>
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
@@ -151,8 +159,6 @@ const addMCQQuestionsFromFile = async (filePath) => {
 
     return { warnings, addedQuestionsCount: questions.length };
 };
-
-// addQuestionsFromFile();
 
 
 module.exports = {

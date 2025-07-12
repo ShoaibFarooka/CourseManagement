@@ -1,17 +1,16 @@
 import './CourseForm.css';
 import PublisherTable from '../PublisherTable/PublisherTable';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import PartsTable from '../PartsTable/PartsTable';
 import UnitsTable from '../UnitsTable/UnitsTable';
 import SubunitTable from '../SubUnitTable/SubunitTable';
-import { useRef } from 'react';
 import { message } from 'antd';
 import courseService from '../../../../../services/courseService';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 
 
-const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
+const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseData }, ref) => {
 
     const [tempPublisher, setTempPublisher] = useState([]);
     const [showAddPublisher, setShowAddpublisher] = useState(false);
@@ -48,17 +47,32 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
     const dispatch = useDispatch();
 
     const [submitBtnToggel, setSubmitBtnToggel] = useState(false);
+    const originalDataRef = useRef(null);
+
 
 
     useEffect(() => {
         if (initialCourseData) {
-            setCourseData({
+            const prepared = {
                 ...initialCourseData,
                 timeRatio: initialCourseData?.timeRatio || ""
-            });
+            };
+            setCourseData(prepared);
+            originalDataRef.current = JSON.stringify(cleanCourseData(prepared));
             setSubmitBtnToggel(true);
+        } else {
+            originalDataRef.current = JSON.stringify(cleanCourseData(courseData));
         }
     }, [initialCourseData]);
+
+    useImperativeHandle(ref, () => ({
+        hasUnsavedChanges: () => {
+            const cleanedCurrent = JSON.stringify(cleanCourseData(courseData));
+            return cleanedCurrent !== originalDataRef.current;
+        }
+    }));
+
+
 
     const partInputRef = useRef(null);
     const publisherInputRef = useRef(null);
@@ -982,6 +996,6 @@ const CourseForm = ({ onRequestClose, fetchAllCourses, initialCourseData }) => {
 
         </div>
     )
-}
+});
 
 export default CourseForm;

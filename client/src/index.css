@@ -424,7 +424,7 @@ textarea:focus {
 
 /* Responsive wrapper */
 .table-container {
-  overflow-x: auto;
+  overflow: auto;
   border-radius: var(--radius);
 }
 

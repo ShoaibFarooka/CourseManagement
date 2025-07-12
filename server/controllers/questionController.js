@@ -93,6 +93,26 @@ const deleteQuestion = async (req, res, next) => {
     }
 };
 
+const uploadMCQQuestions = async (req, res) => {
+    try {
+        console.log("Uploaded file:", req.file);
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = req.file.path;
+        const result = await questionService.addMCQQuestionsFromFile(filePath);
+
+        res.status(200).json({
+            message: `${result.addedQuestionsCount} MCQ questions uploaded successfully`,
+            warnings: result.warnings,
+        });
+    } catch (error) {
+        console.error("Error uploading MCQ questions:", error);
+        res.status(500).json({ error: "Something went wrong while processing the file" });
+    }
+};
+
 
 module.exports = {
     getAllQuestions,
@@ -101,4 +121,5 @@ module.exports = {
     addMcqQuestion,
     updateQuestion,
     deleteQuestion,
+    uploadMCQQuestions
 };
