@@ -108,14 +108,10 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            if (
-                !unit.type ||
-                (Array.isArray(unit.type) ? !unit.type.includes("mcq") : unit.type !== "mcq")
-            ) {
+            if (unit.type !== "mcq") {
                 warnings.push({ rowNumber, reason: `Unit does not support MCQ type questions` });
                 continue;
             }
-
 
             const subunit = unit.subunits.find(s =>
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
@@ -160,11 +156,237 @@ const addMCQQuestionsFromFile = async (filePath) => {
     return { warnings, addedQuestionsCount: questions.length };
 };
 
+const addRapidQuestionsFromFile = async (filePath) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    // Delete the temp file
+    fs.unlink(filePath, (err) => {
+        if (err) console.error("Failed to delete temp file:", err);
+    });
+
+    const questions = [];
+    const warnings = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowNumber = i + 1;
+
+        try {
+            const course = await Course.findOne({ name: row["Course Name"]?.trim() });
+            if (!course) {
+                warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
+                continue;
+            }
+
+            const publisher = course.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
+                continue;
+            }
+
+            const part = course.parts.find(p =>
+                p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
+            );
+            if (!part) {
+                warnings.push({ rowNumber, reason: `Part not found: ${row["Part Name"]}` });
+                continue;
+            }
+
+            const unit = part.units.find(u =>
+                u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
+            );
+            if (!unit) {
+                warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
+                continue;
+            }
+
+            if (unit.type !== "rapid") {
+                warnings.push({ rowNumber, reason: `Unit does not support Rapid type questions` });
+                continue;
+            }
+
+            const subunit = unit.subunits.find(s =>
+                s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
+            );
+            if (!subunit) {
+                warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
+                continue;
+            }
+
+            // Parse subquestions
+            const subquestions = [];
+            let index = 1;
+
+            while (row[`SubQ${index} Statement`]) {
+                const statement = row[`SubQ${index} Statement`]?.trim();
+                const optionA = row[`SubQ${index} Option A`]?.trim();
+                const explanationA = row[`SubQ${index} Explanation A`]?.trim();
+                const optionB = row[`SubQ${index} Option B`]?.trim();
+                const explanationB = row[`SubQ${index} Explanation B`]?.trim();
+                const correctOption = row[`SubQ${index} Correct Option`]?.trim().toLowerCase();
+
+                if (!["a", "b"].includes(correctOption)) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Invalid Correct Option (must be 'a' or 'b')` });
+                    index++;
+                    continue;
+                }
+
+                subquestions.push({
+                    statement,
+                    options: {
+                        a: { option: optionA, explanation: explanationA },
+                        b: { option: optionB, explanation: explanationB },
+                    },
+                    correctOption,
+                });
+
+                index++;
+            }
+
+            if (subquestions.length === 0) {
+                warnings.push({ rowNumber, reason: "No valid subquestions found" });
+                continue;
+            }
+
+            questions.push({
+                type: "rapid",
+                publisherId: publisher._id,
+                subunitId: subunit._id,
+                concept: row["Concept"]?.trim(),
+                definition: row["Definition"]?.trim(),
+                subquestions
+            });
+
+        } catch (err) {
+            warnings.push({ rowNumber, reason: `Unexpected error: ${err.message}` });
+        }
+    }
+
+    if (questions.length > 0) {
+        await Question.insertMany(questions);
+    }
+
+    console.log(`✅ ${questions.length} Rapid questions inserted.`);
+    console.log("Warnings: ", warnings);
+
+    return { warnings, addedQuestionsCount: questions.length };
+};
+
+const addEssayQuestionsFromFile = async (filePath) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    // Delete the temp file
+    fs.unlink(filePath, (err) => {
+        if (err) console.error("Failed to delete temp file:", err);
+    });
+
+    const questions = [];
+    const warnings = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowNumber = i + 1;
+
+        try {
+            const course = await Course.findOne({ name: row["Course Name"]?.trim() });
+            if (!course) {
+                warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
+                continue;
+            }
+
+            const publisher = course.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
+                continue;
+            }
+
+            const part = course.parts.find(p =>
+                p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
+            );
+            if (!part) {
+                warnings.push({ rowNumber, reason: `Part not found: ${row["Part Name"]}` });
+                continue;
+            }
+
+            const unit = part.units.find(u =>
+                u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
+            );
+            if (!unit) {
+                warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
+                continue;
+            }
+
+            if (unit.type !== "essay") {
+                warnings.push({ rowNumber, reason: `Unit does not support Essay type questions` });
+                continue;
+            }
+
+            const subunit = unit.subunits.find(s =>
+                s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
+            );
+            if (!subunit) {
+                warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
+                continue;
+            }
+
+            // Parse subquestions
+            const subquestions = [];
+            let index = 1;
+
+            while (row[`SubQ${index} Statement`]) {
+                const statement = row[`SubQ${index} Statement`]?.trim();
+                const explanation = row[`SubQ${index} Explanation`]?.trim();
+
+                subquestions.push({
+                    statement,
+                    explanation,
+                });
+
+                index++;
+            }
+
+            if (subquestions.length === 0) {
+                warnings.push({ rowNumber, reason: "No valid subquestions found" });
+                continue;
+            }
+
+            questions.push({
+                type: "essay",
+                publisherId: publisher._id,
+                subunitId: subunit._id,
+                content: row["Content"]?.trim(),
+                subquestions
+            });
+
+        } catch (err) {
+            warnings.push({ rowNumber, reason: `Unexpected error: ${err.message}` });
+        }
+    }
+
+    if (questions.length > 0) {
+        await Question.insertMany(questions);
+    }
+
+    console.log(`✅ ${questions.length} Essay questions inserted.`);
+    console.log("Warnings: ", warnings);
+
+    return { warnings, addedQuestionsCount: questions.length };
+};
 
 module.exports = {
     getAllQuestions,
     addQuestion,
     updateQuestion,
     deleteQuestion,
-    addMCQQuestionsFromFile
+    addMCQQuestionsFromFile,
+    addRapidQuestionsFromFile,
+    addEssayQuestionsFromFile
 };

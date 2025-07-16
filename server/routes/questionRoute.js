@@ -13,8 +13,6 @@ const {
     questionIdSchema,
 } = require("../validationSchemas/questionSchemas");
 
-const yup = require("yup");
-
 router.get(
     "/get-all/:subunitId",
     authMiddleware.authenticateRequest,
@@ -22,8 +20,6 @@ router.get(
     validationMiddleware.validateParams(subunitIdSchema),
     controller.getAllQuestions
 );
-
-
 
 router.post(
     "/add/essay/:subunitId/:publisherId",

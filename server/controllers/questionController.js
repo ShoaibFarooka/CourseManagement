@@ -113,6 +113,45 @@ const uploadMCQQuestions = async (req, res) => {
     }
 };
 
+const uploadRapidQuestions = async (req, res) => {
+    try {
+        console.log("Uploaded file:", req.file);
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = req.file.path;
+        const result = await questionService.addRapidQuestionsFromFile(filePath);
+
+        res.status(200).json({
+            message: `${result.addedQuestionsCount} Rapid questions uploaded successfully`,
+            warnings: result.warnings,
+        });
+    } catch (error) {
+        console.error("Error uploading Rapid questions:", error);
+        res.status(500).json({ error: "Something went wrong while processing the file" });
+    }
+};
+
+const uploadEssayQuestions = async (req, res) => {
+    try {
+        console.log("Uploaded file:", req.file);
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = req.file.path;
+        const result = await questionService.addEssayQuestionsFromFile(filePath);
+
+        res.status(200).json({
+            message: `${result.addedQuestionsCount} Essay questions uploaded successfully`,
+            warnings: result.warnings,
+        });
+    } catch (error) {
+        console.error("Error uploading Essay questions:", error);
+        res.status(500).json({ error: "Something went wrong while processing the file" });
+    }
+};
 
 module.exports = {
     getAllQuestions,
@@ -121,5 +160,7 @@ module.exports = {
     addMcqQuestion,
     updateQuestion,
     deleteQuestion,
-    uploadMCQQuestions
+    uploadMCQQuestions,
+    uploadRapidQuestions,
+    uploadEssayQuestions
 };

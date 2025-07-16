@@ -185,7 +185,7 @@ const Questions = () => {
                         window.confirm(`${result.type} Row ${warning.rowNumber}: ${warning.reason}`);
                     });
                 } else {
-                    message.success(`${result.type} upload complete (${result.addedQuestionsCount} added)`);
+                    message.success(`${result.type} upload complete, ${result.message}`);
                 }
             });
 

@@ -3,8 +3,10 @@
     max-width: 400px;
 }
 
+/* :where(.css-dev-only-do-not-override-36gkoj).ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector */
+
 .custom-select .ant-select-selector {
-    background-color: var(--select-bg);
+    background-color: var(--select-bg) !important;
     color: var(--select-text);
     border: 1px solid var(--select-border);
     border-radius: var(--radius);

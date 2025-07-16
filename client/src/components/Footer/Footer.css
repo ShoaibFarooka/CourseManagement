@@ -1,12 +1,12 @@
 .footer {
-    background-color: var(--primary);
+    background-color: var(--bg-surface);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding-top: 20px;
-    margin-top: 200px;
     gap: 30px;
+    border-top: 1px solid var(--border);
 }
 
 .footer .footer-logo {

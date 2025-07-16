@@ -4,13 +4,6 @@
   box-sizing: border-box;
 }
 
-
-body {
-  background-color: var(--bg-main);
-}
-
-
-
 html {
   font-size: 16px;
 }
@@ -29,28 +22,28 @@ html {
 
 :root {
   /* Backgrounds */
-  --bg-main: #f2f3f5;
-  /* Overall app background */
-  --bg-sidebar: #dce3ea;
-  /* Sidebar light blue-gray */
-  --bg-surface: #ffffff;
-  /* Card & section background */
+  --bg-main: #ffffff;
+  /* Background (shadcn: background) */
+  --bg-sidebar: #e0e7ef;
+  /* Secondary background (shadcn: secondary) */
+  --bg-surface: #f1f5f9;
+  /* Card/Panel (shadcn: muted) */
 
   /* Primary Colors */
-  --primary: #0d63af;
-  /* Button & top nav */
-  --primary-light: #2576c5;
-  /* Hover effect on buttons */
+  --primary: #1d4ed8;
+  /* Primary (shadcn: primary) */
+  --primary-light: #3b82f6;
+  /* Primary hover (shadcn: primary-light) */
 
   /* Accent */
-  --accent: #3b9edb;
-  /* For future accents if needed */
+  --accent: #2563eb;
+  /* Accent blue (shadcn-style) */
 
   /* Text */
-  --text-main: #1e1e1e;
-  /* Main text */
-  --text-muted: #6b7280;
-  /* Subtle grayish text (for secondary text) */
+  --text-main: #0f172a;
+  /* Dark text (shadcn: foreground) */
+  --text-muted: #64748b;
+  /* Muted text (shadcn: muted-foreground) */
 
   /* Buttons */
   --btn-bg: var(--primary);
@@ -58,53 +51,51 @@ html {
   --btn-hover: var(--primary-light);
 
   /* Cards / Boxes */
-  --card-bg: #c4d3e0;
-  /* Course cards */
-  --card-text: #0f2e4d;
+  --card-bg: #f1f5f9;
+  /* Muted background (shadcn: muted) */
+  --card-text: #0f172a;
+  /* Foreground (dark text) */
 
   /* Border & Effects */
-  --border: #ccd6dd;
+  --border: #e5e7eb;
+  /* shadcn: border */
   --shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   --radius: 0.5rem;
 
   --hover-text: #e0e7ff;
-  /* Soft Indigo-100 for background hover */
   --hover-bg: #e0e7ff;
-  /* Indigo-100 */
 
   --modal-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 
   --select-bg: #ffffff;
-  --select-text: #1e1e1e;
+  --select-text: #0f172a;
   --select-border: #d1d5db;
   --select-hover: #f3f4f6;
 }
 
-
 [data-theme="dark"] {
   /* Backgrounds */
-  --bg-main: #0f1116;
-  /* Deep dark canvas */
-  --bg-sidebar: #1c1f26;
-  /* Sidebar - slightly lighter than main */
-  --bg-surface: #1a1d23;
-  /* Cards / panels */
+  --bg-main: #172136;
+  /* shadcn: background */
+  --bg-sidebar: #111827;
+  /* slightly lighter (shadcn: secondary) */
+  --bg-surface: #1a1f2b;
+  /* muted background */
 
   /* Primary Color */
-  --primary: #1d4ed8;
-  /* Bright blue for CTAs */
-  --primary-light: #3b82f6;
-  /* Hover tone */
+  --primary: #3b82f6;
+  /* shadcn: primary */
+  --primary-light: #60a5fa;
+  /* hover */
 
   /* Accent Color */
-  --accent: #2563eb;
-  /* Accent - slightly brighter blue */
+  --accent: #60a5fa;
 
   /* Text */
   --text-main: #f8fafc;
-  /* Main readable white */
-  --text-muted: #9ca3af;
-  /* Soft muted gray */
+  /* shadcn: foreground */
+  --text-muted: #94a3b8;
+  /* shadcn: muted-foreground */
 
   /* Buttons */
   --btn-bg: var(--primary);
@@ -112,29 +103,24 @@ html {
   --btn-hover: var(--primary-light);
 
   /* Cards / Boxes */
-  --card-bg: #252a33;
-  /* Course card background */
-  --card-text: #d1d5db;
-  /* Card text */
+  --card-bg: #1e293b;
+  /* shadcn: muted */
+  --card-text: #f1f5f9;
 
   /* Borders and shadows */
   --border: #334155;
-  /* Subtle border tone */
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   --radius: 0.5rem;
 
-  --hover-text: #1e3a8a;
-  /* Deep Indigo-900 for background hover */
-  --hover-bg: #1e3a8a;
-  /* Indigo-900 or a deep variant */
+  --hover-text: #1e40af;
+  --hover-bg: #1e40af;
 
   --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
 
-
-  --select-bg: #1a1d23;
+  --select-bg: #1e293b;
   --select-text: #f8fafc;
   --select-border: #334155;
-  --select-hover: #252a33;
+  --select-hover: #334155;
 }
 
 /* Button base */
