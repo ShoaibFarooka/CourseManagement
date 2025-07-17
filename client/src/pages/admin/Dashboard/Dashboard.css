@@ -1,3 +1,7 @@
+.dashboard {
+    padding-bottom: 60px;
+}
+
 .dashboard .content {
     display: flex;
     justify-content: space-between;

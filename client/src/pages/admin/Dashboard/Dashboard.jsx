@@ -33,8 +33,8 @@ const DashBoard = () => {
         if (hasUnsaved) {
             Modal.confirm({
                 title: 'Unsaved Changes',
-                content: 'Are you sure you want to close without saving?',
-                okText: 'Discard',
+                content: "You have unsaved changes. If you close without saving, your changes will be lost. Are you sure?",
+                okText: `Don't Save`,
                 cancelText: 'Cancel',
                 onOk: () => {
                     handleClickCloseAddCourseModal();

@@ -41,7 +41,7 @@
     font-weight: 600;
 }
 
-.nav-link:hover {
+.container .nav-list .nav-link:hover {
     color: var(--hover-text);
 }
 

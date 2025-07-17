@@ -1,4 +1,3 @@
-import React from 'react';
 import Modal from 'react-modal';
 import './CustomModal.css';
 import CrossIcon from '../../assets/icons/cross_icon.svg?react';

@@ -7,9 +7,9 @@
 
 .custom-select .ant-select-selector {
     background-color: var(--select-bg) !important;
-    color: var(--select-text);
-    border: 1px solid var(--select-border);
-    border-radius: var(--radius);
+    color: var(--select-text) !important;
+    border: 1px solid var(--select-border) !important;
+    border-radius: var(--radius) !important;
     box-shadow: none !important;
     padding: 4px 12px;
     font-size: 1rem;
@@ -21,53 +21,53 @@
     outline: none !important;
     box-shadow: none !important;
     background-color: transparent;
-    color: var(--select-text);
+    color: var(--select-text) !important;
     border: none;
 }
 
 /* Fix hover/focus styles */
 .custom-select .ant-select-selector:hover {
-    border-color: var(--primary-light);
-    background-color: var(--select-bg);
+    border-color: var(--select-border) !important;
+    background-color: var(--select-bg) !important;
 }
 
 .custom-select.ant-select-focused .ant-select-selector {
-    border-color: var(--primary);
+    border-color: var(--select-border) !important;
     box-shadow: none !important;
-    background-color: var(--select-bg);
+    background-color: var(--select-bg) !important;
 }
 
 /* Dropdown panel */
 .custom-select .ant-select-dropdown {
-    background-color: var(--select-bg);
-    color: var(--select-text);
-    border-radius: var(--radius);
-    box-shadow: var(--modal-shadow);
-    border: 1px solid var(--select-border);
+    background-color: var(--select-bg) !important;
+    color: var(--select-text) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--modal-shadow) !important;
+    border: 1px solid var(--select-border) !important;
 }
 
 /* Dropdown items */
 .custom-select .ant-select-item {
-    color: var(--select-text);
+    color: var(--select-text) !important;
     padding: 8px 12px;
 }
 
 .custom-select .ant-select-item-option-active {
-    background-color: var(--hover-bg);
-    color: var(--hover-text);
+    background-color: var(--hover-bg) !important;
+    color: var(--hover-text) !important;
 }
 
 .custom-select .ant-select-item-option-selected {
-    background-color: var(--primary);
-    color: var(--btn-text);
+    background-color: var(--select-bg) !important;
+    color: var(--btn-text) !important;
 }
 
 /* Placeholder */
 .custom-select .ant-select-selection-placeholder {
-    color: var(--text-muted);
+    color: var(--text-muted) !important;
 }
 
 /* Arrow */
 .custom-select .ant-select-arrow {
-    color: var(--text-muted);
+    color: var(--text-muted) !important;
 }

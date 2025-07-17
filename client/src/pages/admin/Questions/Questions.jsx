@@ -10,7 +10,8 @@ import EssayModal from './Components/EssayModal/EssayModal';
 import RapidModal from './Components/RapidModal/RapidModal';
 import McqsModal from './components/McqsModal/McqsModal';
 import questionServices from '../../../services/questionServices';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
+
 
 const Questions = () => {
     const [course, setCourse] = useState([]);
@@ -145,13 +146,18 @@ const Questions = () => {
             (questionType === 'mcq' && mcqsModalRef.current?.hasUnsavedChanges?.());
 
         if (hasUnsaved) {
-            const confirmClose = window.confirm(
-                "You have unsaved changes. If you close without saving, your changes will be lost. Are you sure?"
-            );
-            if (!confirmClose) return;
+            Modal.confirm({
+                title: 'Unsaved Changes',
+                content: "You have unsaved changes. If you close without saving, your changes will be lost. Are you sure?",
+                okText: "Don't Save",
+                cancelText: 'Cancel',
+                onOk: () => {
+                    handleCloseModal();
+                },
+            });
+        } else {
+            handleCloseModal();
         }
-
-        handleCloseModal();
     };
 
 
@@ -161,23 +167,50 @@ const Questions = () => {
     }
 
     const handleUpload = async () => {
+        if (!mcqFile && !essayFile && !rapidFile) {
+            message.warning("Please select at least one file before uploading");
+            return;
+        }
+
+        const results = [];
+        dispatch(ShowLoading());
+
         try {
-            if (!mcqFile && !essayFile && !rapidFile) {
-                message.warning("Please select at least one file before uploading");
-                return;
-            }
-
-            const results = [];
-
-            dispatch(ShowLoading());
-
             if (mcqFile) {
-                const res = await questionServices.uploadMcqExcel(mcqFile);
-                results.push({ type: "MCQ", ...res });
-                setMcqFile(null);
-                if (mcqFileRef.current) mcqFileRef.current.value = "";
+                try {
+                    const res = await questionServices.uploadMcqExcel(mcqFile);
+                    results.push({ type: "MCQ", ...res });
+                    setMcqFile(null);
+                    if (mcqFileRef.current) mcqFileRef.current.value = "";
+                } catch (err) {
+                    console.error("MCQ upload failed:", err);
+                    message.error("MCQ upload failed");
+                }
             }
 
+            if (rapidFile) {
+                try {
+                    const res = await questionServices.uploadRapidExcel(rapidFile);
+                    results.push({ type: "Rapid", ...res });
+                    setRapidFile(null);
+                    if (rapidFileRef.current) rapidFileRef.current.value = "";
+                } catch (err) {
+                    console.error("Rapid upload failed:", err);
+                    message.error("Rapid upload failed");
+                }
+            }
+
+            if (essayFile) {
+                try {
+                    const res = await questionServices.uploadEssayExcel(essayFile);
+                    results.push({ type: "Essay", ...res });
+                    setEssayFile(null);
+                    if (essayFileRef.current) essayFileRef.current.value = "";
+                } catch (err) {
+                    console.error("Essay upload failed:", err);
+                    message.error("Essay upload failed");
+                }
+            }
 
             results.forEach(result => {
                 if (result.warnings && result.warnings.length > 0) {
@@ -191,13 +224,11 @@ const Questions = () => {
 
         } catch (err) {
             console.error("Upload failed:", err);
-            message.error("Upload failed");
+            message.error("An unexpected error occurred during file upload.");
         } finally {
             dispatch(HideLoading());
         }
     };
-
-
 
 
     return (

@@ -15,6 +15,9 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         subquestions: [],
     });
 
+    const [initialFormData, setInitialFormData] = useState(null);
+
+
     const [currentSubQuestion, setCurrentSubQuestion] = useState(null);
     const [errors, setErrors] = useState({});
     const [editingIndex, setEditingIndex] = useState(null);
@@ -22,26 +25,78 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [showMainFields, setShowMainFields] = useState(false);
     const [showContent, setShowContent] = useState(false);
     const [showSubmitBtn, setShowSubmitBtn] = useState(false);
-    const [unsavedChanges, setUnsavedChanges] = useState(false);
+    const [toggelEditBtn, setToggelEditBtn] = useState(null);
+
+    const deepCompare = (a, b) => {
+        const normalizeContent = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+        if (normalizeContent(a.content) !== normalizeContent(b.content)) return true;
+
+        if (a.subquestions?.length !== b.subquestions?.length) return true;
+
+        for (let i = 0; i < a.subquestions.length; i++) {
+            const sa = a.subquestions[i];
+            const sb = b.subquestions[i];
+
+            if (
+                normalizeContent(sa.statement) !== normalizeContent(sb.statement) ||
+                normalizeContent(sa.optionA) !== normalizeContent(sb.optionA) ||
+                normalizeContent(sa.optionB) !== normalizeContent(sb.optionB) ||
+                normalizeContent(sa.explanationA) !== normalizeContent(sb.explanationA) ||
+                normalizeContent(sa.explanationB) !== normalizeContent(sb.explanationB) ||
+                sa.correctOption !== sb.correctOption
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
 
     useImperativeHandle(ref, () => ({
-        hasUnsavedChanges: () => unsavedChanges
+        hasUnsavedChanges: () => {
+            const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+            const formChanged = deepCompare(formData, initialFormData);
+
+            let subChanged = false;
+            if (currentSubQuestion) {
+                const emptySub = { statement: '', explanation: '' };
+                const originalSub =
+                    editingIndex !== null
+                        ? formData.subquestions[editingIndex]
+                        : emptySub;
+
+                subChanged =
+                    normalize(currentSubQuestion.statement) !== normalize(originalSub.statement) ||
+                    normalize(currentSubQuestion.explanation) !== normalize(originalSub.explanation);
+            }
+
+            return formChanged || subChanged;
+        },
     }));
+
 
 
 
     useEffect(() => {
         if (question) {
-            setFormData({
+            const initial = {
                 content: question.content || '',
                 subquestions: question.subquestions || [],
-            });
+            };
+            setFormData(initial);
+            setInitialFormData(initial);
             setShowMainFields(true);
         } else {
-            setFormData({ content: '', subquestions: [] });
+            const empty = { content: '', subquestions: [] };
+            setFormData(empty);
+            setInitialFormData(empty);
             setShowMainFields(false);
         }
     }, [question]);
+
 
     const handleClickAddQuestion = () => {
         setShowContent(true);
@@ -61,6 +116,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         setErrors({});
     };
 
+
     const handleMainChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -69,7 +125,6 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         if (question?._id || value.trim()) {
             setShowSubmitBtn(true);
         }
-        setUnsavedChanges(true);
     };
 
     const handleSubChange = (e) => {
@@ -106,7 +161,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         setEditingIndex(null);
         setShowContent(false);
         setShowSubmitBtn(true);
-        setUnsavedChanges(true);
+        setToggelEditBtn(null);
     };
 
     const handleEditSubQuestion = (index) => {
@@ -122,7 +177,6 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         updated.splice(index, 1);
         setFormData(prev => ({ ...prev, subquestions: updated }));
         setShowSubmitBtn(true);
-        setUnsavedChanges(true);
     };
 
     const handleFinalSubmit = async () => {
@@ -147,7 +201,6 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
 
             setFormData({ content: '', subquestions: [] });
             setShowSubmitBtn(false);
-            setUnsavedChanges(false);
             onRequestClose();
         } catch (err) {
             console.error("Essay submit error:", err);
@@ -183,6 +236,9 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                         subquestions={formData.subquestions}
                         onEdit={handleEditSubQuestion}
                         onDelete={handleDeleteSubQuestion}
+                        toggelEditBtn={toggelEditBtn}
+                        setToggelEditBtn={setToggelEditBtn}
+                        handleClickCancel={handleClickCancel}
                     />
                     {errors.subquestions && <span className='error-text'>{errors.subquestions}</span>}
                 </>

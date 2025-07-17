@@ -3,21 +3,13 @@ const controller = require("../controllers/questionController");
 const authMiddleware = require("../middleware/authMiddleware");
 const validationMiddleware = require("../middleware/validationMiddleware");
 const { upload } = require('../middleware/multerMiddleware');
-
-const {
-    essayQuestionSchema,
-    rapidQuestionSchema,
-    mcqQuestionSchema,
-    subunitIdSchema,
-    subunitAndPublisherIdSchema,
-    questionIdSchema,
-} = require("../validationSchemas/questionSchemas");
+const questionSchemas = require("../validationSchemas/questionSchemas");
 
 router.get(
     "/get-all/:subunitId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(subunitIdSchema),
+    validationMiddleware.validateParams(questionSchemas.subunitIdSchema),
     controller.getAllQuestions
 );
 
@@ -25,8 +17,8 @@ router.post(
     "/add/essay/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(subunitAndPublisherIdSchema),
-    validationMiddleware.validateBody(essayQuestionSchema),
+    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateBody(questionSchemas.essayQuestionSchema),
     controller.addEssayQuestion
 );
 
@@ -34,8 +26,8 @@ router.post(
     "/add/rapid/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(subunitAndPublisherIdSchema),
-    validationMiddleware.validateBody(rapidQuestionSchema),
+    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateBody(questionSchemas.rapidQuestionSchema),
     controller.addRapidQuestion
 );
 
@@ -43,8 +35,8 @@ router.post(
     "/add/mcq/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(subunitAndPublisherIdSchema),
-    validationMiddleware.validateBody(mcqQuestionSchema),
+    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateBody(questionSchemas.mcqQuestionSchema),
     controller.addMcqQuestion
 );
 
@@ -52,7 +44,7 @@ router.put(
     "/update/:questionId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionIdSchema),
+    validationMiddleware.validateParams(questionSchemas.questionIdSchema),
     controller.updateQuestion
 );
 
@@ -60,7 +52,7 @@ router.delete(
     "/delete/:questionId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionIdSchema),
+    validationMiddleware.validateParams(questionSchemas.questionIdSchema),
     controller.deleteQuestion
 );
 
@@ -72,6 +64,25 @@ router.post(
     validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
     controller.uploadMCQQuestions
 )
+
+router.post(
+    "/upload-rapid",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    upload.single("file"),
+    validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
+    controller.uploadRapidQuestions
+)
+
+router.post(
+    "/upload-essay",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    upload.single("file"),
+    validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
+    controller.uploadEssayQuestions
+)
+
 
 
 module.exports = router;

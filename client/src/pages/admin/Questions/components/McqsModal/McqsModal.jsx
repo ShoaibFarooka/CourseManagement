@@ -17,15 +17,25 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
         correctOption: '',
     });
 
+    const [initialFormData, setInitialFormData] = useState({
+        statement: '',
+        options: {
+            a: { option: '', explanation: '' },
+            b: { option: '', explanation: '' },
+            c: { option: '', explanation: '' },
+            d: { option: '', explanation: '' },
+        },
+        correctOption: '',
+    });
+
+
     const [errors, setErrors] = useState({});
-    const [unsavedChanges, setUnsavedChanges] = useState(false);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log(question);
-        if (question) {
-            setFormData({
+        const loadedData = question
+            ? {
                 statement: question.statement || '',
                 options: question.options || {
                     a: { option: '', explanation: '' },
@@ -34,20 +44,50 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
                     d: { option: '', explanation: '' },
                 },
                 correctOption: question.correctOption || '',
-            });
-        }
+            }
+            : {
+                statement: '',
+                options: {
+                    a: { option: '', explanation: '' },
+                    b: { option: '', explanation: '' },
+                    c: { option: '', explanation: '' },
+                    d: { option: '', explanation: '' },
+                },
+                correctOption: '',
+            };
+
+        setFormData(loadedData);
+        setInitialFormData(loadedData);
     }, [question]);
 
+    const deepCompare = (a, b) => {
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+        if (normalize(a.statement) !== normalize(b.statement)) return true;
+        if (a.correctOption !== b.correctOption) return true;
+
+        for (const key of ['a', 'b', 'c', 'd']) {
+            if (
+                normalize(a.options[key].option) !== normalize(b.options[key].option) ||
+                normalize(a.options[key].explanation) !== normalize(b.options[key].explanation)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
     useImperativeHandle(ref, () => ({
-        hasUnsavedChanges: () => unsavedChanges
+        hasUnsavedChanges: () => deepCompare(formData, initialFormData)
     }));
+
 
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setErrors(prev => ({ ...prev, [name]: '' }));
-        setUnsavedChanges(true);
     };
 
     const handleOptionChange = (key, field, value) => {
@@ -96,7 +136,6 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
             }
 
             message.success("Question submitted successfully");
-            setUnsavedChanges(false);
             setFormData({
                 statement: '',
                 options: {
@@ -132,6 +171,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
 
                 {['a', 'b', 'c', 'd'].map(opt => (
                     <div key={opt} className='option'>
+                        <label htmlFor="" className='heading-md'>{`Option ${opt.toUpperCase()}`}</label>
                         <input
                             type="text"
                             placeholder={`Option ${opt.toUpperCase()}`}
@@ -142,6 +182,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
                             <span className="error-text">{errors[`option${opt.toUpperCase()}`]}</span>
                         )}
 
+                        <label htmlFor="" className='heading-md'>{`Explanation ${opt.toUpperCase()}`}</label>
                         <textarea
                             placeholder={`Explanation ${opt.toUpperCase()}`}
                             value={formData.options[opt].explanation}

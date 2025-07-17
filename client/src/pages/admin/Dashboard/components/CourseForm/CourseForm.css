@@ -43,6 +43,7 @@
     flex-direction: column;
     justify-content: center;
     width: 100%;
+    z-index: 10;
 }
 
 .add-course .add-publisher .add-publisher-btns {

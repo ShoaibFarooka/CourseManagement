@@ -18,7 +18,7 @@
     padding: 50px 20px;
     width: 30%;
     gap: 20px;
-    background-color: var(--bg-surface);
+    background-color: var(--bg-sidebar);
     box-shadow: var(--modal-shadow);
     border-radius: var(--radius);
 }

@@ -14,8 +14,8 @@
 .switch-thumb {
     width: 24px;
     height: 24px;
-    background-color: var(--btn-bg);
-    color: var(--btn-text);
+    background-color: var(--border);
+    color: var(--border);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -24,10 +24,9 @@
     position: absolute;
     left: 3px;
     transition: all 0.4s ease;
-    box-shadow: var(--shadow);
 }
 
 .switch-thumb-dark {
     left: 33px;
-    background-color: var(--accent);
+    background-color: var(--border);
 }

@@ -29,43 +29,31 @@ html {
   --bg-surface: #f1f5f9;
   /* Card/Panel (shadcn: muted) */
 
-  /* Primary Colors */
-  --primary: #1d4ed8;
-  /* Primary (shadcn: primary) */
-  --primary-light: #3b82f6;
-  /* Primary hover (shadcn: primary-light) */
-
-  /* Accent */
-  --accent: #2563eb;
-  /* Accent blue (shadcn-style) */
-
   /* Text */
   --text-main: #0f172a;
   /* Dark text (shadcn: foreground) */
   --text-muted: #64748b;
   /* Muted text (shadcn: muted-foreground) */
 
-  /* Buttons */
-  --btn-bg: var(--primary);
+  --btn-bg: #334155;
+  /* slate-700 */
   --btn-text: #ffffff;
-  --btn-hover: var(--primary-light);
-
-  /* Cards / Boxes */
-  --card-bg: #f1f5f9;
-  /* Muted background (shadcn: muted) */
-  --card-text: #0f172a;
-  /* Foreground (dark text) */
-
+  --btn-hover: #1e293b;
   /* Border & Effects */
-  --border: #e5e7eb;
+  --border: #cbd5e1;
+
+
   /* shadcn: border */
   --shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   --radius: 0.5rem;
 
-  --hover-text: #e0e7ff;
-  --hover-bg: #e0e7ff;
+  --hover-bg: #1e293b;
+  /* slate-800 */
+  --hover-text: #cbd5e1;
 
+  --modal-bg: #FAFAFA;
   --modal-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+
 
   --select-bg: #ffffff;
   --select-text: #0f172a;
@@ -79,17 +67,8 @@ html {
   /* shadcn: background */
   --bg-sidebar: #111827;
   /* slightly lighter (shadcn: secondary) */
-  --bg-surface: #1a1f2b;
+  --bg-surface: #1e293b;
   /* muted background */
-
-  /* Primary Color */
-  --primary: #3b82f6;
-  /* shadcn: primary */
-  --primary-light: #60a5fa;
-  /* hover */
-
-  /* Accent Color */
-  --accent: #60a5fa;
 
   /* Text */
   --text-main: #f8fafc;
@@ -97,25 +76,23 @@ html {
   --text-muted: #94a3b8;
   /* shadcn: muted-foreground */
 
-  /* Buttons */
-  --btn-bg: var(--primary);
+  --btn-bg: #64748b;
+  /* slate-500 - lighter to stand out on dark bg */
   --btn-text: #ffffff;
-  --btn-hover: var(--primary-light);
-
-  /* Cards / Boxes */
-  --card-bg: #1e293b;
-  /* shadcn: muted */
-  --card-text: #f1f5f9;
+  --btn-hover: #94a3b8;
 
   /* Borders and shadows */
-  --border: #334155;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --border: #1f2937;
+  --shadow: 0 2px 6px rgba(255, 255, 255, 0.04);
   --radius: 0.5rem;
 
-  --hover-text: #1e40af;
-  --hover-bg: #1e40af;
+  --hover-text: #cbd5e1;
+  /* slate-300 */
+  --hover-bg: #1f2937;
 
-  --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+  --modal-bg: #172136;
+  --modal-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+
 
   --select-bg: #1e293b;
   --select-text: #f8fafc;
@@ -218,7 +195,7 @@ input {
   border-radius: 8px;
   border: 1px solid var(--border);
   outline: none;
-  background-color: var(--select-bg);
+  background-color: var(--bg-surface);
   color: var(--select-text);
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -231,9 +208,8 @@ input::placeholder {
 
 /* Focus effect */
 input:focus {
-  border-color: var(--primary);
+  border-color: var(--border);
   box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
-  /* soft blue glow */
 }
 
 textarea {
@@ -242,7 +218,7 @@ textarea {
   border-radius: 8px;
   border: 1px solid var(--border);
   outline: none;
-  background-color: var(--select-bg);
+  background-color: var(--bg-surface);
   color: var(--select-text);
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -260,7 +236,7 @@ textarea::placeholder {
 
 /* Focus effect (same as input) */
 textarea:focus {
-  border-color: var(--primary);
+  border-color: var(--border);
   box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
 }
 
@@ -286,7 +262,7 @@ textarea:focus {
 }
 
 .global-select:focus {
-  border-color: var(--primary);
+  border-color: var(--select-border);
   box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
 }
 
@@ -335,12 +311,10 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
 }
 
 .manage-btn:hover {
-  background-color: var(--btn-hover);
-  opacity: 0.9;
+  opacity: 0.8;
 }
 
 
@@ -366,7 +340,7 @@ textarea:focus {
 .table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--bg-surface);
+  background-color: var(--bg-sidebar);
   color: var(--text-main);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -377,7 +351,7 @@ textarea:focus {
 
 /* Header */
 .table th {
-  background-color: var(--bg-sidebar);
+  background-color: var(--bg-surface);
   color: var(--text-main);
   font-weight: 600;
   padding: 20px 20px;
@@ -391,22 +365,7 @@ textarea:focus {
   border-bottom: 1px solid var(--border);
 }
 
-/* Hover */
-.table tbody tr:hover {
-  background-color: var(--hover-text);
-  /* will be light/dark depending on theme */
-  transition: background-color 0.2s ease;
-}
 
-/* Optional striped rows */
-.table-striped tbody tr:nth-child(odd) {
-  background-color: var(--bg-main);
-}
-
-/* In dark mode, adjust stripes */
-[data-theme="dark"] .table-striped tbody tr:nth-child(odd) {
-  background-color: #1c1f26;
-}
 
 /* Responsive wrapper */
 .table-container {

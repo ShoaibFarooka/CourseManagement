@@ -33,16 +33,10 @@
     gap: 20px;
 }
 
-.mcqs .options {
+.mcqs .option {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.mcqs .options .option {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    gap: 10px;
 }
 
 .mcqs .correct-option {

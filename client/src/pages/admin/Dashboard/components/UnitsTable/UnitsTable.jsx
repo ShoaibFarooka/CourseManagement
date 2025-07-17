@@ -29,7 +29,7 @@ const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete, managedPartI
                             <td>
                                 <div className="action-btn-wrapper">
 
-                                    <button className='btn' onClick={() => onManageSubunits(index)}>
+                                    <button className='manage-btn' onClick={() => onManageSubunits(index)}>
                                         {
                                             managedPartIndex === index &&
                                                 selectedUnitIndexes.unitIndex === index &&

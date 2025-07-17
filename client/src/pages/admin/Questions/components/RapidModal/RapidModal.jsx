@@ -10,7 +10,8 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [showContent, setShowContent] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
     const [showMainFields, setShowMainFields] = useState(false);
-    const [unsavedChanges, setUnsavedChanges] = useState(false);
+    const [initialFormData, setInitialFormData] = useState(null);
+    const [toggelEditBtn, setToggelEditBtn] = useState(null);
 
 
     const [formData, setFormData] = useState({
@@ -27,25 +28,89 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
 
     useEffect(() => {
         if (question) {
-            setFormData({
+            const initial = {
                 concept: question.concept || '',
                 definition: question.definition || '',
                 subquestions: question.subquestions || [],
-            });
+            };
+            setFormData(initial);
+            setInitialFormData(initial);
             setShowMainFields(true);
         } else {
-            setFormData({
+            const empty = {
                 concept: '',
                 definition: '',
                 subquestions: [],
-            });
+            };
+            setFormData(empty);
+            setInitialFormData(empty);
             setShowMainFields(false);
         }
     }, [question]);
 
+    const normalize = (str) => (str || '').trim().replace(/\s+/g, ' ');
+
+    const deepCompareRapid = (a, b) => {
+        if (normalize(a.concept) !== normalize(b.concept)) return true;
+        if (normalize(a.definition) !== normalize(b.definition)) return true;
+
+        if (a.subquestions.length !== b.subquestions.length) return true;
+
+        for (let i = 0; i < a.subquestions.length; i++) {
+            const subA = a.subquestions[i];
+            const subB = b.subquestions[i];
+
+            if (normalize(subA.statement) !== normalize(subB.statement)) return true;
+            if (normalize(subA.options.a.option) !== normalize(subB.options.a.option)) return true;
+            if (normalize(subA.options.a.explanation) !== normalize(subB.options.a.explanation)) return true;
+            if (normalize(subA.options.b.option) !== normalize(subB.options.b.option)) return true;
+            if (normalize(subA.options.b.explanation) !== normalize(subB.options.b.explanation)) return true;
+
+            if (subA.correctOption !== subB.correctOption) return true;
+        }
+
+        return false;
+    };
+
+
+
     useImperativeHandle(ref, () => ({
-        hasUnsavedChanges: () => unsavedChanges
+        hasUnsavedChanges: () => {
+            const formChanged = deepCompareRapid(formData, initialFormData);
+
+            let subQuestionChanged = false;
+
+            if (currentSubQuestion) {
+                const normalize = (str) => (str || '').trim().replace(/\s+/g, ' ');
+
+                const emptySub = {
+                    statement: '',
+                    options: {
+                        a: { option: '', explanation: '' },
+                        b: { option: '', explanation: '' }
+                    },
+                    correctOption: ''
+                };
+
+                const originalSub = editingIndex !== null
+                    ? formData.subquestions[editingIndex]
+                    : emptySub;
+
+                const current = currentSubQuestion;
+
+                subQuestionChanged =
+                    normalize(current.statement) !== normalize(originalSub.statement) ||
+                    normalize(current.options.a.option) !== normalize(originalSub.options.a.option) ||
+                    normalize(current.options.a.explanation) !== normalize(originalSub.options.a.explanation) ||
+                    normalize(current.options.b.option) !== normalize(originalSub.options.b.option) ||
+                    normalize(current.options.b.explanation) !== normalize(originalSub.options.b.explanation) ||
+                    current.correctOption !== originalSub.correctOption;
+            }
+
+            return formChanged || subQuestionChanged;
+        }
     }));
+
 
 
     const handleClickAddQuestion = () => {
@@ -77,7 +142,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         if (question?._id || value.trim()) {
             setShowSubmitFormBtn(true);
         }
-        setUnsavedChanges(true);
     };
 
     const handleCurrentSubChange = (e) => {
@@ -142,7 +206,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         setShowContent(false);
         setErrors({});
         setShowSubmitFormBtn(true);
-        setUnsavedChanges(true);
     };
 
     const handleEditSubQuestion = (index) => {
@@ -183,7 +246,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
 
             setFormData({ concept: '', definition: '', subquestions: [] });
             setShowSubmitFormBtn(false);
-            setUnsavedChanges(false);
             onRequestClose();
         } catch (err) {
             console.error("Submit error:", err);
@@ -199,7 +261,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         updated.splice(index, 1);
         setFormData(prev => ({ ...prev, subquestions: updated }));
         setShowSubmitFormBtn(true);
-        setUnsavedChanges(true);
     };
 
 
@@ -243,6 +304,9 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                         subquestions={formData.subquestions}
                         onEdit={handleEditSubQuestion}
                         onDelete={handleDelete}
+                        toggelEditBtn={toggelEditBtn}
+                        setToggelEditBtn={setToggelEditBtn}
+                        handleClickCancel={handleClickCancel}
                     />
                     {errors.subquestions && <span className='error-text'>{errors.subquestions}</span>}
                 </>
@@ -274,6 +338,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                                 {errors.optionA && <span className='error-text'>{errors.optionA}</span>}
 
                                 <div className='opt-A-exp'>
+                                    <label htmlFor="" className='heading-md'>Explanation A</label>
                                     <textarea
                                         placeholder='Explanation A'
                                         value={currentSubQuestion.options.a.explanation}
@@ -294,6 +359,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                                 {errors.optionB && <span className='error-text'>{errors.optionB}</span>}
 
                                 <div className='opt-B-exp'>
+                                    <label htmlFor="" className='heading-md'>Explanation B</label>
                                     <textarea
                                         placeholder='Explanation B'
                                         value={currentSubQuestion.options.b.explanation}

@@ -1,5 +1,5 @@
 .footer {
-    background-color: var(--bg-surface);
+    background-color: var(--bg-sidebar);
     display: flex;
     flex-direction: column;
     justify-content: center;

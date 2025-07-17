@@ -35,6 +35,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     const [showSubunitInput, setShowSubunitInput] = useState(false);
 
 
+
+    const [originalCourseSnapshot, setOriginalCourseSnapshot] = useState(null);
+
     const [courseData, setCourseData] = useState({
         name: "",
         timeRatio: "",
@@ -47,30 +50,65 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     const dispatch = useDispatch();
 
     const [submitBtnToggel, setSubmitBtnToggel] = useState(false);
-    const originalDataRef = useRef(null);
-
 
 
     useEffect(() => {
         if (initialCourseData) {
-            const prepared = {
-                ...initialCourseData,
-                timeRatio: initialCourseData?.timeRatio || ""
-            };
-            setCourseData(prepared);
-            originalDataRef.current = JSON.stringify(cleanCourseData(prepared));
-            setSubmitBtnToggel(true);
+            setCourseData(initialCourseData);
+            setOriginalCourseSnapshot(initialCourseData);
         } else {
-            originalDataRef.current = JSON.stringify(cleanCourseData(courseData));
+            const emptyCourse = {
+                name: '',
+                publishers: [],
+                parts: [],
+            };
+            setCourseData(emptyCourse);
+            setOriginalCourseSnapshot(emptyCourse);
         }
     }, [initialCourseData]);
 
-    useImperativeHandle(ref, () => ({
-        hasUnsavedChanges: () => {
-            const cleanedCurrent = JSON.stringify(cleanCourseData(courseData));
-            return cleanedCurrent !== originalDataRef.current;
+    const deepCompareCourses = (a, b) => {
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+        if (normalize(a.name) !== normalize(b.name)) return true;
+
+        if ((a.publishers?.length || 0) !== (b.publishers?.length || 0)) return true;
+        if ((a.parts?.length || 0) !== (b.parts?.length || 0)) return true;
+
+        for (let i = 0; i < a.publishers.length; i++) {
+            if (normalize(a.publishers[i].name) !== normalize(b.publishers[i].name)) return true;
         }
+
+        for (let i = 0; i < a.parts.length; i++) {
+            if (normalize(a.parts[i].name) !== normalize(b.parts[i].name)) return true;
+
+            const aUnits = a.parts[i].units || [];
+            const bUnits = b.parts[i].units || [];
+
+            if (aUnits.length !== bUnits.length) return true;
+
+            for (let j = 0; j < aUnits.length; j++) {
+                if (normalize(aUnits[j].name) !== normalize(bUnits[j].name)) return true;
+
+                const aSubunits = aUnits[j].subunits || [];
+                const bSubunits = bUnits[j].subunits || [];
+
+                if (aSubunits.length !== bSubunits.length) return true;
+
+                for (let k = 0; k < aSubunits.length; k++) {
+                    if (normalize(aSubunits[k].name) !== normalize(bSubunits[k].name)) return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
+
+    useImperativeHandle(ref, () => ({
+        hasUnsavedChanges: () => deepCompareCourses(courseData, originalCourseSnapshot)
     }));
+
 
 
 

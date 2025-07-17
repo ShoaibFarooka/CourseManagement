@@ -2,8 +2,21 @@ import './SubQuestions.css';
 import edit from '../../../../../assets/icons/edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm, Tooltip } from 'antd';
+import CrossIcon from '../../../../../assets/icons/cross_icon.svg?react';
 
-const SubQuestions = ({ subquestions = [], onEdit = () => { }, onDelete = () => { } }) => {
+const SubQuestions = ({ subquestions = [], onEdit = () => { }, onDelete = () => { }, toggelEditBtn, setToggelEditBtn, handleClickCancel }) => {
+
+
+    const handleToggleEdit = (index) => {
+        if (toggelEditBtn === index) {
+            setToggelEditBtn(null);
+            handleClickCancel();
+        } else {
+            setToggelEditBtn(index);
+            onEdit(index);
+        }
+    };
+
     return (
         <div className="table-container">
             <table className="table table-striped">
@@ -37,8 +50,15 @@ const SubQuestions = ({ subquestions = [], onEdit = () => { }, onDelete = () => 
                             </td>
                             <td>
                                 <div className="action-btn-wrapper">
-                                    <button className="action-btn" onClick={() => onEdit(index)}>
-                                        <img src={edit} alt="Edit" />
+                                    <button
+                                        className="action-btn"
+                                        onClick={() => handleToggleEdit(index)}
+                                    >
+                                        {toggelEditBtn === index ? (
+                                            <span style={{ fontSize: "18px" }}>❌</span>
+                                        ) : (
+                                            <img src={edit} alt="Edit" />
+                                        )}
                                     </button>
                                     <Popconfirm
                                         title="Are you sure you want to delete this sub-question?"
