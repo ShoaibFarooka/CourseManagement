@@ -1,11 +1,15 @@
 const Question = require("../models/questionModel");
 const Course = require("../models/courseModel");
 const fs = require("fs");
-const path = require("path");
 const XLSX = require("xlsx");
 
-const getAllQuestions = async (subunitId) => {
-    const questions = await Question.find({ subunitId });
+const getAllQuestions = async (subunitId, page = 1, limit = 5) => {
+    const skip = (page - 1) * limit;
+
+    const [questions, totalCount] = await Promise.all([
+        Question.find({ subunitId }).skip(skip).limit(limit),
+        Question.countDocuments({ subunitId })
+    ]);
 
     if (!questions || questions.length === 0) {
         const error = new Error("No questions found for this subunit.");
@@ -13,8 +17,14 @@ const getAllQuestions = async (subunitId) => {
         throw error;
     }
 
-    return questions;
+    return {
+        questions,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalCount,
+    };
 };
+
 
 
 const addQuestion = async (data) => {
@@ -161,7 +171,6 @@ const addRapidQuestionsFromFile = async (filePath) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    // Delete the temp file
     fs.unlink(filePath, (err) => {
         if (err) console.error("Failed to delete temp file:", err);
     });
@@ -217,7 +226,6 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            // Parse subquestions
             const subquestions = [];
             let index = 1;
 
@@ -281,7 +289,6 @@ const addEssayQuestionsFromFile = async (filePath) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    // Delete the temp file
     fs.unlink(filePath, (err) => {
         if (err) console.error("Failed to delete temp file:", err);
     });
@@ -337,7 +344,6 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            // Parse subquestions
             const subquestions = [];
             let index = 1;
 

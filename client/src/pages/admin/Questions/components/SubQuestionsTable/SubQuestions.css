@@ -21,3 +21,9 @@
     border-radius: var(--radius);
     box-shadow: var(--modal-shadow);
 }
+
+.pagination-controls .active-page {
+    background-color: var(--hover-text);
+    border-color: var(--border);
+    font-weight: bold;
+}

@@ -3,9 +3,11 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/question";
 
 const questionService = {
-    getAllQuestions: async (subunitId) => {
+    getAllQuestions: async (subunitId, page = 1, limit = 5) => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/get-all/${subunitId}`);
+            const response = await axiosInstance.get(
+                `${BASE_URL}/get-all/${subunitId}?page=${page}&limit=${limit}`
+            );
             return response.data;
         } catch (error) {
             throw error;

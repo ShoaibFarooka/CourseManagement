@@ -3,13 +3,18 @@ const questionService = require("../services/questionService");
 const getAllQuestions = async (req, res, next) => {
     try {
         const { subunitId } = req.params;
-        const questions = await questionService.getAllQuestions(subunitId);
-        res.status(200).json({ questions });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+
+        const result = await questionService.getAllQuestions(subunitId, page, limit);
+
+        res.status(200).json(result);
     } catch (error) {
         console.error("Error in getAllQuestions:", error);
         next(error);
     }
 };
+
 
 const addEssayQuestion = async (req, res, next) => {
     try {

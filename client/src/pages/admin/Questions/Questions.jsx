@@ -27,6 +27,9 @@ const Questions = () => {
     const [mcqFile, setMcqFile] = useState(null);
     const [rapidFile, setRapidFile] = useState(null);
     const [essayFile, setEssayFile] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
 
 
     const essayModalRef = useRef(null);
@@ -60,17 +63,18 @@ const Questions = () => {
 
     useEffect(() => {
         if (selectedSubunit?._id && questionType) {
-            fetchQuestions(selectedSubunit._id, questionType);
+            fetchQuestions(selectedSubunit._id, currentPage);
         }
-    }, [selectedSubunit, questionType]);
+    }, [selectedSubunit, questionType, currentPage]);
 
-
-    const fetchQuestions = async (subunitId) => {
+    const fetchQuestions = async (subunitId, page = 1, limit = 5) => {
         try {
             dispatch(ShowLoading());
-            const response = await questionServices.getAllQuestions(subunitId);
+            const response = await questionServices.getAllQuestions(subunitId, page, limit);
             const allQuestions = Array.isArray(response.questions) ? response.questions : [];
             setQuestions(allQuestions);
+            setCurrentPage(response.currentPage);
+            setTotalPages(response.totalPages);
         } catch (error) {
             console.error("Failed to fetch questions:", error);
             setQuestions([]);
@@ -80,12 +84,13 @@ const Questions = () => {
     };
 
 
+
     const handleDeleteQuestion = async (questionId) => {
         try {
             dispatch(ShowLoading());
             await questionServices.deleteQuestion(questionId);
             message.success("Question deleted successfully");
-            fetchQuestions(selectedSubunit?._id);
+            fetchQuestions(selectedSubunit._id, currentPage);
         } catch (error) {
             console.error("Failed to delete question:", error);
             message.error("Failed to delete question");
@@ -166,6 +171,25 @@ const Questions = () => {
         setIsOpenModal(true);
     }
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        const inputName = e.target.name;
+
+        if (file && file.name.endsWith('.xlsx')) {
+            if (inputName === "essay-file") {
+                setEssayFile(file);
+            } else if (inputName === "rapid-file") {
+                setRapidFile(file);
+            } else if (inputName === "mcq-file") {
+                setMcqFile(file);
+            }
+        } else {
+            alert("Please upload a valid .xlsx file");
+            e.target.value = null;
+        }
+    };
+
+
     const handleUpload = async () => {
         if (!mcqFile && !essayFile && !rapidFile) {
             message.warning("Please select at least one file before uploading");
@@ -241,7 +265,8 @@ const Questions = () => {
                     <input
                         type="file"
                         name='mcq-file'
-                        onChange={(e) => setMcqFile(e.target.files[0])}
+                        accept='.xlsx'
+                        onChange={handleFileChange}
                         ref={mcqFileRef} />
                 </div>
 
@@ -250,7 +275,8 @@ const Questions = () => {
                     <input
                         type="file"
                         name='rapid-file'
-                        onChange={(e) => setRapidFile(e.target.files[0])}
+                        accept='.xlsx'
+                        onChange={handleFileChange}
                         ref={rapidFileRef} />
                 </div>
 
@@ -259,7 +285,8 @@ const Questions = () => {
                     <input
                         type="file"
                         name='essay-file'
-                        onChange={(e) => setEssayFile(e.target.files[0])}
+                        accept='.xlsx'
+                        onChange={handleFileChange}
                         ref={essayFileRef} />
                 </div>
 
@@ -387,6 +414,58 @@ const Questions = () => {
                             questions={questions}
                             onEdit={onEdit}
                             onDelete={handleDeleteQuestion} />
+
+                        {totalPages > 1 && (
+                            <div className="pagination-controls">
+
+                                <button
+                                    className="btn"
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                    .filter(page => {
+                                        return (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            Math.abs(currentPage - page) <= 2
+                                        );
+                                    })
+                                    .reduce((acc, page, idx, arr) => {
+                                        if (idx > 0 && page - arr[idx - 1] > 1) {
+                                            acc.push("ellipsis");
+                                        }
+                                        acc.push(page);
+                                        return acc;
+                                    }, [])
+                                    .map((item, idx) => {
+                                        if (item === "ellipsis") {
+                                            return <span key={`ellipsis-${idx}`} className="ellipsis">...</span>;
+                                        }
+
+                                        return (
+                                            <button
+                                                key={item}
+                                                className={`manage-btn page-btn ${currentPage === item ? "active" : ""}`}
+                                                onClick={() => setCurrentPage(item)}
+                                            >
+                                                {item}
+                                            </button>
+                                        );
+                                    })}
+
+                                <button
+                                    className="btn"
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </>
                 )
             }
