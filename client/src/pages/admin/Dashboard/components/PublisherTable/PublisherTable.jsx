@@ -8,6 +8,9 @@ const PublisherTable = ({ courseData, onEdit, onDelete }) => {
             <table className="table table-striped">
                 <thead>
                     <tr>
+                        <th>
+                            <div className="heading-md table-h1">#</div>
+                        </th>
                         <th >
                             <div className='heading-md table-h1'>
                                 Name
@@ -24,6 +27,9 @@ const PublisherTable = ({ courseData, onEdit, onDelete }) => {
                     {
                         courseData.publishers.map((pub, index) => (
                             <tr key={index}>
+                                <td>
+                                    <div className="heading-sm table-h1">{index + 1}</div>
+                                </td>
                                 <td>
                                     <div className='heading-sm table-h1'>
                                         {pub.name}

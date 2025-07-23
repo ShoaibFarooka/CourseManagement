@@ -1,16 +1,18 @@
 import React from 'react'
-import './PartsTable.css';;
+import './PartsTable.css';
 import edit from '../../../../../assets/icons/Edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm } from 'antd';
+
 const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIndex }) => {
-
-
     return (
         <div className="table-container">
             <table className="table table-striped">
                 <thead>
                     <tr>
+                        <th>
+                            <div className="heading-md table-h1">#</div>
+                        </th>
                         <th>
                             <div className="heading-md table-h1">Name</div>
                         </th>
@@ -22,6 +24,9 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                 <tbody>
                     {courseData.parts.map((part, index) => (
                         <tr key={index}>
+                            <td>
+                                <div className="heading-sm table-h1">{index + 1}</div>
+                            </td>
                             <td>
                                 <div className="heading-sm table-h1">{part.name}</div>
                             </td>
@@ -45,7 +50,6 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                                             <img src={del} alt="Delete" />
                                         </button>
                                     </Popconfirm>
-
                                 </div>
                             </td>
                         </tr>
@@ -56,4 +60,4 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
     )
 }
 
-export default PartsTable
+export default PartsTable;

@@ -72,14 +72,11 @@ const DashBoard = () => {
             <div className='add-course-btn'>
                 <button className='btn' onClick={handleClickAddCourse}>Add Course</button>
             </div>
-            <div className='content'>
-                <div className='heading-md h1'>Course name</div>
-                <div className='heading-md h2'>Actions</div>
-            </div>
 
-            {courses.map((course) => (
+            {courses.map((course, index) => (
                 <CourseInfo
                     key={course._id}
+                    index={index}
                     name={course.name}
                     id={course._id}
                     fetchAllCourses={fetchAllCourses}

@@ -5,7 +5,6 @@ const subunitSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        unique: true
     }
 });
 
@@ -14,11 +13,9 @@ const unitSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        unique: true
     },
     type: {
-        type: String,
-        enum: ['rapid', 'mcq', 'essay'],
+        type: [String],
         required: true,
     },
     subunits: {
@@ -32,7 +29,6 @@ const partSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        unique: true
     },
     units: {
         type: [unitSchema],
@@ -45,7 +41,6 @@ const publisherSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        unique: true
     },
 });
 

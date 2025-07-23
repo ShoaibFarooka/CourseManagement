@@ -10,6 +10,9 @@ const SubunitTable = ({ subunitData, onEdit, onDelete }) => {
                 <thead>
                     <tr>
                         <th>
+                            <div className="heading-md table-h1">#</div>
+                        </th>
+                        <th>
                             <div className="heading-md table-h1">Subunit Name</div>
                         </th>
                         <th>
@@ -20,6 +23,9 @@ const SubunitTable = ({ subunitData, onEdit, onDelete }) => {
                 <tbody>
                     {subunitData.map((subunit, index) => (
                         <tr key={index}>
+                            <td>
+                                <div className="heading-sm table-h1">{index + 1}</div>
+                            </td>
                             <td>{subunit.name}</td>
                             <td>
                                 <div className="action-btn-wrapper">

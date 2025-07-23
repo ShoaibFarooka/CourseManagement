@@ -45,6 +45,15 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         parts: []
     });
 
+    const [unsavedChanges, setUnsavedChanges] = useState({
+        unit: false,
+        subunit: false,
+        part: false,
+        publisher: false,
+        timeRatio: false,
+        courseName: false,
+    });
+
     const [errors, setErrors] = useState({});
 
     const dispatch = useDispatch();
@@ -52,63 +61,50 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     const [submitBtnToggel, setSubmitBtnToggel] = useState(false);
 
 
-    useEffect(() => {
-        if (initialCourseData) {
-            setCourseData(initialCourseData);
-            setOriginalCourseSnapshot(initialCourseData);
-        } else {
-            const emptyCourse = {
-                name: '',
-                publishers: [],
-                parts: [],
-            };
-            setCourseData(emptyCourse);
-            setOriginalCourseSnapshot(emptyCourse);
-        }
-    }, [initialCourseData]);
-
-    const deepCompareCourses = (a, b) => {
-        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
-
-        if (normalize(a.name) !== normalize(b.name)) return true;
-
-        if ((a.publishers?.length || 0) !== (b.publishers?.length || 0)) return true;
-        if ((a.parts?.length || 0) !== (b.parts?.length || 0)) return true;
-
-        for (let i = 0; i < a.publishers.length; i++) {
-            if (normalize(a.publishers[i].name) !== normalize(b.publishers[i].name)) return true;
-        }
-
-        for (let i = 0; i < a.parts.length; i++) {
-            if (normalize(a.parts[i].name) !== normalize(b.parts[i].name)) return true;
-
-            const aUnits = a.parts[i].units || [];
-            const bUnits = b.parts[i].units || [];
-
-            if (aUnits.length !== bUnits.length) return true;
-
-            for (let j = 0; j < aUnits.length; j++) {
-                if (normalize(aUnits[j].name) !== normalize(bUnits[j].name)) return true;
-
-                const aSubunits = aUnits[j].subunits || [];
-                const bSubunits = bUnits[j].subunits || [];
-
-                if (aSubunits.length !== bSubunits.length) return true;
-
-                for (let k = 0; k < aSubunits.length; k++) {
-                    if (normalize(aSubunits[k].name) !== normalize(bSubunits[k].name)) return true;
-                }
-            }
-        }
-
-        return false;
+    const deepCopy = (data) => {
+        return {
+            name: data.name,
+            timeRatio: data.timeRatio,
+            publishers: data.publishers?.map(p => ({ name: p.name })) || [],
+            parts: data.parts?.map(part => ({
+                name: part.name,
+                units: part.units?.map(unit => ({
+                    name: unit.name,
+                    type: Array.isArray(unit.type) ? [...unit.type] : [],
+                    subunits: unit.subunits?.map(sub => ({ name: sub.name })) || []
+                })) || []
+            })) || []
+        };
     };
 
 
-    useImperativeHandle(ref, () => ({
-        hasUnsavedChanges: () => deepCompareCourses(courseData, originalCourseSnapshot)
-    }));
+    useEffect(() => {
+        if (initialCourseData) {
+            const cloned = deepCopy(initialCourseData);
+            setCourseData(cloned);
+            setOriginalCourseSnapshot(cloned);
+        } else {
+            const emptyCourse = {
+                name: '',
+                timeRatio: '',
+                publishers: [],
+                parts: []
+            };
+            const cloned = deepCopy(emptyCourse);
+            setCourseData(cloned);
+            setOriginalCourseSnapshot(cloned);
+            setSubmitBtnToggel(true);
+        }
+    }, [initialCourseData]);
 
+
+
+    useImperativeHandle(ref, () => ({
+        hasUnsavedChanges: () => {
+            const hasFormChanges = Object.values(unsavedChanges).some(Boolean);
+            return hasFormChanges
+        }
+    }));
 
 
 
@@ -170,19 +166,65 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     };
 
     const handleCourseInputchange = (e) => {
-        setCourseData(prev => ({ ...prev, name: e.target.value }));
+        const value = e.target.value;
+        setCourseData(prev => ({
+            ...prev, name: value
+        }));
+        const normalize = (val) => val?.toString().trim().replace(/\s+/g, ' ') || '';
+        const current = normalize(value);
+        const original = normalize(originalCourseSnapshot?.name);
+
+        if (current !== original) {
+            setUnsavedChanges(prev => ({ ...prev, courseName: true }));
+        } else {
+            setUnsavedChanges(prev => ({ ...prev, courseName: false }));
+        }
     };
+
+    const handleTimeRatioInputChange = (e) => {
+        const value = e.target.value;
+        setCourseData(prev => ({
+            ...prev,
+            timeRatio: value
+        }));
+
+        const normalize = (val) => val?.toString().trim().replace(/\s+/g, ' ') || '';
+        const current = normalize(value);
+        const original = normalize(originalCourseSnapshot?.timeRatio);
+
+        if (current !== original) {
+            setUnsavedChanges(prev => ({ ...prev, timeRatio: true }));
+        } else {
+            setUnsavedChanges(prev => ({ ...prev, timeRatio: false }));
+        }
+
+    }
+
 
 
     const handlePublisherInputChange = (e) => {
         const val = e.target.value;
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
 
         if (editingPublisherIndex !== null) {
             setEditingPublisherValue(val);
+
+            const original = normalize(originalCourseSnapshot.publishers?.[editingPublisherIndex]?.name);
+            const current = normalize(val);
+
+            setUnsavedChanges(prev => ({
+                ...prev,
+                publisher: current !== original
+            }));
         } else {
             setTempPublisher({ name: val });
+            setUnsavedChanges(prev => ({
+                ...prev,
+                publisher: normalize(val) !== ''
+            }));
         }
     };
+
 
 
     const handleEditPublisher = (index) => {
@@ -259,15 +301,33 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             ...prev,
             publishers: updated
         }));
+        setUnsavedChanges(prev => ({ ...prev, publisher: true }));
     };
 
 
 
+    const handlePartInputChange = (e) => {
+        const val = e.target.value;
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
 
+        if (editingPartIndex !== null) {
+            setEditingPartValue(val);
 
+            const original = normalize(originalCourseSnapshot.parts?.[editingPartIndex]?.name);
+            const current = normalize(val);
 
-
-
+            setUnsavedChanges(prev => ({
+                ...prev,
+                part: current !== original
+            }));
+        } else {
+            setTempPart({ name: val });
+            setUnsavedChanges(prev => ({
+                ...prev,
+                part: normalize(val) !== ''
+            }));
+        }
+    };
 
 
     const handleClickAddPart = () => {
@@ -275,20 +335,13 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         clearFieldError("part");
         setShowAddPart(true);
 
+
         setTimeout(() => {
             partInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
             partInputRef.current?.focus();
         }, 100);
     };
 
-    const handlePartInputChange = (e) => {
-        const val = e.target.value;
-        if (editingPartIndex !== null) {
-            setEditingPartValue(val);
-        } else {
-            setTempPart({ name: val });
-        }
-    };
 
     const handleClickSavePart = () => {
 
@@ -378,7 +431,45 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             setSelectedUnitIndexes({ partIndex: null, unitIndex: null });
             setShowSubunitInput(false);
         }
+        setUnsavedChanges(prev => ({ ...prev, part: true }));
     };
+
+
+    const handleInputChangeUnit = (e) => {
+        const { name, value } = e.target;
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+        const normalizedValue = normalize(value);
+        if (normalizedValue === '' && value !== '') return;
+
+        setTempUnit((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+
+        let isChanged = false;
+
+        if (editingUnitIndex !== null && selectedPartIndex !== null) {
+            const originalUnit = originalCourseSnapshot.parts[selectedPartIndex]?.units?.[editingUnitIndex];
+            if (originalUnit) {
+                const originalValue = normalize(originalUnit[name]);
+                isChanged = normalizedValue !== originalValue;
+            } else {
+                isChanged = normalizedValue !== '';
+            }
+        } else {
+            isChanged = normalizedValue !== '';
+        }
+
+        setUnsavedChanges(prev => ({ ...prev, unit: isChanged }));
+    };
+
+    const resetUnitForm = () => {
+        setTempUnit({ name: "", type: [] });
+        setSelectedPartIndex(null);
+        setEditingUnitIndex(null);
+    };
+
 
 
     const handleManageUnits = (partIndex) => {
@@ -402,7 +493,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setEditingUnitIndex(null);
         clearFieldError("unitName");
         clearFieldError("unitType");
-        setTempUnit({ name: "", type: "" });
+        setTempUnit({ name: "", type: [] });
+
 
         setTimeout(() => {
             unitInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -414,24 +506,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         const unit = courseData.parts[partIndex].units[unitIndex];
         setSelectedPartIndex(partIndex);
         setEditingUnitIndex(unitIndex);
-        setTempUnit({ name: unit.name, type: unit.type });
-
+        setTempUnit({ name: unit.name, type: Array.isArray(unit.type) ? unit.type : [] });
     };
-
-    const handleInputChangeUnit = (e) => {
-        const { name, value } = e.target;
-        setTempUnit((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const resetUnitForm = () => {
-        setTempUnit({ name: "", type: "" });
-        setSelectedPartIndex(null);
-        setEditingUnitIndex(null);
-    };
-
 
     const handleClickSaveUnit = () => {
         const nameCheck = validateField({
@@ -442,21 +518,18 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             duplicateCheck: false
         });
 
-        const typeCheck = validateField({
-            value: tempUnit.type,
-            fieldKey: "unitType",
-            label: "Unit type",
-            existingItems: courseData.parts[selectedPartIndex]?.units.map(u => u.type),
-            duplicateCheck: false
-        });
+        if (!Array.isArray(tempUnit.type) || tempUnit.type.length === 0) {
+            setFieldError("unitType", "Please select at least one unit type");
+            return;
+        }
 
-        if (!nameCheck.isValid || !typeCheck.isValid) return;
+        if (!nameCheck.isValid) return;
 
         const existingUnits = courseData.parts[selectedPartIndex]?.units || [];
         const alreadyExists = existingUnits.some(
             (u) =>
                 u.name.trim().toLowerCase() === nameCheck.value.toLowerCase() &&
-                u.type.trim().toLowerCase() === typeCheck.value.toLowerCase()
+                JSON.stringify((u.type || []).sort()) === JSON.stringify([...tempUnit.type].sort())
         );
 
         if (alreadyExists) {
@@ -467,7 +540,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         const newUnit = {
             name: nameCheck.value,
-            type: typeCheck.value,
+            type: [...tempUnit.type],
             subunits: []
         };
 
@@ -492,29 +565,28 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             fieldKey: "unitName",
             label: "Unit name",
             existingItems: (courseData.parts[selectedPartIndex]?.units || []).map((u, idx) =>
-                idx !== editingUnitIndex ? u.name + u.type : ""
+                idx !== editingUnitIndex ? u.name + JSON.stringify(u.type) : ""
             ),
             duplicateCompare: item => item.toLowerCase()
         });
 
-        const { isValid: isTypeValid, value: unitType } = validateField({
-            value: tempUnit.type,
-            fieldKey: "unitType",
-            label: "Unit type",
-            duplicateCheck: false
-        });
+        if (!Array.isArray(tempUnit.type) || tempUnit.type.length === 0) {
+            setFieldError("unitType", "Please select at least one unit type");
+            return;
+        }
 
-        if (!isNameValid || !isTypeValid) return;
+        if (!isNameValid) return;
 
         const updatedParts = [...courseData.parts];
         updatedParts[selectedPartIndex].units[editingUnitIndex] = {
             name: unitName,
-            type: unitType
+            type: [...tempUnit.type]
         };
 
         setCourseData({ ...courseData, parts: updatedParts });
         resetUnitForm();
     };
+
 
     const handleDeleteUnit = (partIndex, unitIndex) => {
         const updatedParts = [...courseData.parts];
@@ -526,6 +598,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             ...prev,
             parts: updatedParts
         }));
+        setUnsavedChanges(prev => ({ ...prev, unit: true }));
     };
 
 
@@ -533,9 +606,34 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
 
     const handleChangeSubUnit = (e) => {
-        const { value } = e.target;
+        const value = e.target.value;
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+        const normalizedValue = normalize(value);
+
+        if (normalizedValue === '' && value !== '') return;
+
         setTempSubUnit({ name: value });
+
+        let isChanged = false;
+
+        if (
+            selectedUnitIndexes.partIndex !== null &&
+            selectedUnitIndexes.unitIndex !== null &&
+            editingSubunitIndex !== null
+        ) {
+            const originalSubunit = originalCourseSnapshot.parts?.[selectedUnitIndexes.partIndex]
+                ?.units?.[selectedUnitIndexes.unitIndex]
+                ?.subunits?.[editingSubunitIndex];
+
+            const originalName = normalize(originalSubunit?.name);
+            isChanged = normalizedValue !== originalName;
+        } else {
+            isChanged = normalizedValue !== '';
+        }
+
+        setUnsavedChanges(prev => ({ ...prev, subunit: isChanged }));
     };
+
 
 
     const handleClickAddSubUnit = (partIndex, unitIndex) => {
@@ -610,10 +708,10 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
     const handleEditSubunit = (index) => {
         const { partIndex, unitIndex } = selectedUnitIndexes;
-        const current = courseData.parts[partIndex].units[unitIndex].subunits[index];
+        const current = originalCourseSnapshot.parts[partIndex].units[unitIndex].subunits[index];
 
         setEditingSubunitIndex(index);
-        setTempSubUnit({ name: current.name });
+        setTempSubUnit({ name: current?.name || "" });
         setShowSubunitInput(true);
     };
 
@@ -660,6 +758,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             ...prev,
             parts: updatedParts
         }));
+        setUnsavedChanges(prev => ({ ...prev, timeRatio: true }));
     };
 
 
@@ -674,8 +773,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             message.error("Time ratio must be a positive number");
             return false;
         }
-
-
 
         if (!Array.isArray(courseData.publishers) || courseData.publishers.length === 0) {
             message.error("At least one publisher is required");
@@ -711,8 +808,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                     return false;
                 }
 
-                if (!unit.type || !unit.type.trim()) {
-                    message.error(`Unit type is required in unit "${unit.name}" under part "${part.name}"`);
+                if (!Array.isArray(unit.type) || unit.type.length === 0) {
+                    message.error(`At least one unit type is required in unit "${unit.name}" under part "${part.name}"`);
                     return false;
                 }
 
@@ -733,17 +830,22 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         return true;
     };
 
+
     const cleanCourseData = (data) => {
         return {
             name: data.name,
             timeRatio: parseFloat(data.timeRatio),
-            publishers: data.publishers?.map(p => ({ name: p.name })) || [],
+            publishers: data.publishers?.map(p => ({
+                name: p.name
+            })) || [],
             parts: data.parts?.map(part => ({
                 name: part.name,
                 units: part.units?.map(unit => ({
                     name: unit.name,
-                    type: unit.type,
-                    subunits: unit.subunits?.map(sub => ({ name: sub.name })) || []
+                    type: Array.isArray(unit.type) ? [...unit.type] : [],
+                    subunits: unit.subunits?.map(sub => ({
+                        name: sub.name
+                    })) || []
                 })) || []
             })) || []
         };
@@ -757,6 +859,14 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             return;
         }
 
+        setUnsavedChanges({
+            unit: false,
+            subunit: false,
+            part: false,
+            publisher: false,
+            timeRatio: false,
+            courseName: false
+        });
         try {
             dispatch(ShowLoading());
             if (initialCourseData?._id) {
@@ -801,10 +911,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                     name="timeRatio"
                     placeholder="Time Ratio (e.g. 1.5)"
                     value={courseData.timeRatio}
-                    onChange={(e) => setCourseData(prev => ({
-                        ...prev,
-                        timeRatio: e.target.value
-                    }))}
+                    onChange={handleTimeRatioInputChange}
                 />
 
             </div>
@@ -920,23 +1027,34 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                                         />
 
                                         {errors.unitName && <span className='error-text'>{errors.unitName}</span>}
-                                        <div className='unit-form-2'>
-                                            <label htmlFor="type" className='heading-sm question-type'>
-                                                Question Type
-                                            </label>
-                                            <select
-                                                name="type"
-                                                value={tempUnit.type}
-                                                onChange={handleInputChangeUnit}
-                                                className="global-select"
-                                            >
-                                                <option value="">Select Unit Type</option>
-                                                <option value="rapid">Rapid</option>
-                                                <option value="mcq">MCQ</option>
-                                                <option value="essay">Essay</option>
-                                            </select>
-                                            {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
+
+
+                                        <label className='heading-sm question-type'>Question Type</label>
+                                        <div className="unit-type-checkboxes">
+                                            {["rapid", "mcq", "essay"].map((typeOption) => (
+                                                <div key={typeOption} className="checkbox-label">
+                                                    <span className="label-text heading-sm">
+                                                        {typeOption.charAt(0).toUpperCase() + typeOption.slice(1)}
+                                                    </span>
+                                                    <input
+                                                        type="checkbox"
+                                                        value={typeOption}
+                                                        checked={tempUnit.type.includes(typeOption)}
+                                                        onChange={(e) => {
+                                                            const isChecked = e.target.checked;
+                                                            setTempUnit((prev) => ({
+                                                                ...prev,
+                                                                type: isChecked
+                                                                    ? [...prev.type, typeOption]
+                                                                    : prev.type.filter((t) => t !== typeOption),
+                                                            }));
+                                                        }}
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
+                                        {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
+
                                     </div>
                                     <div className='btns'>
                                         <button className='btn' onClick={editingUnitIndex !== null ? handleSaveUnit : handleClickSaveUnit}>
@@ -952,7 +1070,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                                 onEdit={(unitIndex) => handleEditUnit(index, unitIndex)}
                                 onManageSubunits={(unitIndex) => handleManageSubunits(index, unitIndex)}
                                 onDelete={(unitIndex) => handleDeleteUnit(index, unitIndex)}
-                                managedPartIndex={managedPartIndex}
+                                partIndex={index}
                                 selectedUnitIndexes={selectedUnitIndexes}
                             />
                         </>
@@ -1027,7 +1145,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             <div className='submit'>
                 <button className='btn' onClick={handleSubmitCourse}>
                     {
-                        submitBtnToggel ? "Save" : "Add"
+                        submitBtnToggel ? "Add New Course" : "Update Course"
                     }
                 </button>
             </div>

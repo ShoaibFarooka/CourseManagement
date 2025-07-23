@@ -14,8 +14,13 @@ const subunitSchema = yup.object().shape({
 const unitSchema = yup.object().shape({
     name: yup.string().trim().required("Unit name is required"),
     type: yup
-        .string()
-        .oneOf(["rapid", "mcq", "essay"], "Invalid unit type")
+        .array()
+        .of(
+            yup
+                .string()
+                .oneOf(["rapid", "mcq", "essay"], "Invalid unit type")
+        )
+        .min(1, "At least one unit type is required")
         .required("Unit type is required"),
     subunits: yup
         .array()

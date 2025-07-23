@@ -117,15 +117,8 @@
     padding-left: 10px;
 }
 
-.add-course .add-unit .unit-form-2 {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+.add-course .add-unit .unit-form .question-type {
     margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.add-course .add-unit .unit-form-2 .question-type {
     padding-left: 10px;
 }
 
@@ -133,7 +126,38 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-top: 60px;
+    padding-top: 150px;
+}
+
+.unit-type-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.label-text {
+    width: 60px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    appearance: checkbox;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
+.checkbox-label input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: none;
+    background-color: transparent;
 }
 
 .add-course .subunit-container .add-subunit-btn {
@@ -191,7 +215,7 @@
     }
 
     .add-course .add-unit .btns {
-        padding-top: 50px;
+        padding-top: 110px;
     }
 
 }
