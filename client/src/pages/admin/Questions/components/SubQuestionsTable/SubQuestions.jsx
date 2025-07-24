@@ -39,11 +39,12 @@ const SubQuestions = ({
             <table className="table table-striped">
                 <thead>
                     <tr>
+                        <th className='heading-md'>#</th>
                         <th>
-                            <div className="heading-md table-h1">Sub-Question</div>
+                            <div className="heading-md">Sub-Question</div>
                         </th>
                         <th>
-                            <div className="heading-md table-h2">Actions</div>
+                            <div className="heading-md">Actions</div>
                         </th>
                     </tr>
                 </thead>
@@ -52,6 +53,7 @@ const SubQuestions = ({
                         const actualIndex = (currentPage - 1) * itemsPerPage + index;
                         return (
                             <tr key={actualIndex}>
+                                <td>{index + 1}</td>
                                 <td>
                                     <Tooltip
                                         title={sub.statement}

@@ -10,20 +10,22 @@ const QuestionsTable = ({ questions, onEdit, onDelete }) => {
             <table className="table table-striped">
                 <thead>
                     <tr>
+                        <th className='heading-md'>#</th>
                         <th>
-                            <div className="heading-md table-h1">Question Statement</div>
+                            <div className="heading-md">Question Statement</div>
                         </th>
                         <th>
-                            <div className="heading-md table-h1">Type</div>
+                            <div className="heading-md">Type</div>
                         </th>
                         <th>
-                            <div className="heading-md table-h2">Actions</div>
+                            <div className="heading-md">Actions</div>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     {questions.map((question, index) => (
                         <tr key={question._id || index}>
+                            <td>{index + 1}</td>
                             <td>
                                 <Tooltip
                                     title={question.statement || question.content || question.concept}
