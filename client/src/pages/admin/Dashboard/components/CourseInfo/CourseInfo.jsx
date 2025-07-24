@@ -26,23 +26,23 @@ const CourseInfo = ({ id, name, fetchAllCourses, onEdit, index }) => {
                 <thead>
                     <tr>
                         <th>
-                            <div className="heading-md table-h1">#</div>
+                            <div className="heading-md">#</div>
                         </th>
                         <th>
-                            <div className="heading-md table-h1">Course Name</div>
+                            <div className="heading-md">Course Name</div>
                         </th>
                         <th>
-                            <div className="heading-md table-h2">Actions</div>
+                            <div className="heading-md">Actions</div>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            <div className="heading-sm table-h1">{index + 1}</div>
+                            <div className="heading-sm">{index + 1}</div>
                         </td>
                         <td>
-                            <div className="heading-sm table-h1">{name}</div>
+                            <div className="heading-sm">{name}</div>
                         </td>
                         <td>
                             <div className="action-btn-wrapper">

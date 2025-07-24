@@ -3,10 +3,10 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/question";
 
 const questionService = {
-    getAllQuestions: async (subunitId, page = 1, limit = 5) => {
+    getAllQuestions: async (subunitId, publisherId, page = 1, limit = 5) => {
         try {
             const response = await axiosInstance.get(
-                `${BASE_URL}/get-all/${subunitId}?page=${page}&limit=${limit}`
+                `${BASE_URL}/get-all-questions/${subunitId}/${publisherId}?page=${page}&limit=${limit}`
             );
             return response.data;
         } catch (error) {
@@ -55,7 +55,7 @@ const questionService = {
     updateQuestion: async (questionId, payload) => {
         try {
             const response = await axiosInstance.put(
-                `${BASE_URL}/update/${questionId}`,
+                `${BASE_URL}/update-question/${questionId}`,
                 payload
             );
             return response.data;

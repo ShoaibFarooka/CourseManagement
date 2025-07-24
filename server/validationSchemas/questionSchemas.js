@@ -13,9 +13,6 @@ const subunitAndPublisherIdSchema = yup.object().shape({
     publisherId: ObjectId.required("Publisher ID is required"),
 });
 
-const subunitIdSchema = yup.object().shape({
-    subunitId: ObjectId.required("Subunit ID is required"),
-});
 
 const questionIdSchema = yup.object().shape({
     questionId: ObjectId.required("Question ID is required"),
@@ -84,7 +81,6 @@ module.exports = {
     essayQuestionSchema,
     rapidQuestionSchema,
     mcqQuestionSchema,
-    subunitIdSchema,
     subunitAndPublisherIdSchema,
     questionIdSchema,
 };

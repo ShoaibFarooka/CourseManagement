@@ -9,7 +9,6 @@ import questionServices from '../../../../../services/questionServices';
 const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
     const [showContent, setShowContent] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
-    const [showMainFields, setShowMainFields] = useState(false);
     const [initialFormData, setInitialFormData] = useState(null);
     const [toggelEditBtn, setToggelEditBtn] = useState(null);
 
@@ -35,7 +34,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             };
             setFormData(initial);
             setInitialFormData(initial);
-            setShowMainFields(true);
         } else {
             const empty = {
                 concept: '',
@@ -44,7 +42,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             };
             setFormData(empty);
             setInitialFormData(empty);
-            setShowMainFields(false);
         }
     }, [question]);
 
@@ -115,7 +112,6 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
 
     const handleClickAddQuestion = () => {
         setShowContent(true);
-        setShowMainFields(true);
         setCurrentSubQuestion({
             statement: '',
             options: {
@@ -269,54 +265,53 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         <div className='rapid'>
             <div className='heading-xl title'>Rapid</div>
 
-            <div className='add-question-btn'>
-                {showContent && <button className='btn' onClick={handleClickCancel}>Cancel</button>}
-                <button className='btn' onClick={handleClickAddQuestion}>Add Question</button>
-            </div>
+            <>
+                <div className='concept'>
+                    <label htmlFor="concept" className='heading-md'>Concept</label>
+                    <textarea
+                        name="concept"
+                        id="concept"
+                        placeholder='Write Concept Here'
+                        value={formData.concept}
+                        onChange={handleMainChange}
+                    ></textarea>
+                    {errors.concept && <span className='error-text'>{errors.concept}</span>}
+                </div>
 
-            {showMainFields && (
-                <>
-                    <div className='concept'>
-                        <label htmlFor="concept" className='heading-md'>Concept</label>
-                        <textarea
-                            name="concept"
-                            id="concept"
-                            placeholder='Write Concept Here'
-                            value={formData.concept}
-                            onChange={handleMainChange}
-                        ></textarea>
-                        {errors.concept && <span className='error-text'>{errors.concept}</span>}
-                    </div>
+                <div className='definition'>
+                    <label htmlFor="definition" className='heading-md'>Definition</label>
+                    <textarea
+                        name="definition"
+                        id="definition"
+                        placeholder='Write Definition Here'
+                        value={formData.definition}
+                        onChange={handleMainChange}
+                    ></textarea>
+                    {errors.definition && <span className='error-text'>{errors.definition}</span>}
+                </div>
 
-                    <div className='definition'>
-                        <label htmlFor="definition" className='heading-md'>Definition</label>
-                        <textarea
-                            name="definition"
-                            id="definition"
-                            placeholder='Write Definition Here'
-                            value={formData.definition}
-                            onChange={handleMainChange}
-                        ></textarea>
-                        {errors.definition && <span className='error-text'>{errors.definition}</span>}
-                    </div>
+                <div className='add-question-btn'>
+                    {showContent && <button className='btn' onClick={handleClickCancel}>Cancel</button>}
+                    <button className='btn' onClick={handleClickAddQuestion}>Add SubQuestion</button>
+                </div>
 
-                    <SubQuestions
-                        subquestions={formData.subquestions}
-                        onEdit={handleEditSubQuestion}
-                        onDelete={handleDelete}
-                        toggelEditBtn={toggelEditBtn}
-                        setToggelEditBtn={setToggelEditBtn}
-                        handleClickCancel={handleClickCancel}
-                    />
-                    {errors.subquestions && <span className='error-text'>{errors.subquestions}</span>}
-                </>
-            )}
+
+                <SubQuestions
+                    subquestions={formData.subquestions}
+                    onEdit={handleEditSubQuestion}
+                    onDelete={handleDelete}
+                    toggelEditBtn={toggelEditBtn}
+                    setToggelEditBtn={setToggelEditBtn}
+                    handleClickCancel={handleClickCancel}
+                />
+                {errors.subquestions && <span className='error-text'>{errors.subquestions}</span>}
+            </>
 
 
 
             {showContent && currentSubQuestion && (
                 <div className='rapid-subquestions'>
-                    <label htmlFor='subquestions' className='heading-md'>Question</label>
+                    <label htmlFor='subquestions' className='heading-md'>Question Statement</label>
                     <textarea
                         name="statement"
                         placeholder='Write Question Here'
@@ -387,7 +382,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                     </div>
 
                     <div className='submit-btn'>
-                        <button className='btn' onClick={handleSaveSubQuestion}>Save</button>
+                        <button className='btn' onClick={handleSaveSubQuestion}>Save SubQuestion</button>
                     </div>
                 </div>
             )}
@@ -395,7 +390,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             {showSubmitFormBtn && (
                 <div className='submit-btn'>
                     <button className='btn' onClick={handleSubmitForm}>
-                        {question?._id ? "Update" : "Submit"}
+                        {question?._id ? "Update" : "Add Rapid"}
                     </button>
                 </div>
             )}

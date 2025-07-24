@@ -6,10 +6,10 @@ const { upload } = require('../middleware/multerMiddleware');
 const questionSchemas = require("../validationSchemas/questionSchemas");
 
 router.get(
-    "/get-all/:subunitId",
+    "/get-all-questions/:subunitId/:publisherId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionSchemas.subunitIdSchema),
+    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
     controller.getAllQuestions
 );
 
@@ -41,7 +41,7 @@ router.post(
 );
 
 router.put(
-    "/update/:questionId",
+    "/update-question/:questionId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(questionSchemas.questionIdSchema),

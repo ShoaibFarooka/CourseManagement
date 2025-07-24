@@ -88,19 +88,16 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             };
             setFormData(initial);
             setInitialFormData(initial);
-            setShowMainFields(true);
         } else {
             const empty = { content: '', subquestions: [] };
             setFormData(empty);
             setInitialFormData(empty);
-            setShowMainFields(false);
         }
     }, [question]);
 
 
     const handleClickAddQuestion = () => {
         setShowContent(true);
-        setShowMainFields(true);
         setEditingIndex(null);
         setCurrentSubQuestion({
             statement: '',
@@ -214,39 +211,38 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         <div className='essay'>
             <div className='heading-xl title'>Essay</div>
 
-            <div className='add-subquestion-btn'>
-                {showContent && <button className='btn' onClick={handleClickCancel}>Cancel</button>}
-                <button className='btn' onClick={handleClickAddQuestion}>Add Question</button>
-            </div>
-
-            {showMainFields && (
-                <>
-                    <div className='content'>
-                        <label className='heading-md'>Content</label>
-                        <textarea
-                            name="content"
-                            placeholder='Write content here'
-                            value={formData.content}
-                            onChange={handleMainChange}
-                        />
-                        {errors.content && <span className='error-text'>{errors.content}</span>}
-                    </div>
-
-                    <SubQuestions
-                        subquestions={formData.subquestions}
-                        onEdit={handleEditSubQuestion}
-                        onDelete={handleDeleteSubQuestion}
-                        toggelEditBtn={toggelEditBtn}
-                        setToggelEditBtn={setToggelEditBtn}
-                        handleClickCancel={handleClickCancel}
+            <>
+                <div className='content'>
+                    <label className='heading-md'>Content</label>
+                    <textarea
+                        name="content"
+                        placeholder='Write content here'
+                        value={formData.content}
+                        onChange={handleMainChange}
                     />
-                    {errors.subquestions && <span className='error-text'>{errors.subquestions}</span>}
-                </>
-            )}
+                    {errors.content && <span className='error-text'>{errors.content}</span>}
+                </div>
+
+                <div className='add-subquestion-btn'>
+                    {showContent && <button className='btn' onClick={handleClickCancel}>Cancel</button>}
+                    <button className='btn' onClick={handleClickAddQuestion}>Add SubQuestion</button>
+                </div>
+
+                <SubQuestions
+                    subquestions={formData.subquestions}
+                    onEdit={handleEditSubQuestion}
+                    onDelete={handleDeleteSubQuestion}
+                    toggelEditBtn={toggelEditBtn}
+                    setToggelEditBtn={setToggelEditBtn}
+                    handleClickCancel={handleClickCancel}
+                />
+                {errors.subquestions && <span className='error-text'>{errors.subquestions}</span>}
+            </>
+
 
             {showContent && currentSubQuestion && (
                 <div className='essay-subquestions'>
-                    <label className='heading-md'>Question</label>
+                    <label className='heading-md'>Question Statement</label>
                     <textarea
                         name="statement"
                         placeholder='Write Question'
@@ -265,7 +261,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                     {errors.explanation && <span className='error-text'>{errors.explanation}</span>}
 
                     <div className='submit-btn'>
-                        <button className='btn' onClick={handleSaveSubQuestion}>Save</button>
+                        <button className='btn' onClick={handleSaveSubQuestion}>Save SubQuestion</button>
                     </div>
                 </div>
             )}
@@ -273,7 +269,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             {showSubmitBtn && (
                 <div className='submit-btn'>
                     <button className='btn' onClick={handleFinalSubmit}>
-                        {question?._id ? "Update" : "Submit"}
+                        {question?._id ? "Update" : "Add Essay"}
                     </button>
                 </div>
             )}

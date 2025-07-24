@@ -213,7 +213,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
 
                 <div className='submit-btn'>
                     <button className='btn' onClick={handleSubmit}>
-                        {question?._id ? 'Update' : 'Submit'}
+                        {question?._id ? 'Update' : 'Add Mcq'}
                     </button>
                 </div>
             </div>

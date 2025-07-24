@@ -3,12 +3,12 @@ const Course = require("../models/courseModel");
 const fs = require("fs");
 const XLSX = require("xlsx");
 
-const getAllQuestions = async (subunitId, page = 1, limit = 5) => {
+const getAllQuestions = async (subunitId, publisherId, page = 1, limit = 5) => {
     const skip = (page - 1) * limit;
 
     const [questions, totalCount] = await Promise.all([
-        Question.find({ subunitId }).skip(skip).limit(limit),
-        Question.countDocuments({ subunitId })
+        Question.find({ subunitId, publisherId }).skip(skip).limit(limit),
+        Question.countDocuments({ subunitId, publisherId })
     ]);
 
     if (!questions || questions.length === 0) {

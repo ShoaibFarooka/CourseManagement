@@ -2,11 +2,11 @@ const questionService = require("../services/questionService");
 
 const getAllQuestions = async (req, res, next) => {
     try {
-        const { subunitId } = req.params;
+        const { subunitId, publisherId } = req.params;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
 
-        const result = await questionService.getAllQuestions(subunitId, page, limit);
+        const result = await questionService.getAllQuestions(subunitId, publisherId, page, limit);
 
         res.status(200).json(result);
     } catch (error) {

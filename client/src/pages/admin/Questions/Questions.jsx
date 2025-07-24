@@ -6,11 +6,9 @@ import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 import QuestionsTable from '../Questions/Components/QuestionsTable/QuestionsTable';
 import CustomModal from '../../../components/CustomModal/CustomModal';
-import EssayModal from './Components/EssayModal/EssayModal';
-import RapidModal from './Components/RapidModal/RapidModal';
-import McqsModal from './components/McqsModal/McqsModal';
 import questionServices from '../../../services/questionServices';
 import { message, Modal } from 'antd';
+import QuestionForm from './components/QuestionForm/QuestionForm';
 
 
 const Questions = () => {
@@ -20,6 +18,7 @@ const Questions = () => {
     const [selectedPublisher, setSelectedPublisher] = useState(null);
     const [selectedPart, setSelectedPart] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
+    const [selectedTypes, setSelectedTypes] = useState([]);
     const [questionType, setQuestionType] = useState(null);
     const [selectedSubunit, setSelectedSubunit] = useState(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
@@ -32,12 +31,13 @@ const Questions = () => {
 
 
 
-    const essayModalRef = useRef(null);
-    const rapidModalRef = useRef(null);
-    const mcqsModalRef = useRef(null);
     const mcqFileRef = useRef(null);
     const essayFileRef = useRef(null);
     const rapidFileRef = useRef(null);
+    const essayModalRef = useRef(null);
+    const rapidModalRef = useRef(null);
+    const mcqsModalRef = useRef(null);
+
 
 
 
@@ -62,17 +62,23 @@ const Questions = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedSubunit?._id && questionType) {
-            fetchQuestions(selectedSubunit._id, currentPage);
+        if (selectedSubunit?._id && selectedPublisher?._id && questionType) {
+            fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
         }
-    }, [selectedSubunit, questionType, currentPage]);
+    }, [selectedSubunit, selectedPublisher, questionType, currentPage, selectedTypes]);
 
-    const fetchQuestions = async (subunitId, page = 1, limit = 5) => {
+
+    const fetchQuestions = async (subunitId, publisherId, page = 1, limit = 5) => {
         try {
             dispatch(ShowLoading());
-            const response = await questionServices.getAllQuestions(subunitId, page, limit);
+            const response = await questionServices.getAllQuestions(subunitId, publisherId, page, limit);
             const allQuestions = Array.isArray(response.questions) ? response.questions : [];
-            setQuestions(allQuestions);
+
+            const filteredQuestions = selectedTypes.length > 0
+                ? allQuestions.filter(q => selectedTypes.includes(q.type))
+                : allQuestions;
+
+            setQuestions(filteredQuestions);
             setCurrentPage(response.currentPage);
             setTotalPages(response.totalPages);
         } catch (error) {
@@ -123,11 +129,26 @@ const Questions = () => {
             value: unit._id
         })) || [];
 
+    const handleCheckboxChange = (type) => {
+        setSelectedTypes((prev) =>
+            prev.includes(type)
+                ? prev.filter((t) => t !== type)
+                : [...prev, type]
+        );
+    };
+
     const getSubunitOptions = () =>
         selectedUnit?.subunits?.map(sub => ({
             label: sub.name,
             value: sub._id
         })) || [];
+
+    const getTypeOptions = () =>
+        questionType?.map((type) => ({
+            label: type.charAt(0).toUpperCase() + type.slice(1),
+            value: type,
+        })) || [];
+
 
 
     const handleOpenModal = () => {
@@ -138,17 +159,19 @@ const Questions = () => {
     const handleCloseModal = () => {
         setIsOpenModal(false);
         setEditingQuestion(null);
-        if (selectedSubunit?._id) {
-            fetchQuestions(selectedSubunit._id);
+        if (selectedSubunit?._id && selectedPublisher?._id) {
+            fetchQuestions(selectedSubunit._id, selectedPublisher._id);
         }
     };
 
 
+
     const handleModalClose = () => {
         const hasUnsaved =
-            (questionType === 'essay' && essayModalRef.current?.hasUnsavedChanges?.()) ||
-            (questionType === 'rapid' && rapidModalRef.current?.hasUnsavedChanges?.()) ||
-            (questionType === 'mcq' && mcqsModalRef.current?.hasUnsavedChanges?.());
+            (questionType?.includes('essay') && essayModalRef.current?.hasUnsavedChanges?.()) ||
+            (questionType?.includes('rapid') && rapidModalRef.current?.hasUnsavedChanges?.()) ||
+            (questionType?.includes('mcq') && mcqsModalRef.current?.hasUnsavedChanges?.());
+
 
         if (hasUnsaved) {
             Modal.confirm({
@@ -164,6 +187,7 @@ const Questions = () => {
             handleCloseModal();
         }
     };
+
 
 
     const onEdit = (questions) => {
@@ -374,7 +398,7 @@ const Questions = () => {
                             const unit = selectedPart.units.find(u => u._id === unitId);
                             setSelectedUnit(unit);
                             setSelectedSubunit(null);
-                            setQuestionType(unit?.type || null);
+                            setQuestionType(Array.isArray(unit?.type) ? unit.type : []);
                             setQuestions([]);
                         }}
                     />
@@ -382,8 +406,27 @@ const Questions = () => {
                 </div>
             )}
 
+            {selectedUnit && questionType?.length > 0 && (
+                <div className="select-question-type">
+                    <div className="heading-md label">Select Question Types</div>
+                    <div className="checkbox-group">
+                        {questionType.map((type) => (
+                            <label key={type} className="checkbox-label">
+                                <span className='label-text heading-sm'>{type.toUpperCase()}</span>
+                                <input
+                                    type="checkbox"
+                                    value={type}
+                                    checked={selectedTypes.includes(type)}
+                                    onChange={() => handleCheckboxChange(type)}
+                                />
+                            </label>
+                        ))}
+                    </div>
+                </div>
+            )}
 
-            {selectedUnit && (
+
+            {selectedUnit && selectedTypes.length > 0 && (
                 <div className="select-subunit">
 
                     <div className='heading-md label'>Select Subunit</div>
@@ -402,6 +445,10 @@ const Questions = () => {
                 </div>
             )}
 
+
+
+
+
             {
                 selectedSubunit && (
                     <>
@@ -410,6 +457,7 @@ const Questions = () => {
                                 Add Question
                             </button>
                         </div>
+
                         <QuestionsTable
                             questions={questions}
                             onEdit={onEdit}
@@ -475,29 +523,19 @@ const Questions = () => {
             <CustomModal
                 isOpen={isOpenModal} onRequestClose={handleModalClose} contentLabel='Question form'
             >
-                {questionType === 'essay' && <EssayModal
-                    ref={essayModalRef}
-                    subUnitId={selectedSubunit?._id}
-                    publisherId={selectedPublisher?._id}
-                    question={editingQuestion}
-                    onRequestClose={handleCloseModal}
-                />}
+                <QuestionForm
+                    selectedTypes={selectedTypes}
+                    getTypeOptions={getTypeOptions}
+                    setSelectedTypes={setSelectedTypes}
+                    mcqsModalRef={mcqsModalRef}
+                    rapidModalRef={rapidModalRef}
+                    essayModalRef={essayModalRef}
+                    selectedSubunit={selectedSubunit}
+                    selectedPublisher={selectedPublisher}
+                    editingQuestion={editingQuestion}
+                    handleCloseModal={handleCloseModal}
+                />
 
-                {questionType === 'rapid' && <RapidModal
-                    ref={rapidModalRef}
-                    subUnitId={selectedSubunit?._id}
-                    publisherId={selectedPublisher?._id}
-                    question={editingQuestion}
-                    onRequestClose={handleCloseModal}
-                />}
-
-                {questionType === 'mcq' && <McqsModal
-                    ref={mcqsModalRef}
-                    subUnitId={selectedSubunit?._id}
-                    publisherId={selectedPublisher?._id}
-                    question={editingQuestion}
-                    onRequestClose={handleCloseModal}
-                />}
             </CustomModal>
         </div>
     );

@@ -14,6 +14,9 @@ const QuestionsTable = ({ questions, onEdit, onDelete }) => {
                             <div className="heading-md table-h1">Question Statement</div>
                         </th>
                         <th>
+                            <div className="heading-md table-h1">Type</div>
+                        </th>
+                        <th>
                             <div className="heading-md table-h2">Actions</div>
                         </th>
                     </tr>
@@ -30,6 +33,9 @@ const QuestionsTable = ({ questions, onEdit, onDelete }) => {
                                         {question.statement || question.content || question.concept}
                                     </div>
                                 </Tooltip>
+                            </td>
+                            <td>
+                                {question.type}
                             </td>
                             <td>
                                 <div className="action-btn-wrapper cont">
