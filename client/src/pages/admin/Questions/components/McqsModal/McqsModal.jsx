@@ -4,6 +4,7 @@ import { message } from 'antd';
 import { useDispatch } from 'react-redux';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import questionServices from '../../../../../services/questionServices';
+import SelectDropDown from '../../../../../components/Select/SelectDropDown';
 
 const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
     const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
             d: { option: '', explanation: '' },
         },
         correctOption: '',
+        language: ''
     });
 
     const [initialFormData, setInitialFormData] = useState({
@@ -26,6 +28,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
             d: { option: '', explanation: '' },
         },
         correctOption: '',
+        language: ''
     });
 
 
@@ -44,6 +47,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
                     d: { option: '', explanation: '' },
                 },
                 correctOption: question.correctOption || '',
+                language: question.language || null
             }
             : {
                 statement: '',
@@ -54,6 +58,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
                     d: { option: '', explanation: '' },
                 },
                 correctOption: '',
+                language: null
             };
 
         setFormData(loadedData);
@@ -62,6 +67,9 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
 
     const deepCompare = (a, b) => {
         const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+
+        if (a.language !== b.language) return true;
 
         if (normalize(a.statement) !== normalize(b.statement)) return true;
         if (a.correctOption !== b.correctOption) return true;
@@ -82,6 +90,10 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
         hasUnsavedChanges: () => deepCompare(formData, initialFormData)
     }));
 
+    const handleLanguageChange = (value) => {
+        setFormData(prev => ({ ...prev, language: value }));
+        setErrors(prev => ({ ...prev, language: '' }));
+    };
 
 
     const handleChange = (e) => {
@@ -106,6 +118,8 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
 
     const validate = () => {
         const newErrors = {};
+        if (!formData.language) newErrors.language = 'Language is required';
+
         if (!formData.statement.trim()) newErrors.statement = 'Question is required';
 
         ['a', 'b', 'c', 'd'].forEach(opt => {
@@ -145,6 +159,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
                     d: { option: '', explanation: '' },
                 },
                 correctOption: '',
+                language: ''
             });
             onRequestClose();
         } catch (err) {
@@ -158,6 +173,22 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
     return (
         <div className='mcqs'>
             <div className='heading-xl title'>MCQ</div>
+
+            <div className='language-dropdown'>
+                <label className='heading-md'>Select Language</label>
+                <SelectDropDown
+                    options={[
+                        { label: 'English', value: 'eng' },
+                        { label: 'Arabic', value: 'ar' },
+                        { label: 'French', value: 'fr' }
+                    ]}
+                    value={formData.language}
+                    onChange={handleLanguageChange}
+                    placeholder="Choose language"
+                />
+                {errors.language && <span className='error-text'>{errors.language}</span>}
+            </div>
+
 
             <div className='mcqs-sub-form'>
                 <label className='heading-md'>Question</label>

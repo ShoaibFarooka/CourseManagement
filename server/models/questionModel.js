@@ -14,6 +14,11 @@ const questionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
+    language: {
+        type: String,
+        enum: ["eng", "ar", "fr"],
+        required: true,
+    }
 }, options);
 
 const Question = mongoose.model("question", questionSchema);

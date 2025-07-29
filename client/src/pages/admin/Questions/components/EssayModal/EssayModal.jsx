@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { message } from 'antd';
 import questionServices from '../../../../../services/questionServices';
+import SelectDropDown from '../../../../../components/Select/SelectDropDown';
 
 const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
 
@@ -13,7 +14,9 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [formData, setFormData] = useState({
         content: '',
         subquestions: [],
+        language: '',
     });
+
 
     const [initialFormData, setInitialFormData] = useState(null);
 
@@ -22,13 +25,14 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [errors, setErrors] = useState({});
     const [editingIndex, setEditingIndex] = useState(null);
 
-    const [showMainFields, setShowMainFields] = useState(false);
     const [showContent, setShowContent] = useState(false);
     const [showSubmitBtn, setShowSubmitBtn] = useState(false);
     const [toggelEditBtn, setToggelEditBtn] = useState(null);
 
     const deepCompare = (a, b) => {
         const normalizeContent = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+        if (a.language !== b.language) return true;
 
         if (normalizeContent(a.content) !== normalizeContent(b.content)) return true;
 
@@ -85,11 +89,13 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             const initial = {
                 content: question.content || '',
                 subquestions: question.subquestions || [],
+                language: question.language || null,
             };
+
             setFormData(initial);
             setInitialFormData(initial);
         } else {
-            const empty = { content: '', subquestions: [] };
+            const empty = { language: null, content: '', subquestions: [] };
             setFormData(empty);
             setInitialFormData(empty);
         }
@@ -123,6 +129,19 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             setShowSubmitBtn(true);
         }
     };
+
+    const getLanguageOptions = () => [
+        { label: "English", value: "eng" },
+        { label: "Arabic", value: "ar" },
+        { label: "French", value: "fr" }
+    ];
+
+
+    const handleLanguageChange = (value) => {
+        setFormData(prev => ({ ...prev, language: value }));
+        setErrors(prev => ({ ...prev, language: '' }));
+    };
+
 
     const handleSubChange = (e) => {
         const { name, value } = e.target;
@@ -177,13 +196,15 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     };
 
     const handleFinalSubmit = async () => {
-        if (!formData.content.trim() || formData.subquestions.length === 0) {
+        if (!formData.language.trim() || !formData.content.trim() || formData.subquestions.length === 0) {
             setErrors({
+                language: !formData.language.trim() ? 'Language is required' : '',
                 content: !formData.content.trim() ? 'Content is required' : '',
-                subquestions: formData.subquestions.length === 0 ? 'At least one subquestion is required' : ''
+                subquestions: formData.subquestions.length === 0 ? 'At least one subquestion is required' : '',
             });
             return;
         }
+
 
         try {
             dispatch(ShowLoading());
@@ -196,7 +217,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                 message.success("Essay submitted successfully");
             }
 
-            setFormData({ content: '', subquestions: [] });
+            setFormData({ content: '', subquestions: [], language: '' });
             setShowSubmitBtn(false);
             onRequestClose();
         } catch (err) {
@@ -210,6 +231,19 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     return (
         <div className='essay'>
             <div className='heading-xl title'>Essay</div>
+
+            <div className='language-dropdown'>
+                <label className='heading-md'>Select Language</label>
+                <SelectDropDown
+                    options={getLanguageOptions()}
+                    value={formData.language}
+                    onChange={handleLanguageChange}
+                    placeholder='Choose a language'
+                />
+                {errors.language && <span className='error-text'>{errors.language}</span>}
+            </div>
+
+
 
             <>
                 <div className='content'>

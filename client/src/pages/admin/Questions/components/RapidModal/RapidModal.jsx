@@ -5,6 +5,7 @@ import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 import { message } from 'antd';
 import questionServices from '../../../../../services/questionServices';
+import SelectDropDown from '../../../../../components/Select/SelectDropDown';
 
 const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
     const [showContent, setShowContent] = useState(false);
@@ -16,7 +17,8 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [formData, setFormData] = useState({
         concept: '',
         definition: '',
-        subquestions: []
+        subquestions: [],
+        language: ''
     });
 
     const [currentSubQuestion, setCurrentSubQuestion] = useState(null);
@@ -31,6 +33,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                 concept: question.concept || '',
                 definition: question.definition || '',
                 subquestions: question.subquestions || [],
+                language: question.language || null
             };
             setFormData(initial);
             setInitialFormData(initial);
@@ -39,6 +42,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                 concept: '',
                 definition: '',
                 subquestions: [],
+                language: null
             };
             setFormData(empty);
             setInitialFormData(empty);
@@ -48,6 +52,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const normalize = (str) => (str || '').trim().replace(/\s+/g, ' ');
 
     const deepCompareRapid = (a, b) => {
+        if ((a.language || '').trim() !== (b.language || '').trim()) return true;
         if (normalize(a.concept) !== normalize(b.concept)) return true;
         if (normalize(a.definition) !== normalize(b.definition)) return true;
 
@@ -130,6 +135,12 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
         setEditingIndex(null);
         setErrors({});
     };
+
+    const handleLanguageChange = (value) => {
+        setFormData(prev => ({ ...prev, language: value }));
+        setErrors(prev => ({ ...prev, language: '' }));
+    };
+
 
     const handleMainChange = (e) => {
         const { name, value } = e.target;
@@ -215,6 +226,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const handleSubmitForm = async () => {
         const newErrors = {};
 
+        if (!formData.language.trim()) newErrors.language = 'Language is required';
         if (!formData.concept.trim()) newErrors.concept = 'Concept is required';
         if (!formData.definition.trim()) newErrors.definition = 'Definition is required';
         if (formData.subquestions.length === 0) newErrors.subquestions = 'At least one subquestion is required';
@@ -229,7 +241,8 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             const payload = {
                 concept: formData.concept,
                 definition: formData.definition,
-                subquestions: formData.subquestions
+                subquestions: formData.subquestions,
+                language: formData.language
             };
 
             if (question?._id) {
@@ -240,7 +253,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                 message.success("Question submitted successfully");
             }
 
-            setFormData({ concept: '', definition: '', subquestions: [] });
+            setFormData({ concept: '', definition: '', subquestions: [], language: null });
             setShowSubmitFormBtn(false);
             onRequestClose();
         } catch (err) {
@@ -264,6 +277,21 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     return (
         <div className='rapid'>
             <div className='heading-xl title'>Rapid</div>
+
+            <div className='language-dropdown'>
+                <label className='heading-md'>Select Language</label>
+                <SelectDropDown
+                    options={[
+                        { label: 'English', value: 'eng' },
+                        { label: 'Arabic', value: 'ar' },
+                        { label: 'French', value: 'fr' }
+                    ]}
+                    value={formData.language}
+                    onChange={handleLanguageChange}
+                    placeholder="Choose a language"
+                />
+                {errors.language && <span className='error-text'>{errors.language}</span>}
+            </div>
 
             <>
                 <div className='concept'>

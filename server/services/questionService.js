@@ -88,6 +88,12 @@ const addMCQQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                continue;
+            }
+
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
                 warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
@@ -141,6 +147,7 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 type: "mcq",
                 publisherId: publisher._id,
                 subunitId: subunit._id,
+                language,
                 statement: row["Statement"],
                 options: {
                     a: { option: row["Option A"], explanation: row["Explanation A"] },
@@ -166,6 +173,7 @@ const addMCQQuestionsFromFile = async (filePath) => {
     return { warnings, addedQuestionsCount: questions.length };
 };
 
+
 const addRapidQuestionsFromFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -183,6 +191,12 @@ const addRapidQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                continue;
+            }
+
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
                 warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
@@ -264,6 +278,7 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 type: "rapid",
                 publisherId: publisher._id,
                 subunitId: subunit._id,
+                language,
                 concept: row["Concept"]?.trim(),
                 definition: row["Definition"]?.trim(),
                 subquestions
@@ -284,6 +299,7 @@ const addRapidQuestionsFromFile = async (filePath) => {
     return { warnings, addedQuestionsCount: questions.length };
 };
 
+
 const addEssayQuestionsFromFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -301,6 +317,13 @@ const addEssayQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
+            // ✅ Extract and validate language
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                continue;
+            }
+
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
                 warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
@@ -351,11 +374,13 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 const statement = row[`SubQ${index} Statement`]?.trim();
                 const explanation = row[`SubQ${index} Explanation`]?.trim();
 
-                subquestions.push({
-                    statement,
-                    explanation,
-                });
+                if (!statement || !explanation) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing statement or explanation` });
+                    index++;
+                    continue;
+                }
 
+                subquestions.push({ statement, explanation });
                 index++;
             }
 
@@ -364,12 +389,14 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
+            // ✅ Add to valid questions
             questions.push({
                 type: "essay",
                 publisherId: publisher._id,
                 subunitId: subunit._id,
+                language,
                 content: row["Content"]?.trim(),
-                subquestions
+                subquestions,
             });
 
         } catch (err) {
@@ -386,6 +413,7 @@ const addEssayQuestionsFromFile = async (filePath) => {
 
     return { warnings, addedQuestionsCount: questions.length };
 };
+
 
 module.exports = {
     getAllQuestions,

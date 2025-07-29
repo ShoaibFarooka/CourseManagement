@@ -7,12 +7,15 @@ import { Popconfirm, Tooltip } from 'antd';
 const QuestionsTable = ({ questions, onEdit, onDelete }) => {
     return (
         <div className="table-container">
-            <table className="table table-striped">
+            <table className="table table-striped questions-table">
                 <thead>
                     <tr>
                         <th className='heading-md'>#</th>
                         <th>
                             <div className="heading-md">Question Statement</div>
+                        </th>
+                        <th>
+                            <div className="heading-md">Lan</div>
                         </th>
                         <th>
                             <div className="heading-md">Type</div>
@@ -35,6 +38,9 @@ const QuestionsTable = ({ questions, onEdit, onDelete }) => {
                                         {question.statement || question.content || question.concept}
                                     </div>
                                 </Tooltip>
+                            </td>
+                            <td>
+                                {question.language}
                             </td>
                             <td>
                                 {question.type}

@@ -96,7 +96,7 @@ const Questions = () => {
             dispatch(ShowLoading());
             await questionServices.deleteQuestion(questionId);
             message.success("Question deleted successfully");
-            fetchQuestions(selectedSubunit._id, currentPage);
+            fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
         } catch (error) {
             console.error("Failed to delete question:", error);
             message.error("Failed to delete question");
@@ -356,6 +356,7 @@ const Questions = () => {
                             onChange={(partId) => {
                                 const part = selectedCourse.parts.find(p => p._id === partId);
                                 setSelectedPart(part);
+                                setSelectedPublisher(null);
                                 setSelectedUnit(null);
                                 setSelectedSubunit(null);
                                 setQuestionType(null);
@@ -378,6 +379,10 @@ const Questions = () => {
                             onChange={(pubId) => {
                                 const publisher = selectedCourse.publishers.find(p => p._id === pubId);
                                 setSelectedPublisher(publisher);
+                                setSelectedUnit(null);
+                                setSelectedSubunit(null);
+                                setQuestionType(null);
+                                setQuestions([]);
                             }}
 
                         />
@@ -399,6 +404,7 @@ const Questions = () => {
                             setSelectedUnit(unit);
                             setSelectedSubunit(null);
                             setQuestionType(Array.isArray(unit?.type) ? unit.type : []);
+                            setSelectedTypes([]);
                             setQuestions([]);
                         }}
                     />
@@ -406,7 +412,29 @@ const Questions = () => {
                 </div>
             )}
 
-            {selectedUnit && questionType?.length > 0 && (
+
+            {selectedUnit && (
+                <div className="select-subunit">
+
+                    <div className='heading-md label'>Select Subunit</div>
+                    <SelectDropDown
+                        placeholder="Select Subunit"
+                        options={getSubunitOptions()}
+                        value={selectedSubunit?._id || null}
+                        onChange={(subunitId) => {
+                            const subunit = selectedUnit.subunits.find(s => s._id === subunitId);
+                            setSelectedSubunit(subunit);
+                            setSelectedTypes([]);
+                        }}
+
+                    />
+
+
+                </div>
+            )}
+
+
+            {selectedSubunit && (
                 <div className="select-question-type">
                     <div className="heading-md label">Select Question Types</div>
                     <div className="checkbox-group">
@@ -426,31 +454,9 @@ const Questions = () => {
             )}
 
 
-            {selectedUnit && selectedTypes.length > 0 && (
-                <div className="select-subunit">
-
-                    <div className='heading-md label'>Select Subunit</div>
-                    <SelectDropDown
-                        placeholder="Select Subunit"
-                        options={getSubunitOptions()}
-                        value={selectedSubunit?._id || null}
-                        onChange={(subunitId) => {
-                            const subunit = selectedUnit.subunits.find(s => s._id === subunitId);
-                            setSelectedSubunit(subunit);
-                        }}
-
-                    />
-
-
-                </div>
-            )}
-
-
-
-
 
             {
-                selectedSubunit && (
+                selectedSubunit && selectedTypes.length > 0 && (
                     <>
                         <div className='add-question-btn'>
                             <button className='btn' onClick={handleOpenModal}>

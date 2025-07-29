@@ -450,6 +450,40 @@ textarea:focus {
   }
 }
 
+/* Only applies to this specific table */
+.questions-table th:nth-child(1),
+.questions-table td:nth-child(1) {
+  width: 10%;
+  text-align: left;
+}
+
+.questions-table th:nth-child(2),
+.questions-table td:nth-child(2) {
+  width: 40%;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: wrap;
+}
+
+.questions-table th:nth-child(3),
+.questions-table td:nth-child(3) {
+  width: 15%;
+  text-align: center;
+}
+
+.questions-table th:nth-child(4),
+.questions-table td:nth-child(4) {
+  width: 15%;
+  text-align: center;
+}
+
+.questions-table th:nth-child(5),
+.questions-table td:nth-child(5) {
+  width: 5%;
+  text-align: center;
+}
+
 .error-text {
   color: red;
   font-size: 1rem;

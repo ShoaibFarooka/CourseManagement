@@ -22,6 +22,12 @@
     gap: 20px;
 }
 
+.essay .language-dropdown {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
 
 .essay .content {
     display: flex;

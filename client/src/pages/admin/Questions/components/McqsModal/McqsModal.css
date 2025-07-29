@@ -11,6 +11,12 @@
     align-items: center;
 }
 
+.mcqs .language-dropdown {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
 .mcqs label {
     padding-left: 10px;
 }

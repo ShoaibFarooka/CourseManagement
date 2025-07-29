@@ -24,7 +24,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     const [showAddPart, setShowAddPart] = useState(false);
     const [managedPartIndex, setManagedPartIndex] = useState(null);
 
-    const [tempUnit, setTempUnit] = useState({ name: "", type: "" });
+    const [tempUnit, setTempUnit] = useState({ name: "", type: [] });
     const [selectedPartIndex, setSelectedPartIndex] = useState(null);
     const [editingUnitIndex, setEditingUnitIndex] = useState(null);
 
@@ -62,18 +62,37 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
 
     const deepCopy = (data) => {
+        if (!data) return null;
+
         return {
+            _id: data._id,
             name: data.name,
             timeRatio: data.timeRatio,
-            publishers: data.publishers?.map(p => ({ name: p.name })) || [],
-            parts: data.parts?.map(part => ({
-                name: part.name,
-                units: part.units?.map(unit => ({
-                    name: unit.name,
-                    type: Array.isArray(unit.type) ? [...unit.type] : [],
-                    subunits: unit.subunits?.map(sub => ({ name: sub.name })) || []
-                })) || []
-            })) || []
+            publishers: Array.isArray(data.publishers)
+                ? data.publishers.map((p) => ({
+                    _id: p._id,
+                    name: p.name,
+                }))
+                : [],
+            parts: Array.isArray(data.parts)
+                ? data.parts.map((part) => ({
+                    _id: part._id,
+                    name: part.name,
+                    units: Array.isArray(part.units)
+                        ? part.units.map((unit) => ({
+                            _id: unit._id,
+                            name: unit.name,
+                            type: Array.isArray(unit.type) ? [...unit.type] : [],
+                            subunits: Array.isArray(unit.subunits)
+                                ? unit.subunits.map((sub) => ({
+                                    _id: sub._id,
+                                    name: sub.name,
+                                }))
+                                : [],
+                        }))
+                        : [],
+                }))
+                : [],
         };
     };
 
@@ -269,7 +288,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setTempPublisher({ name: "" });
         setShowAddpublisher(false);
     };
-
     const handleSaveEditPublisher = () => {
         const { isValid, value: trimmedName } = validateField({
             value: editingPublisherValue,
@@ -282,7 +300,12 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         if (!isValid) return;
 
         const updated = [...courseData.publishers];
-        updated[editingPublisherIndex] = { name: trimmedName };
+
+        const existingPublisher = updated[editingPublisherIndex];
+        updated[editingPublisherIndex] = {
+            _id: existingPublisher?._id,
+            name: trimmedName
+        };
 
         setCourseData(prev => ({
             ...prev,
@@ -293,6 +316,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setEditingPublisherValue("");
         setShowAddpublisher(false);
     };
+
 
     const handleDeletePublisher = (index) => {
         const updated = [...courseData.publishers];
@@ -396,10 +420,14 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         if (!isValid) return;
 
         const updatedParts = [...courseData.parts];
+        const existingPart = updatedParts[editingPartIndex];
+
         updatedParts[editingPartIndex] = {
+            _id: existingPart?._id,
             name: trimmedName,
-            units: courseData.parts[editingPartIndex].units
+            units: existingPart.units
         };
+
         setCourseData(prev => ({
             ...prev,
             parts: updatedParts
@@ -463,6 +491,18 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         setUnsavedChanges(prev => ({ ...prev, unit: isChanged }));
     };
+
+    const handleUnitTypeChange = (e, typeOption) => {
+        const isChecked = e.target.checked;
+        setTempUnit((prev) => ({
+            ...prev,
+            type: isChecked
+                ? [...prev.type, typeOption]
+                : prev.type.filter((t) => t !== typeOption),
+        }));
+        setUnsavedChanges(prev => ({ ...prev, unit: true }));
+    };
+
 
     const resetUnitForm = () => {
         setTempUnit({ name: "", type: [] });
@@ -578,14 +618,19 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         if (!isNameValid) return;
 
         const updatedParts = [...courseData.parts];
+        const existingUnit = updatedParts[selectedPartIndex].units[editingUnitIndex];
+
         updatedParts[selectedPartIndex].units[editingUnitIndex] = {
+            _id: existingUnit?._id,
             name: unitName,
-            type: [...tempUnit.type]
+            type: [...tempUnit.type],
+            subunits: existingUnit?.subunits || []
         };
 
         setCourseData({ ...courseData, parts: updatedParts });
         resetUnitForm();
     };
+
 
 
     const handleDeleteUnit = (partIndex, unitIndex) => {
@@ -721,7 +766,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setShowSubunitInput(false);
     };
 
-
     const handleSaveSubunit = () => {
         const { partIndex, unitIndex } = selectedUnitIndexes;
 
@@ -737,8 +781,12 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         const updatedCourse = { ...courseData };
         const subunits = updatedCourse.parts[partIndex].units[unitIndex].subunits;
+        const existingSubunit = subunits[editingSubunitIndex];
 
-        subunits[editingSubunitIndex] = { name: trimmedName };
+        subunits[editingSubunitIndex] = {
+            _id: existingSubunit?._id,
+            name: trimmedName
+        };
 
         setCourseData(updatedCourse);
         setTempSubUnit({ name: "" });
@@ -746,6 +794,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setShowSubunitInput(false);
         clearFieldError("subunit");
     };
+
 
     const handleDeleteSubunit = (index) => {
         const { partIndex, unitIndex } = selectedUnitIndexes;
@@ -836,14 +885,18 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             name: data.name,
             timeRatio: parseFloat(data.timeRatio),
             publishers: data.publishers?.map(p => ({
+                _id: p._id,
                 name: p.name
             })) || [],
             parts: data.parts?.map(part => ({
+                _id: part._id,
                 name: part.name,
                 units: part.units?.map(unit => ({
+                    _id: unit._id,
                     name: unit.name,
                     type: Array.isArray(unit.type) ? [...unit.type] : [],
                     subunits: unit.subunits?.map(sub => ({
+                        _id: sub._id,
                         name: sub.name
                     })) || []
                 })) || []
@@ -1040,15 +1093,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                                                         type="checkbox"
                                                         value={typeOption}
                                                         checked={tempUnit.type.includes(typeOption)}
-                                                        onChange={(e) => {
-                                                            const isChecked = e.target.checked;
-                                                            setTempUnit((prev) => ({
-                                                                ...prev,
-                                                                type: isChecked
-                                                                    ? [...prev.type, typeOption]
-                                                                    : prev.type.filter((t) => t !== typeOption),
-                                                            }));
-                                                        }}
+                                                        onChange={(e) => handleUnitTypeChange(e, typeOption)}
                                                     />
                                                 </div>
                                             ))}

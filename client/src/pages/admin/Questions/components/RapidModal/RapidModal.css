@@ -11,6 +11,12 @@
     align-items: center;
 }
 
+.rapid .language-dropdown {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
 .rapid .add-question-btn {
     display: flex;
     justify-content: flex-end;

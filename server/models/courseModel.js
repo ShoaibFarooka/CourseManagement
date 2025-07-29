@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { string } = require("yup");
 
 const subunitSchema = new mongoose.Schema({
     name: {
@@ -67,7 +68,7 @@ const courseSchema = new mongoose.Schema(
         timeRatio: {
             type: Number,
             default: 1
-        }
+        },
     },
     { timestamps: true }
 );

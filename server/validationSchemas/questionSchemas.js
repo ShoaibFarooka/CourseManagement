@@ -19,6 +19,7 @@ const questionIdSchema = yup.object().shape({
 });
 
 const essayQuestionSchema = yup.object().shape({
+    language: yup.string().oneOf(["eng", "ar", "fr"]).required("Language is required"),
     content: yup.string().trim().required("Content is required"),
     subquestions: yup.array().of(
         yup.object().shape({
@@ -30,6 +31,7 @@ const essayQuestionSchema = yup.object().shape({
 
 
 const rapidQuestionSchema = yup.object().shape({
+    language: yup.string().oneOf(["eng", "ar", "fr"]).required("Language is required"),
     concept: yup.string().trim().required("Concept is required"),
     definition: yup.string().trim().required("Definition is required"),
     subquestions: yup.array().of(
@@ -52,6 +54,7 @@ const rapidQuestionSchema = yup.object().shape({
 
 
 const mcqQuestionSchema = yup.object().shape({
+    language: yup.string().oneOf(["eng", "ar", "fr"]).required("Language is required"),
     statement: yup.string().trim().required("Statement is required"),
     options: yup.object().shape({
         a: yup.object().shape({
@@ -73,7 +76,6 @@ const mcqQuestionSchema = yup.object().shape({
     }),
     correctOption: yup.string().oneOf(["a", "b", "c", "d"]).required("Correct option is required"),
 });
-
 
 
 
