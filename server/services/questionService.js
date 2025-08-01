@@ -3,27 +3,55 @@ const Course = require("../models/courseModel");
 const fs = require("fs");
 const XLSX = require("xlsx");
 
-const getAllQuestions = async (subunitId, publisherId, page = 1, limit = 5) => {
-    const skip = (page - 1) * limit;
+const getAllQuestions = async (
+    subunitId,
+    publisherId,
+    page = 1,
+    limit = 5,
+    types = [],
+    languages = []
+) => {
+    const filter = {
+        subunitId,
+        publisherId,
+    };
 
-    const [questions, totalCount] = await Promise.all([
-        Question.find({ subunitId, publisherId }).skip(skip).limit(limit),
-        Question.countDocuments({ subunitId, publisherId })
-    ]);
-
-    if (!questions || questions.length === 0) {
-        const error = new Error("No questions found for this subunit.");
-        error.code = 404;
-        throw error;
+    if (types.length > 0) {
+        filter.type = { $in: types };
     }
 
+    if (languages.length > 0) {
+        filter.language = { $in: languages };
+    }
+
+    const skip = (page - 1) * limit;
+
+    let questions = await Question.find(filter);
+
+
+    const typeOrder = { mcq: 1, rapid: 2, essay: 3 };
+    const languageOrder = { eng: 1, ar: 2, fr: 3 };
+
+
+    questions.sort((a, b) => {
+        const typeDiff = typeOrder[a.type] - typeOrder[b.type];
+        if (typeDiff !== 0) return typeDiff;
+
+        return languageOrder[a.language] - languageOrder[b.language];
+    });
+
+    const total = questions.length;
+    const totalPages = Math.ceil(total / limit);
+    const paginatedQuestions = questions.slice(skip, skip + limit);
+
     return {
-        questions,
+        questions: paginatedQuestions,
+        total,
+        totalPages,
         currentPage: page,
-        totalPages: Math.ceil(totalCount / limit),
-        totalCount,
     };
 };
+
 
 
 
@@ -124,7 +152,7 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            if (unit.type !== "mcq") {
+            if (!Array.isArray(unit.type) || !unit.type.includes("mcq")) {
                 warnings.push({ rowNumber, reason: `Unit does not support MCQ type questions` });
                 continue;
             }
@@ -227,10 +255,11 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            if (unit.type !== "rapid") {
+            if (!Array.isArray(unit.type) || !unit.type.includes("rapid")) {
                 warnings.push({ rowNumber, reason: `Unit does not support Rapid type questions` });
                 continue;
             }
+
 
             const subunit = unit.subunits.find(s =>
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
@@ -317,7 +346,6 @@ const addEssayQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
-            // ✅ Extract and validate language
             const language = row["Language"]?.trim()?.toLowerCase();
             if (!["eng", "ar", "fr"].includes(language)) {
                 warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
@@ -353,11 +381,11 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
                 continue;
             }
-
-            if (unit.type !== "essay") {
+            if (!Array.isArray(unit.type) || !unit.type.includes("essay")) {
                 warnings.push({ rowNumber, reason: `Unit does not support Essay type questions` });
                 continue;
             }
+
 
             const subunit = unit.subunits.find(s =>
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()

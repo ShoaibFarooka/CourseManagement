@@ -3,17 +3,33 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/question";
 
 const questionService = {
-    getAllQuestions: async (subunitId, publisherId, page = 1, limit = 5) => {
+    getAllQuestions: async (subunitId, publisherId, page = 1, limit = 5, types = [], language) => {
         try {
+            const params = new URLSearchParams();
+            params.append('page', page);
+            params.append('limit', limit);
+
+            types.forEach(type => {
+                params.append('types', type);
+            });
+
+            if (Array.isArray(language)) {
+                language.forEach(lang => {
+                    params.append('language', lang);
+                });
+            } else if (language) {
+                params.append('language', language);
+            }
+
             const response = await axiosInstance.get(
-                `${BASE_URL}/get-all-questions/${subunitId}/${publisherId}?page=${page}&limit=${limit}`
+                `${BASE_URL}/get-all-questions/${subunitId}/${publisherId}?${params.toString()}`
             );
+
             return response.data;
         } catch (error) {
             throw error;
         }
     },
-
 
 
     addEssayQuestion: async (subunitId, publisherId, payload) => {

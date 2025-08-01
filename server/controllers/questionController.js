@@ -6,7 +6,26 @@ const getAllQuestions = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
 
-        const result = await questionService.getAllQuestions(subunitId, publisherId, page, limit);
+        const types = req.query.types
+            ? Array.isArray(req.query.types)
+                ? req.query.types
+                : req.query.types.split(',')
+            : [];
+
+        const language = req.query.language
+            ? Array.isArray(req.query.language)
+                ? req.query.language
+                : [req.query.language]
+            : [];
+
+        const result = await questionService.getAllQuestions(
+            subunitId,
+            publisherId,
+            page,
+            limit,
+            types,
+            language
+        );
 
         res.status(200).json(result);
     } catch (error) {

@@ -28,6 +28,15 @@ const Questions = () => {
     const [essayFile, setEssayFile] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [selectedLanguage, setSelectedLanguage] = useState([]);
+
+
+    const languageOptions = [
+        { label: 'English', value: 'eng' },
+        { label: 'Arabic', value: 'ar' },
+        { label: 'French', value: 'fr' },
+    ];
+
 
 
 
@@ -65,20 +74,22 @@ const Questions = () => {
         if (selectedSubunit?._id && selectedPublisher?._id && questionType) {
             fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
         }
-    }, [selectedSubunit, selectedPublisher, questionType, currentPage, selectedTypes]);
+    }, [selectedSubunit, selectedPublisher, questionType, currentPage, selectedTypes, selectedLanguage]);
 
 
     const fetchQuestions = async (subunitId, publisherId, page = 1, limit = 5) => {
         try {
             dispatch(ShowLoading());
-            const response = await questionServices.getAllQuestions(subunitId, publisherId, page, limit);
-            const allQuestions = Array.isArray(response.questions) ? response.questions : [];
+            const response = await questionServices.getAllQuestions(
+                subunitId,
+                publisherId,
+                page,
+                limit,
+                selectedTypes,
+                selectedLanguage
+            );
 
-            const filteredQuestions = selectedTypes.length > 0
-                ? allQuestions.filter(q => selectedTypes.includes(q.type))
-                : allQuestions;
-
-            setQuestions(filteredQuestions);
+            setQuestions(response.questions);
             setCurrentPage(response.currentPage);
             setTotalPages(response.totalPages);
         } catch (error) {
@@ -88,6 +99,8 @@ const Questions = () => {
             dispatch(HideLoading());
         }
     };
+
+
 
 
 
@@ -104,7 +117,6 @@ const Questions = () => {
             dispatch(HideLoading());
         }
     };
-
 
 
 
@@ -137,6 +149,22 @@ const Questions = () => {
         );
     };
 
+
+    const handleLanguageChange = (e) => {
+        const value = e.target.value;
+        const checked = e.target.checked;
+
+        setSelectedLanguage((prev) => {
+            if (checked) {
+                return [...prev, value];
+            } else {
+                return prev.filter((lang) => lang !== value);
+            }
+        });
+
+        setCurrentPage(1);
+    };
+
     const getSubunitOptions = () =>
         selectedUnit?.subunits?.map(sub => ({
             label: sub.name,
@@ -160,7 +188,7 @@ const Questions = () => {
         setIsOpenModal(false);
         setEditingQuestion(null);
         if (selectedSubunit?._id && selectedPublisher?._id) {
-            fetchQuestions(selectedSubunit._id, selectedPublisher._id);
+            fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
         }
     };
 
@@ -453,7 +481,27 @@ const Questions = () => {
                 </div>
             )}
 
+            {
+                selectedSubunit && selectedTypes.length > 0 && (
+                    <div className="select-language">
+                        <div className="heading-md label">Select Languages</div>
+                        <div className="checkbox-group">
+                            {languageOptions.map((lang) => (
+                                <label key={lang.value} className=" checkbox-label heading-sm">
+                                    <span className='label-text'>{lang.label.toUpperCase()}</span>
+                                    <input
+                                        type="checkbox"
+                                        value={lang.value}
+                                        checked={selectedLanguage.includes(lang.value)}
+                                        onChange={handleLanguageChange}
+                                    />
+                                </label>
+                            ))}
+                        </div>
+                    </div>
 
+                )
+            }
 
             {
                 selectedSubunit && selectedTypes.length > 0 && (
