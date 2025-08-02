@@ -230,7 +230,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
 
     return (
         <div className='essay'>
-            <div className='heading-xl title'>Essay</div>
+            <div className='heading-xl title'>Add Essay Question</div>
 
             <div className='language-dropdown'>
                 <label className='heading-md'>Select Language</label>

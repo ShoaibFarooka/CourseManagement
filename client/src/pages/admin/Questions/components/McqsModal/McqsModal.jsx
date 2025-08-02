@@ -172,7 +172,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
 
     return (
         <div className='mcqs'>
-            <div className='heading-xl title'>MCQ</div>
+            <div className='heading-xl title'>Add MCQ Question</div>
 
             <div className='language-dropdown'>
                 <label className='heading-md'>Select Language</label>

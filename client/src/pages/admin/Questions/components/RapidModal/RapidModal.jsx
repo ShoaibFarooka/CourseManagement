@@ -276,7 +276,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
 
     return (
         <div className='rapid'>
-            <div className='heading-xl title'>Rapid</div>
+            <div className='heading-xl title'>Add Rapid Question</div>
 
             <div className='language-dropdown'>
                 <label className='heading-md'>Select Language</label>

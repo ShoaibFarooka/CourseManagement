@@ -73,15 +73,12 @@ const DashBoard = () => {
                 <button className='btn' onClick={handleClickAddCourse}>Add Course</button>
             </div>
 
-            {courses.map((course, index) => (
-                <CourseInfo
-                    key={course._id}
-                    index={index}
-                    name={course.name}
-                    id={course._id}
-                    fetchAllCourses={fetchAllCourses}
-                    onEdit={() => handleClickEditCourse(course)} />
-            ))}
+            <CourseInfo
+                courses={courses}
+                fetchAllCourses={fetchAllCourses}
+                onEdit={handleClickEditCourse}
+            />
+
 
             <CustomModal isOpen={isOpenAddCourseModal} onRequestClose={handleClickCloseBtn} contentLabel='Course Form'>
                 <CourseForm

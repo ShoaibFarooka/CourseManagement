@@ -946,7 +946,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     return (
         <div className='add-course'>
 
-            <div className='heading-lg title' >Course Info</div>
+            <div className='heading-lg title' >
+                {initialCourseData ? `Update ${courseData.name} Course` : 'Add New Course'}
+            </div>
 
             <div className='course-form'>
                 <label htmlFor="name" className='heading-md name'>Course Name</label>

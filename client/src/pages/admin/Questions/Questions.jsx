@@ -19,7 +19,7 @@ const Questions = () => {
     const [selectedPart, setSelectedPart] = useState(null);
     const [selectedUnit, setSelectedUnit] = useState(null);
     const [selectedTypes, setSelectedTypes] = useState([]);
-    const [questionType, setQuestionType] = useState(null);
+    const [questionType, setQuestionType] = useState([]);
     const [selectedSubunit, setSelectedSubunit] = useState(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [editingQuestion, setEditingQuestion] = useState(null);
@@ -36,6 +36,8 @@ const Questions = () => {
         { label: 'Arabic', value: 'ar' },
         { label: 'French', value: 'fr' },
     ];
+    const ALL_QUESTION_TYPES = ['mcq', 'rapid', 'essay'];
+
 
 
 
@@ -69,6 +71,21 @@ const Questions = () => {
     useEffect(() => {
         fetchAllCourses();
     }, []);
+
+    useEffect(() => {
+        if (selectedUnit) {
+            const types = selectedUnit?.type ? selectedUnit.type : [];
+            setSelectedTypes(types);
+            setQuestionType(types);
+        }
+
+        if (languageOptions.length) {
+            const langs = languageOptions.map(lang => lang.value);
+            setSelectedLanguage(langs);
+        }
+    }, [selectedUnit]);
+
+
 
     useEffect(() => {
         if (selectedSubunit?._id && selectedPublisher?._id && questionType) {
@@ -161,8 +178,6 @@ const Questions = () => {
                 return prev.filter((lang) => lang !== value);
             }
         });
-
-        setCurrentPage(1);
     };
 
     const getSubunitOptions = () =>
@@ -431,8 +446,6 @@ const Questions = () => {
                             const unit = selectedPart.units.find(u => u._id === unitId);
                             setSelectedUnit(unit);
                             setSelectedSubunit(null);
-                            setQuestionType(Array.isArray(unit?.type) ? unit.type : []);
-                            setSelectedTypes([]);
                             setQuestions([]);
                         }}
                     />
@@ -452,7 +465,6 @@ const Questions = () => {
                         onChange={(subunitId) => {
                             const subunit = selectedUnit.subunits.find(s => s._id === subunitId);
                             setSelectedSubunit(subunit);
-                            setSelectedTypes([]);
                         }}
 
                     />
@@ -466,7 +478,7 @@ const Questions = () => {
                 <div className="select-question-type">
                     <div className="heading-md label">Select Question Types</div>
                     <div className="checkbox-group">
-                        {questionType.map((type) => (
+                        {ALL_QUESTION_TYPES.map((type) => (
                             <label key={type} className="checkbox-label">
                                 <span className='label-text heading-sm'>{type.toUpperCase()}</span>
                                 <input
@@ -474,6 +486,7 @@ const Questions = () => {
                                     value={type}
                                     checked={selectedTypes.includes(type)}
                                     onChange={() => handleCheckboxChange(type)}
+                                    disabled={!selectedTypes.includes(type)}
                                 />
                             </label>
                         ))}
@@ -481,8 +494,9 @@ const Questions = () => {
                 </div>
             )}
 
+
             {
-                selectedSubunit && selectedTypes.length > 0 && (
+                selectedSubunit && (
                     <div className="select-language">
                         <div className="heading-md label">Select Languages</div>
                         <div className="checkbox-group">
@@ -504,7 +518,7 @@ const Questions = () => {
             }
 
             {
-                selectedSubunit && selectedTypes.length > 0 && (
+                selectedSubunit && (
                     <>
                         <div className='add-question-btn'>
                             <button className='btn' onClick={handleOpenModal}>
