@@ -6,14 +6,14 @@ const Footer = () => {
     return (
         <div className='footer'>
             <div className='footer-logo'>
-                <NavLink to='/admin/dashboard' className='logo-link'>
+                <NavLink to='/admin/Courses' className='logo-link'>
                     <img src={del} alt="Logo" />
                 </NavLink>
             </div>
             <div className='container'>
 
                 <div className='footer-links'>
-                    <NavLink to='/admin/dashboard' className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>Courses</NavLink>
+                    <NavLink to='/admin/Courses' className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>Courses</NavLink>
                     <NavLink to='/admin/questions' className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>Questions</NavLink>
                 </div>
 

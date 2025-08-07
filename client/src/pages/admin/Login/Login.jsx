@@ -75,7 +75,7 @@ const Login = () => {
                     sameSite: 'Lax'
                 });
                 const from = location.state?.from?.pathname;
-                navigate(from || '/admin/dashboard');
+                navigate(from || '/admin/Courses');
                 message.success("Successfully Logged In");
             } else {
                 message.error(response.error || "Login Failed");

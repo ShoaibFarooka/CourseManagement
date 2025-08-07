@@ -1,4 +1,4 @@
-import './Dashboard.css'
+import './Courses.css'
 import CourseInfo from './components/CourseInfo/CourseInfo';
 import { useEffect, useState, useRef } from 'react';
 import CustomModal from '../../../components/CustomModal/CustomModal';
@@ -8,7 +8,7 @@ import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 import { Modal } from 'antd';
 
-const DashBoard = () => {
+const Courses = () => {
 
     const [isOpenAddCourseModal, setIsOpenCourseModal] = useState(false);
     const [editCourse, setEditCourse] = useState(null);
@@ -68,7 +68,7 @@ const DashBoard = () => {
     }, []);
 
     return (
-        <div className='dashboard'>
+        <div className='courses'>
             <div className='add-course-btn'>
                 <button className='btn' onClick={handleClickAddCourse}>Add Course</button>
             </div>
@@ -92,4 +92,4 @@ const DashBoard = () => {
     )
 }
 
-export default DashBoard
+export default Courses

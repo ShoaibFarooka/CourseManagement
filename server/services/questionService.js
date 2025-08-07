@@ -116,12 +116,6 @@ const addMCQQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
-            const language = row["Language"]?.trim()?.toLowerCase();
-            if (!["eng", "ar", "fr"].includes(language)) {
-                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
-                continue;
-            }
-
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
                 warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
@@ -164,6 +158,13 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
                 continue;
             }
+
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                continue;
+            }
+
 
             const correctOption = row["Correct Option"]?.toLowerCase();
             if (!["a", "b", "c", "d"].includes(correctOption)) {
@@ -219,12 +220,6 @@ const addRapidQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
-            const language = row["Language"]?.trim()?.toLowerCase();
-            if (!["eng", "ar", "fr"].includes(language)) {
-                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
-                continue;
-            }
-
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
                 warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
@@ -266,6 +261,12 @@ const addRapidQuestionsFromFile = async (filePath) => {
             );
             if (!subunit) {
                 warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
+                continue;
+            }
+
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
                 continue;
             }
 
@@ -346,12 +347,6 @@ const addEssayQuestionsFromFile = async (filePath) => {
         const rowNumber = i + 1;
 
         try {
-            const language = row["Language"]?.trim()?.toLowerCase();
-            if (!["eng", "ar", "fr"].includes(language)) {
-                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
-                continue;
-            }
-
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
                 warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
@@ -395,6 +390,12 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                continue;
+            }
+
             const subquestions = [];
             let index = 1;
 
@@ -417,7 +418,6 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            // ✅ Add to valid questions
             questions.push({
                 type: "essay",
                 publisherId: publisher._id,

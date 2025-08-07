@@ -48,7 +48,7 @@ const Navbar = () => {
                             </button>
                         )
                         }
-                        <NavLink to='/admin/dashboard' className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Courses</NavLink>
+                        <NavLink to='/admin/Courses' className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Courses</NavLink>
                         <NavLink to='/admin/questions' className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Questions</NavLink>
 
                         <div className='mobile-btns'>

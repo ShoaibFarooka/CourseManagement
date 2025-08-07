@@ -9,6 +9,7 @@ import CustomModal from '../../../components/CustomModal/CustomModal';
 import questionServices from '../../../services/questionServices';
 import { message, Modal } from 'antd';
 import QuestionForm from './components/QuestionForm/QuestionForm';
+import UploadSummaryModal from './components/UploadSummaryModal/UploadSummaryModal';
 
 
 const Questions = () => {
@@ -29,6 +30,9 @@ const Questions = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [selectedLanguage, setSelectedLanguage] = useState([]);
+    const [isOpenSummary, setIsOpenSummary] = useState(false);
+    const [uploadWarnings, setUploadWarnings] = useState([]);
+    const [uploadSuccess, setUploadSuccess] = useState([]);
 
 
     const languageOptions = [
@@ -256,6 +260,16 @@ const Questions = () => {
         }
     };
 
+    const handleOpenSummaryModal = () => {
+        setIsOpenSummary(true);
+    }
+
+    const handleCloseSummaryModal = () => {
+        setIsOpenSummary(false);
+        setUploadWarnings([]);
+        setUploadSuccess([]);
+    }
+
 
     const handleUpload = async () => {
         if (!mcqFile && !essayFile && !rapidFile) {
@@ -303,21 +317,35 @@ const Questions = () => {
                 }
             }
 
+            const allWarnings = [];
+            const allSuccess = [];
+
             results.forEach(result => {
                 if (result.warnings && result.warnings.length > 0) {
                     result.warnings.forEach(warning => {
-                        window.confirm(`${result.type} Row ${warning.rowNumber}: ${warning.reason}`);
+                        allWarnings.push({
+                            type: result.type,
+                            rowNumber: warning.rowNumber,
+                            reason: warning.reason,
+                        })
                     });
-                } else {
-                    message.success(`${result.type} upload complete, ${result.message}`);
                 }
+
+                allSuccess.push({
+                    type: result.type,
+                    message: result.message
+                })
             });
+
+            setUploadWarnings(allWarnings);
+            setUploadSuccess(allSuccess);
 
         } catch (err) {
             console.error("Upload failed:", err);
             message.error("An unexpected error occurred during file upload.");
         } finally {
             dispatch(HideLoading());
+            handleOpenSummaryModal();
         }
     };
 
@@ -362,6 +390,16 @@ const Questions = () => {
                 </div>
 
             </div>
+
+            <CustomModal
+                isOpen={isOpenSummary} onRequestClose={handleCloseSummaryModal} contentLabel='Summary Form'
+            >
+                <UploadSummaryModal
+                    close={handleCloseSummaryModal}
+                    warnings={uploadWarnings}
+                    success={uploadSuccess}
+                />
+            </CustomModal>
 
             <div className="select-course">
 

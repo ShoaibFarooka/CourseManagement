@@ -1,9 +1,9 @@
-.dashboard {
+.courses {
     padding: 0 50px;
     padding-bottom: 50px;
 }
 
-.dashboard .add-course-btn {
+.courses .add-course-btn {
     display: flex;
     justify-content: flex-end;
     padding-right: 10px;
