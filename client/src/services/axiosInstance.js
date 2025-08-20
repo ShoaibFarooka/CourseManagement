@@ -59,7 +59,7 @@ axiosInstance.interceptors.response.use(
                 } catch (err) {
                     console.log('Error in refreshing token: ', err);
                     Cookies.remove('course-managment-jwt-token');
-                    const redirectTo = '/admin/login';
+                    const redirectTo = '/login';
                     window.location.href = redirectTo;
                     return Promise.reject(err);
                 }

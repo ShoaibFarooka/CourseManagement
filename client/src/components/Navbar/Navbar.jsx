@@ -8,12 +8,27 @@ import userService from '../../services/userServices'
 import { message } from 'antd';
 import { ShowLoading, HideLoading } from '../../redux/loaderSlice';
 import { setLoggedOut } from '../../redux/logoutSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearUser } from '../../redux/userSlice';
+
 
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { user } = useSelector(state => state.user);
+    const role = user?.role || 'guest';
+
+
+    const navLinks = [
+        { name: "Home", to: "/home", roles: ["user", "guest"] },
+        { name: "Courses", to: "/admin/courses", roles: ["admin"] },
+        { name: "Questions", to: "/admin/questions", roles: ["admin"] },
+    ];
+
+    const handleLogin = () => {
+        navigate('/login');
+    }
 
     const handleLogout = async () => {
         try {
@@ -25,8 +40,9 @@ const Navbar = () => {
             message.error(error?.response?.data);
         } finally {
             Cookies.remove("course-managment-jwt-token");
+            dispatch(clearUser());
             dispatch(setLoggedOut());
-            navigate('/admin/login');
+            navigate('/login');
             dispatch(HideLoading());
         }
     }
@@ -48,19 +64,40 @@ const Navbar = () => {
                             </button>
                         )
                         }
-                        <NavLink to='/admin/Courses' className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Courses</NavLink>
-                        <NavLink to='/admin/questions' className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Questions</NavLink>
+
+                        {navLinks
+                            .filter(link => link.roles.includes(role))
+                            .map((item) => (
+                                <NavLink
+                                    key={item.to}
+                                    to={item.to}
+                                    className={({ isActive }) =>
+                                        isActive ? 'nav-link active' : 'nav-link'
+                                    }
+                                >
+                                    {item.name}
+                                </NavLink>
+                            ))}
+
 
                         <div className='mobile-btns'>
                             <ThemeToggle />
-                            <button className='btn' onClick={handleLogout}>Logout</button>
+                            {user ? (
+                                <button className='btn' onClick={handleLogout}>Logout</button>
+                            ) : (
+                                <button to="/login" className="btn" onClick={handleLogin}>Login</button>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className='right'>
                     <ThemeToggle />
-                    <button className='btn' onClick={handleLogout}>Logout</button>
+                    {user ? (
+                        <button className='btn' onClick={handleLogout}>Logout</button>
+                    ) : (
+                        <button to="/login" className="btn" onClick={handleLogin}>Login</button>
+                    )}
                 </div>
 
 

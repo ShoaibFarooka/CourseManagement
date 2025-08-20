@@ -1,15 +1,27 @@
 const userService = require("../services/userService.js");
 
+
+const RegisterUser = async (req, res, next) => {
+  try {
+    const data = { ...req.body };
+    const user = await userService.createUser(data, "user");
+    res.status(201).json({ message: "User registered successfully", user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 const Login = async (req, res, next) => {
   try {
     const data = { ...req.body };
-    const { accessToken, refreshToken } = await userService.loginUser(data);
+    const { accessToken, refreshToken, role } = await userService.loginUser(data);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "Strict",
     });
-    res.status(200).json({ token: accessToken });
+    res.status(200).json({ token: accessToken, role });
   } catch (error) {
     next(error);
   }
@@ -60,6 +72,7 @@ const FetchUserInfo = async (req, res, next) => {
 };
 
 module.exports = {
+  RegisterUser,
   Login,
   RefreshToken,
   Logout,

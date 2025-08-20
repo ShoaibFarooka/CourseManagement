@@ -7,18 +7,12 @@ const isAuthenticated = () => {
 };
 
 const normalizePath = (path) => {
-    // Remove trailing slashes and ensure a consistent format
     return path.replace(/\/+$/, '');
 };
 
 const verifyAuthorization = (role) => {
     console.log('Verifying...', role);
     const currentPath = normalizePath(window.location.pathname);
-    // if (role === 'user' && currentPath === '/success') {
-    //     return true;
-    // } else if (currentPath === '' || currentPath === '/company') {
-    //     return true;
-    // }
     if (currentPath === '') {
         return true;
     }

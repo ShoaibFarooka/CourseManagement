@@ -5,6 +5,12 @@ const userSchemas = require("../validationSchemas/userSchemas");
 const validationMiddleware = require("../middleware/validationMiddleware");
 
 router.post(
+  "/:usertype-register",
+  validationMiddleware.validateBody(userSchemas.registerSchema),
+  controller.RegisterUser
+);
+
+router.post(
   "/login",
   validationMiddleware.validateBody(userSchemas.loginSchema),
   controller.Login

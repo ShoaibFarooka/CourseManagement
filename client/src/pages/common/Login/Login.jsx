@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
-import userService from '../../../services/userServices';
+import userService from '../../../services/userServices'
 import { useDispatch } from 'react-redux';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 
@@ -75,8 +75,16 @@ const Login = () => {
                     sameSite: 'Lax'
                 });
                 const from = location.state?.from?.pathname;
-                navigate(from || '/admin/Courses');
-                message.success("Successfully Logged In");
+                if (response.role === 'admin') {
+                    navigate(from || '/admin/courses');
+                    message.success("Successfully Logged In");
+                } else if (response.role === 'user') {
+                    navigate(from || '/home');
+                    message.success("Successfully Logged In");
+                } else {
+                    message.error("Unknown User!");
+                }
+
             } else {
                 message.error(response.error || "Login Failed");
             }
@@ -91,7 +99,7 @@ const Login = () => {
         <div className='login'>
 
             <form onSubmit={handleClickLogin} className='form'>
-                <div className='heading-lg h1'>Admin Login</div>
+                <div className='heading-lg h1'>Login</div>
                 <div className='input-field'>
                     <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} />
                     {error.email && <span className='error-text'>{error.email}</span>}

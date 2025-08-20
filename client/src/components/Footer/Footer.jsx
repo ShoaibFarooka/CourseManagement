@@ -2,7 +2,19 @@ import './Footer.css';
 import { NavLink } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa';
 import del from '../../assets/icons/del.png';
+import { useSelector } from 'react-redux';
 const Footer = () => {
+
+    const { user } = useSelector(state => state.user);
+    const role = user?.role || 'guest';
+
+    const navLinks = [
+        { name: "Home", to: "/home", roles: ["user", "guest"] },
+        { name: "Courses", to: "/admin/courses", roles: ["admin"] },
+        { name: "Questions", to: "/admin/questions", roles: ["admin"] },
+    ];
+
+
     return (
         <div className='footer'>
             <div className='footer-logo'>
@@ -13,8 +25,19 @@ const Footer = () => {
             <div className='container'>
 
                 <div className='footer-links'>
-                    <NavLink to='/admin/Courses' className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>Courses</NavLink>
-                    <NavLink to='/admin/questions' className={({ isActive }) => isActive ? 'footer-link active' : 'footer-link'}>Questions</NavLink>
+                    {navLinks
+                        .filter(link => link.roles.includes(role))
+                        .map((item) => (
+                            <NavLink
+                                key={item.to}
+                                to={item.to}
+                                className={({ isActive }) =>
+                                    isActive ? 'footer-link active' : 'footer-link'
+                                }
+                            >
+                                {item.name}
+                            </NavLink>
+                        ))}
                 </div>
 
                 <div className='container-1'>

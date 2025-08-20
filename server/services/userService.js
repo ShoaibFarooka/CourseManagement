@@ -6,6 +6,8 @@ const createUser = async (userData, role) => {
     name,
     email,
     password,
+    phone,
+    country,
   } = userData;
 
   let existingUser = await User.findOne({ email });
@@ -19,6 +21,8 @@ const createUser = async (userData, role) => {
   let passwordDigest = await authUtils.hashPassword(password);
   const user = await User.create({
     name,
+    phone,
+    country,
     email,
     password: passwordDigest,
     role,
@@ -53,7 +57,7 @@ const loginUser = async (loginData) => {
   let refreshToken = authUtils.createRefreshToken(payload);
   user.refreshToken = refreshToken;
   await user.save();
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, role: user.role };
 };
 
 const refreshToken = async (refreshToken) => {

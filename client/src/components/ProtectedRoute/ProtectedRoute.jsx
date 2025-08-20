@@ -6,7 +6,7 @@ import Unauthorized from '../../pages/common/Unauthorized/Unauthorized';
 
 const ProtectedRoute = ({ children, ...rest }) => {
     const location = useLocation();
-    const redirectTo = '/admin/login';
+    const redirectTo = '/login';
     const isAuth = isAuthenticated();
     const [isAuthorized, setIsAuthorized] = useState('pending');
     const hasLoggedOut = useSelector(state => state.logout.hasLoggedOut);
