@@ -1,5 +1,7 @@
 const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 
 const createUser = async (userData, role) => {
   const {
@@ -116,10 +118,55 @@ const fetchUser = async (userId) => {
   return user;
 };
 
+const forgotPassword = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    const error = new Error("No account found with that email");
+    error.code = 404;
+    throw error;
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetTokenExpiry = Date.now() + 1000 * 60 * 15;
+
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpires = resetTokenExpiry;
+  await user.save();
+
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+  await sendEmail(
+    user.email,
+    "Password Reset Request",
+    `Click the following link to reset your password: ${resetUrl}\n\nThis link is valid for 15 minutes.`
+  );
+};
+
+const resetPassword = async (token, newPassword) => {
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    const error = new Error("Invalid or expired token");
+    error.code = 400;
+    throw error;
+  }
+
+  user.password = await authUtils.hashPassword(newPassword);
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+};
+
+
 module.exports = {
   createUser,
   loginUser,
   refreshToken,
   logoutUser,
   fetchUser,
+  forgotPassword,
+  resetPassword,
 };

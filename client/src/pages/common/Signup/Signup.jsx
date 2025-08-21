@@ -108,7 +108,7 @@ const Signup = () => {
                     sameSite: 'Lax'
                 });
                 const from = location.state?.from?.pathname;
-                navigate(from || '/home');
+                navigate(from || '/');
                 message.success("Successfully Logged In");
             } else {
                 message.error(response.error || "Login Failed");
@@ -186,7 +186,7 @@ const Signup = () => {
 
                 <p className="text-sm">
                     Already have an account?{" "}
-                    <a href="/admin/login" className="text-sm">
+                    <a href="/login" className="text-sm">
                         Login
                     </a>
                 </p>

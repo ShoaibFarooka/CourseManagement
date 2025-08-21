@@ -27,7 +27,7 @@ const Navbar = () => {
     ];
 
     const handleLogin = () => {
-        navigate('/login');
+        navigate('/signup');
     }
 
     const handleLogout = async () => {
@@ -85,7 +85,7 @@ const Navbar = () => {
                             {user ? (
                                 <button className='btn' onClick={handleLogout}>Logout</button>
                             ) : (
-                                <button to="/login" className="btn" onClick={handleLogin}>Login</button>
+                                <button className="btn" onClick={handleLogin}>Sign In</button>
                             )}
                         </div>
                     </div>
@@ -96,7 +96,7 @@ const Navbar = () => {
                     {user ? (
                         <button className='btn' onClick={handleLogout}>Logout</button>
                     ) : (
-                        <button to="/login" className="btn" onClick={handleLogin}>Login</button>
+                        <button className="btn" onClick={handleLogin}>Sign in</button>
                     )}
                 </div>
 

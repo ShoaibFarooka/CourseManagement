@@ -4,8 +4,10 @@ export const menuItems = {
         { path: '/admin/questions' }
     ],
     user: [
+        { path: '/' },
         { path: '/login' },
         { path: '/signup' },
-        { path: '/home' }
+        { path: '/forget-password' },
+        { path: 'reset-password' }
     ]
 };

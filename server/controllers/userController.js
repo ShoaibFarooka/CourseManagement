@@ -71,10 +71,35 @@ const FetchUserInfo = async (req, res, next) => {
   }
 };
 
+const ForgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await userService.forgotPassword(email);
+    res.status(200).json({ message: "Password reset link has been sent to your email" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const ResetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    await userService.resetPassword(token, newPassword);
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   RegisterUser,
   Login,
   RefreshToken,
   Logout,
   FetchUserInfo,
+  ForgotPassword,
+  ResetPassword,
 };

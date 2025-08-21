@@ -8,7 +8,7 @@ const ScrollToTop = () => {
         console.log("Pathname: ", pathname)
         const header = document.querySelector("header");
         const offset = header?.offsetHeight || 80;
-        if (pathname === '/home') {
+        if (pathname === '/') {
             window.scrollTo({ top: 0, behavior: "smooth" });
         } else {
             window.scrollTo({ top: offset, behavior: "smooth" });

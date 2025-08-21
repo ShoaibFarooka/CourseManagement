@@ -32,4 +32,14 @@ router.get(
   controller.FetchUserInfo
 );
 
+router.post(
+  "/forgot-password",
+  controller.ForgotPassword
+);
+
+router.post(
+  "/reset-password/:token",
+  controller.ResetPassword
+);
+
 module.exports = router;

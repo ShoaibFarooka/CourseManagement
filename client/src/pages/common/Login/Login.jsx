@@ -79,7 +79,7 @@ const Login = () => {
                     navigate(from || '/admin/courses');
                     message.success("Successfully Logged In");
                 } else if (response.role === 'user') {
-                    navigate(from || '/home');
+                    navigate(from || '/');
                     message.success("Successfully Logged In");
                 } else {
                     message.error("Unknown User!");
@@ -119,6 +119,12 @@ const Login = () => {
                     </span>
                 </div>
                 <button type='submit' className='btn login-btn'>Login</button>
+                <p className="text-sm">
+                    Lost access?{" "}
+                    <a href="/forget-password" className="text-sm">
+                        Recover Password
+                    </a>
+                </p>
             </form>
 
         </div>
