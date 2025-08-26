@@ -9,7 +9,7 @@ const Footer = () => {
     const role = user?.role || 'guest';
 
     const navLinks = [
-        { name: "Home", to: "/home", roles: ["user", "guest"] },
+        { name: "Home", to: "/", roles: ["user", "guest"] },
         { name: "Courses", to: "/admin/courses", roles: ["admin"] },
         { name: "Questions", to: "/admin/questions", roles: ["admin"] },
     ];

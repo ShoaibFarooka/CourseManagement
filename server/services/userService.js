@@ -1,7 +1,6 @@
 const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
 
 const createUser = async (userData, role) => {
   const {
@@ -118,7 +117,7 @@ const fetchUser = async (userId) => {
   return user;
 };
 
-const forgotPassword = async (email) => {
+const createResetToken = async (email) => {
   const user = await User.findOne({ email });
   if (!user) {
     const error = new Error("No account found with that email");
@@ -129,23 +128,16 @@ const forgotPassword = async (email) => {
   const resetToken = crypto.randomBytes(32).toString("hex");
   const resetTokenExpiry = Date.now() + 1000 * 60 * 15;
 
-  user.resetPasswordToken = resetToken;
-  user.resetPasswordExpires = resetTokenExpiry;
+  user.resetToken = resetToken;
+  user.resetTokenExpiry = resetTokenExpiry;
   await user.save();
-
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-  await sendEmail(
-    user.email,
-    "Password Reset Request",
-    `Click the following link to reset your password: ${resetUrl}\n\nThis link is valid for 15 minutes.`
-  );
+  return { user, resetToken };
 };
 
 const resetPassword = async (token, newPassword) => {
   const user = await User.findOne({
-    resetPasswordToken: token,
-    resetPasswordExpires: { $gt: Date.now() },
+    resetToken: token,
+    resetTokenExpiry: { $gt: Date.now() },
   });
 
   if (!user) {
@@ -154,9 +146,10 @@ const resetPassword = async (token, newPassword) => {
     throw error;
   }
 
-  user.password = await authUtils.hashPassword(newPassword);
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
+  let passwordDigest = await authUtils.hashPassword(newPassword);
+  user.password = passwordDigest;
+  user.resetToken = null;
+  user.resetTokenExpiry = null;
   await user.save();
 };
 
@@ -167,6 +160,6 @@ module.exports = {
   refreshToken,
   logoutUser,
   fetchUser,
-  forgotPassword,
+  createResetToken,
   resetPassword,
 };

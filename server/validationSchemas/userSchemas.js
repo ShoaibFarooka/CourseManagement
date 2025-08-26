@@ -18,7 +18,18 @@ const loginSchema = yup.object().shape({
   password: yup.string().trim().required("Password is required"),
 });
 
+const forgotPasswordSchema = yup.object().shape({
+  email: yup.string().email('Invalid email address').trim().required('Email is required'),
+});
+
+const resetPasswordSchema = yup.object().shape({
+  token: yup.string().trim().required('Token is required'),
+  newPassword: yup.string().trim().required('New Password is required'),
+});
+
 module.exports = {
   loginSchema,
-  registerSchema
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 };

@@ -19,7 +19,7 @@ const AuthenticatedRedirect = ({ children, ...rest }) => {
             );
         }
 
-        if (user?.role === "user" && location.pathname !== "/home") {
+        if (user?.role === "user" && location.pathname !== "/") {
             return (
                 <Navigate
                     to="/home"

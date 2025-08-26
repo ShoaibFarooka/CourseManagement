@@ -1,4 +1,7 @@
 const userService = require("../services/userService.js");
+const path = require('path');
+const emailService = require('../services/emailService');
+const templateUtils = require('../utils/templateUtils');
 
 
 const RegisterUser = async (req, res, next) => {
@@ -74,8 +77,18 @@ const FetchUserInfo = async (req, res, next) => {
 const ForgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    await userService.forgotPassword(email);
-    res.status(200).json({ message: "Password reset link has been sent to your email" });
+    const { user, resetToken } = await userService.createResetToken(email);
+    const CLIENT_URL = req.get('origin');
+    const resetLink = `${CLIENT_URL}/reset-password?token=${resetToken}`;
+    const templatePath = path.join(__dirname, '../templates/resetPasswordEmailTemplate.hbs');
+    const data = {
+      companyLogo: "http://localhost:5777/static/images/logo.png",
+      userName: user.name,
+      resetLink
+    };
+    const htmlContent = await templateUtils.generateHTML(data, templatePath);
+    await emailService.sendEmail(user.email, 'Password Reset Request', null, htmlContent);
+    res.status(200).json({ message: 'Reset password link sent!' });
   } catch (error) {
     next(error);
   }
@@ -83,16 +96,14 @@ const ForgotPassword = async (req, res, next) => {
 
 const ResetPassword = async (req, res, next) => {
   try {
-    const { token } = req.params;
-    const { newPassword } = req.body;
-
+    const { token, newPassword } = req.body;
     await userService.resetPassword(token, newPassword);
-
-    res.status(200).json({ message: "Password has been reset successfully" });
+    res.status(200).json({ message: "Password updated successfully!" });
   } catch (error) {
     next(error);
   }
 };
+
 
 module.exports = {
   RegisterUser,

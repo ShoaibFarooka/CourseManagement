@@ -1,13 +1,14 @@
 import './resetPassword.css';
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { message } from "antd";
 import userService from "../../../services/userServices"
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
 
 const ResetPassword = () => {
-    const { token } = useParams();
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get("token");
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -38,7 +39,10 @@ const ResetPassword = () => {
 
         try {
             dispatch(ShowLoading());
-            const response = await userService.resetPassword(token, { password });
+            const response = await userService.resetPassword({
+                token,
+                newPassword: password
+            });
             message.success(response.message || "Password reset successful!");
             navigate("/login");
         } catch (error) {

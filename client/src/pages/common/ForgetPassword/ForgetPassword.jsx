@@ -14,16 +14,17 @@ const ForgetPassword = () => {
         setEmail(e.target.value);
     }
 
-    const handleOnSubmit = async () => {
+    const handleOnSubmit = async (e) => {
         e.preventDefault();
         try {
             dispatch(ShowLoading());
-            const response = await userService.forgotPassword({ email });
-            message.success(response.message || "Password reset link sent to your email");
+            await userService.forgotPassword({ email });
+            message.success("Password reset link sent to your email");
         } catch (error) {
             message.error(error.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());
+            setEmail("");
         }
     }
     return (

@@ -34,11 +34,13 @@ router.get(
 
 router.post(
   "/forgot-password",
+  validationMiddleware.validateBody(userSchemas.forgotPasswordSchema),
   controller.ForgotPassword
 );
 
 router.post(
-  "/reset-password/:token",
+  "/reset-password",
+  validationMiddleware.validateBody(userSchemas.resetPasswordSchema),
   controller.ResetPassword
 );
 
