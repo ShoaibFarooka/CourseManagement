@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+
+
 * {
   margin: 0;
   padding: 0;
@@ -59,6 +62,15 @@ html {
   --select-text: #0f172a;
   --select-border: #d1d5db;
   --select-hover: #f3f4f6;
+
+
+  /*User Side Variables */
+
+  --primary-color: #2699A1;
+  --secondary-color: #D1FE67;
+  --text-color: #FFFFFF;
+  --font-family: 'Lato', sans-serif;
+  --btn-text: #1E1E1E;
 }
 
 [data-theme="dark"] {
@@ -98,6 +110,13 @@ html {
   --select-text: #f8fafc;
   --select-border: #334155;
   --select-hover: #334155;
+
+
+  /*User Side Variables */
+
+  --primary-color: #1E1E1E;
+  --secondary-color: #003034;
+
 }
 
 /* Button base */

@@ -82,7 +82,7 @@ const ForgotPassword = async (req, res, next) => {
     const resetLink = `${CLIENT_URL}/reset-password?token=${resetToken}`;
     const templatePath = path.join(__dirname, '../templates/resetPasswordEmailTemplate.hbs');
     const data = {
-      companyLogo: "http://localhost:5777/static/images/logo.png",
+      companyLogo: "http://localhost:5222/static/images/logo.png",
       userName: user.name,
       resetLink
     };
