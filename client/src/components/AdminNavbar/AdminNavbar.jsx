@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 import { clearUser } from '../../redux/userSlice';
 
 
-const Navbar = () => {
+const AdminNavbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -104,4 +104,4 @@ const Navbar = () => {
     )
 }
 
-export default Navbar
+export default AdminNavbar;

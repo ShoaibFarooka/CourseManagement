@@ -2,6 +2,7 @@ import './UserNavbar.css';
 import logo from '../../assets/icons/logo.png';
 import { NavLink } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import ThemeToggel from '../ThemeToggel/ThemeToggel';
 
 const UserNavbar = () => {
     const [openMobileMenu, setOpenMobileMenu] = useState(false);
@@ -94,12 +95,14 @@ const UserNavbar = () => {
 
                         <div className="mobile">
                             <button className="signin-btn">Sign in</button>
+                            <ThemeToggel />
                         </div>
                     </div>
                 </div>
 
                 <div className="right">
                     <button className="signin-btn">Sign in</button>
+                    <ThemeToggel />
                 </div>
 
                 <button

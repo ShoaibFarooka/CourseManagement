@@ -2,7 +2,7 @@ import './AdminFooter.css';
 import { NavLink } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa';
 import del from '../../assets/icons/del.png';
-const Footer = () => {
+const AdminFooter = () => {
 
     const navLinks = [
         { name: "Courses", to: "/admin/courses" },
@@ -52,4 +52,4 @@ const Footer = () => {
     )
 }
 
-export default Footer
+export default AdminFooter;

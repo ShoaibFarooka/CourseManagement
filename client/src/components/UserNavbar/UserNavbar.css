@@ -130,6 +130,7 @@
     display: flex;
     align-items: center;
     padding-right: 30px;
+    gap: 10px;
 }
 
 .user-navbar .container .right .signin-btn {
@@ -159,11 +160,11 @@
 
 @media only screen and (max-width:1024px) {
     .user-navbar .container .left .nav-list {
-        gap: 60px;
+        gap: 45px;
     }
 
     .user-navbar .container .left {
-        gap: 60px;
+        gap: 45px;
     }
 }
 
