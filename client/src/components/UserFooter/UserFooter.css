@@ -1,0 +1,123 @@
+.user-footer {
+    padding: 94px 93px 57px 93px;
+    background-color: var(--footer-color);
+}
+
+.user-footer .container {
+    display: flex;
+    align-items: center;
+    gap: 117px;
+}
+
+.user-footer .container .links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.user-footer .container .links .link {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.user-footer .container .links .link:hover {
+    opacity: 0.8;
+}
+
+.user-footer .container .links .link.active {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
+}
+
+.user-footer .container .logo {
+    display: flex;
+}
+
+
+.user-footer .logo img {
+    width: 174px;
+    padding-bottom: 110px;
+}
+
+.user-footer .container .links .column {
+    display: flex;
+    flex-direction: column;
+    gap: 27px;
+    font-family: var(--font-family);
+}
+
+.user-footer .container .links .link-title {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-weight: 900;
+}
+
+.user-footer .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #FFFFFF3D;
+    padding-top: 33px;
+    margin-top: 89px;
+}
+
+.user-footer .bottom .copyright {
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.user-footer .bottom .social-icons {
+    display: flex;
+    gap: 22px;
+}
+
+.user-footer .bottom .social-icons .icons {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+@media only screen and (max-width:1024px) {
+    .user-footer {
+        padding: 94px 50px 57px 50px;
+    }
+
+    .user-footer .container {
+        gap: 60px;
+    }
+}
+
+@media only screen and (max-width:768px) {
+    .user-footer {
+        padding: 50px 50px;
+    }
+
+    .user-footer .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .user-footer .logo img {
+        padding-bottom: 0;
+    }
+}
+
+@media only screen and (max-width:450px) {
+    .user-footer {
+        padding: 20px 20px;
+    }
+
+    .user-footer .logo img {
+        width: 130px;
+        padding-bottom: 0;
+    }
+
+    .user-footer .bottom .social-icons {
+        gap: 15px;
+    }
+}
