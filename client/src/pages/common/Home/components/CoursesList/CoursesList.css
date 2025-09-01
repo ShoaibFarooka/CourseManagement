@@ -81,6 +81,7 @@
     font-size: 1.125rem;
     margin-top: 19px;
     color: var(--heading-text);
+    text-align: justify;
 }
 
 .courses-list .box .content .button {
@@ -151,10 +152,6 @@
 
     .courses-list .box .content .heading {
         text-align: center;
-    }
-
-    .courses-list .box .content p {
-        text-align: left;
     }
 
     .courses-list .box .content .button {
