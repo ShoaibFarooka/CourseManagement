@@ -1,9 +1,13 @@
+import Banner from './components/Banner/Banner';
+import CoursesList from './components/CoursesList/CoursesList';
 import './Home.css';
+
 const Home = () => {
     return (
-        <div className='heading-md'>
-            hello User!
-        </div>
+        <>
+            <Banner />
+            <CoursesList />
+        </>
     )
 }
 

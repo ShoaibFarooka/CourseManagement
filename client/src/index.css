@@ -72,6 +72,8 @@ html {
   --text-color: #FFFFFF;
   --font-family: 'Lato', sans-serif;
   --btn-text: #1E1E1E;
+  --heading-text: #1E1E1E;
+
 }
 
 [data-theme="dark"] {
@@ -117,7 +119,7 @@ html {
 
   --primary-color: #1E1E1E;
   --secondary-color: #003034;
-
+  --font-family: 'Lato', sans-serif;
 }
 
 /* Button base */
@@ -509,4 +511,25 @@ textarea:focus {
   font-size: 1rem;
   margin-top: 1px;
   padding-left: 10px;
+}
+
+
+/* User Classes */
+
+.button {
+  background-color: var(--secondary-color);
+  color: #000000;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 21px 48px;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 259px;
+  border: none;
+}
+
+.button:hover {
+  opacity: 0.8;
+  cursor: pointer;
 }

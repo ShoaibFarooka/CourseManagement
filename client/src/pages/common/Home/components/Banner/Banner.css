@@ -1,0 +1,101 @@
+.banner {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #299FA7 0%, #15787F 100%);
+    font-family: var(--font-family);
+}
+
+.banner::after {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -150px;
+    bottom: 0;
+    width: 794px;
+    background: url(../../../../../assets/images/Title.png) no-repeat right center;
+    background-size: cover;
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+.banner .content {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-top: 130px;
+    padding-left: 93px;
+    padding-bottom: 197px;
+    width: 100%;
+    max-width: 850px;
+}
+
+.banner .content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 250px;
+    right: -100px;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        repeating-linear-gradient(to right,
+            rgba(255, 255, 255, 0.065) 0px,
+            rgba(255, 255, 255, 0.087) 1px,
+            transparent 1px,
+            transparent 150px),
+        repeating-linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.104) 0px,
+            rgba(255, 255, 255, 0.124) 1px,
+            transparent 1px,
+            transparent 100px);
+    background-size: 120px 100px;
+    background-position: 0 0;
+    opacity: 1;
+    -webkit-mask-image:
+        linear-gradient(to right,
+            transparent 0px,
+            black 200px,
+            black calc(100% - 120px),
+            transparent 100%),
+        linear-gradient(to bottom,
+            transparent 0px,
+            black 100px,
+            black calc(100% - 20px),
+            transparent 100%);
+    -webkit-mask-composite: destination-in;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: cover;
+
+}
+
+.banner .content>* {
+    position: relative;
+    z-index: 1;
+}
+
+
+.banner .content p {
+    font-size: 4.375rem;
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.banner .content p span {
+    color: var(--secondary-color);
+}
+
+.banner .content .subtitle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 33px;
+    margin-top: 12px;
+}
+
+.banner .content .subtitle p {
+    font-size: 1.75rem;
+    font-weight: 400;
+}
