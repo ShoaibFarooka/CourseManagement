@@ -1,13 +1,28 @@
 import './UserNavbar.css';
 import logo from '../../assets/icons/logo.png';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import ThemeToggel from '../ThemeToggel/ThemeToggel';
+import { useSelector } from 'react-redux';
+import userService from '../../services/userServices';
+import { ShowLoading, HideLoading } from '../../redux/loaderSlice';
+import { useDispatch } from 'react-redux';
+import Cookies from 'js-cookie';
+import { clearUser } from '../../redux/userSlice';
+import { setLoggedOut } from '../../redux/logoutSlice';
+
+
 
 const UserNavbar = () => {
     const [openMobileMenu, setOpenMobileMenu] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(false);
+    const [openProfileDropdown, setOpenProfileDropdown] = useState(false);
     const dropdownRef = useRef(null);
+    const profileRef = useRef(null);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const { user } = useSelector(state => state.user);
 
     const navLinks = [
         { name: "Accounting Products", to: '/accounting', dropdown: true },
@@ -26,6 +41,9 @@ const UserNavbar = () => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setOpenDropdown(false);
             }
+            if (profileRef.current && !profileRef.current.contains(event.target)) {
+                setOpenProfileDropdown(false);
+            }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -33,6 +51,22 @@ const UserNavbar = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            dispatch(ShowLoading());
+            const payload = {};
+            const response = await userService.logoutUser(payload);
+        } catch (error) {
+            message.error(error?.response?.data);
+        } finally {
+            Cookies.remove("course-managment-jwt-token");
+            dispatch(clearUser());
+            dispatch(setLoggedOut());
+            navigate('/login');
+            dispatch(HideLoading());
+        }
+    }
 
     return (
         <div className="user-navbar">
@@ -94,15 +128,51 @@ const UserNavbar = () => {
                         )}
 
                         <div className="mobile">
-                            <button className="signin-btn">Sign in</button>
                             <ThemeToggel />
+                            {!user ? (
+                                <button className="login-button">Login</button>
+                            ) : (
+                                <div className="profile-dropdown" ref={profileRef}>
+                                    <img
+                                        src={user.avatar}
+                                        alt="Profile"
+                                        className="profile-pic"
+                                        onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
+                                    />
+                                    <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
+                                        <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={handleLogout}
+                                        >Logout</button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className="right">
-                    <button className="signin-btn">Sign in</button>
                     <ThemeToggel />
+                    {!user ? (
+                        <button className="login-button">Login</button>
+                    ) : (
+                        <div className="profile-dropdown" ref={profileRef}>
+                            <img
+                                src={user.avatar}
+                                alt="Profile"
+                                className="profile-pic"
+                                onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
+                            />
+                            <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
+                                <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
+                                <button
+                                    className="dropdown-item"
+                                    onClick={handleLogout}
+                                >Logout</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <button

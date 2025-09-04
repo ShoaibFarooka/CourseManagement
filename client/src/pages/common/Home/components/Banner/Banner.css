@@ -1,101 +1,146 @@
 .banner {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(180deg, #299FA7 0%, #15787F 100%);
-    font-family: var(--font-family);
-}
-
-.banner::after {
-    content: "";
-    position: absolute;
-    top: -120px;
-    right: -150px;
-    bottom: 0;
-    width: 794px;
-    background: url(../../../../../assets/images/Title.png) no-repeat right center;
-    background-size: cover;
-    pointer-events: none;
-    z-index: 0;
-}
-
-
-.banner .content {
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding-top: 130px;
-    padding-left: 93px;
-    padding-bottom: 197px;
     width: 100%;
-    max-width: 850px;
+    color: white;
+    padding: 200px 93px 197px 93px;
+    position: relative;
+    overflow: hidden;
+
+    background-repeat: no-repeat, no-repeat;
+    background-position: 200px -160px, center;
+    background-size: 100%, auto 100%;
 }
 
-.banner .content::before {
+.banner::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 250px;
-    right: -100px;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 0;
+    top: 40px;
+    left: 280px;
+    right: 430px;
+    bottom: 20px;
     background-image:
-        repeating-linear-gradient(to right,
-            rgba(255, 255, 255, 0.065) 0px,
-            rgba(255, 255, 255, 0.087) 1px,
-            transparent 1px,
-            transparent 150px),
-        repeating-linear-gradient(to bottom,
-            rgba(255, 255, 255, 0.104) 0px,
-            rgba(255, 255, 255, 0.124) 1px,
-            transparent 1px,
-            transparent 100px);
-    background-size: 120px 100px;
-    background-position: 0 0;
-    opacity: 1;
-    -webkit-mask-image:
-        linear-gradient(to right,
-            transparent 0px,
-            black 200px,
-            black calc(100% - 120px),
-            transparent 100%),
-        linear-gradient(to bottom,
-            transparent 0px,
-            black 100px,
-            black calc(100% - 20px),
-            transparent 100%);
-    -webkit-mask-composite: destination-in;
+        linear-gradient(to right, rgba(255, 255, 255, 0.154) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.17) 1px, transparent 1px);
+    background-size: 130px 120px;
+    pointer-events: none;
+
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: cover;
 
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    opacity: 0.5;
 }
 
-.banner .content>* {
-    position: relative;
-    z-index: 1;
+.banner .content {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-family);
 }
-
 
 .banner .content p {
     font-size: 4.375rem;
-    color: var(--text-color);
     font-weight: 700;
+    text-wrap: nowrap;
 }
 
-.banner .content p span {
+.banner .content .highlight {
     color: var(--secondary-color);
 }
 
-.banner .content .subtitle {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 33px;
-    margin-top: 12px;
+.banner .subtitle {
+    margin-top: 24px;
 }
 
-.banner .content .subtitle p {
+.banner .subtitle p {
     font-size: 1.75rem;
     font-weight: 400;
+    margin-bottom: 33px;
+}
+
+@media (max-width: 1200px) {
+    .banner {
+        padding: 130px 60px 100px 60px;
+        background-position: 200px -60px, center;
+    }
+
+    .banner::before {
+        left: 200px;
+        right: 300px;
+        background-size: 150px 100px;
+    }
+
+    .banner .content p {
+        font-size: 3.5rem;
+    }
+
+    .banner .subtitle p {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .banner {
+        padding: 100px 40px 120px 40px;
+        background-position: 170px -50px, center;
+    }
+
+    .banner::before {
+        left: 120px;
+        right: 300px;
+        background-size: 150px 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .banner {
+        padding: 60px 40px 40px 40px;
+        background-position: 150px -70px, center;
+        background-size: 90%, auto 100%;
+    }
+
+    .banner::before {
+        left: 60px;
+        right: 250px;
+        background-size: 150px 100px;
+    }
+
+    .banner .button {
+        font-size: 0.95rem;
+        padding: 16px 36px;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .banner {
+        padding: 60px 30px 20px 30px;
+        background-position: 60px -20px, center;
+    }
+
+    .banner::before {
+        left: 30px;
+        right: 100px;
+        background-size: 80px 70px;
+    }
+
+    .banner .content p {
+        font-size: 2rem;
+    }
+
+    .banner .subtitle p {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .banner .subtitle {
+        margin-top: 15px;
+    }
+
+    .banner .button {
+        font-size: 0.85rem;
+        padding: 14px 30px;
+        max-width: 120px;
+    }
 }

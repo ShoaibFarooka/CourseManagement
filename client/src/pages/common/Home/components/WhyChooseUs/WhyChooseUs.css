@@ -4,6 +4,7 @@
     justify-content: center;
     gap: 107px;
     padding: 100px 93px 96px 93px;
+    background-color: var(--whychooseus-bg-color);
 }
 
 
@@ -42,7 +43,7 @@
 .why-choose-us .box .elipse {
     width: 120px;
     height: 120px;
-    border: 4px solid var(--primary-color);
+    border: 4px solid var(--eplipse-color);
     border-radius: 50% / 50%;
     background: transparent;
     display: flex;
@@ -61,7 +62,7 @@
 .star::before {
     content: "★";
     font-size: 60px;
-    -webkit-text-stroke: 3px var(--primary-color);
+    -webkit-text-stroke: 3px var(--eplipse-color);
     color: transparent;
     line-height: 1;
 }

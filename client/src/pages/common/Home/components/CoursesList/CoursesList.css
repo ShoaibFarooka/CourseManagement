@@ -29,7 +29,7 @@
     display: block;
     width: 100%;
     height: 20px;
-    background-color: var(--secondary-color);
+    background-color: var(--underline-color);
     margin-top: -20px;
     border-radius: 2px;
 }

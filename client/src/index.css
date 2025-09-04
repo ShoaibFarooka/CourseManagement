@@ -73,6 +73,12 @@ html {
   --font-family: 'Lato', sans-serif;
   --btn-text: #1E1E1E;
   --heading-text: #1E1E1E;
+  --underline-color: #D1FE67;
+  --switch-button-bg: transparent;
+  --switch-button-border: #FFFFFF;
+  --switch-button-thumb: #FFFFFF;
+  --eplipse-color: #2699A1;
+  --whychooseus-bg-color: #FFFFFF;
 
 }
 
@@ -118,8 +124,17 @@ html {
   /*User Side Variables */
 
   --primary-color: #1E1E1E;
-  --secondary-color: #003034;
+  --secondary-color: #D1FE67;
+  --text-color: #FFFFFF;
+  --heading-text: #FFFFFF;
+  --underline-color: transparent;
   --font-family: 'Lato', sans-serif;
+  --footer-color: #1E1E1E;
+  --eplipse-color: #FFFFFF;
+  --whychooseus-bg-color: #141414;
+  --switch-button-bg: #3F3F3F;
+  --switch-button-border: #3F3F3F;
+  --switch-button-thumb: #FFFFFF;
 }
 
 /* Button base */
@@ -530,6 +545,26 @@ textarea:focus {
 }
 
 .button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 16px 45px;
+  border-radius: 32px;
+  border: 1px solid var(--text-color);
+  text-wrap: nowrap;
+}
+
+.login-button:hover {
   opacity: 0.8;
   cursor: pointer;
 }
