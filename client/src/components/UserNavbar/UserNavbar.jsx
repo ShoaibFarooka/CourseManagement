@@ -1,5 +1,6 @@
 import './UserNavbar.css';
-import logo from '../../assets/icons/logo.png';
+import logo1 from '../../assets/icons/logo1.png'
+import logo2 from '../../assets/icons/logo2.png'
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import ThemeToggel from '../ThemeToggel/ThemeToggel';
@@ -74,7 +75,8 @@ const UserNavbar = () => {
                 <div className="left">
                     <div className="logo">
                         <NavLink to={"/"} className="logo-link">
-                            <img src={logo} alt="Logo" />
+                            <img className='image-1' src={logo1} alt="Logo" />
+                            <img className='image-2' src={logo2} alt='logo' />
                         </NavLink>
                     </div>
 

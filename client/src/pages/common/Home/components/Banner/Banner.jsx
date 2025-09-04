@@ -10,7 +10,7 @@ const Banner = ({ titleLines = [], subtitle, buttonText, onButtonClick, image })
             className="banner"
             style={{
                 backgroundImage: image
-                    ? `url(${getImageUrl(image)}), linear-gradient(180deg, #299FA7 0%, #15787F 100%)`
+                    ? `url(${getImageUrl(image)}) , linear-gradient(180deg, #299FA7 0%, #15787F 100%)`
                     : `linear-gradient(90deg, #218D95 0%, #C8C8C8 54.33%, #218C95 100%);`,
             }}
         >
