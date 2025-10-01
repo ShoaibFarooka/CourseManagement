@@ -14,7 +14,7 @@ const routes = [
 
     //common
     { path: "/", element: <Home />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
-    { path: "/login", element: <Login />, protected: false, authRedirect: true, showHeader: false, showFooter: false },
+    { path: "/login", element: <Login />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/signup", element: <Signup />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/forget-password", element: <ForgetPassword />, protected: false, authRedirect: true, showHeader: false, showFooter: false },
     { path: "/reset-password", element: <ResetPassword />, protected: false, authRedirect: true, showHeader: false, showFooter: false },

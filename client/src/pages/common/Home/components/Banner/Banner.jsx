@@ -8,13 +8,9 @@ const Banner = ({ titleLines = [], subtitle, buttonText, onButtonClick, image })
     return (
         <div
             className="banner"
-            style={{
-                backgroundImage: image
-                    ? `url(${getImageUrl(image)}) , linear-gradient(180deg, #299FA7 0%, #15787F 100%)`
-                    : `linear-gradient(90deg, #218D95 0%, #C8C8C8 54.33%, #218C95 100%);`,
-            }}
         >
             <div className="container">
+
                 <div className="content">
                     {titleLines.map((line, index) => (
                         <p key={index}>
@@ -26,14 +22,20 @@ const Banner = ({ titleLines = [], subtitle, buttonText, onButtonClick, image })
                     <div className="subtitle">
                         <p>{subtitle}</p>
                         {buttonText && (
-                            <button className="button" onClick={onButtonClick}>
+                            <button className=" demo-btn" onClick={onButtonClick}>
                                 {buttonText}
                             </button>
                         )}
                     </div>
                 </div>
+
+                {image && (
+                    <div className="image">
+                        <img src={getImageUrl(image)} alt="Banner" />
+                    </div>
+                )}
             </div>
-        </div >
+        </div>
     );
 };
 

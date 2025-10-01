@@ -7,14 +7,10 @@ const UserThemeToggle = () => {
     const theme = useSelector((state) => state.theme.theme);
 
     return (
-        <div className="theme-toggle-wrapper">
-            <div className="theme-switch" onClick={() => dispatch(toggleTheme())}>
-                <div className={`switch-thumb ${theme === 'dark' ? 'switch-thumb-dark' : ''}`}>
-                </div>
+        <div className="user-theme-switch" onClick={() => dispatch(toggleTheme())}>
+            <div className={`user-switch-thumb ${theme === 'dark' ? 'user-switch-thumb-dark' : ''}`}>
+                {theme === 'dark' ? '🌙' : '☀️'}
             </div>
-            <p className="theme-label">
-                {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-            </p>
         </div>
     );
 };

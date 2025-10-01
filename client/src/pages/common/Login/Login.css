@@ -3,45 +3,153 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    background:
+        linear-gradient(180deg, rgba(41, 159, 167, 0.7) 0%, rgba(21, 120, 127, 0.7) 100%),
+        url(../../../assets/images/login.jpg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.login .form .h1 {
-    margin-bottom: 20px;
+.login .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 200px 20px 160px;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 3rem;
+    text-align: center;
 }
 
-.login .form {
+
+.login-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 150px;
-    padding: 50px 50px;
+    font-family: var(--font-family);
+    background-color: var(--banner-bg);
+}
+
+.login-form .h1 {
+    font-weight: 700;
+    font-size: 2.25rem;
+    color: var(--heading-text);
+    display: inline-block;
+    margin-top: 101px;
+    margin-bottom: 37px;
+}
+
+.login-form .h1::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 20px;
+    background-color: var(--underline-color);
+    margin-top: -20px;
+    border-radius: 2px;
+}
+
+.login-form label {
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--heading-text);
+    margin-bottom: 5px;
+    padding-left: 10px;
+    display: block;
+}
+
+.login-form .form {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-    background-color: var(--bg-sidebar);
-    box-shadow: var(--modal-shadow);
-    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
-.form .login-btn {
-    margin-top: 10px;
-}
-
-
-.password-field {
+.login-form .form .input-field,
+.login-form .form .password-field {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     position: relative;
 }
 
-.eye-icon {
+
+.login-form .form .eye-icon {
     position: absolute;
     top: 50%;
     right: 15px;
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 1.25rem;
-    color: var(--text-muted);
+    color: var(--heading-text);
     transition: color 0.3s ease;
 }
 
-.eye-icon:hover {
-    color: var(--text-main);
+.login-form .form .password-field .forget-password {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.login-form .form .password-field .forget-password a {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--heading-text);
+    text-decoration: none;
+}
+
+.login-form .form .password-field .forget-password a:hover {
+    text-decoration: underline;
+}
+
+.login-form .form .login-btn {
+    padding: 14px;
+    width: 100%;
+    background-color: var(--secondary-color);
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 13px;
+    cursor: pointer;
+}
+
+.login-form .form .login-btn:hover {
+    opacity: 0.7;
+}
+
+.login-form .form .sign-up-now {
+    margin-top: 28px;
+    margin-bottom: 139px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: var(--heading-text);
+}
+
+.login-form .form .sign-up-now p {
+    margin: 0;
+    color: var(--heading-text);
+}
+
+.login-form .form .sign-up-now a {
+    color: var(--heading-text);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.login-form .form .sign-up-now a:hover {
+    text-decoration: underline;
 }

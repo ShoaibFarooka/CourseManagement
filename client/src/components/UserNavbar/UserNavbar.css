@@ -26,7 +26,6 @@
 .user-navbar .container .left .logo {
     display: flex;
     align-items: center;
-    padding-top: 5px;
 }
 
 .user-navbar .container .left .logo .logo-link {
@@ -37,11 +36,12 @@
 
 
 .user-navbar .container .left .logo .logo-link .image-1 {
-    width: 53px;
+    width: 52px;
 }
 
 .user-navbar .container .left .logo .logo-link .image-2 {
     width: 119px;
+    padding-top: 10px;
 }
 
 .user-navbar .container .left .nav-list {
@@ -71,7 +71,7 @@
     position: absolute;
     top: 120%;
     left: 0;
-    background-color: var(--primary-color);
+    background-color: #1d7b82;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     min-width: 180px;
@@ -222,18 +222,7 @@
 }
 
 
-@media only screen and (max-width: 1399px) {
-    .user-navbar {
-        padding-left: 80px;
-        padding-right: 80px;
-    }
-
-    .user-navbar .container .left .nav-list {
-        gap: 100px;
-    }
-}
-
-@media only screen and (max-width: 1199px) {
+@media only screen and (max-width: 1210px) {
     .user-navbar {
         padding-left: 50px;
         padding-right: 50px;
@@ -244,7 +233,7 @@
     }
 
     .user-navbar .container .left .nav-list {
-        gap: 50px;
+        gap: 70px;
     }
 }
 
@@ -255,11 +244,20 @@
     }
 
     .user-navbar .container .left {
-        gap: 15px;
+        gap: 40px;
     }
 
     .user-navbar .container .left .nav-list {
-        gap: 40px;
+        gap: 60px;
+    }
+
+    .user-navbar .container .left .logo .logo-link .image-1 {
+        width: 45px;
+    }
+
+    .user-navbar .container .left .logo .logo-link .image-2 {
+        width: 100px;
+        padding-top: 8px;
     }
 }
 
@@ -272,11 +270,8 @@
     .user-navbar .container .left .mobile {
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 1rem;
-    }
-
-    .user-navbar .container .left .logo img {
-        width: 174px;
     }
 
     .user-navbar .container .hamburger {
@@ -326,16 +321,79 @@
         left: 50%;
         right: auto;
     }
+
+    .user-navbar .container .left .nav-list .dropdown {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .user-navbar .container .left .nav-list .dropdown>button,
+    .user-navbar .container .left .nav-list .dropdown>a {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        font-size: 1rem;
+        color: var(--text-color);
+        background: transparent;
+        border: none;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .user-navbar .container .left .nav-list .dropdown .dropdown-menu {
+        position: static;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        padding-left: 1rem;
+        margin-top: 0.5rem;
+        display: none;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .user-navbar .container .left .nav-list .dropdown.open .dropdown-menu {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-navbar .container .left .nav-list .dropdown-item {
+        padding: 0.4rem 0;
+        font-size: 0.9rem;
+        color: var(--text-color);
+        background: transparent;
+    }
+
+    .user-navbar * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .user-navbar .nav-list,
+    .user-navbar .nav-list * {
+        user-select: none;
+    }
+
+
 }
+
 
 @media only screen and (max-width: 575px) {
     .user-navbar {
         padding-left: 30px;
         padding-right: 30px;
+        padding-top: 20px;
     }
 
-    .user-navbar .container .left .logo img {
-        width: 120px;
+    .user-navbar .container .left .logo .logo-link .image-1 {
+        width: 30px;
+    }
+
+    .user-navbar .container .left .logo .logo-link .image-2 {
+        width: 60px;
     }
 
     .user-navbar .container .left .nav-list {
@@ -352,5 +410,15 @@
     .user-navbar .container .left .mobile .signin-btn {
         padding: 8px 16px;
         font-size: 0.85rem;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .user-navbar .container .left .logo .logo-link .image-1 {
+        width: 20px;
+    }
+
+    .user-navbar .container .left .logo .logo-link .image-2 {
+        width: 40px;
     }
 }

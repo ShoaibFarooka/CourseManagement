@@ -1,6 +1,7 @@
 import './UserFooter.css';
 import { NavLink } from 'react-router-dom';
-import logo from '../../assets/icons/logo.png';
+import logo1 from '../../assets/icons/logo1.png';
+import logo2 from '../../assets/icons/logo2.png';
 import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
@@ -39,7 +40,8 @@ const UserFooter = () => {
             <div className='container'>
 
                 <div className='logo'>
-                    <NavLink><img src={logo} alt="Logo" /></NavLink>
+                    <NavLink className='image-1'><img src={logo1} alt="Logo" /></NavLink>
+                    <NavLink className='image-2'><img src={logo2} alt="Logo" /></NavLink>
                 </div>
 
                 <div className='links'>

@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 91px;
     padding: 91px 93px 100px 93px;
+    background-color: var(--course-list-bg);
 }
 
 .courses-list .title {

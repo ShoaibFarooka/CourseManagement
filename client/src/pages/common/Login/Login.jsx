@@ -96,38 +96,52 @@ const Login = () => {
     }
 
     return (
-        <div className='login'>
+        <>
+            <div className='login'>
+                <div className='title'>Welcome to ProExamPrep</div>
+            </div>
 
-            <form onSubmit={handleClickLogin} className='form'>
-                <div className='heading-lg h1'>Login</div>
-                <div className='input-field'>
-                    <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} />
-                    {error.email && <span className='error-text'>{error.email}</span>}
-                </div>
+            <div className='login-form'>
 
-                <div className="password-field">
-                    <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        value={formData.password}
-                        placeholder="Password"
-                        onChange={handleInputChange}
-                    />
-                    {error.password && <span className='error-text'>{error.password}</span>}
-                    <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
-                        {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                    </span>
-                </div>
-                <button type='submit' className='btn login-btn'>Login</button>
-                <p className="text-sm">
-                    Lost access?{" "}
-                    <a href="/forget-password" className="text-sm">
-                        Recover Password
-                    </a>
-                </p>
-            </form>
+                <div className='h1'>Log in</div>
 
-        </div>
+                <form onSubmit={handleClickLogin} className='form'>
+                    <div className='input-field'>
+                        <label htmlFor="email">Email</label>
+                        <input type="text" name='email' value={formData.email} placeholder='Email' onChange={handleInputChange} className='input' />
+                        {error.email && <span className='error-text'>{error.email}</span>}
+                    </div>
+
+                    <div className="password-field">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            name="password"
+                            value={formData.password}
+                            placeholder="Password"
+                            onChange={handleInputChange}
+                            className='input'
+                        />
+                        {error.password && <span className='error-text'>{error.password}</span>}
+                        <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+                            {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                        </span>
+                        <div className="forget-password">
+                            <a href="/forget-password" className="text-sm">
+                                Forget Password?
+                            </a>
+                        </div>
+                    </div>
+                    <button type='submit' className='login-btn'>Login</button>
+                    <div className="sign-up-now">
+                        <p>Don’t have an account?</p>
+                        <a href="/signup">
+                            Sign up
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </>
     )
 }
 

@@ -157,7 +157,7 @@ const UserNavbar = () => {
                 <div className="right">
                     <ThemeToggel />
                     {!user ? (
-                        <button className="login-button">Login</button>
+                        <button className="login-button" onClick={() => navigate('/login')}>Login</button>
                     ) : (
                         <div className="profile-dropdown" ref={profileRef}>
                             <img

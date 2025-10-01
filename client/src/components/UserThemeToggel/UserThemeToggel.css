@@ -1,16 +1,9 @@
-.theme-toggle-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.theme-switch {
+.user-theme-switch {
     width: 78px;
     height: 33px;
     background-color: var(--switch-button-bg);
     border-radius: 45px;
-    border: 1px solid var(--switch-button-border);
+    border: 1px solid #FFFFFF;
     cursor: pointer;
     position: relative;
     transition: background-color 0.3s ease;
@@ -19,27 +12,57 @@
     padding: 3px;
 }
 
-.switch-thumb {
+.user-switch-thumb {
     width: 26px;
     height: 26px;
-    background-color: var(--switch-button-thumb);
+    background-color: var(--switch-button-bg);
     color: var(--switch-button-thumb);
     border-radius: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
-    left: 48px;
+    left: 43px;
     transition: all 0.4s ease;
 }
 
-.switch-thumb-dark {
+.user-switch-thumb-dark {
     left: 3px;
-    background-color: var(--switch-button-thumb);
+    background-color: var(--switch-button-bg);
 }
 
-.theme-label {
-    font-size: 14px;
-    color: var(--switch-button-thumb);
-    margin: 0;
+@media only screen and (max-width: 835px) {
+    .user-theme-switch {
+        width: 60px;
+        height: 26px;
+        padding: 5px 18px;
+    }
+
+    .user-switch-thumb {
+        width: 20px;
+        height: 20px;
+        left: 35px;
+    }
+
+    .user-switch-thumb-dark {
+        left: 2px;
+    }
+}
+
+@media only screen and (max-width: 575px) {
+    .user-theme-switch {
+        width: 50px;
+        height: 22px;
+        padding: 2px;
+    }
+
+    .user-switch-thumb {
+        width: 18px;
+        height: 18px;
+        left: 28px;
+    }
+
+    .user-switch-thumb-dark {
+        left: 2px;
+    }
 }

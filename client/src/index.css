@@ -79,6 +79,8 @@ html {
   --switch-button-thumb: #FFFFFF;
   --eplipse-color: #2699A1;
   --whychooseus-bg-color: #FFFFFF;
+  --banner-bg: linear-gradient(180deg, #299FA7 0%, #15787F 100%);
+  --course-list-bg: #FFFFFF;
 
 }
 
@@ -135,6 +137,8 @@ html {
   --switch-button-bg: #3F3F3F;
   --switch-button-border: #3F3F3F;
   --switch-button-thumb: #FFFFFF;
+  --banner-bg: #1E1E1E;
+  --course-list-bg: #1E1E1E;
 }
 
 /* Button base */
@@ -243,7 +247,7 @@ input::placeholder {
   font-size: 0.9rem;
 }
 
-/* Focus effect */
+
 input:focus {
   border-color: var(--border);
   box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
@@ -544,10 +548,46 @@ textarea:focus {
   border: none;
 }
 
+
+
 .button:hover {
   opacity: 0.8;
   cursor: pointer;
 }
+
+
+@media only screen and (max-width: 991px) {
+  .button {
+    font-size: 1.1rem;
+    padding: 18px 40px;
+    max-width: 230px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .button {
+    font-size: 1rem;
+    padding: 16px 36px;
+    max-width: 200px;
+  }
+}
+
+@media only screen and (max-width: 575px) {
+  .button {
+    font-size: 0.9rem;
+    padding: 14px 28px;
+    max-width: 180px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .button {
+    font-size: 0.85rem;
+    padding: 12px 24px;
+    max-width: 160px;
+  }
+}
+
 
 .login-button {
   display: flex;
@@ -558,13 +598,62 @@ textarea:focus {
   font-family: var(--font-family);
   font-weight: 500;
   font-size: 1rem;
-  padding: 16px 45px;
+  padding: 10px 40px;
   border-radius: 32px;
   border: 1px solid var(--text-color);
   text-wrap: nowrap;
+
 }
 
 .login-button:hover {
   opacity: 0.8;
   cursor: pointer;
+}
+
+
+@media only screen and (max-width: 991px) {
+  .login-button {
+    font-size: 0.95rem;
+    padding: 8px 30px;
+  }
+}
+
+@media only screen and (max-width: 835px) {
+  .login-button {
+    font-size: 0.9rem;
+    padding: 7px 20px;
+    border-radius: 24px;
+  }
+}
+
+
+@media only screen and (max-width: 575px) {
+  .login-button {
+    font-size: 0.8rem;
+    padding: 6px 17px;
+    border-radius: 20px;
+  }
+}
+
+.input {
+  width: 100%;
+  max-width: 467px;
+  border-radius: 11px;
+  border-color: #838383;
+  background-color: transparent;
+  padding: 10px 20px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease-in-out
+}
+
+
+.input::placeholder {
+  color: #9B9B9B;
+  font-size: 1rem;
+}
+
+
+.input:focus {
+  border-color: #838383;
+  box-shadow: 0 0 0 2px rgba(153, 154, 155, 0.2);
 }
