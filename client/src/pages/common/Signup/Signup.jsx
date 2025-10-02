@@ -122,11 +122,14 @@ const Signup = () => {
 
 
     return (
-        <div className='signup'>
+        <>
+            <div className='signup'>
+                <div className='title'>Welcome to ProExamPrep</div>
+            </div>
 
-            <div className='container'>
+            <div className='signup-form'>
 
-                <div className='heading-xl h-1'>SignUp</div>
+                <div className='h1'>SignUp</div>
 
                 <div className='box-1'>
 
@@ -134,6 +137,7 @@ const Signup = () => {
                         <div className='username'>
                             <label htmlFor="name" className='heading-sm'>Username</label>
                             <input
+                                className='input'
                                 type="text"
                                 name="name"
                                 placeholder='UserName'
@@ -157,13 +161,13 @@ const Signup = () => {
                     <div className='row-2'>
                         <div className='phone'>
                             <label htmlFor="phone" className='heading-sm'>Phone</label>
-                            <input type="text" name='phone' placeholder='Phone' value={formData.phone} onChange={handleInputChange} />
+                            <input className='input' type="text" name='phone' placeholder='Phone' value={formData.phone} onChange={handleInputChange} />
                             {error.phone && <span className='error-text'>{error.phone}</span>}
                         </div>
 
                         <div className='email'>
                             <label htmlFor="email" className='heading-sm'>Email</label>
-                            <input type="text" name='email' placeholder='Email' value={formData.email} onChange={handleInputChange} />
+                            <input className='input' type="text" name='email' placeholder='Email' value={formData.email} onChange={handleInputChange} />
                             {error.email && <span className='error-text'>{error.email}</span>}
                         </div>
 
@@ -172,7 +176,7 @@ const Signup = () => {
                     <div className='row-3'>
                         <div className='password'>
                             <label htmlFor="password" className='heading-sm'>Password</label>
-                            <input type="password" name='password' placeholder='Password' value={formData.password} onChange={handleInputChange} />
+                            <input className='input' type="password" name='password' placeholder='Password' value={formData.password} onChange={handleInputChange} />
                             {error.password && <span className='error-text'>{error.password}</span>}
                         </div>
                         <div className='empty'></div>
@@ -180,19 +184,19 @@ const Signup = () => {
 
                 </div>
 
-                <div className='signup-btn'>
-                    <button className='btn' onClick={handleSubmit}>SignUp</button>
+                <div className='sign-up-btn'>
+                    <button className='signup-btn' onClick={handleSubmit}>SignUp</button>
                 </div>
 
-                <p className="text-sm">
+                <p className="login-now">
                     Already have an account?{" "}
-                    <a href="/login" className="text-sm">
+                    <a href="/login">
                         Login
                     </a>
                 </p>
 
             </div>
-        </div>
+        </>
     )
 }
 

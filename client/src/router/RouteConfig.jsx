@@ -6,6 +6,7 @@ import Signup from "../pages/common/Signup/Signup";
 import Home from '../pages/common/Home/Home';
 import ForgetPassword from "../pages/common/ForgetPassword/ForgetPassword";
 import ResetPassword from "../pages/common/ResetPassword/ResetPassword";
+import AboutUs from "../pages/common/AboutUs/AboutUs";
 
 const routes = [
     //Admin
@@ -14,6 +15,7 @@ const routes = [
 
     //common
     { path: "/", element: <Home />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
+    { path: "/About-Us", element: <AboutUs />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/login", element: <Login />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/signup", element: <Signup />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/forget-password", element: <ForgetPassword />, protected: false, authRedirect: true, showHeader: false, showFooter: false },

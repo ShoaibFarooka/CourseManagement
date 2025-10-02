@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import Cookies from 'js-cookie';
 import { clearUser } from '../../redux/userSlice';
 import { setLoggedOut } from '../../redux/logoutSlice';
+import Profile from '../../assets/images/Profile.jpg';
 
 
 
@@ -27,7 +28,7 @@ const UserNavbar = () => {
 
     const navLinks = [
         { name: "Accounting Products", to: '/accounting', dropdown: true },
-        { name: "About", to: '/about' },
+        { name: "About Us", to: '/About-Us' },
         { name: "Contact Us", to: '/contactus' },
     ];
 
@@ -136,7 +137,7 @@ const UserNavbar = () => {
                             ) : (
                                 <div className="profile-dropdown" ref={profileRef}>
                                     <img
-                                        src={user.avatar}
+                                        src={Profile}
                                         alt="Profile"
                                         className="profile-pic"
                                         onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
@@ -161,7 +162,8 @@ const UserNavbar = () => {
                     ) : (
                         <div className="profile-dropdown" ref={profileRef}>
                             <img
-                                src={user.avatar}
+                                // write user.avatar for the dynamic funcntionality 
+                                src={Profile}
                                 alt="Profile"
                                 className="profile-pic"
                                 onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
