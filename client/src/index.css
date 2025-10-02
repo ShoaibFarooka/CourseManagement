@@ -69,10 +69,10 @@ html {
   --primary-color: #2699A1;
   --secondary-color: #D1FE67;
   --footer-color: #003034;
-  --text-color: #FFFFFF;
+  --nav-footer-link-color: #FFFFFF;
   --font-family: 'Lato', sans-serif;
   --btn-text: #1E1E1E;
-  --heading-text: #1E1E1E;
+  --text-color: #1E1E1E;
   --underline-color: #D1FE67;
   --switch-button-bg: transparent;
   --switch-button-border: #FFFFFF;
@@ -83,7 +83,8 @@ html {
   --course-list-bg: #FFFFFF;
   --dropdown-bg: #1d7b82;
   --Aboutus-bg: #FFFFFF;
-
+  --icons-bg: #1E1E1E;
+  --icons-text: #FFFFFF
 }
 
 [data-theme="dark"] {
@@ -129,8 +130,8 @@ html {
 
   --primary-color: #1E1E1E;
   --secondary-color: #D1FE67;
+  --nav-footer-link-color: #FFFFFF;
   --text-color: #FFFFFF;
-  --heading-text: #FFFFFF;
   --underline-color: transparent;
   --font-family: 'Lato', sans-serif;
   --footer-color: #1E1E1E;
@@ -143,6 +144,8 @@ html {
   --course-list-bg: #1E1E1E;
   --dropdown-bg: #141414;
   --Aboutus-bg: #1E1E1E;
+  --icons-bg: #1E1E1E;
+  --icons-text: #FFFFFF
 }
 
 /* Button base */
@@ -598,13 +601,13 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  color: var(--text-color);
+  color: var(--nav-footer-link-color);
   font-family: var(--font-family);
   font-weight: 500;
   font-size: 1rem;
   padding: 10px 40px;
   border-radius: 32px;
-  border: 1px solid var(--text-color);
+  border: 1px solid var(--nav-footer-link-color);
   text-wrap: nowrap;
 
 }

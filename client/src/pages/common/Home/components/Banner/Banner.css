@@ -47,7 +47,7 @@
     display: flex;
     flex-direction: column;
     font-family: var(--font-family);
-    color: var(--text-color);
+    color: var(--nav-footer-link-color);
     text-wrap: nowrap;
 }
 
@@ -81,6 +81,11 @@
     width: 100%;
     max-width: 259px;
     border: none;
+}
+
+.banner .subtitle .demo-btn:hover {
+    opacity: 0.8;
+    cursor: pointer;
 }
 
 .banner .image {

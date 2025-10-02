@@ -1,0 +1,277 @@
+.contact-us {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(180deg, rgba(41, 159, 167, 0.7) 0%, rgba(21, 120, 127, 0.7) 100%),
+        url(../../../assets/images/login.jpg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.contact-us .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 187px;
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 600;
+    font-size: 3rem;
+    text-align: center;
+}
+
+.contact-us .sub-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 142px;
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 400;
+    font-size: 1.75rem;
+    text-align: center;
+}
+
+.question-h1 {
+    display: flex;
+    justify-content: center;
+    padding-top: 74px;
+    padding-bottom: 74px;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-weight: 700;
+    font-size: 2.25rem;
+}
+
+.wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 64px;
+    padding-bottom: 150px;
+}
+
+.wrapper .box-1 {
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapper .box-1 img {
+    width: 555px;
+    height: 245px;
+}
+
+.wrapper .box-1 .content {
+    display: flex;
+    flex-direction: column;
+    padding-left: 63px;
+    padding-top: 35px;
+}
+
+.wrapper .box-1 .content .title {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1.75rem;
+}
+
+.wrapper .box-1 .content .sub-title {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 1.125rem;
+    margin-top: 10px;
+}
+
+.wrapper .box-1 .content .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.wrapper .box-1 .content .contact-info .info {
+    display: flex;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 1.125rem;
+    text-wrap: wrap;
+    margin-top: 20px;
+    gap: 30px;
+}
+
+.wrapper .box-1 .content .social-icons {
+    display: flex;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.wrapper .box-1 .content .social-icons .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 50%;
+    color: var(--icons-text);
+    background-color: var(--icons-bg);
+    width: 30px;
+    height: 30px;
+}
+
+.wrapper .box-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 52px;
+}
+
+.wrapper .box-2 div {
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapper .box-2 label {
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 5px;
+    padding-left: 10px;
+    display: block;
+}
+
+.wrapper .box-2 .send-btn {
+    padding: 14px;
+    width: 100%;
+    background-color: var(--secondary-color);
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 13px;
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 1200px) {
+    .wrapper {
+        padding: 0 50px 100px 50px;
+    }
+}
+
+@media only screen and (max-width: 992px) {
+    .wrapper {
+        gap: 30px;
+        padding: 0 40px 100px 40px;
+    }
+
+    .wrapper .box-1 .content {
+        padding-left: 30px;
+        padding-top: 20px;
+    }
+
+    .wrapper .box-1 img {
+        max-width: 400px;
+        height: auto;
+    }
+
+
+    .question-h1 {
+        font-size: 2rem;
+        padding: 50px 20px;
+        text-align: center;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .contact-us .title {
+        font-size: 2rem;
+        padding-top: 100px;
+    }
+
+    .contact-us .sub-title {
+        font-size: 1.25rem;
+        padding-bottom: 80px;
+    }
+
+    .wrapper {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px 80px 20px;
+    }
+
+    .wrapper .box-1 img {
+        max-width: 555px;
+        height: auto;
+    }
+
+    .wrapper .box-1 .content {
+        padding-left: 67px;
+    }
+
+
+    .wrapper .box-1 .content .contact-info .info {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .wrapper .box-2 {
+        width: 100%;
+        max-width: 467px
+    }
+
+    .wrapper .box-1 .content .title {
+        font-size: 1.5rem;
+    }
+
+    .wrapper .box-1 .content .sub-title,
+    .wrapper .box-1 .content .contact-info .info {
+        font-size: 1rem;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    .contact-us .title {
+        font-size: 1.75rem;
+        padding-top: 80px;
+    }
+
+    .contact-us .sub-title {
+        font-size: 1rem;
+        padding-bottom: 60px;
+    }
+
+    .question-h1 {
+        font-size: 1.5rem;
+        padding: 40px 15px;
+    }
+
+    .wrapper {
+        gap: 40px;
+    }
+
+    .wrapper .box-1 img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .wrapper .box-1 .content .title {
+        font-size: 1.25rem;
+    }
+
+    .wrapper .box-1 .content .sub-title {
+        font-size: 0.95rem;
+    }
+
+    .wrapper .box-1 .content .contact-info .info {
+        flex-direction: column;
+        gap: 10px;
+        font-size: 0.9rem;
+    }
+
+    .wrapper .box-2 .send-btn {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+}

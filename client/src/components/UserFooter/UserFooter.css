@@ -18,7 +18,7 @@
 
 .user-footer .container .links .link {
     text-decoration: none;
-    color: var(--text-color);
+    color: var(--nav-footer-link-color);
     font-size: 0.8rem;
     font-weight: 500;
 }
@@ -57,7 +57,7 @@
 
 .user-footer .container .links .link-title {
     font-family: var(--font-family);
-    color: var(--text-color);
+    color: var(--nav-footer-link-color);
     font-weight: 900;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .user-footer .bottom .copyright {
-    color: var(--text-color);
+    color: var(--nav-footer-link-color);
     font-family: var(--font-family);
     font-size: 0.9rem;
     font-weight: 700;
@@ -84,7 +84,7 @@
 
 .user-footer .bottom .social-icons .icons {
     text-decoration: none;
-    color: var(--text-color);
+    color: var(--nav-footer-link-color);
 }
 
 @media only screen and (max-width:1024px) {

@@ -19,7 +19,7 @@
     justify-content: center;
     padding: 200px 20px 160px;
     font-family: var(--font-family);
-    color: var(--text-color);
+    color: var(--nav-footer-link-color);
     font-weight: 600;
     font-size: 3rem;
     text-align: center;
@@ -38,7 +38,7 @@
 .login-form .h1 {
     font-weight: 700;
     font-size: 2.25rem;
-    color: var(--heading-text);
+    color: var(--text-color);
     display: inline-block;
     margin-top: 101px;
     margin-bottom: 37px;
@@ -57,7 +57,7 @@
 .login-form label {
     font-weight: 500;
     font-size: 1rem;
-    color: var(--heading-text);
+    color: var(--text-color);
     margin-bottom: 5px;
     padding-left: 10px;
     display: block;
@@ -89,7 +89,7 @@
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 1.25rem;
-    color: var(--heading-text);
+    color: var(--text-color);
     transition: color 0.3s ease;
 }
 
@@ -102,7 +102,7 @@
 .login-form .form .password-field .forget-password a {
     font-weight: 700;
     font-size: 1rem;
-    color: var(--heading-text);
+    color: var(--text-color);
     text-decoration: none;
 }
 
@@ -135,16 +135,16 @@
     gap: 6px;
     font-size: 1.125rem;
     font-weight: 400;
-    color: var(--heading-text);
+    color: var(--text-color);
 }
 
 .login-form .form .sign-up-now p {
     margin: 0;
-    color: var(--heading-text);
+    color: var(--text-color);
 }
 
 .login-form .form .sign-up-now a {
-    color: var(--heading-text);
+    color: var(--text-color);
     font-weight: 600;
     text-decoration: none;
     transition: color 0.3s ease;

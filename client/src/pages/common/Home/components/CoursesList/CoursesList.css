@@ -19,7 +19,7 @@
     font-family: var(--font-family);
     font-weight: 800;
     font-size: 3rem;
-    color: var(--heading-text);
+    color: var(--text-color);
     text-wrap: nowrap;
     position: relative;
     display: inline-block;
@@ -43,7 +43,7 @@
     font-family: var(--font-family);
     font-weight: 400;
     font-size: 1.375rem;
-    color: var(--heading-text);
+    color: var(--text-color);
 }
 
 .courses-list .box {
@@ -67,7 +67,7 @@
     font-family: var(--font-family);
     font-weight: 600;
     font-size: 2.25rem;
-    color: var(--heading-text);
+    color: var(--text-color);
     padding-top: 47px;
     padding-bottom: 47px;
     max-width: 50%;
@@ -81,7 +81,7 @@
     font-weight: 400;
     font-size: 1.125rem;
     margin-top: 19px;
-    color: var(--heading-text);
+    color: var(--text-color);
     text-align: justify;
 }
 

@@ -30,14 +30,14 @@
     font-family: var(--font-family);
     font-weight: 600;
     font-size: 1.75rem;
-    color: var(--heading-text);
+    color: var(--text-color);
 }
 
 .why-choose-us .box .content p {
     font-family: var(--font-family);
     font-weight: 400;
     font-size: 1.125rem;
-    color: var(--heading-text);
+    color: var(--text-color);
 }
 
 .why-choose-us .box .elipse {

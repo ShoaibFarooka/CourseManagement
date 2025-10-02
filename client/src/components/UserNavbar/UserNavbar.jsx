@@ -29,7 +29,7 @@ const UserNavbar = () => {
     const navLinks = [
         { name: "Accounting Products", to: '/accounting', dropdown: true },
         { name: "About Us", to: '/About-Us' },
-        { name: "Contact Us", to: '/contactus' },
+        { name: "Contact Us", to: '/Contact-Us' },
     ];
 
     const accountingDropdownItems = [
