@@ -113,7 +113,7 @@ const addMCQQuestionsFromFile = async (filePath) => {
 
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        const rowNumber = i + 1;
+        const rowNumber = i + 2;
 
         try {
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
@@ -165,9 +165,53 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
+            const optionA = row["Option A"];
+            if (!optionA) {
+                warnings.push({ rowNumber, reason: `Option A not found` });
+                continue;
+            }
+            const explanationA = row["Explanation A"];
+            if (!explanationA) {
+                warnings.push({ rowNumber, reason: `Option A explanation not found` });
+                continue;
+            }
 
-            const correctOption = row["Correct Option"]?.toLowerCase();
-            if (!["a", "b", "c", "d"].includes(correctOption)) {
+            const optionB = row["Option B"];
+            if (!optionB) {
+                warnings.push({ rowNumber, reason: `Option B not found` });
+                continue;
+            }
+            const explanationB = row["Explanation B"];
+            if (!explanationB) {
+                warnings.push({ rowNumber, reason: `Option B explanation not found` });
+                continue;
+            }
+
+            const optionC = row["Option C"];
+            if (!optionC) {
+                warnings.push({ rowNumber, reason: `Option C not found` });
+                continue;
+            }
+            const explanationC = row["Explanation C"];
+            if (!explanationC) {
+                warnings.push({ rowNumber, reason: `Option C explanation not found` });
+                continue;
+            }
+
+            const optionD = row["Option D"];
+            if (!optionD) {
+                warnings.push({ rowNumber, reason: `Option D not found` });
+                continue;
+            }
+            const explanationD = row["Explanation D"];
+            if (!explanationD) {
+                warnings.push({ rowNumber, reason: `Option D explanation not found` });
+                continue;
+            }
+
+
+            const correctOption = row["Correct Option"]?.trim()?.toLowerCase();
+            if (!(["a", "b", "c", "d"].includes(correctOption))) {
                 warnings.push({ rowNumber, reason: `Correct Option must be one of a, b, c, d` });
                 continue;
             }
@@ -179,10 +223,10 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 language,
                 statement: row["Statement"],
                 options: {
-                    a: { option: row["Option A"], explanation: row["Explanation A"] },
-                    b: { option: row["Option B"], explanation: row["Explanation B"] },
-                    c: { option: row["Option C"], explanation: row["Explanation C"] },
-                    d: { option: row["Option D"], explanation: row["Explanation D"] },
+                    a: { option: optionA, explanation: explanationA },
+                    b: { option: optionB, explanation: explanationB },
+                    c: { option: optionC, explanation: explanationC },
+                    d: { option: optionD, explanation: explanationD },
                 },
                 correctOption,
             });
