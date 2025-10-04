@@ -8,6 +8,7 @@ import ForgetPassword from "../pages/common/ForgetPassword/ForgetPassword";
 import ResetPassword from "../pages/common/ResetPassword/ResetPassword";
 import AboutUs from "../pages/common/AboutUs/AboutUs";
 import ContactUs from "../pages/common/ContactUs/ContactUs";
+import UserCourses from "../pages/common/Courses/Courses";
 
 const routes = [
     //Admin
@@ -16,6 +17,7 @@ const routes = [
 
     //common
     { path: "/", element: <Home />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
+    { path: "/courses/:exam", element: <UserCourses />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/About-Us", element: <AboutUs />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/Contact-Us", element: <ContactUs />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/login", element: <Login />, protected: false, authRedirect: true, showHeader: true, showFooter: true },

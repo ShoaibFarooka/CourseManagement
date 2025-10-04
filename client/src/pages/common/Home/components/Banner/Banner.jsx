@@ -14,8 +14,10 @@ const Banner = ({ titleLines = [], subtitle, buttonText, onButtonClick, image })
                 <div className="content">
                     {titleLines.map((line, index) => (
                         <p key={index}>
+                            {line.beforeText && line.beforeText}
                             {line.highlight && <span className="highlight">{line.highlight}</span>}{" "}
-                            {line.text}
+                            {line.afterText && line.afterText}
+                            {line.text && line.text}
                         </p>
                     ))}
 

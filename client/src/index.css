@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
 
 
+
 * {
   margin: 0;
   padding: 0;
@@ -84,7 +85,10 @@ html {
   --dropdown-bg: #1d7b82;
   --Aboutus-bg: #FFFFFF;
   --icons-bg: #1E1E1E;
-  --icons-text: #FFFFFF
+  --icons-text: #FFFFFF;
+  --Contactus-bg: #FFFFFF;
+  --testimonial-bg: #FFFFFF;
+  --testimonial-card-bg: #FAFAFA;
 }
 
 [data-theme="dark"] {
@@ -145,7 +149,10 @@ html {
   --dropdown-bg: #141414;
   --Aboutus-bg: #1E1E1E;
   --icons-bg: #1E1E1E;
-  --icons-text: #FFFFFF
+  --icons-text: #FFFFFF;
+  --Contactus-bg: #1E1E1E;
+  --testimonial-bg: #1E1E1E;
+  --testimonial-card-bg: #141414;
 }
 
 /* Button base */

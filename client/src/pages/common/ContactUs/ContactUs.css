@@ -46,6 +46,7 @@
     color: var(--text-color);
     font-weight: 700;
     font-size: 2.25rem;
+    background-color: var(--Contactus-bg);
 }
 
 .wrapper {
@@ -53,6 +54,7 @@
     justify-content: center;
     gap: 64px;
     padding-bottom: 150px;
+    background-color: var(--Contactus-bg);
 }
 
 .wrapper .box-1 {

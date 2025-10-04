@@ -1,0 +1,121 @@
+.sub-banner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.72) 100%),
+        url('../../../../../assets/images/About3.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    font-family: var(--font-family);
+    padding: 160px 408px 113px 408px;
+    overflow: hidden;
+}
+
+.sub-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.096) 1px, transparent 1px);
+    background-size: 100px 100px;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+.sub-banner .highlight {
+    background: #FFFFFF1F;
+    text-align: center;
+    border-radius: 49px;
+    font-weight: 400;
+    font-size: 1.375rem;
+    color: #DBEAFE;
+    padding: 5px 15px;
+}
+
+.sub-banner .title {
+    font-weight: 700;
+    font-size: 3rem;
+    text-wrap: nowrap;
+    margin-bottom: 5px;
+    color: var(--nav-footer-link-color);
+    margin-top: 15px;
+}
+
+.sub-banner .demo-btn {
+    margin-top: 28px;
+}
+
+
+/* ========== MEDIA QUERIES ========== */
+
+/* Large Tablets (993px – 1210px) */
+@media only screen and (min-width: 993px) and (max-width: 1210px) {
+    .sub-banner {
+        padding: 120px 200px 90px 200px;
+    }
+
+    .sub-banner .title {
+        font-size: 2.5rem;
+    }
+
+    .sub-banner .highlight {
+        font-size: 1.2rem;
+    }
+}
+
+/* Tablets & Small Laptops (≤ 992px) */
+@media only screen and (max-width: 992px) {
+    .sub-banner {
+        padding: 100px 100px 70px 100px;
+    }
+
+    .sub-banner .title {
+        font-size: 2.25rem;
+        text-align: center;
+        text-wrap: balance;
+    }
+
+    .sub-banner .highlight {
+        font-size: 1.125rem;
+    }
+}
+
+@media only screen and (max-width: 536px) {
+    .sub-banner {
+        padding: 80px 50px 60px 50px;
+    }
+
+    .sub-banner .title {
+        font-size: 1.75rem;
+    }
+
+    .sub-banner .highlight {
+        font-size: 1rem;
+    }
+
+    .sub-banner .demo-btn {
+        margin-top: 15px;
+    }
+}
+
+@media only screen and (max-width: 406px) {
+    .sub-banner {
+        padding: 70px 30px 50px 30px;
+    }
+
+    .sub-banner .title {
+        font-size: 1.5rem;
+    }
+
+    .sub-banner .highlight {
+        font-size: 0.9rem;
+    }
+}

@@ -6,6 +6,8 @@ import { Provider } from 'react-redux'
 import store from '../src/redux/store'
 import { BrowserRouter } from 'react-router-dom'
 import '@ant-design/v5-patch-for-react-19';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <StrictMode>

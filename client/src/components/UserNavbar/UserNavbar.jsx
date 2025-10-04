@@ -27,15 +27,15 @@ const UserNavbar = () => {
     const { user } = useSelector(state => state.user);
 
     const navLinks = [
-        { name: "Accounting Products", to: '/accounting', dropdown: true },
+        { name: "Accounting Products", dropdown: true },
         { name: "About Us", to: '/About-Us' },
         { name: "Contact Us", to: '/Contact-Us' },
     ];
 
     const accountingDropdownItems = [
-        { name: "Product A", to: "/accounting/product-a" },
-        { name: "Product B", to: "/accounting/product-b" },
-        { name: "Product C", to: "/accounting/product-c" },
+        { name: "CPA", to: "/courses/cpa" },
+        { name: "CMA", to: "/courses/cma" },
+        { name: "CIA", to: "/courses/cia" },
     ];
 
     useEffect(() => {
