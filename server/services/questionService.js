@@ -261,7 +261,7 @@ const addRapidQuestionsFromFile = async (filePath) => {
 
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        const rowNumber = i + 1;
+        const rowNumber = i + 2;
 
         try {
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });

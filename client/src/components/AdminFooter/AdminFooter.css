@@ -52,7 +52,7 @@
     color: var(--hover-text);
 }
 
-.footer .container .footer-links .footer-link.active {
+.admin-footer .container .footer-links .footer-link.active {
     text-decoration: underline;
     text-decoration-thickness: 3px;
     text-underline-offset: 6px;
