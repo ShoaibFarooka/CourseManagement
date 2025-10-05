@@ -36,6 +36,9 @@ const UserNavbar = () => {
         { name: "CPA", to: "/courses/cpa" },
         { name: "CMA", to: "/courses/cma" },
         { name: "CIA", to: "/courses/cia" },
+        { name: "CISA", to: "/courses/cisa" },
+        { name: "CFE", to: "/courses/cfe" },
+        { name: "CRMA", to: "/courses/crma" },
     ];
 
     useEffect(() => {

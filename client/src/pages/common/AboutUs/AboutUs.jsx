@@ -2,7 +2,11 @@ import React from 'react'
 import './AboutUs.css';
 import About1 from '../../../assets/images/About1.jpg';
 import About2 from '../../../assets/images/About2.jpg';
+import { useNavigate } from 'react-router-dom';
 const AboutUs = () => {
+
+    const navigate = useNavigate();
+
     return (
         <>
             <div className='about-us'>
@@ -27,7 +31,11 @@ const AboutUs = () => {
                 <div className='title'>Ready to Start Your Journey?</div>
                 <p>Let's work together to turn your vision into reality.Our team is</p>
                 <p>ready to help you achieve extraordinary results.</p>
-                <div className='learn-btn'><button className='button'>Learn More</button></div>
+                <div className='learn-btn'>
+                    <button className='button' onClick={() => navigate('/')}>
+                        Learn More
+                    </button>
+                </div>
             </div>
 
 

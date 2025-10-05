@@ -44,4 +44,11 @@ router.post(
   controller.ResetPassword
 );
 
+router.post(
+  "/Contact-Us",
+  validationMiddleware.validateBody(userSchemas.contactSchema),
+  controller.Contact
+);
+
+
 module.exports = router;

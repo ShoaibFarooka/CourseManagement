@@ -22,4 +22,34 @@ const sendEmail = async (to, subject, text, html, cc, bcc) => {
     }
 };
 
-module.exports = { sendEmail };
+const saveMessage = async ({ name, email, subject, question }) => {
+    const textContent = `📩 New Contact Form Submission
+
+From: ${name} (${email})
+Subject: ${subject}
+
+Message:
+${question}
+`;
+
+    const htmlContent = `
+    <h2>📩 New Contact Message</h2>
+    <p><strong>From:</strong> ${name} (${email})</p>
+    <p><strong>Subject:</strong> ${subject}</p>
+    <p><strong>Message:</strong></p>
+    <p>${question}</p>
+  `;
+
+    sendEmail(
+        process.env.RECEIVER_EMAIL || "support@example.com",
+        `Contact Us: ${subject}`,
+        textContent,
+        htmlContent
+    );
+
+    return { success: true };
+};
+
+
+
+module.exports = { sendEmail, saveMessage };

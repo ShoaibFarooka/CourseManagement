@@ -123,6 +123,23 @@ const userService = {
             throw error;
         }
     },
+
+    sendContactForm: async (payload) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/Contact-Us`,
+                payload,
+                { withCredentials: false }
+            );
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
 };
 
 export default userService;

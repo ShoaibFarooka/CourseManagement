@@ -103,6 +103,22 @@ const ResetPassword = async (req, res, next) => {
     next(error);
   }
 };
+const Contact = async (req, res, next) => {
+  try {
+    const { name, email, subject, question } = req.body;
+
+    if (!name || !email || !subject || !question) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    await emailService.saveMessage({ name, email, subject, question });
+
+    res.status(200).json({ message: "✅ Your message has been sent successfully!" });
+  } catch (error) {
+    console.error("❌ Error sending contact email:", error);
+    next(error);
+  }
+};
 
 
 module.exports = {
@@ -113,4 +129,5 @@ module.exports = {
   FetchUserInfo,
   ForgotPassword,
   ResetPassword,
+  Contact
 };

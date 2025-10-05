@@ -4,32 +4,36 @@ import logo1 from '../../assets/icons/logo1.png';
 import logo2 from '../../assets/icons/logo2.png';
 import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { useSelector } from 'react-redux';
 
 
 const UserFooter = () => {
 
-    const courselinks_1 = [
-        { name: "CMA", to: "/cma" },
-        { name: "CPA", to: "/cpa" },
-        { name: "CIA", to: "/cia" },
+    const { user } = useSelector(state => state.user);
 
-        { name: "CFA", to: "/cma" },
-        { name: "CPA", to: "/c" },
-        { name: "CIA", to: "/a" },
+    const courselinks_1 = [
+        { name: "CPA", to: "/courses/cpa" },
+        { name: "CIA", to: "/courses/cia" },
+        { name: "CMA", to: "/courses/cma" },
+
+        { name: "CFE", to: "/courses/cfe" },
+        { name: "CISA", to: "/courses/cisa" },
+        { name: "CRMA", to: "/courses/crma" },
     ];
 
     const companyLinks = [
-        { name: "About", to: '/about' },
-        { name: "Contact Us", to: '/contact-us' },
-        { name: "Privacy Policy", to: '/privacy-ploicy' },
+        { name: "About Us", to: '/About-us' },
+        { name: "Contact Us", to: '/Contact-us' },
+        { name: "Privacy Policy", to: '/Privacy-Policy' },
     ]
 
     const accountsLinks = [
-        { name: "Log In", to: '/login' },
-        { name: "FAQ", to: '/Faq' },
-        { name: "Support", to: '/support' },
-    ]
-
+        user
+            ? { name: "Home", to: "/" }
+            : { name: "Log In", to: "/login" },
+        { name: "FAQ", to: "/faq" },
+        { name: "Support", to: "/support" },
+    ];
     const half = Math.ceil(courselinks_1.length / 2);
     const firstHalf = courselinks_1.slice(0, half);
     const secondHalf = courselinks_1.slice(half);

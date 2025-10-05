@@ -27,9 +27,35 @@ const resetPasswordSchema = yup.object().shape({
   newPassword: yup.string().trim().required('New Password is required'),
 });
 
+
+const contactSchema = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .required("Name is required")
+    .min(2, "Name must be at least 2 characters"),
+  email: yup
+    .string()
+    .trim()
+    .email("Invalid email address")
+    .required("Email is required"),
+  subject: yup
+    .string()
+    .trim()
+    .required(),
+  question: yup
+    .string()
+    .trim()
+    .required("Message is required")
+    .min(10, "Message must be at least 10 characters"),
+});
+
+
+
 module.exports = {
   loginSchema,
   registerSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  contactSchema
 };

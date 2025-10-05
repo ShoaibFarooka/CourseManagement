@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react';
 import './ContactUs.css';
 import Contact from '../../../assets/images/Contact.png';
 import { MdOutlinePhoneInTalk } from "react-icons/md"
@@ -7,10 +7,10 @@ import { FaLocationDot } from "react-icons/fa6";
 import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import userService from '../../../services/userServices';
+import { message } from 'antd';
 
 const ContactUs = () => {
-
 
     const [formData, setFormData] = useState({
         name: "",
@@ -45,8 +45,6 @@ const ContactUs = () => {
         if (formData.name.trim() === "") {
             newErrors.name = "Name is required!";
             hasErrors = true;
-        } else {
-            newErrors.name = "";
         }
 
         if (formData.email.trim() === "") {
@@ -55,42 +53,50 @@ const ContactUs = () => {
         } else if (!validateEmail(formData.email)) {
             newErrors.email = "Please provide a valid Email!";
             hasErrors = true;
-        } else {
-            newErrors.email = "";
         }
 
         if (formData.subject.trim() === "") {
             newErrors.subject = "Subject is required!";
             hasErrors = true;
-        } else {
-            newErrors.subject = "";
         }
 
         if (formData.question.trim() === "") {
             newErrors.question = "Question is required!";
             hasErrors = true;
-        } else {
-            newErrors.question = "";
+        } else if (formData.question.trim().length < 10) {
+            newErrors.question = "Question must be at least 10 characters!";
+            hasErrors = true;
         }
 
-        setError((prevState) => ({ ...prevState, ...newErrors }));
+        setError(newErrors);
         return !hasErrors;
     };
 
-    const handleClickSend = (e) => {
+    const handleClickSend = async (e) => {
         e.preventDefault();
-        if (!validateData()) {
-            return;
-        }
-        alert("Form submitted successfully!");
-        setFormData({
-            name: "",
-            email: "",
-            subject: "",
-            question: ""
-        });
-    };
+        if (!validateData()) return;
 
+        try {
+            const response = await userService.sendContactForm(formData);
+            message.success(response.message || "Form submitted successfully!");
+            setFormData({
+                name: "",
+                email: "",
+                subject: "",
+                question: "",
+            });
+        } catch (error) {
+            console.error("❌ Error submitting form:", error);
+
+            if (error.response) {
+                message.error(error.response.data?.message || "Server error occurred.");
+            } else if (error.request) {
+                message.warning("Unable to reach the server. Please try again later.");
+            } else {
+                message.error("Unexpected error occurred.");
+            }
+        }
+    };
 
     return (
         <>

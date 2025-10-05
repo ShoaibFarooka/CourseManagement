@@ -45,6 +45,42 @@ const bannerData = {
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CIA"
+        },
+
+        cisa: {
+            titleLines: [
+                { beforeText: "Over ", highlight: "1 Million", text: "CISA" },
+                { text: "Exams Passed and" },
+                { text: "Counting." }
+            ],
+            subtitle: "Join the millions who passed with Gleim.",
+            buttonText: "Demo Now",
+            image: "Course-CPA.png",
+            examName: "CISA"
+        },
+
+        cfe: {
+            titleLines: [
+                { beforeText: "Over ", highlight: "500k", text: "CFE" },
+                { text: "Exams Passed and" },
+                { text: "Counting." }
+            ],
+            subtitle: "Boost your career with CFE certification.",
+            buttonText: "Demo Now",
+            image: "Course-CPA.png",
+            examName: "CFE"
+        },
+
+        crma: {
+            titleLines: [
+                { beforeText: "Over ", highlight: "300k", text: "CRMA" },
+                { text: "Exams Passed and" },
+                { text: "Counting." }
+            ],
+            subtitle: "Advance in internal auditing with CRMA.",
+            buttonText: "Demo Now",
+            image: "Course-CPA.png",
+            examName: "CRMA"
         }
     },
 };

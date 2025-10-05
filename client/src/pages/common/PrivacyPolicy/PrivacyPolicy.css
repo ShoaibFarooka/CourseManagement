@@ -1,0 +1,75 @@
+.privacy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(180deg, rgba(41, 159, 167, 0.7) 0%, rgba(21, 120, 127, 0.7) 100%),
+        url(../../../assets/images/login.jpg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.privacy .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 187px;
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 600;
+    font-size: 3rem;
+    text-align: center;
+}
+
+.privacy .sub-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 142px;
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 400;
+    font-size: 1.75rem;
+    text-align: center;
+}
+
+
+
+.privacy-policy {
+    padding: 100px 30px;
+    background: var(--Contactus-bg);
+    border-radius: 8px;
+    line-height: 1.6;
+    color: var(--text-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.privacy-policy h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.privacy-policy h2 {
+    font-size: 20px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.privacy-policy p {
+    margin-bottom: 15px;
+}
+
+.privacy-policy a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.privacy-policy a:hover {
+    text-decoration: underline;
+}
