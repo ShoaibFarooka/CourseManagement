@@ -21,6 +21,7 @@ const AdminNavbar = () => {
     const navLinks = [
         { name: "Courses", to: "/admin/courses" },
         { name: "Questions", to: "/admin/questions" },
+        { name: "Requests", to: "/admin/requests" }
     ];
 
 

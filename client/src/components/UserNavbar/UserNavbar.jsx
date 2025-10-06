@@ -97,7 +97,7 @@ const UserNavbar = () => {
                         {navLinks.map((item) =>
                             item.dropdown ? (
                                 <div
-                                    key={item.to}
+                                    key={item.name}
                                     ref={dropdownRef}
                                     className={`dropdown ${openDropdown ? "open" : ""}`}
                                     onClick={() => setOpenDropdown(!openDropdown)}

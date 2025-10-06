@@ -50,12 +50,11 @@ const contactSchema = yup.object().shape({
     .min(10, "Message must be at least 10 characters"),
 });
 
-
-
 module.exports = {
   loginSchema,
   registerSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-  contactSchema
+  contactSchema,
 };
+

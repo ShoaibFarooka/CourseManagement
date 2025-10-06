@@ -153,7 +153,6 @@ const resetPassword = async (token, newPassword) => {
   await user.save();
 };
 
-
 module.exports = {
   createUser,
   loginUser,

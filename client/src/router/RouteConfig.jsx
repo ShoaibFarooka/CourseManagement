@@ -10,11 +10,13 @@ import AboutUs from "../pages/common/AboutUs/AboutUs";
 import ContactUs from "../pages/common/ContactUs/ContactUs";
 import UserCourses from "../pages/common/Courses/Courses";
 import PrivacyPolicy from "../pages/common/PrivacyPolicy/PrivacyPolicy";
+import Requests from "../pages/admin/Requests/Requests";
 
 const routes = [
     //Admin
     { path: "/admin/Courses", element: <Courses />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/admin/questions", element: <Questions />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/admin/requests", element: <Requests />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
 
     //common
     { path: "/", element: <Home />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
