@@ -54,6 +54,84 @@ const requestService = {
             }
         }
     },
+
+    overwriteDeviceRequest: async (requestId, targetDeviceId) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/${requestId}/overwrite`,
+                { targetDeviceId },
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
+
+    blockDeviceRequest: async (requestId) => {
+        try {
+            const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/block`, {}, { withCredentials: true });
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
+
+    unblockDeviceRequest: async (requestId) => {
+        try {
+            const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/unblock`, {}, { withCredentials: true });
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
+
+    removeUserDevice: async (userId, deviceId) => {
+        try {
+            const response = await axiosInstance.delete(
+                `${BASE_URL}/user/${userId}/device/${deviceId}`,
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
+
+
+    getUserDevices: async (userId) => {
+        try {
+            const response = await axiosInstance.get(`${BASE_URL}/${userId}/devices`, {
+                withCredentials: true,
+            });
+            return response.data.devices;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
+
+
+
 };
 
 export default requestService;

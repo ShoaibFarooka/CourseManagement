@@ -11,6 +11,7 @@ import ContactUs from "../pages/common/ContactUs/ContactUs";
 import UserCourses from "../pages/common/Courses/Courses";
 import PrivacyPolicy from "../pages/common/PrivacyPolicy/PrivacyPolicy";
 import Requests from "../pages/admin/Requests/Requests";
+import Profile from "../pages/common/Profile/Profile";
 
 const routes = [
     //Admin
@@ -28,6 +29,7 @@ const routes = [
     { path: "/signup", element: <Signup />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/forget-password", element: <ForgetPassword />, protected: false, authRedirect: true, showHeader: false, showFooter: false },
     { path: "/reset-password", element: <ResetPassword />, protected: false, authRedirect: true, showHeader: false, showFooter: false },
+    { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "*", element: <NotFound />, protected: false, authRedirect: false, showHeader: false, showFooter: false },
 ];
 

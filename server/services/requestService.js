@@ -44,7 +44,6 @@ const approveDeviceRequest = async (requestId) => {
 
     const user = request.user;
 
-    // Add device to allowedDevices
     user.allowedDevices.push({
         deviceId: request.deviceInfo.visitorId,
         userAgent: request.deviceInfo.userAgent,
@@ -75,14 +74,110 @@ const rejectDeviceRequest = async (requestId) => {
     return { request };
 };
 
+
 const getAllRequests = async () => {
-    const requests = await Request.find().populate("user");
-    return requests;
+    return await Request.find()
+        .populate("user", "name email");
 };
+
+const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
+    const request = await Request.findById(requestId).populate("user");
+    if (!request) {
+        const error = new Error("Request not found");
+        error.code = 404;
+        throw error;
+    }
+
+    const user = request.user;
+
+    const deviceIndex = user.allowedDevices.findIndex(
+        (d) => d.deviceId === targetDeviceId
+    );
+
+    if (deviceIndex === -1) {
+        const error = new Error("Device not found in user's allowed devices");
+        error.code = 404;
+        throw error;
+    }
+
+    user.allowedDevices[deviceIndex] = {
+        deviceId: request.deviceInfo.visitorId,
+        userAgent: request.deviceInfo.userAgent,
+        location: {
+            country: request.deviceInfo.location.country,
+            region: request.deviceInfo.location.region,
+            city: request.deviceInfo.location.city,
+        },
+        addedAt: user.allowedDevices[deviceIndex].addedAt,
+        lastUsedAt: new Date(),
+    };
+
+    await user.save();
+
+    request.status = "approved";
+    await request.save();
+
+    return { user, request };
+};
+
+
+
+const blockUser = async (userId, block = true) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        const error = new Error("User not found");
+        error.code = 404;
+        throw error;
+    }
+
+    user.isBlocked = block;
+    await user.save();
+
+    return user;
+};
+
+const getUserDevices = async (userId) => {
+    const user = await User.findById(userId).select("allowedDevices name email");
+    if (!user) {
+        const error = new Error("User not found");
+        error.code = 404;
+        throw error;
+    }
+
+    return user.allowedDevices;
+};
+
+
+const removeUserDevice = async (userId, deviceId) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        const error = new Error("User not found");
+        error.code = 404;
+        throw error;
+    }
+
+    const deviceIndex = user.allowedDevices.findIndex((d) => d.deviceId === deviceId);
+
+    if (deviceIndex === -1) {
+        const error = new Error("Device not found in user's allowed devices");
+        error.code = 404;
+        throw error;
+    }
+
+    user.allowedDevices.splice(deviceIndex, 1);
+    await user.save();
+
+    return user;
+};
+
 
 module.exports = {
     requestDeviceAccess,
     approveDeviceRequest,
     rejectDeviceRequest,
-    getAllRequests
-}
+    getAllRequests,
+    overwriteDeviceRequest,
+    blockUser,
+    getUserDevices,
+    removeUserDevice
+};
