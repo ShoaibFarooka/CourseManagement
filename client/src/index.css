@@ -81,6 +81,8 @@ html {
   --eplipse-color: #2699A1;
   --whychooseus-bg-color: #FFFFFF;
   --banner-bg: linear-gradient(180deg, #299FA7 0%, #15787F 100%);
+  --banner-2-bg: linear-gradient(180deg, rgba(41, 159, 167, 0.7) 0%, rgba(21, 120, 127, 0.7) 100%);
+  --sub-banner-bg: linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.72) 100%);
   --course-list-bg: #FFFFFF;
   --dropdown-bg: #1d7b82;
   --Aboutus-bg: #FFFFFF;
@@ -89,6 +91,7 @@ html {
   --Contactus-bg: #FFFFFF;
   --testimonial-bg: #FFFFFF;
   --testimonial-card-bg: #FAFAFA;
+
 }
 
 [data-theme="dark"] {
@@ -145,6 +148,13 @@ html {
   --switch-button-border: #3F3F3F;
   --switch-button-thumb: #FFFFFF;
   --banner-bg: #1E1E1E;
+  --banner-2-bg: linear-gradient(180deg,
+      rgba(30, 30, 30, 0.7) 0%,
+      rgba(30, 30, 30, 0.7) 100%);
+  --sub-banner-bg: linear-gradient(180deg,
+      rgba(34, 46, 5, 0.71) 0%,
+      rgba(34, 46, 5, 0.71) 100%);
+
   --course-list-bg: #1E1E1E;
   --dropdown-bg: #141414;
   --Aboutus-bg: #1E1E1E;

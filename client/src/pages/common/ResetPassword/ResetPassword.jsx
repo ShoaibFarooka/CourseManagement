@@ -53,38 +53,57 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="resetpassword">
-            <form
-                onSubmit={handleSubmit}
-                className="form"
-            >
-                <div className="heading-md h1">Reset Password</div>
-                <p className="text-sm p1">
+
+        <>
+            <div className='reset-password'>
+                <div className='title'>Welcome to ProExamPrep</div>
+            </div>
+
+            <div className="resetpassword">
+
+                <div className=" h1">Reset Password</div>
+                <p className="sub-title">
                     Enter a new password for your account.
                 </p>
-                <input
-                    type="password"
-                    placeholder="New Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Confirm New Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                />
-                {error.confirmpassword && (<span className='error-text'>{error.confirmpassword}</span>)}
-                <button
-                    type="submit"
-                    className="btn"
+
+
+                <form
+                    onSubmit={handleSubmit}
+                    className="form"
                 >
-                    Reset Password
-                </button>
-            </form>
-        </div>
+                    <div>
+                        <label htmlFor="password">Password</label>
+                        <input
+                            className='input'
+                            type="password"
+                            placeholder="New Password"
+                            name='password'
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <input
+                            className='input'
+                            type="password"
+                            placeholder="Confirm New Password"
+                            name='confirmPassword'
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    {error.confirmpassword && (<span className='error-text'>{error.confirmpassword}</span>)}
+
+                    <button type="submit" className="reset-btn">
+                        Reset Password
+                    </button>
+                </form>
+            </div>
+        </>
     );
 };
 

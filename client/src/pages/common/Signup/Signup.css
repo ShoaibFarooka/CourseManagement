@@ -5,7 +5,7 @@
     justify-content: center;
 
     background:
-        linear-gradient(180deg, rgba(41, 159, 167, 0.7) 0%, rgba(21, 120, 127, 0.7) 100%),
+        var(--banner-2-bg),
         url(../../../assets/images/login.jpg);
 
     background-size: cover;
@@ -170,7 +170,48 @@
     text-decoration: underline;
 }
 
+@media only screen and (max-width:768px) {
+
+    .signup-form .box-1 {
+        align-items: center;
+        width: 100%;
+    }
+
+    .signup-form .box-1 .row-1,
+    .signup-form .box-1 .row-2,
+    .signup-form .box-1 .row-3 {
+        width: 100%;
+        max-width: 467px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .signup-form .box-1 .username,
+    .signup-form .box-1 .country,
+    .signup-form .box-1 .phone,
+    .signup-form .box-1 .email,
+    .signup-form .box-1 .password,
+    .signup-form .box-1 .empty {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width:480px) {
+    .signup .title {
+        padding: 80px 10px 60px;
+        font-size: 1.75rem;
+    }
+}
+
 @media only screen and (max-width:375px) {
+
+    .signup-form .box-1 .row-1,
+    .signup-form .box-1 .row-2,
+    .signup-form .box-1 .row-3 {
+        width: 100%;
+        max-width: 280px;
+    }
+
     .signup-form {
         padding: 0 20px;
     }

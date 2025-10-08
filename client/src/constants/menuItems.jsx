@@ -10,6 +10,7 @@ export const menuItems = {
         { path: '/signup' },
         { path: '/forget-password' },
         { path: 'reset-password' },
+        { path: '/otp-verification' },
         { path: '/About-Us' },
         { path: '/Contact-Us' },
         { path: "/courses/:exam" },
