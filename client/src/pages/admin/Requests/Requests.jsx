@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from "react";
 import requestService from "../../../services/requestService";
+import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
+import { useDispatch } from 'react-redux';
+import { message, Popconfirm } from "antd";
 
 const Requests = () => {
     const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [filter, setFilter] = useState("all");
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedUserDevices, setSelectedUserDevices] = useState(null);
-    const [selectedRequest, setSelectedRequest] = useState(null); // track current request for overwrite
+    const [selectedRequest, setSelectedRequest] = useState(null);
+
+    const dispatch = useDispatch();
 
     const fetchRequests = async () => {
         try {
-            setLoading(true);
+            dispatch(ShowLoading());
             const data = await requestService.getAllRequests();
             setRequests(data);
-            setError("");
         } catch (err) {
             console.error("Error fetching requests:", err);
-            setError(err.message || "Something went wrong!");
         } finally {
-            setLoading(false);
+            dispatch(HideLoading());
         }
     };
 
@@ -30,28 +31,60 @@ const Requests = () => {
 
     const handleApprove = async (requestId) => {
         try {
+            dispatch(ShowLoading());
             await requestService.approveDeviceRequest(requestId);
-            fetchRequests();
+            await fetchRequests();
         } catch (err) {
             console.error("Error approving request:", err);
+        } finally {
+            dispatch(HideLoading());
         }
     };
 
     const handleReject = async (requestId) => {
         try {
+            dispatch(ShowLoading());
             await requestService.rejectDeviceRequest(requestId);
-            fetchRequests();
+            await fetchRequests();
         } catch (err) {
             console.error("Error rejecting request:", err);
+        } finally {
+            dispatch(HideLoading());
         }
     };
 
     const handleBlockToggle = async (userId, isBlocked) => {
         try {
-            await requestService.blockUser(userId, !isBlocked);
-            fetchRequests();
+            dispatch(ShowLoading());
+
+            if (isBlocked) {
+                await requestService.unblockDeviceRequest(userId);
+                message.success("User unblocked successfully");
+            } else {
+                await requestService.blockDeviceRequest(userId);
+                message.success("User blocked successfully");
+            }
+
+            await fetchRequests();
         } catch (err) {
             console.error("Error toggling block:", err);
+            message.error("Failed to toggle block status");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
+    const handleDeleteRequest = async (requestId) => {
+        try {
+            dispatch(ShowLoading());
+            await requestService.deleteDeviceRequest(requestId);
+            await fetchRequests();
+            message.success("Request deleted successfully");
+        } catch (err) {
+            console.error("Error deleting request:", err);
+            message.error("Failed to delete request");
+        } finally {
+            dispatch(HideLoading());
         }
     };
 
@@ -80,9 +113,8 @@ const Requests = () => {
         }
 
         try {
-            await requestService.overwriteDeviceRequest(selectedRequest._id, {
-                targetDeviceId,
-            });
+            dispatch(ShowLoading());
+            await requestService.overwriteDeviceRequest(selectedRequest._id, { targetDeviceId });
             alert("Device overwritten successfully.");
             await fetchRequests();
             if (selectedUser) {
@@ -92,9 +124,10 @@ const Requests = () => {
         } catch (err) {
             console.error("Error overwriting device:", err);
             alert(err.message || "Failed to overwrite device");
+        } finally {
+            dispatch(HideLoading());
         }
     };
-
 
     const getDeviceType = (ua) => {
         if (!ua) return "-";
@@ -109,23 +142,28 @@ const Requests = () => {
         if (!selectedUser) return;
 
         try {
+            dispatch(ShowLoading());
             await requestService.removeUserDevice(selectedUser._id, deviceId);
-            alert("Device removed successfully.");
+            message.success("Device removed successfully");
 
             const devices = await requestService.getUserDevices(selectedUser._id);
             setSelectedUserDevices(devices);
         } catch (err) {
             console.error("Error removing device:", err);
-            alert(err.message || "Failed to remove device");
+            message.error(err.message || "Failed to remove device");
+        } finally {
+            dispatch(HideLoading());
         }
     };
 
-
     const filteredRequests =
-        filter === "all" ? requests : requests.filter((req) => req.status === filter);
-
-    if (loading) return <div>Loading requests...</div>;
-    if (error) return <div className="error-text">{error}</div>;
+        filter === "blocked"
+            ? requests.filter((req) => req.user?.isBlocked)
+            : requests.filter(
+                (req) =>
+                    !req.user?.isBlocked &&
+                    (filter === "all" || req.status === filter)
+            );
 
     return (
         <div style={{ padding: "20px" }}>
@@ -177,6 +215,7 @@ const Requests = () => {
                                     </td>
                                     <td>
                                         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                            {/* Pending Actions */}
                                             {req.status === "pending" && (
                                                 <>
                                                     <button
@@ -195,7 +234,7 @@ const Requests = () => {
                                                 </>
                                             )}
 
-                                            {/* Toggle Block / Unblock */}
+                                            {/* Block / Unblock */}
                                             <button
                                                 className="btn"
                                                 style={{
@@ -207,7 +246,7 @@ const Requests = () => {
                                                 {req.user?.isBlocked ? "Unblock User" : "Block User"}
                                             </button>
 
-                                            {/* View Allowed Devices */}
+                                            {/* View Devices */}
                                             <button
                                                 className="btn"
                                                 style={{ backgroundColor: "#444", color: "#fff" }}
@@ -217,6 +256,21 @@ const Requests = () => {
                                                     ? "Hide Devices"
                                                     : "View Devices"}
                                             </button>
+
+                                            {/* 🗑️ Delete Request */}
+                                            <Popconfirm
+                                                title="Are you sure you want to Delete?"
+                                                onConfirm={() => handleDeleteRequest(req._id)}
+                                                okText="Yes"
+                                                cancelText="No"
+                                            >
+                                                <button
+                                                    className="btn"
+                                                    style={{ backgroundColor: "#555", color: "#fff" }}
+                                                >
+                                                    Delete Request
+                                                </button>
+                                            </Popconfirm>
                                         </div>
                                     </td>
                                 </tr>
@@ -257,7 +311,6 @@ const Requests = () => {
                                             <td>{dev.location?.city || "-"}</td>
                                             <td>{dev.lastUsedAt ? new Date(dev.lastUsedAt).toLocaleString() : "-"}</td>
                                             <td style={{ display: "flex", gap: "6px" }}>
-                                                {/* Overwrite button - only if there is a pending request */}
                                                 {selectedRequest && selectedRequest.status === "pending" && (
                                                     <button
                                                         className="btn btn-warning"
@@ -266,8 +319,6 @@ const Requests = () => {
                                                         Overwrite with Request Device
                                                     </button>
                                                 )}
-
-                                                {/* Remove button - available anytime */}
                                                 <button
                                                     className="btn btn-danger"
                                                     onClick={() => handleRemoveDevice(dev.deviceId)}

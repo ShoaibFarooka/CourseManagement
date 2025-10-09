@@ -72,9 +72,13 @@ const requestService = {
         }
     },
 
-    blockDeviceRequest: async (requestId) => {
+    blockDeviceRequest: async (userId) => {
         try {
-            const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/block`, {}, { withCredentials: true });
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/${userId}/block`,
+                {},
+                { withCredentials: true }
+            );
             return response.data;
         } catch (error) {
             if (error.response) {
@@ -85,9 +89,13 @@ const requestService = {
         }
     },
 
-    unblockDeviceRequest: async (requestId) => {
+    unblockDeviceRequest: async (userId) => {
         try {
-            const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/unblock`, {}, { withCredentials: true });
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/${userId}/unblock`,
+                {},
+                { withCredentials: true }
+            );
             return response.data;
         } catch (error) {
             if (error.response) {
@@ -97,6 +105,7 @@ const requestService = {
             }
         }
     },
+
 
     removeUserDevice: async (userId, deviceId) => {
         try {
@@ -130,6 +139,20 @@ const requestService = {
         }
     },
 
+    deleteDeviceRequest: async (requestId) => {
+        try {
+            const response = await axiosInstance.delete(`${BASE_URL}/delete/${requestId}`, {
+                withCredentials: true,
+            });
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                throw error.response.data;
+            } else {
+                throw new Error("Network error, server not reachable");
+            }
+        }
+    },
 
 
 };

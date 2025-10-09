@@ -43,27 +43,29 @@ router.patch(
 );
 
 router.patch(
-    "/user/:userId/block",
+    "/:userId/block",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.BlockUser
 );
 
 router.patch(
-    "/user/:userId/unblock",
+    "/:userId/unblock",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.UnblockUser
 );
 
 router.delete(
-    "/user/:userId/device/:deviceId",
+    "/:userId/device/:deviceId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.removeUserDevice
 );
 
 router.get("/:userId/devices", controller.getUserDevices);
+router.delete("/delete/:requestId", controller.DeleteRequest);
+
 
 
 module.exports = router;

@@ -6,7 +6,7 @@
 
     background:
         var(--banner-2-bg),
-        url(../../assets/images/login.jpg);
+        url(../../../assets/images/login.jpg);
 
     background-size: cover;
     background-position: center;

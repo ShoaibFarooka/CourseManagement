@@ -9,7 +9,6 @@ const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
         throw error;
     }
 
-    // check if device already exists in allowedDevices
     const deviceExists = user.allowedDevices.some(
         (d) => d.deviceId === visitorId
     );
@@ -18,7 +17,6 @@ const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
         return { alreadyAllowed: true };
     }
 
-    // create request
     const request = new Request({
         user: user._id,
         deviceInfo: {
@@ -76,9 +74,17 @@ const rejectDeviceRequest = async (requestId) => {
 
 
 const getAllRequests = async () => {
-    return await Request.find()
-        .populate("user", "name email");
+    const requests = await Request.find()
+        .populate("user", "name email isBlocked");
+
+    // merge user.isBlocked into request object for frontend
+    return requests.map(req => {
+        const reqObj = req.toObject();
+        if (reqObj.user?.isBlocked) reqObj.status = "blocked";
+        return reqObj;
+    });
 };
+
 
 const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
     const request = await Request.findById(requestId).populate("user");
@@ -122,7 +128,7 @@ const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
 
 
 
-const blockUser = async (userId, block = true) => {
+const blockUser = async (userId) => {
     const user = await User.findById(userId);
     if (!user) {
         const error = new Error("User not found");
@@ -130,7 +136,21 @@ const blockUser = async (userId, block = true) => {
         throw error;
     }
 
-    user.isBlocked = block;
+    user.isBlocked = true;
+    await user.save();
+
+    return user;
+};
+
+const unblockUser = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        const error = new Error("User not found");
+        error.code = 404;
+        throw error;
+    }
+
+    user.isBlocked = false;
     await user.save();
 
     return user;
@@ -170,6 +190,17 @@ const removeUserDevice = async (userId, deviceId) => {
     return user;
 };
 
+const deleteRequest = async (requestId) => {
+    const request = await Request.findByIdAndDelete(requestId);
+    if (!request) {
+        const error = new Error("Request not found");
+        error.code = 404;
+        throw error;
+    }
+    return request;
+};
+
+
 
 module.exports = {
     requestDeviceAccess,
@@ -178,6 +209,8 @@ module.exports = {
     getAllRequests,
     overwriteDeviceRequest,
     blockUser,
+    unblockUser,
     getUserDevices,
-    removeUserDevice
+    removeUserDevice,
+    deleteRequest,
 };

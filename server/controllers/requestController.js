@@ -10,12 +10,7 @@ const RequestDeviceAccess = async (req, res, next) => {
             return res.status(400).json({ message: "visitorId and userAgent are required." });
         }
 
-        let ip = req.headers["x-forwarded-for"];
-        if (ip) {
-            ip = ip.split(",")[0].trim();
-        } else {
-            ip = req.socket.remoteAddress;
-        }
+        let ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.socket.remoteAddress;
 
         const geo = await getCountryFromIP(ip) || {};
         const location = {
@@ -96,7 +91,7 @@ const OverwriteDeviceRequest = async (req, res, next) => {
 const BlockUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const user = await requestService.blockUser(userId, true);
+        const user = await requestService.blockUser(userId);
 
         res.status(200).json({
             message: "User blocked successfully.",
@@ -111,7 +106,7 @@ const BlockUser = async (req, res, next) => {
 const UnblockUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const user = await requestService.blockUser(userId, false);
+        const user = await requestService.unblockUser(userId);
 
         res.status(200).json({
             message: "User unblocked successfully.",
@@ -155,6 +150,21 @@ const removeUserDevice = async (req, res, next) => {
     }
 };
 
+const DeleteRequest = async (req, res, next) => {
+    try {
+        const { requestId } = req.params;
+        const deletedRequest = await requestService.deleteRequest(requestId);
+
+        res.status(200).json({
+            message: "Request deleted successfully.",
+            deletedRequest,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 
 module.exports = {
@@ -166,5 +176,6 @@ module.exports = {
     BlockUser,
     UnblockUser,
     getUserDevices,
-    removeUserDevice
+    removeUserDevice,
+    DeleteRequest,
 };

@@ -39,10 +39,10 @@ html {
   --text-muted: #64748b;
   /* Muted text (shadcn: muted-foreground) */
 
-  --btn-bg: #334155;
+  --btn-bg: #9eb1cd;
   /* slate-700 */
   --btn-text: #ffffff;
-  --btn-hover: #1e293b;
+  --btn-hover: #7d8ba1;
   /* Border & Effects */
   --border: #cbd5e1;
 

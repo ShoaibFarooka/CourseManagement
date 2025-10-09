@@ -5,6 +5,8 @@ import { message } from "antd";
 import userService from "../../../services/userServices"
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
+import { NavLink } from 'react-router-dom';
+import { FaArrowLeft } from "react-icons/fa";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -61,9 +63,9 @@ const ResetPassword = () => {
 
             <div className="resetpassword">
 
-                <div className=" h1">Reset Password</div>
+                <div className=" h1">Reset Your Password</div>
                 <p className="sub-title">
-                    Enter a new password for your account.
+                    Reset your account password
                 </p>
 
 
@@ -101,6 +103,12 @@ const ResetPassword = () => {
                     <button type="submit" className="reset-btn">
                         Reset Password
                     </button>
+                    <div className='back-to-login'>
+                        <NavLink className="link" to='/login'>
+                            <FaArrowLeft width={24} />
+                            Back to Login
+                        </NavLink>
+                    </div>
                 </form>
             </div>
         </>

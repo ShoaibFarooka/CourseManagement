@@ -14,7 +14,6 @@ const apiRateLimiter = require('./middleware/rateLimiterMiddleware');
 const trimMiddleware = require('./middleware/trimMiddleware');
 const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 const logger = require('./utils/logger');
-const handlebars = require('./helpers/handlebarsHelper');
 
 //Express Server Setup
 const app = express();
@@ -53,6 +52,7 @@ app.use(compression());
 app.use(trimMiddleware);
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use(morgan('short'));
+
 
 const DB = process.env.DB_URI;
 connectDB(DB);
