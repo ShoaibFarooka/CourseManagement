@@ -1,65 +1,62 @@
 .user-navbar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background: transparent;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 10;
-    padding: 38px 93px
+    padding: 50px 40px;
 }
 
-.user-navbar .container {
+
+.user-navbar .left {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     width: 100%;
 }
 
-.user-navbar .container .left {
-    display: flex;
-    align-items: center;
-    gap: 113px;
-}
-
-.user-navbar .container .left .logo {
+.user-navbar .logo {
     display: flex;
     align-items: center;
 }
 
-.user-navbar .container .left .logo .logo-link {
+.user-navbar .logo .logo-link {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 
-.user-navbar .container .left .logo .logo-link .image-1 {
+.user-navbar .logo .logo-link .image-1 {
     width: 52px;
 }
 
-.user-navbar .container .left .logo .logo-link .image-2 {
+.user-navbar .logo .logo-link .image-2 {
     width: 119px;
     padding-top: 10px;
 }
 
-.user-navbar .container .left .nav-list {
+.user-navbar .left .nav-list {
     display: flex;
     align-items: center;
-    gap: 114px;
+    justify-content: space-evenly;
+    padding-top: 10px;
+    width: 80%;
 }
 
-.user-navbar .container .left .nav-list .close-btn {
+.user-navbar .left .nav-list .close-btn {
     color: var(--nav-footer-link-color);
     display: none;
 }
 
-.user-navbar .container .left .nav-list .dropdown {
+.user-navbar .left .nav-list .dropdown {
     position: relative;
 }
 
-.user-navbar .container .left .nav-list .dropdown .link {
+.user-navbar .left .nav-list .dropdown .link {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -67,7 +64,7 @@
     user-select: none;
 }
 
-.user-navbar .container .left .nav-list .dropdown-menu {
+.user-navbar .left .nav-list .dropdown-menu {
     position: absolute;
     top: 120%;
     left: 0;
@@ -88,14 +85,14 @@
 
 }
 
-.user-navbar .container .left .nav-list .dropdown-menu.open {
+.user-navbar .left .nav-list .dropdown-menu.open {
     opacity: 1;
     transform: translateY(0);
     visibility: visible;
     pointer-events: auto;
 }
 
-.user-navbar .container .left .nav-list .dropdown-item {
+.user-navbar .left .nav-list .dropdown-item {
     padding: 0.6rem 1rem;
     text-decoration: none;
     font-family: "Lato", sans-serif;
@@ -105,16 +102,16 @@
 
 }
 
-.user-navbar .container .left .nav-list .dropdown-item:hover {
+.user-navbar .left .nav-list .dropdown-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
 
-.user-navbar .container .left .mobile {
+.user-navbar .left .mobile {
     display: none;
 }
 
-.user-navbar .container .left .nav-list .link {
+.user-navbar .left .nav-list .link {
     text-decoration: none;
     font-family: "lato";
     font-weight: 500;
@@ -122,24 +119,25 @@
     color: var(--nav-footer-link-color);
 }
 
-.user-navbar .container .left .nav-list .link:hover {
+.user-navbar .left .nav-list .link:hover {
     opacity: 0.8;
 }
 
-.user-navbar .container .left .nav-list .link.active {
+.user-navbar .left .nav-list .link.active {
     text-decoration: underline;
     text-decoration-thickness: 3px;
     text-underline-offset: 6px;
 }
 
-.user-navbar .container .right {
+.user-navbar .right {
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 20px;
+    padding-top: 10px;
 }
 
 
-.user-navbar .container .hamburger {
+.user-navbar .hamburger {
     display: none;
     font-size: 1.5rem;
     background: none;
@@ -220,41 +218,12 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-
-@media only screen and (max-width: 1210px) {
-    .user-navbar {
-        padding-left: 50px;
-        padding-right: 50px;
-    }
-
-    .user-navbar .container .left {
-        gap: 50px;
-    }
-
-    .user-navbar .container .left .nav-list {
-        gap: 70px;
-    }
-}
-
 @media only screen and (max-width: 991px) {
-    .user-navbar {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    .user-navbar .container .left {
-        gap: 40px;
-    }
-
-    .user-navbar .container .left .nav-list {
-        gap: 60px;
-    }
-
-    .user-navbar .container .left .logo .logo-link .image-1 {
+    .user-navbar .logo .logo-link .image-1 {
         width: 45px;
     }
 
-    .user-navbar .container .left .logo .logo-link .image-2 {
+    .user-navbar .logo .logo-link .image-2 {
         width: 100px;
         padding-top: 8px;
     }
@@ -266,18 +235,18 @@
         padding-right: 50px;
     }
 
-    .user-navbar .container .left .mobile {
+    .user-navbar .left .mobile {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 1rem;
     }
 
-    .user-navbar .container .hamburger {
+    .user-navbar .hamburger {
         display: block;
     }
 
-    .user-navbar .container .left .nav-list .close-btn {
+    .user-navbar .left .nav-list .close-btn {
         display: block;
         align-self: flex-end;
         font-size: 1.8rem;
@@ -288,8 +257,9 @@
         margin-bottom: 1rem;
     }
 
-    .user-navbar .container .left .nav-list {
+    .user-navbar .left .nav-list {
         flex-direction: column;
+        justify-content: flex-start;
         position: fixed;
         top: 0;
         right: -100%;
@@ -303,11 +273,11 @@
         z-index: 999;
     }
 
-    .user-navbar .container .left .nav-list.open {
+    .user-navbar .left .nav-list.open {
         right: 0;
     }
 
-    .user-navbar .container .right {
+    .user-navbar .right {
         display: none;
     }
 
@@ -327,15 +297,15 @@
         min-width: 200px;
     }
 
-    .user-navbar .container .left .nav-list .dropdown {
+    .user-navbar .left .nav-list .dropdown {
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
     }
 
-    .user-navbar .container .left .nav-list .dropdown>button,
-    .user-navbar .container .left .nav-list .dropdown>a {
+    .user-navbar .left .nav-list .dropdown>button,
+    .user-navbar .left .nav-list .dropdown>a {
         width: 100%;
         display: flex;
         justify-content: space-between;
@@ -349,7 +319,7 @@
         cursor: pointer;
     }
 
-    .user-navbar .container .left .nav-list .dropdown .dropdown-menu {
+    .user-navbar .left .nav-list .dropdown .dropdown-menu {
         position: static;
         background: transparent;
         box-shadow: none;
@@ -361,12 +331,12 @@
         gap: 0.6rem;
     }
 
-    .user-navbar .container .left .nav-list .dropdown.open .dropdown-menu {
+    .user-navbar .left .nav-list .dropdown.open .dropdown-menu {
         display: flex;
         align-items: center;
     }
 
-    .user-navbar .container .left .nav-list .dropdown-item {
+    .user-navbar .left .nav-list .dropdown-item {
         padding: 0.4rem 0;
         font-size: 0.9rem;
         color: var(--nav-footer-link-color);
@@ -388,42 +358,44 @@
 
 @media only screen and (max-width: 575px) {
     .user-navbar {
-        padding-left: 30px;
-        padding-right: 30px;
-        padding-top: 20px;
+        padding: 30px 30px 50px 30px;
     }
 
-    .user-navbar .container .left .logo .logo-link .image-1 {
+    .user-navbar .logo .logo-link .image-1 {
         width: 30px;
     }
 
-    .user-navbar .container .left .logo .logo-link .image-2 {
+    .user-navbar .logo .logo-link .image-2 {
         width: 60px;
     }
 
-    .user-navbar .container .left .nav-list {
+    .user-navbar .left .nav-list {
         width: 80%;
         max-width: 240px;
         gap: 1rem;
     }
 
-    .user-navbar .container .left .nav-list .link {
+    .user-navbar .left .nav-list .link {
         font-size: 0.9rem;
     }
 
-    .user-navbar .container .right .signin-btn,
-    .user-navbar .container .left .mobile .signin-btn {
+    .user-navbar .right .signin-btn,
+    .user-navbar .left .mobile .signin-btn {
         padding: 8px 16px;
         font-size: 0.85rem;
     }
 }
 
 @media only screen and (max-width: 400px) {
-    .user-navbar .container .left .logo .logo-link .image-1 {
-        width: 20px;
+    .user-navbar {
+        padding-bottom: 60px;
     }
 
-    .user-navbar .container .left .logo .logo-link .image-2 {
-        width: 40px;
+    .user-navbar .logo .logo-link .image-1 {
+        width: 30px;
+    }
+
+    .user-navbar .logo .logo-link .image-2 {
+        width: 50px;
     }
 }

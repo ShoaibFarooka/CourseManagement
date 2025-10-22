@@ -17,6 +17,8 @@ const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
         return { alreadyAllowed: true };
     }
 
+    const isNewUser = user.allowedDevices.length === 0;
+
     const request = new Request({
         user: user._id,
         deviceInfo: {
@@ -24,7 +26,7 @@ const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
             userAgent,
             location
         },
-        isNewUser: false,
+        isNewUser
     });
 
     await request.save();
@@ -75,9 +77,8 @@ const rejectDeviceRequest = async (requestId) => {
 
 const getAllRequests = async () => {
     const requests = await Request.find()
-        .populate("user", "name email isBlocked");
+        .populate("user", "name email isBlocked paymentStatus allowedDevices");
 
-    // merge user.isBlocked into request object for frontend
     return requests.map(req => {
         const reqObj = req.toObject();
         if (reqObj.user?.isBlocked) reqObj.status = "blocked";
@@ -186,6 +187,11 @@ const removeUserDevice = async (userId, deviceId) => {
 
     user.allowedDevices.splice(deviceIndex, 1);
     await user.save();
+
+    await Request.updateMany(
+        { "deviceInfo.visitorId": deviceId, user: userId, status: "approved" },
+        { $set: { status: "revoked" } }
+    );
 
     return user;
 };

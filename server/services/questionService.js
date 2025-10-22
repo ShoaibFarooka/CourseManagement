@@ -299,7 +299,6 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-
             const subunit = unit.subunits.find(s =>
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
             );
@@ -325,6 +324,32 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 const explanationB = row[`SubQ${index} Explanation B`]?.trim();
                 const correctOption = row[`SubQ${index} Correct Option`]?.trim().toLowerCase();
 
+
+                if (!statement) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Statement` });
+                    index++;
+                    continue;
+                }
+                if (!optionA) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Option A` });
+                    index++;
+                    continue;
+                }
+                if (!explanationA) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Explanation A` });
+                    index++;
+                    continue;
+                }
+                if (!optionB) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Option B` });
+                    index++;
+                    continue;
+                }
+                if (!explanationB) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Explanation B` });
+                    index++;
+                    continue;
+                }
                 if (!["a", "b"].includes(correctOption)) {
                     warnings.push({ rowNumber, reason: `SubQ${index}: Invalid Correct Option (must be 'a' or 'b')` });
                     index++;

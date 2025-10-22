@@ -10,14 +10,43 @@ import { NavLink } from 'react-router-dom'
 const ForgetPassword = () => {
 
     const [email, setEmail] = useState("");
+
+    const [error, setError] = useState({
+        email: "",
+    });
+
     const dispatch = useDispatch();
 
     const handleInputChange = (e) => {
         setEmail(e.target.value);
     }
 
+    const validateEmail = () => {
+        const regex = /^[^\s@]+@[^\s@]+\.(com)$/;
+        return regex.test(email);
+    }
+
+    const validateData = () => {
+        let hasError = false;
+        let newErrors = {};
+
+        if (email.trim() === "") {
+            hasError = true;
+            newErrors.email = "Email is Required";
+        }
+        else if (!validateEmail(email)) {
+            hasError = true;
+            newErrors.email = "Email is not valid";
+        }
+        setError((prevState) => ({ ...prevState, ...newErrors }))
+        return !hasError;
+    }
+
     const handleOnSubmit = async (e) => {
         e.preventDefault();
+        if (!validateData()) {
+            return;
+        }
         try {
             dispatch(ShowLoading());
             await userService.forgotPassword({ email });
@@ -37,13 +66,14 @@ const ForgetPassword = () => {
 
 
             <div className='form-container'>
-                <div className='h1'>Forget Password</div>
+                <div className='h1'>Forgot Password</div>
                 <div className='sub-title'>Please enter the email address associated with your account.</div>
                 <form onSubmit={handleOnSubmit} className='form'>
                     <div>
                         <label htmlFor="email">Your Email</label>
                         <input className="input" type="text" value={email} name='email' placeholder='Enter Email Here' onChange={handleInputChange} />
                     </div>
+                    {error.email && <span className='error-text'>{error.email}</span>}
                     <button className='send-btn'>Send Link</button>
                     <div className='back-to-login'>
                         <NavLink className="link" to='/login'>

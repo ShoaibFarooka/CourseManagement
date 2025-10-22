@@ -75,119 +75,120 @@ const UserNavbar = () => {
 
     return (
         <div className="user-navbar">
-            <div className="container">
-                <div className="left">
-                    <div className="logo">
-                        <NavLink to={"/"} className="logo-link">
-                            <img className='image-1' src={logo1} alt="Logo" />
-                            <img className='image-2' src={logo2} alt='logo' />
-                        </NavLink>
-                    </div>
 
-                    <div className={`nav-list ${openMobileMenu ? "open" : ""}`}>
-                        {openMobileMenu && (
-                            <button
-                                className="close-btn"
-                                onClick={() => setOpenMobileMenu(false)}
-                            >
-                                ×
-                            </button>
-                        )}
+            <div className="logo">
+                <NavLink to={"/"} className="logo-link">
+                    <img className='image-1' src={logo1} alt="Logo" />
+                    <img className='image-2' src={logo2} alt='logo' />
+                </NavLink>
+            </div>
 
-                        {navLinks.map((item) =>
-                            item.dropdown ? (
-                                <div
-                                    key={item.name}
-                                    ref={dropdownRef}
-                                    className={`dropdown ${openDropdown ? "open" : ""}`}
-                                    onClick={() => setOpenDropdown(!openDropdown)}
-                                >
-                                    <span className="link">
-                                        {item.name} ▾
-                                    </span>
 
-                                    <div className={`dropdown-menu ${openDropdown ? "open" : ""}`}>
-                                        {accountingDropdownItems.map((sub) => (
-                                            <NavLink
-                                                key={sub.to}
-                                                to={sub.to}
-                                                className="dropdown-item"
-                                                onClick={() => setOpenDropdown(false)}
-                                            >
-                                                {sub.name}
-                                            </NavLink>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                <NavLink
-                                    key={item.to}
-                                    to={item.to}
-                                    className={({ isActive }) =>
-                                        isActive ? "link active" : "link"
-                                    }
-                                    onClick={() => setOpenDropdown(false)}
-                                >
-                                    {item.name}
-                                </NavLink>
-                            )
-                        )}
 
-                        <div className="mobile">
-                            <ThemeToggel />
-                            {!user ? (
-                                <button className="login-button">Login</button>
-                            ) : (
-                                <div className="profile-dropdown" ref={profileRef}>
-                                    <img
-                                        src={Profile}
-                                        alt="Profile"
-                                        className="profile-pic"
-                                        onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
-                                    />
-                                    <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
-                                        <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={handleLogout}
-                                        >Logout</button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+            <div className="left">
 
-                <div className="right">
-                    <ThemeToggel />
-                    {!user ? (
-                        <button className="login-button" onClick={() => navigate('/login')}>Login</button>
-                    ) : (
-                        <div className="profile-dropdown" ref={profileRef}>
-                            <img
-                                // write user.avatar for the dynamic funcntionality 
-                                src={Profile}
-                                alt="Profile"
-                                className="profile-pic"
-                                onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
-                            />
-                            <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
-                                <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
-                                <button
-                                    className="dropdown-item"
-                                    onClick={handleLogout}
-                                >Logout</button>
-                            </div>
-                        </div>
+                <div className={`nav-list ${openMobileMenu ? "open" : ""}`}>
+                    {openMobileMenu && (
+                        <button
+                            className="close-btn"
+                            onClick={() => setOpenMobileMenu(false)}
+                        >
+                            ×
+                        </button>
                     )}
-                </div>
 
-                <button
-                    className="hamburger"
-                    onClick={() => setOpenMobileMenu(true)}
-                >
-                    ☰
-                </button>
+                    {navLinks.map((item) =>
+                        item.dropdown ? (
+                            <div
+                                key={item.name}
+                                ref={dropdownRef}
+                                className={`dropdown ${openDropdown ? "open" : ""}`}
+                                onClick={() => setOpenDropdown(!openDropdown)}
+                            >
+                                <span className="link">
+                                    {item.name} ▾
+                                </span>
+
+                                <div className={`dropdown-menu ${openDropdown ? "open" : ""}`}>
+                                    {accountingDropdownItems.map((sub) => (
+                                        <NavLink
+                                            key={sub.to}
+                                            to={sub.to}
+                                            className="dropdown-item"
+                                            onClick={() => setOpenDropdown(false)}
+                                        >
+                                            {sub.name}
+                                        </NavLink>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <NavLink
+                                key={item.to}
+                                to={item.to}
+                                className={({ isActive }) =>
+                                    isActive ? "link active" : "link"
+                                }
+                                onClick={() => setOpenDropdown(false)}
+                            >
+                                {item.name}
+                            </NavLink>
+                        )
+                    )}
+
+                    <div className="mobile">
+                        <ThemeToggel />
+                        {!user ? (
+                            <button className="login-button">Login</button>
+                        ) : (
+                            <div className="profile-dropdown" ref={profileRef}>
+                                <img
+                                    src={Profile}
+                                    alt="Profile"
+                                    className="profile-pic"
+                                    onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
+                                />
+                                <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
+                                    <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={handleLogout}
+                                    >Logout</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <button
+                className="hamburger"
+                onClick={() => setOpenMobileMenu(true)}
+            >
+                ☰
+            </button>
+            <div className="right">
+                <ThemeToggel />
+                {!user ? (
+                    <button className="login-button" onClick={() => navigate('/login')}>Login</button>
+                ) : (
+                    <div className="profile-dropdown" ref={profileRef}>
+                        <img
+                            // write user.avatar for the dynamic funcntionality 
+                            src={Profile}
+                            alt="Profile"
+                            className="profile-pic"
+                            onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
+                        />
+                        <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
+                            <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
+                            <button
+                                className="dropdown-item"
+                                onClick={handleLogout}
+                            >Logout</button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -110,7 +110,7 @@ const requestService = {
     removeUserDevice: async (userId, deviceId) => {
         try {
             const response = await axiosInstance.delete(
-                `${BASE_URL}/user/${userId}/device/${deviceId}`,
+                `${BASE_URL}/${userId}/device/${deviceId}`,
                 { withCredentials: true }
             );
             return response.data;

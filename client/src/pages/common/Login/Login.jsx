@@ -127,8 +127,8 @@ const Login = () => {
                             {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                         </span>
                         <div className="forget-password">
-                            <a href="/forget-password" className="text-sm">
-                                Forget Password?
+                            <a href="/forgot-password" className="text-sm">
+                                Forgot Password?
                             </a>
                         </div>
                     </div>

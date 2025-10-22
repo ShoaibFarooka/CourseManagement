@@ -38,6 +38,11 @@ router.post(
   controller.ForgotPassword
 );
 
+router.get(
+  "/verify-reset-token/:token",
+  controller.VerifyResetToken
+);
+
 router.post(
   "/reset-password",
   validationMiddleware.validateBody(userSchemas.resetPasswordSchema),

@@ -134,6 +134,19 @@ const createResetToken = async (email) => {
   return { user, resetToken };
 };
 
+const verifyResetToken = async (token) => {
+  const user = await User.findOne({
+    resetToken: token,
+    resetTokenExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return { success: false, message: "Invalid or expired token" };
+  }
+
+  return { success: true, message: "Token is valid", user };
+};
+
 const resetPassword = async (token, newPassword) => {
   const user = await User.findOne({
     resetToken: token,
@@ -160,5 +173,6 @@ module.exports = {
   logoutUser,
   fetchUser,
   createResetToken,
+  verifyResetToken,
   resetPassword,
 };

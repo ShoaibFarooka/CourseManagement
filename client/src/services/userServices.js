@@ -43,6 +43,19 @@ const userService = {
             throw error;
         }
     },
+
+    verifyResetToken: async (token) => {
+        try {
+            const response = await axiosInstance.get(
+                `${BASE_URL}/verify-reset-token/${token}`,
+                { withCredentials: true, skipAuthRefresh: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     resetPassword: async (payload) => {
         try {
             const response = await axiosInstance.post(

@@ -94,6 +94,22 @@ const ForgotPassword = async (req, res, next) => {
   }
 };
 
+const VerifyResetToken = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const result = await userService.verifyResetToken(token);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 const ResetPassword = async (req, res, next) => {
   try {
     const { token, newPassword } = req.body;
@@ -129,6 +145,7 @@ module.exports = {
   Logout,
   FetchUserInfo,
   ForgotPassword,
+  VerifyResetToken,
   ResetPassword,
   Contact
 };
