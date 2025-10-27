@@ -91,7 +91,13 @@ html {
   --Contactus-bg: #FFFFFF;
   --testimonial-bg: #FFFFFF;
   --testimonial-card-bg: #FAFAFA;
-
+  --sidebar: #FFFFFF;
+  --sidebar-border: #1E1E1E0A;
+  --course-topic-bg: #FFFFFF;
+  --table-header: #EAECF0;
+  --table-header-text: #667085;
+  --table-header-border: #EAECF0;
+  --table-values-bg: #FFFFFF;
 }
 
 [data-theme="dark"] {
@@ -163,6 +169,13 @@ html {
   --Contactus-bg: #1E1E1E;
   --testimonial-bg: #1E1E1E;
   --testimonial-card-bg: #141414;
+  --sidebar: #1E1E1E;
+  --sidebar-border: #FFFFFF0A;
+  --course-topic-bg: #1E1E1E;
+  --table-header: #EAECF0;
+  --table-header-text: #667085;
+  --table-header-border: #EAECF0;
+  --table-values-bg: #1E1E1E;
 }
 
 /* Button base */

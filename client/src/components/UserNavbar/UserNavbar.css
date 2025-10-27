@@ -102,6 +102,12 @@
 
 }
 
+.user-navbar .left .nav-list .dropdown-item.active {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
+}
+
 .user-navbar .left .nav-list .dropdown-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
@@ -204,7 +210,7 @@
 .profile-dropdown .dropdown-item {
     padding: 0.6rem 1rem;
     text-decoration: none;
-    font-family: "Lato", sans-serif;
+    font-family: var(--font-family);
     font-size: 0.9rem;
     color: var(--nav-footer-link-color);
     background: transparent;

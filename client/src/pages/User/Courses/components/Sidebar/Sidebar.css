@@ -1,0 +1,152 @@
+.sidebar-container {
+    width: 285px;
+    min-height: 100vh;
+    background-color: var(--sidebar);
+    border-right: 1px solid var(--sidebar-border);
+    padding: 26px;
+    font-family: var(--font-family);
+}
+
+.sidebar-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 35px;
+    margin-top: 52px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    padding: 13px 14px;
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    opacity: 0.7;
+}
+
+.menu-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.arrow-icon {
+    margin-left: 8px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+}
+
+.submenu {
+    margin-top: 5px;
+    margin-left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.submenu-item {
+    font-size: 1rem;
+    padding: 6px 10px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.submenu-item:hover {
+    opacity: 0.7;
+}
+
+.sidebar-toggle-btn {
+    display: none;
+    position: absolute;
+    top: 76%;
+    left: 20px;
+    background-color: var(--primary-color);
+    color: var(--nav-footer-link-color);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+@media screen and (max-width: 1200px) {
+    .sidebar-container {
+        width: 240px;
+        padding: 22px;
+    }
+
+    .sidebar-title {
+        font-size: 1rem;
+        margin-top: 40px;
+    }
+
+    .menu-item {
+        font-size: 0.95rem;
+        padding: 12px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .sidebar-container {
+        width: 200px;
+        padding: 18px;
+    }
+
+    .sidebar-title {
+        font-size: 0.95rem;
+        margin-top: 30px;
+    }
+
+    .menu-item {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 835px) {
+    .sidebar-container {
+        position: absolute;
+        left: 0;
+        top: 80%;
+        width: 220px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 10;
+        padding: 20px;
+    }
+
+    .sidebar-container.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-title {
+        margin-top: 25px;
+        font-size: 0.9rem;
+    }
+
+    .menu-item {
+        font-size: 0.9rem;
+    }
+
+    .submenu-item {
+        font-size: 0.85rem;
+    }
+
+    .sidebar-toggle-btn {
+        display: block;
+    }
+}

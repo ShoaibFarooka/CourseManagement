@@ -1,0 +1,42 @@
+.course {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        var(--banner-2-bg),
+        url(../../../assets//images/login.jpg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.course .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 187px;
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 600;
+    font-size: 3rem;
+    text-align: center;
+}
+
+.course .sub-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 142px;
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 400;
+    font-size: 1.75rem;
+    text-align: center;
+}
+
+.course-content {
+    display: flex;
+}

@@ -19,8 +19,11 @@ const UserNavbar = () => {
     const [openMobileMenu, setOpenMobileMenu] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [openProfileDropdown, setOpenProfileDropdown] = useState(false);
+    const [openMobileProfileDropdown, setOpenMobileProfileDropdown] = useState(false);
     const dropdownRef = useRef(null);
     const profileRef = useRef(null);
+    const mobileProfileRef = useRef(null);
+    const mobileMenuRef = useRef(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -41,21 +44,63 @@ const UserNavbar = () => {
         { name: "CRMA", to: "/courses/crma" },
     ];
 
+
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                mobileProfileRef.current &&
+                !mobileProfileRef.current.contains(event.target)
+            ) {
+                setOpenMobileProfileDropdown(false);
+            }
+
+            if (
+                openMobileMenu &&
+                mobileMenuRef.current &&
+                !mobileMenuRef.current.contains(event.target) &&
+                !event.target.closest(".hamburger")
+            ) {
+                setOpenMobileMenu(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openMobileMenu]);
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setOpenDropdown(false);
             }
+
             if (profileRef.current && !profileRef.current.contains(event.target)) {
                 setOpenProfileDropdown(false);
             }
-        };
+        }
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    }, [])
+
+
+    const handleProfileDropDown = () => {
+        navigate('/profile');
+        setOpenProfileDropdown(prev => !prev);
+    }
+
+    const handleMobileProfileDropDown = () => {
+        navigate('/profile');
+        setOpenMobileMenu(false);
+        setOpenMobileProfileDropdown(prev => !prev);
+    }
+
+    const handleClickNavLinks = () => {
+        setOpenDropdown(false);
+        setOpenMobileMenu(false);
+    }
 
     const handleLogout = async () => {
         try {
@@ -74,7 +119,7 @@ const UserNavbar = () => {
     }
 
     return (
-        <div className="user-navbar">
+        <div className="user-navbar" >
 
             <div className="logo">
                 <NavLink to={"/"} className="logo-link">
@@ -87,7 +132,10 @@ const UserNavbar = () => {
 
             <div className="left">
 
-                <div className={`nav-list ${openMobileMenu ? "open" : ""}`}>
+                <div
+                    className={`nav-list ${openMobileMenu ? "open" : ""}`}
+                    ref={mobileMenuRef} >
+
                     {openMobileMenu && (
                         <button
                             className="close-btn"
@@ -114,8 +162,10 @@ const UserNavbar = () => {
                                         <NavLink
                                             key={sub.to}
                                             to={sub.to}
-                                            className="dropdown-item"
-                                            onClick={() => setOpenDropdown(false)}
+                                            className={({ isActive }) =>
+                                                isActive ? "dropdown-item active" : "dropdown-item"
+                                            }
+                                            onClick={handleClickNavLinks}
                                         >
                                             {sub.name}
                                         </NavLink>
@@ -129,7 +179,7 @@ const UserNavbar = () => {
                                 className={({ isActive }) =>
                                     isActive ? "link active" : "link"
                                 }
-                                onClick={() => setOpenDropdown(false)}
+                                onClick={handleClickNavLinks}
                             >
                                 {item.name}
                             </NavLink>
@@ -139,17 +189,22 @@ const UserNavbar = () => {
                     <div className="mobile">
                         <ThemeToggel />
                         {!user ? (
-                            <button className="login-button">Login</button>
+                            <button className="login-button"
+                                onClick={() => navigate('/login')}>Login</button>
                         ) : (
-                            <div className="profile-dropdown" ref={profileRef}>
+                            <div className="profile-dropdown" ref={mobileProfileRef}>
                                 <img
                                     src={Profile}
                                     alt="Profile"
                                     className="profile-pic"
-                                    onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
+                                    onClick={() => setOpenMobileProfileDropdown(!openMobileProfileDropdown)}
                                 />
-                                <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
-                                    <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
+                                <div className={`dropdown-menu ${openMobileProfileDropdown ? "open" : ""}`}>
+                                    <button
+                                        className='dropdown-item'
+                                        onClick={handleMobileProfileDropDown}>
+                                        Profile
+                                    </button>
                                     <button
                                         className="dropdown-item"
                                         onClick={handleLogout}
@@ -180,8 +235,13 @@ const UserNavbar = () => {
                             className="profile-pic"
                             onClick={() => setOpenProfileDropdown(!openProfileDropdown)}
                         />
-                        <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`}>
-                            <NavLink to="/profile" className="dropdown-item">Profile</NavLink>
+                        <div className={`dropdown-menu ${openProfileDropdown ? "open" : ""}`
+                        } onClick={(e) => e.stopPropagation()}>
+                            <button
+                                className='dropdown-item'
+                                onClick={handleProfileDropDown}>
+                                Profile
+                            </button>
                             <button
                                 className="dropdown-item"
                                 onClick={handleLogout}

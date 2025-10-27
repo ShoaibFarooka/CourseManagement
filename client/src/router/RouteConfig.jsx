@@ -14,6 +14,7 @@ import Requests from "../pages/admin/Requests/Requests";
 import Profile from "../pages/User/Profile/Profile";
 import OtpVerification from "../pages/User/otpverification/otpVerification";
 import InvalidLink from "../pages/common/InvalidLink/InvalidLink";
+import Course from "../pages/User/Courses/Course";
 
 const routes = [
     //Admin
@@ -26,6 +27,8 @@ const routes = [
     { path: "/reset-password", element: <ResetPassword />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/otp-verification", element: <OtpVerification />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/course", element: <Course />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+
 
     //common
     { path: "/", element: <Home />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
