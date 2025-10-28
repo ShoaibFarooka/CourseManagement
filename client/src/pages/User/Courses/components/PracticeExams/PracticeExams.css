@@ -1,0 +1,153 @@
+.practice-exam {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--unit-exams-bg);
+    font-family: var(--font-family);
+    padding: 75px 40px 212px 40px;
+}
+
+.practice-exam .description {
+    font-weight: 400;
+    font-size: 1.125rem;
+    color: var(--text-color);
+    text-align: justify;
+    margin-bottom: 50px;
+}
+
+.practice-exam .select-exam {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.practice-exam .select-exam .exam-type {
+    display: flex;
+    gap: 30px;
+    color: var(--text-color);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.practice-exam .select-exam .exam-type .exam-checkbox .checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: transparent;
+    transition: all 0.2s ease;
+}
+
+.practice-exam .select-exam .exam-type .exam-checkbox .checkbox:checked {
+    border-color: var(--checkbox);
+}
+
+.practice-exam .select-exam .exam-type .exam-checkbox .checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    top: -1px;
+    left: 3px;
+    color: var(--checkbox);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.practice-exam .select-exam .exam-type .exam-details {
+    font-weight: 600;
+    font-size: 0.8rem;
+    background: #4DC4CE2B;
+    padding: 5px 10px;
+    border-radius: 16px;
+    color: var(--practice-exam-text-color);
+}
+
+.practice-exam .select-exam .note {
+    margin-top: 27px;
+    font-weight: 400;
+    font-size: 1.125rem;
+    color: var(--text-color);
+    text-align: justify;
+    text-decoration: underline;
+}
+
+.practice-exam .description-2 {
+    margin-top: 50px;
+    font-weight: 400;
+    font-size: 1.125rem;
+    color: var(--text-color);
+    text-align: justify;
+}
+
+.practice-exam .buttons-container {
+    margin-top: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.practice-exam .buttons-container .back {
+    background-color: transparent;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    width: 210px;
+    font-size: 1rem;
+    padding: 15px 48px;
+}
+
+.practice-exam .buttons-container .start {
+    width: 210px;
+    font-size: 1rem;
+    padding: 15px 48px;
+}
+
+
+@media only screen and (max-width: 835px) {
+    .practice-exam {
+        padding: 100px 30px 120px 30px;
+    }
+
+    .practice-exam .description,
+    .practice-exam .description-2 {
+        font-size: 0.95rem;
+        margin-bottom: 35px;
+    }
+
+    .practice-exam .select-exam {
+        gap: 15px;
+    }
+
+
+    .practice-exam .buttons-container .back,
+    .practice-exam .buttons-container .start {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .practice-exam {
+        padding: 100px 20px 100px 20px;
+    }
+
+    .practice-exam .description,
+    .practice-exam .description-2,
+    .practice-exam .select-exam .note {
+        font-size: 0.9rem;
+    }
+
+    .practice-exam .select-exam .exam-details {
+        font-size: 0.7rem;
+    }
+
+    .practice-exam .buttons-container {
+        margin-top: 0px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .practice-exam .buttons-container .back,
+    .practice-exam .buttons-container .start {
+        width: 100%;
+        font-size: 0.95rem;
+    }
+}

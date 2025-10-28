@@ -1,9 +1,9 @@
 import React from "react";
-import "./CourseTopics.css";
+import "./UnitExams.css";
 import { FaPlus } from "react-icons/fa";
 import arrow from '../../../../../assets/icons/arrow.png';
 
-const CourseTopics = () => {
+const UnitExams = () => {
     const topics = [
         {
             id: 1,
@@ -36,9 +36,9 @@ const CourseTopics = () => {
     ];
 
     return (
-        <div className="course-topics-container">
+        <div className="unit-exams-container">
 
-            <div className="course-title">
+            <div className="guideline">
                 Select the topics you wish to study, click on + icon to expand
             </div>
 
@@ -82,10 +82,10 @@ const CourseTopics = () => {
             </div>
 
             <div className="next-btn-container">
-                <button className="button">Next</button>
+                <button className="button next">Next</button>
             </div>
         </div>
     );
 };
 
-export default CourseTopics;
+export default UnitExams;

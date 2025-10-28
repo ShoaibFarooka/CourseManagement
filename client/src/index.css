@@ -93,11 +93,14 @@ html {
   --testimonial-card-bg: #FAFAFA;
   --sidebar: #FFFFFF;
   --sidebar-border: #1E1E1E0A;
-  --course-topic-bg: #FFFFFF;
+  --checkbox: #2699A1;
+  --unit-exams-bg: #FFFFFF;
   --table-header: #EAECF0;
   --table-header-text: #667085;
   --table-header-border: #EAECF0;
   --table-values-bg: #FFFFFF;
+  --practice-exam-text-color: #218C95;
+
 }
 
 [data-theme="dark"] {
@@ -171,11 +174,14 @@ html {
   --testimonial-card-bg: #141414;
   --sidebar: #1E1E1E;
   --sidebar-border: #FFFFFF0A;
-  --course-topic-bg: #1E1E1E;
+  --checkbox: #667085;
+  --unit-exams-bg: #1E1E1E;
   --table-header: #EAECF0;
   --table-header-text: #667085;
   --table-header-border: #EAECF0;
   --table-values-bg: #1E1E1E;
+  --practice-exam-text-color: #218C95;
+
 }
 
 /* Button base */
