@@ -15,6 +15,7 @@ import Profile from "../pages/User/Profile/Profile";
 import OtpVerification from "../pages/User/otpverification/otpVerification";
 import InvalidLink from "../pages/common/InvalidLink/InvalidLink";
 import Course from "../pages/User/Courses/Course";
+import Quiz from "../pages/User/Quiz/Quiz";
 
 const routes = [
     //Admin
@@ -28,6 +29,7 @@ const routes = [
     { path: "/otp-verification", element: <OtpVerification />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/course", element: <Course />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/quiz", element: <Quiz />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
 
 
     //common

@@ -1,0 +1,114 @@
+.quiz {
+    background:
+        var(--banner-2-bg),
+        url(../../../assets/images/login.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 128px;
+}
+
+.quiz-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 40px 60px;
+    background-color: var(--unit-exams-bg);
+    min-height: 100vh;
+    font-family: var(--font-family);
+    color: var(--text-color)
+}
+
+.quiz-main {
+    flex: 1;
+    border-radius: 20px;
+    padding: 40px;
+    margin-top: 80px;
+    margin-bottom: 202px;
+}
+
+.quiz-main .button-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 28px;
+}
+
+.quiz-main .button-container .back-btn {
+    width: 60px;
+    border: none;
+    outline: none;
+    display: flex;
+    gap: 10px;
+    background-color: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.quiz-header .title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.quiz-timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--stop-watch);
+    background-color: transparent;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--stop-watch);
+}
+
+.quiz-timer .timer-icon {
+    color: var(--stop-watch);
+    font-size: 1.25rem;
+}
+
+.quiz-sidebar {
+    width: 280px;
+    min-height: 120vh;
+    background-color: var(--unit-exams-bg);
+    border-radius: 20px;
+    padding: 30px 20px;
+    box-shadow: var(--question-section-box-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    position: static;
+    margin-top: 93px;
+}
+
+@media (max-width: 992px) {
+    .quiz-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .quiz-sidebar {
+        width: 100%;
+        position: static;
+    }
+
+    .quiz-main {
+        width: 100%;
+    }
+
+    .quiz-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

@@ -1,0 +1,35 @@
+.quiz-status {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    margin-top: 28px;
+}
+
+.status-box {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #f7f7f7;
+}
+
+.correct {
+    background-color: #e6fff6;
+    color: #00b578;
+}
+
+.marked {
+    background-color: #fff3e6;
+    color: #ff9f00;
+}
+
+.incorrect {
+    background-color: #ffecec;
+    color: #ff4d4f;
+}
+
+.unanswered {
+    background-color: #f2f2f2;
+    color: #666;
+}

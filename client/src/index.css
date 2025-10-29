@@ -100,7 +100,12 @@ html {
   --table-header-border: #EAECF0;
   --table-values-bg: #FFFFFF;
   --practice-exam-text-color: #218C95;
-
+  --progress-bar-bg: #e0e0e0;
+  --progress-bar: #218D95;
+  --stop-watch: #218D95;
+  --question-section-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --questions-option-bg: #f9fafb;
+  --question-navigator-hover: #F0FDF8;
 }
 
 [data-theme="dark"] {
@@ -181,7 +186,12 @@ html {
   --table-header-border: #EAECF0;
   --table-values-bg: #1E1E1E;
   --practice-exam-text-color: #218C95;
-
+  --progress-bar-bg: #FFFFFF;
+  --progress-bar: #218D95;
+  --stop-watch: #FFFFFF;
+  --question-section-box-shadow: 0 4px 12px rgba(255, 255, 255, 0.08);
+  --questions-option-bg: #2E2E2E;
+  --question-navigator-hover: #064e3b;
 }
 
 /* Button base */

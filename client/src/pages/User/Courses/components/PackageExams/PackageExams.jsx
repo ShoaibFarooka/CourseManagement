@@ -5,7 +5,7 @@ const PackageExams = () => {
         <div className='package-exam'>
 
             <div className='package'>
-                <span className='pkg-checkbox'><input type="checkbox" className='checbox' /></span>
+                <span className='pkg-checkbox'><input type="checkbox" className='checkbox' /></span>
                 <span className='pkg-title'>Standard Review Package</span>
             </div>
 
@@ -14,7 +14,7 @@ const PackageExams = () => {
             </div>
 
             <div className='package'>
-                <span className='pkg-checkbox'><input type="checkbox" className='checbox' /></span>
+                <span className='pkg-checkbox'><input type="checkbox" className='checkbox' /></span>
                 <span className='pkg-title'>Mega Review Package</span>
             </div>
 

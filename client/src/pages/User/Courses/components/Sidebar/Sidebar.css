@@ -1,6 +1,6 @@
 .sidebar-container {
     width: 285px;
-    min-height: 100vh;
+    min-height: 100%;
     background-color: var(--sidebar);
     border-right: 1px solid var(--sidebar-border);
     padding: 26px;

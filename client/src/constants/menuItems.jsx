@@ -14,6 +14,7 @@ export const menuItems = {
         { path: '/About-Us' },
         { path: '/Contact-Us' },
         { path: "/courses/:exam" },
-        { path: '/course' }
+        { path: '/course' },
+        { path: '/quiz' }
     ]
 };

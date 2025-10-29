@@ -12,11 +12,11 @@ const paymentSchema = new mongoose.Schema(
             required: true,
             min: 0,
         },
-        validFrom: {
+        startDate: {
             type: Date,
             required: true,
         },
-        validTill: {
+        expireyDate: {
             type: Date,
             required: true,
         },
