@@ -106,6 +106,8 @@ html {
   --question-section-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   --questions-option-bg: #f9fafb;
   --question-navigator-hover: #F0FDF8;
+  --core-concept-bg: #F5F5F5;
+  --text-area-border: #838383;
 }
 
 [data-theme="dark"] {
@@ -192,6 +194,8 @@ html {
   --question-section-box-shadow: 0 4px 12px rgba(255, 255, 255, 0.08);
   --questions-option-bg: #2E2E2E;
   --question-navigator-hover: #064e3b;
+  --core-concept-bg: #2E2E2E;
+  --text-area-border: #838383;
 }
 
 /* Button base */

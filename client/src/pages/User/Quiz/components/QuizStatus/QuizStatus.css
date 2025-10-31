@@ -33,3 +33,32 @@
     background-color: #f2f2f2;
     color: #666;
 }
+
+@media only screen and (max-width: 992px) {
+    .quiz-status {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .status-box {
+        font-size: 13px;
+        padding: 5px 12px;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    .quiz-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .status-box {
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
