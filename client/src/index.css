@@ -25,6 +25,8 @@ html {
 }
 
 :root {
+  /* Admin side variables */
+
   /* Backgrounds */
   --bg-main: #ffffff;
   /* Background (shadcn: background) */
@@ -108,9 +110,14 @@ html {
   --question-navigator-hover: #F0FDF8;
   --core-concept-bg: #F5F5F5;
   --text-area-border: #838383;
+  --porgress-correct-answers--bg: #FBFBFB;
+  --porgress-incorrect--answers-bg: #FFF9F9;
 }
 
 [data-theme="dark"] {
+
+  /* Admin side variables */
+
   /* Backgrounds */
   --bg-main: #172136;
   /* shadcn: background */
@@ -196,6 +203,8 @@ html {
   --question-navigator-hover: #064e3b;
   --core-concept-bg: #2E2E2E;
   --text-area-border: #838383;
+  --porgress-correct-answers--bg: transparent;
+  --porgress-incorrect-answers--bg: transparent;
 }
 
 /* Button base */

@@ -16,6 +16,7 @@ import OtpVerification from "../pages/User/otpverification/otpVerification";
 import InvalidLink from "../pages/common/InvalidLink/InvalidLink";
 import Course from "../pages/User/Courses/Course";
 import Quiz from "../pages/User/Quiz/Quiz";
+import ProgressReport from "../pages/User/ProgressReport/ProgressReport";
 
 const routes = [
     //Admin
@@ -30,6 +31,7 @@ const routes = [
     { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/course", element: <Course />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/quiz", element: <Quiz />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/progress-report", element: <ProgressReport />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
 
 
     //common
