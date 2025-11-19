@@ -6,7 +6,20 @@ const options = {
 };
 
 const questionSchema = new mongoose.Schema({
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "course",
+        required: true,
+    },
+    partId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
     publisherId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
+    unitId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },

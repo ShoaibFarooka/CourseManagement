@@ -2,9 +2,23 @@ const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema(
     {
+        paymentRequest: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "payment_request",
+            required: true,
+        },
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "user",
+            required: true,
+        },
+        course: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "course",
+            required: true,
+        },
+        part: {
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
         amount: {
@@ -16,7 +30,7 @@ const paymentSchema = new mongoose.Schema(
             type: Date,
             required: true,
         },
-        expireyDate: {
+        expiryDate: {
             type: Date,
             required: true,
         },
@@ -24,12 +38,7 @@ const paymentSchema = new mongoose.Schema(
             type: String,
             default: "",
             trim: true,
-        },
-        status: {
-            type: String,
-            enum: ["pending", "approved", "rejected"],
-            default: "pending",
-        },
+        }
     },
     { timestamps: true }
 );

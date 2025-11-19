@@ -25,7 +25,7 @@ const unitSchema = new mongoose.Schema({
     },
 });
 
-const partSchema = new mongoose.Schema({
+const publisherSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -37,13 +37,18 @@ const partSchema = new mongoose.Schema({
     },
 });
 
-const publisherSchema = new mongoose.Schema({
+const partSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
         trim: true,
     },
+    publishers: {
+        type: [publisherSchema],
+        required: true
+    }
 });
+
 
 const courseSchema = new mongoose.Schema(
     {
@@ -52,10 +57,6 @@ const courseSchema = new mongoose.Schema(
             required: true,
             trim: true,
             unique: true
-        },
-        publishers: {
-            type: [publisherSchema],
-            required: true
         },
         parts: {
             type: [partSchema],

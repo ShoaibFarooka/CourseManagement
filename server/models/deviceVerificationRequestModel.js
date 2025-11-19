@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const requestSchema = new mongoose.Schema(
+const deviceVerificationRequestSchema = new mongoose.Schema(
     {
         user: {
             type: mongoose.Schema.Types.ObjectId,
@@ -20,15 +20,11 @@ const requestSchema = new mongoose.Schema(
             type: String,
             enum: ["pending", "approved", "rejected"],
             default: "pending",
-        },
-        isNewUser: {
-            type: Boolean,
-            default: false,
         }
     },
     { timestamps: true }
 );
 
-const Request = mongoose.model("request", requestSchema);
+const DeviceVerificationRequest = mongoose.model("device_verification_request", deviceVerificationRequestSchema);
 
-module.exports = Request;
+module.exports = DeviceVerificationRequest;

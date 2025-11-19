@@ -53,21 +53,7 @@ const userSchema = new mongoose.Schema(
     resetTokenExpiry: {
       type: Date,
       default: null
-    },
-
-    allowedDevices: [
-      {
-        deviceId: { type: String, required: true },
-        userAgent: { type: String },
-        location: {
-          country: { type: String },
-          region: { type: String },
-          city: { type: String },
-        },
-        addedAt: { type: Date, default: Date.now },
-        lastUsedAt: { type: Date, default: Date.now },
-      },
-    ],
+    }
   },
   { timestamps: true }
 );
