@@ -1,10 +1,10 @@
-import React from 'react'
+import React from 'react';
 import './PartsTable.css';
 import edit from '../../../../../assets/icons/Edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm } from 'antd';
 
-const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIndex }) => {
+const PartsTable = ({ courseData, onEdit, onManagePublishers, onDelete, managedPartIndex }) => {
     return (
         <div className="table-container">
             <table className="table table-striped">
@@ -32,10 +32,11 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                             </td>
                             <td>
                                 <div className="action-btn-wrapper">
-                                    <button className='manage-btn'
-                                        onClick={() => onManageUnits(index)}
+                                    <button
+                                        className='manage-btn'
+                                        onClick={() => onManagePublishers(index)}
                                     >
-                                        {managedPartIndex === index ? "Close" : "Manage Unit"}
+                                        {managedPartIndex === index ? "Close" : "Manage Publishers"}
                                     </button>
                                     <button className="action-btn" onClick={() => onEdit(index)}>
                                         <img src={edit} alt="Edit" />
@@ -57,7 +58,7 @@ const PartsTable = ({ courseData, onEdit, onManageUnits, onDelete, managedPartIn
                 </tbody>
             </table>
         </div>
-    )
-}
+    );
+};
 
 export default PartsTable;

@@ -12,36 +12,38 @@ import { useDispatch } from 'react-redux';
 
 const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseData }, ref) => {
 
-    const [tempPublisher, setTempPublisher] = useState([]);
+    // publisher state
+    const [tempPublisher, setTempPublisher] = useState({ name: "" });
     const [showAddPublisher, setShowAddpublisher] = useState(false);
     const [editingPublisherIndex, setEditingPublisherIndex] = useState(null);
     const [editingPublisherValue, setEditingPublisherValue] = useState("");
+    const [selectedPartIndexForPublisher, setSelectedPartIndexForPublisher] = useState(null);
 
-
+    //parts state
     const [tempPart, setTempPart] = useState({ name: "" });
     const [editingPartIndex, setEditingPartIndex] = useState(null);
     const [editingPartValue, setEditingPartValue] = useState("");
     const [showAddPart, setShowAddPart] = useState(false);
     const [managedPartIndex, setManagedPartIndex] = useState(null);
 
+    // Unit state 
     const [tempUnit, setTempUnit] = useState({ name: "", type: [] });
-    const [selectedPartIndex, setSelectedPartIndex] = useState(null);
+    const [selectedPublisherIndexes, setSelectedPublisherIndexes] = useState({ partIndex: null, publisherIndex: null });
     const [editingUnitIndex, setEditingUnitIndex] = useState(null);
+    const [showAddUnitSection, setShowAddUnitSection] = useState(false);
 
 
+    // Subunit state
     const [tempSubUnit, setTempSubUnit] = useState({ name: "" });
-    const [selectedUnitIndexes, setSelectedUnitIndexes] = useState({ partIndex: null, unitIndex: null });
+    const [selectedUnitIndexes, setSelectedUnitIndexes] = useState({ partIndex: null, publisherIndex: null, unitIndex: null });
     const [editingSubunitIndex, setEditingSubunitIndex] = useState(null);
     const [showSubunitInput, setShowSubunitInput] = useState(false);
-
-
 
     const [originalCourseSnapshot, setOriginalCourseSnapshot] = useState(null);
 
     const [courseData, setCourseData] = useState({
         name: "",
         timeRatio: "",
-        publishers: [],
         parts: []
     });
 
@@ -55,11 +57,16 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     });
 
     const [errors, setErrors] = useState({});
-
     const dispatch = useDispatch();
-
     const [submitBtnToggel, setSubmitBtnToggel] = useState(false);
 
+    const partInputRef = useRef(null);
+    const publisherInputRef = useRef(null);
+    const unitInputRef = useRef(null);
+    const subUnitInputRef = useRef(null);
+    const publisherSectionRef = useRef(null);
+    const unitSectionRef = useRef(null);
+    const subUnitSectionRef = useRef(null);
 
     const deepCopy = (data) => {
         if (!data) return null;
@@ -68,25 +75,25 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             _id: data._id,
             name: data.name,
             timeRatio: data.timeRatio,
-            publishers: Array.isArray(data.publishers)
-                ? data.publishers.map((p) => ({
-                    _id: p._id,
-                    name: p.name,
-                }))
-                : [],
             parts: Array.isArray(data.parts)
                 ? data.parts.map((part) => ({
                     _id: part._id,
                     name: part.name,
-                    units: Array.isArray(part.units)
-                        ? part.units.map((unit) => ({
-                            _id: unit._id,
-                            name: unit.name,
-                            type: Array.isArray(unit.type) ? [...unit.type] : [],
-                            subunits: Array.isArray(unit.subunits)
-                                ? unit.subunits.map((sub) => ({
-                                    _id: sub._id,
-                                    name: sub.name,
+                    publishers: Array.isArray(part.publishers)
+                        ? part.publishers.map((publisher) => ({
+                            _id: publisher._id,
+                            name: publisher.name,
+                            units: Array.isArray(publisher.units)
+                                ? publisher.units.map((unit) => ({
+                                    _id: unit._id,
+                                    name: unit.name,
+                                    type: Array.isArray(unit.type) ? [...unit.type] : [],
+                                    subunits: Array.isArray(unit.subunits)
+                                        ? unit.subunits.map((sub) => ({
+                                            _id: sub._id,
+                                            name: sub.name,
+                                        }))
+                                        : [],
                                 }))
                                 : [],
                         }))
@@ -95,7 +102,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                 : [],
         };
     };
-
 
     useEffect(() => {
         if (initialCourseData) {
@@ -106,7 +112,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             const emptyCourse = {
                 name: '',
                 timeRatio: '',
-                publishers: [],
                 parts: []
             };
             const cloned = deepCopy(emptyCourse);
@@ -116,23 +121,12 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }
     }, [initialCourseData]);
 
-
-
     useImperativeHandle(ref, () => ({
         hasUnsavedChanges: () => {
             const hasFormChanges = Object.values(unsavedChanges).some(Boolean);
             return hasFormChanges
         }
     }));
-
-
-
-    const partInputRef = useRef(null);
-    const publisherInputRef = useRef(null);
-    const unitInputRef = useRef(null);
-    const subUnitInputRef = useRef(null);
-    const unitSectionRef = useRef(null);
-    const subUnitSectionRef = useRef(null);
 
 
 
@@ -150,7 +144,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             return updated;
         });
     };
-
 
     const validateField = ({
         value,
@@ -216,120 +209,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         } else {
             setUnsavedChanges(prev => ({ ...prev, timeRatio: false }));
         }
-
     }
 
-
-
-    const handlePublisherInputChange = (e) => {
-        const val = e.target.value;
-        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
-
-        if (editingPublisherIndex !== null) {
-            setEditingPublisherValue(val);
-
-            const original = normalize(originalCourseSnapshot.publishers?.[editingPublisherIndex]?.name);
-            const current = normalize(val);
-
-            setUnsavedChanges(prev => ({
-                ...prev,
-                publisher: current !== original
-            }));
-        } else {
-            setTempPublisher({ name: val });
-            setUnsavedChanges(prev => ({
-                ...prev,
-                publisher: normalize(val) !== ''
-            }));
-        }
-    };
-
-
-
-    const handleEditPublisher = (index) => {
-        setEditingPublisherIndex(index);
-        setEditingPublisherValue(courseData.publishers[index].name);
-        setShowAddpublisher(true);
-    };
-
-    const handleCloseEditPublisher = () => {
-        setEditingPublisherIndex(null);
-        setEditingPublisherValue("");
-        setTempPublisher({ name: "" });
-        setShowAddpublisher(false);
-    }
-
-    const handleClickAddPublisher = () => {
-        setTempPublisher({ name: "" });
-        clearFieldError("publisher");
-        setShowAddpublisher(true);
-
-        setTimeout(() => {
-            publisherInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-            publisherInputRef.current?.focus();
-        }, 100);
-    };
-
-    const handleClickSavePublisher = () => {
-        const { isValid, value: trimmedName } = validateField({
-            value: tempPublisher.name,
-            fieldKey: "publisher",
-            label: "Publisher",
-            existingItems: courseData.publishers.map(p => p.name),
-        });
-
-        if (!isValid) return;
-
-        setCourseData((prev) => ({
-            ...prev,
-            publishers: [...prev.publishers, { name: trimmedName }]
-        }));
-
-        setTempPublisher({ name: "" });
-        setShowAddpublisher(false);
-    };
-    const handleSaveEditPublisher = () => {
-        const { isValid, value: trimmedName } = validateField({
-            value: editingPublisherValue,
-            fieldKey: "publisher",
-            label: "Publisher",
-            existingItems: courseData.publishers.map(p => p.name),
-            excludeIndex: editingPublisherIndex
-        });
-
-        if (!isValid) return;
-
-        const updated = [...courseData.publishers];
-
-        const existingPublisher = updated[editingPublisherIndex];
-        updated[editingPublisherIndex] = {
-            _id: existingPublisher?._id,
-            name: trimmedName
-        };
-
-        setCourseData(prev => ({
-            ...prev,
-            publishers: updated
-        }));
-
-        setEditingPublisherIndex(null);
-        setEditingPublisherValue("");
-        setShowAddpublisher(false);
-    };
-
-
-    const handleDeletePublisher = (index) => {
-        const updated = [...courseData.publishers];
-        updated.splice(index, 1);
-        setCourseData(prev => ({
-            ...prev,
-            publishers: updated
-        }));
-        setUnsavedChanges(prev => ({ ...prev, publisher: true }));
-    };
-
-
-
+    // PART HANDLERS
     const handlePartInputChange = (e) => {
         const val = e.target.value;
         const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
@@ -353,12 +235,10 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }
     };
 
-
     const handleClickAddPart = () => {
         setTempPart({ name: "" });
         clearFieldError("part");
         setShowAddPart(true);
-
 
         setTimeout(() => {
             partInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -366,9 +246,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }, 100);
     };
 
-
     const handleClickSavePart = () => {
-
         const { isValid, value: trimmedName } = validateField({
             value: tempPart.name,
             fieldKey: "part",
@@ -380,7 +258,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         const newPart = {
             name: trimmedName,
-            units: []
+            publishers: []
         };
 
         setCourseData(prev => ({
@@ -391,8 +269,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setTempPart({ name: "" });
         setShowAddPart(false);
     };
-
-
 
     const handleEditPart = (index) => {
         setEditingPartIndex(index);
@@ -406,7 +282,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setTempPart({ name: "" });
         setShowAddPart(false);
     };
-
 
     const handleSaveEditPart = () => {
         const { isValid, value: trimmedName } = validateField({
@@ -425,7 +300,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         updatedParts[editingPartIndex] = {
             _id: existingPart?._id,
             name: trimmedName,
-            units: existingPart.units
+            publishers: existingPart.publishers
         };
 
         setCourseData(prev => ({
@@ -446,23 +321,166 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             ...prev,
             parts: updated
         }));
+
         if (managedPartIndex === index || managedPartIndex >= updated.length) {
             setManagedPartIndex(null);
         } else if (managedPartIndex > index) {
             setManagedPartIndex(prev => prev - 1);
         }
 
-        if (
-            selectedUnitIndexes.partIndex === index ||
-            selectedUnitIndexes.partIndex >= updated.length
-        ) {
-            setSelectedUnitIndexes({ partIndex: null, unitIndex: null });
+        if (selectedPublisherIndexes.partIndex === index || selectedPublisherIndexes.partIndex >= updated.length) {
+            setSelectedPublisherIndexes({ partIndex: null, publisherIndex: null });
+        }
+
+        if (selectedUnitIndexes.partIndex === index || selectedUnitIndexes.partIndex >= updated.length) {
+            setSelectedUnitIndexes({ partIndex: null, publisherIndex: null, unitIndex: null });
             setShowSubunitInput(false);
         }
+
         setUnsavedChanges(prev => ({ ...prev, part: true }));
     };
 
+    const handleManagePublishers = (partIndex) => {
+        const isSamePart = managedPartIndex === partIndex;
 
+        setManagedPartIndex(isSamePart ? null : partIndex);
+        setSelectedPublisherIndexes({ partIndex: null, publisherIndex: null });
+        setSelectedUnitIndexes({ partIndex: null, publisherIndex: null, unitIndex: null });
+        setEditingSubunitIndex(null);
+        setTempSubUnit({ name: "" });
+        setShowSubunitInput(false);
+
+        setTimeout(() => {
+            publisherSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    };
+
+    // PUBLISHER HANDLERS 
+    const handlePublisherInputChange = (e) => {
+        const val = e.target.value;
+        const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
+
+        if (editingPublisherIndex !== null && selectedPartIndexForPublisher !== null) {
+            setEditingPublisherValue(val);
+
+            const original = normalize(
+                originalCourseSnapshot.parts?.[selectedPartIndexForPublisher]?.publishers?.[editingPublisherIndex]?.name
+            );
+            const current = normalize(val);
+
+            setUnsavedChanges(prev => ({
+                ...prev,
+                publisher: current !== original
+            }));
+        } else {
+            setTempPublisher({ name: val });
+            setUnsavedChanges(prev => ({
+                ...prev,
+                publisher: normalize(val) !== ''
+            }));
+        }
+    };
+
+    const handleClickAddPublisher = (partIndex) => {
+        setSelectedPartIndexForPublisher(partIndex);
+        setTempPublisher({ name: "" });
+        clearFieldError("publisher");
+        setShowAddpublisher(true);
+
+        setTimeout(() => {
+            publisherInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            publisherInputRef.current?.focus();
+        }, 100);
+    };
+
+    const handleClickSavePublisher = () => {
+        const { isValid, value: trimmedName } = validateField({
+            value: tempPublisher.name,
+            fieldKey: "publisher",
+            label: "Publisher",
+            existingItems: courseData.parts[selectedPartIndexForPublisher]?.publishers?.map(p => p.name) || [],
+        });
+
+        if (!isValid) return;
+
+        setCourseData((prev) => {
+            const updatedParts = [...prev.parts];
+            updatedParts[selectedPartIndexForPublisher] = {
+                ...updatedParts[selectedPartIndexForPublisher],
+                publishers: [...updatedParts[selectedPartIndexForPublisher].publishers, { name: trimmedName, units: [] }]
+            };
+            return { ...prev, parts: updatedParts };
+        });
+
+        setTempPublisher({ name: "" });
+        setShowAddpublisher(false);
+        setSelectedPartIndexForPublisher(null);
+    };
+
+    const handleEditPublisher = (partIndex, publisherIndex) => {
+        setSelectedPartIndexForPublisher(partIndex);
+        setEditingPublisherIndex(publisherIndex);
+        setEditingPublisherValue(courseData.parts[partIndex].publishers[publisherIndex].name);
+        setShowAddpublisher(true);
+    };
+
+    const handleCloseEditPublisher = () => {
+        setEditingPublisherIndex(null);
+        setEditingPublisherValue("");
+        setTempPublisher({ name: "" });
+        setShowAddpublisher(false);
+        setSelectedPartIndexForPublisher(null);
+    };
+
+    const handleSaveEditPublisher = () => {
+        const { isValid, value: trimmedName } = validateField({
+            value: editingPublisherValue,
+            fieldKey: "publisher",
+            label: "Publisher",
+            existingItems: courseData.parts[selectedPartIndexForPublisher]?.publishers?.map(p => p.name) || [],
+            excludeIndex: editingPublisherIndex
+        });
+
+        if (!isValid) return;
+
+        const updatedParts = [...courseData.parts];
+        const publishers = [...updatedParts[selectedPartIndexForPublisher].publishers];
+        const existingPublisher = publishers[editingPublisherIndex];
+
+        publishers[editingPublisherIndex] = {
+            _id: existingPublisher?._id,
+            name: trimmedName,
+            units: existingPublisher?.units || []
+        };
+
+        updatedParts[selectedPartIndexForPublisher].publishers = publishers;
+
+        setCourseData(prev => ({
+            ...prev,
+            parts: updatedParts
+        }));
+
+        setEditingPublisherIndex(null);
+        setEditingPublisherValue("");
+        setShowAddpublisher(false);
+        setSelectedPartIndexForPublisher(null);
+    };
+
+    const handleDeletePublisher = (partIndex, publisherIndex) => {
+        const updatedParts = [...courseData.parts];
+        const publishers = [...updatedParts[partIndex].publishers];
+        publishers.splice(publisherIndex, 1);
+        updatedParts[partIndex].publishers = publishers;
+
+        setCourseData(prev => ({
+            ...prev,
+            parts: updatedParts
+        }));
+
+        setUnsavedChanges(prev => ({ ...prev, publisher: true }));
+    };
+
+    // UNIT HANDLERS 
     const handleInputChangeUnit = (e) => {
         const { name, value } = e.target;
         const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
@@ -477,8 +495,11 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         let isChanged = false;
 
-        if (editingUnitIndex !== null && selectedPartIndex !== null) {
-            const originalUnit = originalCourseSnapshot.parts[selectedPartIndex]?.units?.[editingUnitIndex];
+        if (editingUnitIndex !== null &&
+            selectedPublisherIndexes.partIndex !== null &&
+            selectedPublisherIndexes.publisherIndex !== null) {
+            const originalUnit = originalCourseSnapshot.parts[selectedPublisherIndexes.partIndex]
+                ?.publishers[selectedPublisherIndexes.publisherIndex]?.units?.[editingUnitIndex];
             if (originalUnit) {
                 const originalValue = normalize(originalUnit[name]);
                 isChanged = normalizedValue !== originalValue;
@@ -503,21 +524,30 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setUnsavedChanges(prev => ({ ...prev, unit: true }));
     };
 
-
     const resetUnitForm = () => {
         setTempUnit({ name: "", type: [] });
-        setSelectedPartIndex(null);
+        setSelectedPublisherIndexes({ partIndex: null, publisherIndex: null });
         setEditingUnitIndex(null);
     };
 
+    const handleManageUnits = (partIndex, publisherIndex) => {
+        const isSamePublisher =
+            selectedPublisherIndexes.partIndex === partIndex &&
+            selectedPublisherIndexes.publisherIndex === publisherIndex;
+
+        if (isSamePublisher) {
+            setSelectedPublisherIndexes({ partIndex: null, publisherIndex: null });
+        } else {
+            setSelectedPublisherIndexes({ partIndex, publisherIndex });
+        }
+
+        setShowAddUnitSection(false);
 
 
-    const handleManageUnits = (partIndex) => {
-        const isSamePart = managedPartIndex === partIndex;
+        setTempUnit({ name: "", type: [] });
+        setEditingUnitIndex(null);
 
-        setManagedPartIndex(isSamePart ? null : partIndex);
-
-        setSelectedUnitIndexes({ partIndex: null, unitIndex: null });
+        setSelectedUnitIndexes({ partIndex: null, publisherIndex: null, unitIndex: null });
         setEditingSubunitIndex(null);
         setTempSubUnit({ name: "" });
         setShowSubunitInput(false);
@@ -527,14 +557,14 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }, 100);
     };
 
-
-    const handleClickAddUnit = (partIndex) => {
-        setSelectedPartIndex(partIndex);
+    const handleClickAddUnit = (partIndex, publisherIndex) => {
+        setSelectedPublisherIndexes({ partIndex, publisherIndex });
         setEditingUnitIndex(null);
         clearFieldError("unitName");
         clearFieldError("unitType");
         setTempUnit({ name: "", type: [] });
 
+        setShowAddUnitSection(true);
 
         setTimeout(() => {
             unitInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -542,69 +572,61 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }, 100);
     };
 
-    const handleEditUnit = (partIndex, unitIndex) => {
-        const unit = courseData.parts[partIndex].units[unitIndex];
-        setSelectedPartIndex(partIndex);
+    const handleEditUnit = (partIndex, publisherIndex, unitIndex) => {
+        const unit = courseData.parts[partIndex].publishers[publisherIndex].units[unitIndex];
+        setSelectedPublisherIndexes({ partIndex, publisherIndex });
         setEditingUnitIndex(unitIndex);
         setTempUnit({ name: unit.name, type: Array.isArray(unit.type) ? unit.type : [] });
     };
 
     const handleClickSaveUnit = () => {
-        const nameCheck = validateField({
-            value: tempUnit.name,
-            fieldKey: "unitName",
-            label: "Unit name",
-            existingItems: courseData.parts[selectedPartIndex]?.units.map(u => u.name),
-            duplicateCheck: false
-        });
+
+        if (!tempUnit.name.trim()) {
+            setFieldError("unitName", "Unit name is required");
+            return;
+        }
 
         if (!Array.isArray(tempUnit.type) || tempUnit.type.length === 0) {
             setFieldError("unitType", "Please select at least one unit type");
             return;
         }
 
-        if (!nameCheck.isValid) return;
-
-        const existingUnits = courseData.parts[selectedPartIndex]?.units || [];
-        const alreadyExists = existingUnits.some(
-            (u) =>
-                u.name.trim().toLowerCase() === nameCheck.value.toLowerCase() &&
-                JSON.stringify((u.type || []).sort()) === JSON.stringify([...tempUnit.type].sort())
-        );
-
-        if (alreadyExists) {
-            setFieldError("unitName", "This unit already exists");
-            setFieldError("unitType", "This unit already exists");
-            return;
-        }
-
-        const newUnit = {
-            name: nameCheck.value,
-            type: [...tempUnit.type],
-            subunits: []
-        };
-
-        setCourseData((prev) => {
+        setCourseData(prev => {
             const updatedParts = [...prev.parts];
-            updatedParts[selectedPartIndex] = {
-                ...updatedParts[selectedPartIndex],
-                units: [...updatedParts[selectedPartIndex].units, newUnit]
+            const updatedPublishers = [...updatedParts[managedPartIndex].publishers];
+            const updatedUnits = [...updatedPublishers[selectedPublisherIndexes.publisherIndex].units, tempUnit];
+
+            updatedPublishers[selectedPublisherIndexes.publisherIndex] = {
+                ...updatedPublishers[selectedPublisherIndexes.publisherIndex],
+                units: updatedUnits,
             };
-            return { ...prev, parts: updatedParts };
+
+            updatedParts[managedPartIndex] = {
+                ...updatedParts[managedPartIndex],
+                publishers: updatedPublishers,
+            };
+
+            return {
+                ...prev,
+                parts: updatedParts,
+            };
         });
 
-        resetUnitForm();
+        setTempUnit({ name: "", type: [] });
         clearFieldError("unitName");
         clearFieldError("unitType");
+        setShowAddUnitSection(false);
     };
 
 
-    const handleSaveUnit = () => {
+    const handleSaveEditedUnit = () => {
+        const { partIndex, publisherIndex } = selectedPublisherIndexes;
+
         const { isValid: isNameValid, value: unitName } = validateField({
             value: tempUnit.name,
             fieldKey: "unitName",
             label: "Unit name",
-            existingItems: (courseData.parts[selectedPartIndex]?.units || []).map((u, idx) =>
+            existingItems: (courseData.parts[partIndex]?.publishers[publisherIndex]?.units || []).map((u, idx) =>
                 idx !== editingUnitIndex ? u.name + JSON.stringify(u.type) : ""
             ),
             duplicateCompare: item => item.toLowerCase()
@@ -617,27 +639,41 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         if (!isNameValid) return;
 
+        // Make a copy of courseData to update immutably
         const updatedParts = [...courseData.parts];
-        const existingUnit = updatedParts[selectedPartIndex].units[editingUnitIndex];
+        const publishers = [...updatedParts[partIndex].publishers];
+        const units = [...publishers[publisherIndex].units];
 
-        updatedParts[selectedPartIndex].units[editingUnitIndex] = {
+        // Update the existing unit only
+        const existingUnit = units[editingUnitIndex];
+        units[editingUnitIndex] = {
             _id: existingUnit?._id,
             name: unitName,
             type: [...tempUnit.type],
             subunits: existingUnit?.subunits || []
         };
 
+        publishers[publisherIndex] = {
+            ...publishers[publisherIndex],
+            units
+        };
+        updatedParts[partIndex] = {
+            ...updatedParts[partIndex],
+            publishers
+        };
+
         setCourseData({ ...courseData, parts: updatedParts });
-        resetUnitForm();
+        setTempUnit({ name: "", type: [] });
     };
 
 
-
-    const handleDeleteUnit = (partIndex, unitIndex) => {
+    const handleDeleteUnit = (partIndex, publisherIndex, unitIndex) => {
         const updatedParts = [...courseData.parts];
-        const updatedUnits = [...updatedParts[partIndex].units];
+        const publishers = [...updatedParts[partIndex].publishers];
+        const updatedUnits = [...publishers[publisherIndex].units];
         updatedUnits.splice(unitIndex, 1);
-        updatedParts[partIndex].units = updatedUnits;
+        publishers[publisherIndex].units = updatedUnits;
+        updatedParts[partIndex].publishers = publishers;
 
         setCourseData(prev => ({
             ...prev,
@@ -646,10 +682,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setUnsavedChanges(prev => ({ ...prev, unit: true }));
     };
 
-
-
-
-
+    // SUB-UNIT HANDLERS
     const handleChangeSubUnit = (e) => {
         const value = e.target.value;
         const normalize = (str) => str?.trim().replace(/\s+/g, ' ') || '';
@@ -663,10 +696,12 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         if (
             selectedUnitIndexes.partIndex !== null &&
+            selectedUnitIndexes.publisherIndex !== null &&
             selectedUnitIndexes.unitIndex !== null &&
             editingSubunitIndex !== null
         ) {
             const originalSubunit = originalCourseSnapshot.parts?.[selectedUnitIndexes.partIndex]
+                ?.publishers?.[selectedUnitIndexes.publisherIndex]
                 ?.units?.[selectedUnitIndexes.unitIndex]
                 ?.subunits?.[editingSubunitIndex];
 
@@ -679,10 +714,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setUnsavedChanges(prev => ({ ...prev, subunit: isChanged }));
     };
 
-
-
-    const handleClickAddSubUnit = (partIndex, unitIndex) => {
-        setSelectedUnitIndexes({ partIndex, unitIndex });
+    const handleClickAddSubUnit = (partIndex, publisherIndex, unitIndex) => {
+        setSelectedUnitIndexes({ partIndex, publisherIndex, unitIndex });
         setTempSubUnit({ name: "" });
         setEditingSubunitIndex(null);
         clearFieldError("subunit");
@@ -692,15 +725,14 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             subUnitInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
             subUnitInputRef.current?.focus();
         }, 100);
-
     };
 
-
     const handleClickSaveSubUnit = () => {
-        const { partIndex, unitIndex } = selectedUnitIndexes;
+        const { partIndex, publisherIndex, unitIndex } = selectedUnitIndexes;
 
         const part = courseData.parts?.[partIndex];
-        const unit = part?.units?.[unitIndex];
+        const publisher = part?.publishers?.[publisherIndex];
+        const unit = publisher?.units?.[unitIndex];
         const subunits = unit?.subunits || [];
 
         const { isValid, value: trimmedName } = validateField({
@@ -713,12 +745,14 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         if (!isValid) return;
 
         const updatedParts = [...courseData.parts];
-        const updatedUnits = [...updatedParts[partIndex].units];
-        const targetUnit = { ...updatedUnits[unitIndex] };
+        const publishers = [...updatedParts[partIndex].publishers];
+        const units = [...publishers[publisherIndex].units];
+        const targetUnit = { ...units[unitIndex] };
 
         targetUnit.subunits = [...(targetUnit.subunits || []), { name: trimmedName }];
-        updatedUnits[unitIndex] = targetUnit;
-        updatedParts[partIndex].units = updatedUnits;
+        units[unitIndex] = targetUnit;
+        publishers[publisherIndex].units = units;
+        updatedParts[partIndex].publishers = publishers;
 
         setCourseData({ ...courseData, parts: updatedParts });
         setTempSubUnit({ name: "" });
@@ -726,19 +760,19 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         clearFieldError("subunit");
     };
 
-
-    const handleManageSubunits = (partIndex, unitIndex) => {
+    const handleManageSubunits = (partIndex, publisherIndex, unitIndex) => {
         const isSameSubunit =
             selectedUnitIndexes.partIndex === partIndex &&
+            selectedUnitIndexes.publisherIndex === publisherIndex &&
             selectedUnitIndexes.unitIndex === unitIndex;
 
         if (isSameSubunit) {
-            setSelectedUnitIndexes({ partIndex: null, unitIndex: null });
+            setSelectedUnitIndexes({ partIndex: null, publisherIndex: null, unitIndex: null });
             setEditingSubunitIndex(null);
             setTempSubUnit({ name: "" });
             setShowSubunitInput(false);
         } else {
-            setSelectedUnitIndexes({ partIndex, unitIndex });
+            setSelectedUnitIndexes({ partIndex, publisherIndex, unitIndex });
             setEditingSubunitIndex(null);
             setTempSubUnit({ name: "" });
             setShowSubunitInput(false);
@@ -749,11 +783,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }, 100);
     };
 
-
-
     const handleEditSubunit = (index) => {
-        const { partIndex, unitIndex } = selectedUnitIndexes;
-        const current = originalCourseSnapshot.parts[partIndex].units[unitIndex].subunits[index];
+        const { partIndex, publisherIndex, unitIndex } = selectedUnitIndexes;
+        const current = originalCourseSnapshot.parts[partIndex].publishers[publisherIndex].units[unitIndex].subunits[index];
 
         setEditingSubunitIndex(index);
         setTempSubUnit({ name: current?.name || "" });
@@ -767,20 +799,20 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     };
 
     const handleSaveSubunit = () => {
-        const { partIndex, unitIndex } = selectedUnitIndexes;
+        const { partIndex, publisherIndex, unitIndex } = selectedUnitIndexes;
 
         const { isValid, value: trimmedName } = validateField({
             value: tempSubUnit.name,
             fieldKey: "subunit",
             label: "Subunit",
-            existingItems: courseData.parts[partIndex]?.units[unitIndex]?.subunits.map(s => s.name) || [],
+            existingItems: courseData.parts[partIndex]?.publishers[publisherIndex]?.units[unitIndex]?.subunits.map(s => s.name) || [],
             excludeIndex: editingSubunitIndex
         });
 
         if (!isValid) return;
 
         const updatedCourse = { ...courseData };
-        const subunits = updatedCourse.parts[partIndex].units[unitIndex].subunits;
+        const subunits = updatedCourse.parts[partIndex].publishers[publisherIndex].units[unitIndex].subunits;
         const existingSubunit = subunits[editingSubunitIndex];
 
         subunits[editingSubunitIndex] = {
@@ -795,22 +827,26 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         clearFieldError("subunit");
     };
 
-
     const handleDeleteSubunit = (index) => {
-        const { partIndex, unitIndex } = selectedUnitIndexes;
+        const { partIndex, publisherIndex, unitIndex } = selectedUnitIndexes;
         const updatedParts = [...courseData.parts];
-        const subunits = [...updatedParts[partIndex].units[unitIndex].subunits];
+        const publishers = [...updatedParts[partIndex].publishers];
+        const units = [...publishers[publisherIndex].units];
+        const subunits = [...units[unitIndex].subunits];
+
         subunits.splice(index, 1);
-        updatedParts[partIndex].units[unitIndex].subunits = subunits;
+        units[unitIndex].subunits = subunits;
+        publishers[publisherIndex].units = units;
+        updatedParts[partIndex].publishers = publishers;
 
         setCourseData(prev => ({
             ...prev,
             parts: updatedParts
         }));
-        setUnsavedChanges(prev => ({ ...prev, timeRatio: true }));
+        setUnsavedChanges(prev => ({ ...prev, subunit: true }));
     };
 
-
+    // VALIDATION OF DATA
     const validateCourseData = (courseData) => {
         if (!courseData.name || !courseData.name.trim()) {
             message.error("Course name is required");
@@ -821,18 +857,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         if (isNaN(timeRatioValue) || timeRatioValue <= 0) {
             message.error("Time ratio must be a positive number");
             return false;
-        }
-
-        if (!Array.isArray(courseData.publishers) || courseData.publishers.length === 0) {
-            message.error("At least one publisher is required");
-            return false;
-        }
-
-        for (const publisher of courseData.publishers) {
-            if (!publisher.name || !publisher.name.trim()) {
-                message.error("Publisher name is required");
-                return false;
-            }
         }
 
         if (!Array.isArray(courseData.parts) || courseData.parts.length === 0) {
@@ -846,31 +870,43 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                 return false;
             }
 
-            if (!Array.isArray(part.units) || part.units.length === 0) {
-                message.error(`At least one unit is required in part "${part.name}"`);
+            if (!Array.isArray(part.publishers) || part.publishers.length === 0) {
+                message.error(`At least one publisher is required in part "${part.name}"`);
                 return false;
             }
 
-            for (const unit of part.units) {
-                if (!unit.name || !unit.name.trim()) {
-                    message.error(`Unit name is required in part "${part.name}"`);
+            for (const publisher of part.publishers) {
+                if (!publisher.name || !publisher.name.trim()) {
+                    message.error(`Publisher name is required in part "${part.name}"`);
                     return false;
                 }
 
-                if (!Array.isArray(unit.type) || unit.type.length === 0) {
-                    message.error(`At least one unit type is required in unit "${unit.name}" under part "${part.name}"`);
+                if (!Array.isArray(publisher.units) || publisher.units.length === 0) {
+                    message.error(`At least one unit is required in publisher "${publisher.name}" under part "${part.name}"`);
                     return false;
                 }
 
-                if (!Array.isArray(unit.subunits) || unit.subunits.length === 0) {
-                    message.error(`At least one subunit is required in unit "${unit.name}"`);
-                    return false;
-                }
-
-                for (const subunit of unit.subunits) {
-                    if (!subunit.name || !subunit.name.trim()) {
-                        message.error(`Subunit name is required in unit "${unit.name}"`);
+                for (const unit of publisher.units) {
+                    if (!unit.name || !unit.name.trim()) {
+                        message.error(`Unit name is required in publisher "${publisher.name}" under part "${part.name}"`);
                         return false;
+                    }
+
+                    if (!Array.isArray(unit.type) || unit.type.length === 0) {
+                        message.error(`At least one unit type is required in unit "${unit.name}" under publisher "${publisher.name}"`);
+                        return false;
+                    }
+
+                    if (!Array.isArray(unit.subunits) || unit.subunits.length === 0) {
+                        message.error(`At least one subunit is required in unit "${unit.name}"`);
+                        return false;
+                    }
+
+                    for (const subunit of unit.subunits) {
+                        if (!subunit.name || !subunit.name.trim()) {
+                            message.error(`Subunit name is required in unit "${unit.name}"`);
+                            return false;
+                        }
                     }
                 }
             }
@@ -879,34 +915,31 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         return true;
     };
 
-
     const cleanCourseData = (data) => {
         return {
             name: data.name,
             timeRatio: parseFloat(data.timeRatio),
-            publishers: data.publishers?.map(p => ({
-                _id: p._id,
-                name: p.name
-            })) || [],
             parts: data.parts?.map(part => ({
                 _id: part._id,
                 name: part.name,
-                units: part.units?.map(unit => ({
-                    _id: unit._id,
-                    name: unit.name,
-                    type: Array.isArray(unit.type) ? [...unit.type] : [],
-                    subunits: unit.subunits?.map(sub => ({
-                        _id: sub._id,
-                        name: sub.name
+                publishers: part.publishers?.map(publisher => ({
+                    _id: publisher._id,
+                    name: publisher.name,
+                    units: publisher.units?.map(unit => ({
+                        _id: unit._id,
+                        name: unit.name,
+                        type: Array.isArray(unit.type) ? [...unit.type] : [],
+                        subunits: unit.subunits?.map(sub => ({
+                            _id: sub._id,
+                            name: sub.name
+                        })) || []
                     })) || []
                 })) || []
             })) || []
         };
     };
 
-
-
-
+    // API CALL
     const handleSubmitCourse = async () => {
         if (!validateCourseData(courseData)) {
             return;
@@ -942,11 +975,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }
     };
 
-
     return (
         <div className='add-course'>
-
-            <div className='heading-lg title' >
+            <div className='heading-lg title'>
                 {initialCourseData ? `Update ${courseData.name} Course` : 'Add New Course'}
             </div>
 
@@ -968,46 +999,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                     value={courseData.timeRatio}
                     onChange={handleTimeRatioInputChange}
                 />
-
             </div>
-
-            <div className='add-publisher-btn'>
-                <div className='heading-md publisher-h1'>Publishers</div>
-                <button className='btn' onClick={handleClickAddPublisher}>Add Publisher</button>
-            </div>
-
-
-            {showAddPublisher && (
-                <div className='add-publisher'>
-                    <div className='add-publisher-form'>
-                        <label htmlFor="publishers" className='heading-sm publisher-name'>Publisher Name</label>
-                        <input
-                            ref={publisherInputRef}
-                            type="text"
-                            placeholder="Publisher Name"
-                            name='publishers'
-                            value={editingPublisherIndex !== null ? editingPublisherValue : tempPublisher.name}
-                            onChange={handlePublisherInputChange}
-                        />
-                        {errors.publisher && <span className='error-text'>{errors.publisher}</span>}
-                    </div>
-                    <div className='add-publisher-btns'>
-                        <button
-                            className="btn"
-                            onClick={editingPublisherIndex !== null ? handleSaveEditPublisher : handleClickSavePublisher}
-                        >
-                            {editingPublisherIndex !== null ? "Save" : "Add"}
-                        </button>
-                        <button className='btn' onClick={handleCloseEditPublisher}>Cancel</button>
-                    </div>
-                </div>
-            )}
-
-            < PublisherTable
-                courseData={courseData}
-                onEdit={handleEditPublisher}
-                onDelete={handleDeletePublisher}
-            />
 
             <div className='add-part-btn'>
                 <div className='heading-md'>Parts</div>
@@ -1015,7 +1007,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             </div>
 
             {showAddPart && (
-                <div className='add-part' >
+                <div className='add-part'>
                     <div className='add-part-form'>
                         <label htmlFor="parts" className='heading-sm part-name'>Part Name</label>
                         <input
@@ -1041,84 +1033,60 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                 </div>
             )}
 
-
             <PartsTable
                 courseData={courseData}
                 onEdit={handleEditPart}
-                onManageUnits={handleManageUnits}
+                onManagePublishers={handleManagePublishers}
                 onDelete={handleDeletePart}
                 managedPartIndex={managedPartIndex}
             />
 
-
-            {courseData.parts.map((part, index) => (
-                <div className='unit' key={index}>
-                    {managedPartIndex === index && courseData.parts[managedPartIndex] && (
+            {courseData.parts.map((part, partIndex) => (
+                <div className='publisher' key={partIndex}>
+                    {managedPartIndex === partIndex && courseData.parts[managedPartIndex] && (
                         <>
-                            <div className='add-unit-btn' ref={unitSectionRef}>
-                                <div className='heading-md'>{`${part.name}/Units`}</div>
-                                <button
-                                    type='button'
-                                    className='btn'
-                                    onClick={() => handleClickAddUnit(index)}
-                                >
-                                    Add Unit
+                            <div className='add-publisher-btn' ref={publisherSectionRef}>
+                                <div className='heading-md publisher-h1'>{`${part.name}/Publishers`}</div>
+                                <button className='btn' onClick={() => handleClickAddPublisher(partIndex)}>
+                                    Add Publisher
                                 </button>
                             </div>
 
-                            {selectedPartIndex === index && (
-                                <div className='add-unit'>
-                                    <div className='unit-form'>
-                                        <label htmlFor="name" className='heading-sm unit-name'>
-                                            Unit Name
+                            {showAddPublisher && selectedPartIndexForPublisher === partIndex && (
+                                <div className='add-publisher'>
+                                    <div className='add-publisher-form'>
+                                        <label htmlFor="publishers" className='heading-sm publisher-name'>
+                                            Publisher Name
                                         </label>
                                         <input
-                                            ref={unitInputRef}
+                                            ref={publisherInputRef}
                                             type="text"
-                                            name="name"
-                                            placeholder="Unit Name"
-                                            value={tempUnit.name}
-                                            onChange={handleInputChangeUnit}
+                                            placeholder="Publisher Name"
+                                            name='publishers'
+                                            value={editingPublisherIndex !== null ? editingPublisherValue : tempPublisher.name}
+                                            onChange={handlePublisherInputChange}
                                         />
-
-                                        {errors.unitName && <span className='error-text'>{errors.unitName}</span>}
-
-
-                                        <label className='heading-sm question-type'>Question Type</label>
-                                        <div className="unit-type-checkboxes">
-                                            {["rapid", "mcq", "essay"].map((typeOption) => (
-                                                <div key={typeOption} className="checkbox-label">
-                                                    <span className="label-text heading-sm">
-                                                        {typeOption.charAt(0).toUpperCase() + typeOption.slice(1)}
-                                                    </span>
-                                                    <input
-                                                        type="checkbox"
-                                                        value={typeOption}
-                                                        checked={tempUnit.type.includes(typeOption)}
-                                                        onChange={(e) => handleUnitTypeChange(e, typeOption)}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-                                        {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
-
+                                        {errors.publisher && <span className='error-text'>{errors.publisher}</span>}
                                     </div>
-                                    <div className='btns'>
-                                        <button className='btn' onClick={editingUnitIndex !== null ? handleSaveUnit : handleClickSaveUnit}>
-                                            {editingUnitIndex !== null ? "Save" : "Add"}
+                                    <div className='add-publisher-btns'>
+                                        <button
+                                            className="btn"
+                                            onClick={editingPublisherIndex !== null ? handleSaveEditPublisher : handleClickSavePublisher}
+                                        >
+                                            {editingPublisherIndex !== null ? "Save" : "Add"}
                                         </button>
-                                        <button className='btn' onClick={resetUnitForm}>Cancel</button>
+                                        <button className='btn' onClick={handleCloseEditPublisher}>Cancel</button>
                                     </div>
                                 </div>
                             )}
 
-                            <UnitsTable
-                                unitData={courseData.parts[index].units}
-                                onEdit={(unitIndex) => handleEditUnit(index, unitIndex)}
-                                onManageSubunits={(unitIndex) => handleManageSubunits(index, unitIndex)}
-                                onDelete={(unitIndex) => handleDeleteUnit(index, unitIndex)}
-                                partIndex={index}
-                                selectedUnitIndexes={selectedUnitIndexes}
+                            <PublisherTable
+                                publishers={courseData.parts[partIndex].publishers}
+                                partIndex={partIndex}
+                                onEdit={(publisherIndex) => handleEditPublisher(partIndex, publisherIndex)}
+                                onManageUnits={(publisherIndex) => handleManageUnits(partIndex, publisherIndex)}
+                                onDelete={(publisherIndex) => handleDeletePublisher(partIndex, publisherIndex)}
+                                selectedPublisherIndexes={selectedPublisherIndexes}
                             />
                         </>
                     )}
@@ -1127,17 +1095,98 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
             {managedPartIndex !== null &&
                 courseData.parts[managedPartIndex] &&
-                selectedUnitIndexes.partIndex === managedPartIndex &&
-                courseData.parts[managedPartIndex].units[selectedUnitIndexes.unitIndex] && (
-                    <div className="subunit-container">
+                courseData.parts[managedPartIndex].publishers.map((publisher, publisherIndex) => (
+                    <div className='unit' key={publisherIndex}>
+                        {selectedPublisherIndexes.partIndex === managedPartIndex &&
+                            selectedPublisherIndexes.publisherIndex === publisherIndex && (
+                                <>
+                                    <div className='add-unit-btn' ref={unitSectionRef}>
+                                        <div className='heading-md'>{`${courseData.parts[managedPartIndex].name}/${publisher.name}/Units`}</div>
+                                        <button
+                                            type='button'
+                                            className='btn'
+                                            onClick={() => handleClickAddUnit(managedPartIndex, publisherIndex)}
+                                        >
+                                            Add Unit
+                                        </button>
+                                    </div>
 
+                                    {showAddUnitSection &&
+                                        (
+                                            <div className='add-unit'>
+                                                <div className='unit-form'>
+                                                    <label htmlFor="name" className='heading-sm unit-name'>
+                                                        Unit Name
+                                                    </label>
+                                                    <input
+                                                        ref={unitInputRef}
+                                                        type="text"
+                                                        name="name"
+                                                        placeholder="Unit Name"
+                                                        value={tempUnit.name}
+                                                        onChange={handleInputChangeUnit}
+                                                    />
+                                                    {errors.unitName && <span className='error-text'>{errors.unitName}</span>}
+
+                                                    <label className='heading-sm question-type'>Question Type</label>
+                                                    <div className="unit-type-checkboxes">
+                                                        {["rapid", "mcq", "essay"].map((typeOption) => (
+                                                            <div key={typeOption} className="checkbox-label">
+                                                                <span className="label-text heading-sm">
+                                                                    {typeOption.charAt(0).toUpperCase() + typeOption.slice(1)}
+                                                                </span>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    value={typeOption}
+                                                                    checked={tempUnit.type.includes(typeOption)}
+                                                                    onChange={(e) => handleUnitTypeChange(e, typeOption)}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
+                                                </div>
+                                                <div className='btns'>
+                                                    <button className='btn' onClick={editingUnitIndex !== null ? handleSaveEditedUnit : handleClickSaveUnit}>
+                                                        {editingUnitIndex !== null ? "Save" : "Add"}
+                                                    </button>
+                                                    <button className='btn' onClick={resetUnitForm}>Cancel</button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                    <UnitsTable
+                                        unitData={publisher.units}
+                                        onEdit={(unitIndex) => handleEditUnit(managedPartIndex, publisherIndex, unitIndex)}
+                                        onManageSubunits={(unitIndex) => handleManageSubunits(managedPartIndex, publisherIndex, unitIndex)}
+                                        onDelete={(unitIndex) => handleDeleteUnit(managedPartIndex, publisherIndex, unitIndex)}
+                                        partIndex={managedPartIndex}
+                                        publisherIndex={publisherIndex}
+                                        selectedUnitIndexes={selectedUnitIndexes}
+                                    />
+                                </>
+                            )}
+                    </div>
+                ))}
+
+            {managedPartIndex !== null &&
+                selectedPublisherIndexes.partIndex !== null &&
+                selectedPublisherIndexes.publisherIndex !== null &&
+                selectedUnitIndexes.partIndex === managedPartIndex &&
+                selectedUnitIndexes.publisherIndex === selectedPublisherIndexes.publisherIndex &&
+                selectedUnitIndexes.unitIndex !== null &&
+                courseData.parts[managedPartIndex]?.publishers[selectedPublisherIndexes.publisherIndex]?.units[selectedUnitIndexes.unitIndex] && (
+                    <div className="subunit-container">
                         <div className="add-subunit-btn" ref={subUnitSectionRef}>
-                            <div className='heading-md'>{`${courseData.parts[managedPartIndex].name}/${courseData.parts[managedPartIndex].units[selectedUnitIndexes.unitIndex].name}/Subunits`}</div>
+                            <div className='heading-md'>
+                                {`${courseData.parts[managedPartIndex].name}/${courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].name}/${courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].name}/Subunits`}
+                            </div>
                             <button
                                 className="btn"
                                 onClick={() =>
                                     handleClickAddSubUnit(
                                         selectedUnitIndexes.partIndex,
+                                        selectedUnitIndexes.publisherIndex,
                                         selectedUnitIndexes.unitIndex
                                     )
                                 }
@@ -1145,7 +1194,6 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                                 Add Subunit
                             </button>
                         </div>
-
 
                         {showSubunitInput && (
                             <div className="add-subunit">
@@ -1177,11 +1225,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                             </div>
                         )}
 
-
                         <SubunitTable
                             subunitData={
-                                courseData.parts[managedPartIndex].units[selectedUnitIndexes.unitIndex]
-                                    .subunits || []
+                                courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].subunits || []
                             }
                             onEdit={handleEditSubunit}
                             onDelete={handleDeleteSubunit}
@@ -1191,14 +1237,11 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
             <div className='submit'>
                 <button className='btn' onClick={handleSubmitCourse}>
-                    {
-                        submitBtnToggel ? "Add New Course" : "Update Course"
-                    }
+                    {submitBtnToggel ? "Add New Course" : "Update Course"}
                 </button>
             </div>
-
         </div>
-    )
+    );
 });
 
 export default CourseForm;

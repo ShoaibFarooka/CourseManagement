@@ -7,21 +7,23 @@ const ObjectId = yup
         mongoose.Types.ObjectId.isValid(value)
     );
 
+// ---------------------- Subunit Schema ---------------------- //
 const subunitSchema = yup.object().shape({
     name: yup.string().trim().required("Subunit name is required"),
 });
 
+// ---------------------- Unit Schema ---------------------- //
 const unitSchema = yup.object().shape({
     name: yup.string().trim().required("Unit name is required"),
+
     type: yup
         .array()
         .of(
-            yup
-                .string()
-                .oneOf(["rapid", "mcq", "essay"], "Invalid unit type")
+            yup.string().oneOf(["rapid", "mcq", "essay"], "Invalid unit type")
         )
         .min(1, "At least one unit type is required")
         .required("Unit type is required"),
+
     subunits: yup
         .array()
         .of(subunitSchema)
@@ -29,8 +31,10 @@ const unitSchema = yup.object().shape({
         .required("Subunits are required"),
 });
 
-const partSchema = yup.object().shape({
-    name: yup.string().trim().required("Part name is required"),
+// ---------------------- Publisher Schema ---------------------- //
+const publisherSchema = yup.object().shape({
+    name: yup.string().trim().required("Publisher name is required"),
+
     units: yup
         .array()
         .of(unitSchema)
@@ -38,24 +42,27 @@ const partSchema = yup.object().shape({
         .required("Units are required"),
 });
 
-const publisherSchema = yup.object().shape({
-    name: yup.string().trim().required("Publisher name is required"),
+// ---------------------- Part Schema ---------------------- //
+const partSchema = yup.object().shape({
+    name: yup.string().trim().required("Part name is required"),
+
+    publishers: yup
+        .array()
+        .of(publisherSchema)
+        .min(1, "At least one publisher is required")
+        .required("Publishers are required"),
 });
 
-
-
+// ---------------------- Add Course Schema ---------------------- //
 const addCourseSchema = yup.object().shape({
     name: yup.string().trim().required("Course name is required"),
+
     timeRatio: yup
         .number()
         .typeError("Time ratio must be a number")
         .positive("Time ratio must be positive")
         .required("Time ratio is required"),
-    publishers: yup
-        .array()
-        .of(publisherSchema)
-        .min(1, "At least one publisher is required")
-        .required("Publishers are required"),
+
     parts: yup
         .array()
         .of(partSchema)
@@ -63,18 +70,16 @@ const addCourseSchema = yup.object().shape({
         .required("Parts are required"),
 });
 
+// ---------------------- Update Course Schema ---------------------- //
 const updateCourseSchema = yup.object().shape({
     name: yup.string().trim().required("Course name is required"),
+
     timeRatio: yup
         .number()
         .typeError("Time ratio must be a number")
         .positive("Time ratio must be positive")
         .required("Time ratio is required"),
-    publishers: yup
-        .array()
-        .of(publisherSchema)
-        .min(1, "At least one publisher is required")
-        .required("Publishers are required"),
+
     parts: yup
         .array()
         .of(partSchema)
@@ -82,6 +87,7 @@ const updateCourseSchema = yup.object().shape({
         .required("Parts are required"),
 });
 
+// ---------------------- Course ID Schema ---------------------- //
 const courseIdSchema = yup.object().shape({
     courseId: ObjectId.required("Course ID is required"),
 });

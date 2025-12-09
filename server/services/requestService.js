@@ -1,5 +1,5 @@
 const User = require("../models/userModel");
-const Request = require("../models/requestModel");
+const Request = require("../models/deviceVerificationRequestModel");
 
 const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
     const user = await User.findById(userId);

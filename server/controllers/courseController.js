@@ -11,8 +11,8 @@ const GetAllCourses = async (req, res, next) => {
 
 const AddCourse = async (req, res, next) => {
     try {
-        const { name, timeRatio, publishers, parts } = req.body;
-        const data = { name, timeRatio, publishers, parts };
+        const { name, timeRatio, parts } = req.body;
+        const data = { name, timeRatio, parts };
 
         await courseService.addCourse(data);
         res.status(201).json({ message: "Course added successfully" });
@@ -24,8 +24,8 @@ const AddCourse = async (req, res, next) => {
 const UpdateCourse = async (req, res, next) => {
     try {
         const { courseId } = req.params;
-        const { name, timeRatio, publishers, parts } = req.body;
-        const data = { name, timeRatio, publishers, parts };
+        const { name, timeRatio, parts } = req.body;
+        const data = { name, timeRatio, parts };
 
         await courseService.updateCourse(courseId, data);
         res.status(200).json({ message: "Course updated successfully" });

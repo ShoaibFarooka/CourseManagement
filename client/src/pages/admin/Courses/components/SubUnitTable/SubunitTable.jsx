@@ -1,8 +1,9 @@
 import React from 'react';
 import './SubunitTable.css';
-import edit from '../../../../../assets/icons/edit.png';
+import edit from '../../../../../assets/icons/Edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm } from 'antd';
+
 const SubunitTable = ({ subunitData, onEdit, onDelete }) => {
     return (
         <div className="table-container">
@@ -26,7 +27,9 @@ const SubunitTable = ({ subunitData, onEdit, onDelete }) => {
                             <td>
                                 <div className="heading-sm table-h1">{index + 1}</div>
                             </td>
-                            <td>{subunit.name}</td>
+                            <td>
+                                <div className="heading-sm table-h1">{subunit.name}</div>
+                            </td>
                             <td>
                                 <div className="action-btn-wrapper">
                                     <button className="action-btn" onClick={() => onEdit(index)}>

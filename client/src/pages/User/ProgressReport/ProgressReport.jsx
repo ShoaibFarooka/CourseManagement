@@ -9,7 +9,7 @@ const ProgressReport = () => {
         <>
             <div className='progress-report'></div>
 
-            <div className='title'>Progress Report</div>
+            <div className='main-title'>Progress Report</div>
 
             <div className='progress-report-container'>
 

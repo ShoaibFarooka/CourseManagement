@@ -1,10 +1,18 @@
 import React from 'react';
 import './UnitsTable.css';
-import edit from '../../../../../assets/icons/edit.png';
+import edit from '../../../../../assets/icons/Edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm } from 'antd';
-const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete, partIndex, selectedUnitIndexes }) => {
 
+const UnitsTable = ({
+    unitData,
+    onEdit,
+    onManageSubunits,
+    onDelete,
+    partIndex,
+    publisherIndex,
+    selectedUnitIndexes
+}) => {
     return (
         <div className="table-container">
             <table className="table table-striped">
@@ -30,20 +38,25 @@ const UnitsTable = ({ unitData, onEdit, onManageSubunits, onDelete, partIndex, s
                             <td>
                                 <div className="heading-sm table-h1">{index + 1}</div>
                             </td>
-                            <td>{unit.name}</td>
-                            <td>{Array.isArray(unit.type) ? unit.type.join(', ') : unit.type}</td>
-
+                            <td>
+                                <div className="heading-sm table-h1">{unit.name}</div>
+                            </td>
+                            <td>
+                                <div className="heading-sm table-h1">
+                                    {Array.isArray(unit.type) ? unit.type.join(', ') : ''}
+                                </div>
+                            </td>
                             <td>
                                 <div className="action-btn-wrapper">
-
-                                    <button className='manage-btn' onClick={() => onManageSubunits(index)}>
-                                        {
-                                            selectedUnitIndexes.unitIndex === index &&
-                                                selectedUnitIndexes.partIndex === partIndex
-                                                ? "Close"
-                                                : "SubUnit's"
-                                        }
-
+                                    <button
+                                        className='manage-btn'
+                                        onClick={() => onManageSubunits(index)}
+                                    >
+                                        {selectedUnitIndexes?.partIndex === partIndex &&
+                                            selectedUnitIndexes?.publisherIndex === publisherIndex &&
+                                            selectedUnitIndexes?.unitIndex === index
+                                            ? "Close"
+                                            : "Manage Subunits"}
                                     </button>
                                     <button className="action-btn" onClick={() => onEdit(index)}>
                                         <img src={edit} alt="Edit" />

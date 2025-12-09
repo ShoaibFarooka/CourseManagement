@@ -29,6 +29,7 @@
     align-items: center;
     padding: 0 10px;
     padding-top: 50px;
+    margin-bottom: 10px;
 }
 
 .add-course .add-publisher {
@@ -36,6 +37,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    margin-bottom: 10px;
 }
 
 .add-course .add-publisher .add-publisher-form {
@@ -44,6 +46,7 @@
     justify-content: center;
     width: 100%;
     z-index: 10;
+    gap: 10px;
 }
 
 .add-course .add-publisher .add-publisher-btns {
