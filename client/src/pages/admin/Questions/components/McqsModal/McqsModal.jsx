@@ -6,7 +6,7 @@ import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import questionServices from '../../../../../services/questionServices';
 import SelectDropDown from '../../../../../components/Select/SelectDropDown';
 
-const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
+const McqsModal = forwardRef(({ courseId, partId, unitId, subUnitId, publisherId, question, onRequestClose }, ref) => {
     const [formData, setFormData] = useState({
         statement: '',
         options: {
@@ -146,7 +146,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
             if (question?._id) {
                 await questionServices.updateQuestion(question._id, formData);
             } else {
-                await questionServices.addMcqQuestion(subUnitId, publisherId, formData);
+                await questionServices.addMcqQuestion(courseId, partId, unitId, subUnitId, publisherId, formData);
             }
 
             message.success("Question submitted successfully");
@@ -242,7 +242,7 @@ const McqsModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose
                     {errors.correctOption && <span className="error-text">{errors.correctOption}</span>}
                 </div>
 
-                <div className='submit-btn'>
+                <div className='mcq-submit-btn'>
                     <button className='btn' onClick={handleSubmit}>
                         {question?._id ? 'Update' : 'Add Mcq'}
                     </button>

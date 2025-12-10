@@ -7,7 +7,7 @@ import { message } from 'antd';
 import questionServices from '../../../../../services/questionServices';
 import SelectDropDown from '../../../../../components/Select/SelectDropDown';
 
-const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
+const EssayModal = forwardRef(({ courseId, partId, unitId, subUnitId, publisherId, question, onRequestClose }, ref) => {
 
     const dispatch = useDispatch();
 
@@ -213,7 +213,7 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                 await questionServices.updateQuestion(question._id, formData);
                 message.success("Essay updated successfully");
             } else {
-                await questionServices.addEssayQuestion(subUnitId, publisherId, formData);
+                await questionServices.addEssayQuestion(courseId, partId, unitId, subUnitId, publisherId, formData);
                 message.success("Essay submitted successfully");
             }
 
@@ -221,7 +221,6 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
             setShowSubmitBtn(false);
             onRequestClose();
         } catch (err) {
-            console.error("Essay submit error:", err);
             message.error("Failed to submit essay");
         } finally {
             dispatch(HideLoading());
@@ -294,14 +293,14 @@ const EssayModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                     />
                     {errors.explanation && <span className='error-text'>{errors.explanation}</span>}
 
-                    <div className='submit-btn'>
+                    <div className='essay-submit-btn'>
                         <button className='btn' onClick={handleSaveSubQuestion}>Save SubQuestion</button>
                     </div>
                 </div>
             )}
 
             {showSubmitBtn && (
-                <div className='submit-btn'>
+                <div className='essay-submit-btn'>
                     <button className='btn' onClick={handleFinalSubmit}>
                         {question?._id ? "Update" : "Add Essay"}
                     </button>

@@ -42,10 +42,6 @@ const Questions = () => {
     ];
     const ALL_QUESTION_TYPES = ['mcq', 'rapid', 'essay'];
 
-
-
-
-
     const mcqFileRef = useRef(null);
     const essayFileRef = useRef(null);
     const rapidFileRef = useRef(null);
@@ -53,11 +49,7 @@ const Questions = () => {
     const rapidModalRef = useRef(null);
     const mcqsModalRef = useRef(null);
 
-
-
-
     const dispatch = useDispatch();
-
 
     const fetchAllCourses = async () => {
         try {
@@ -72,10 +64,12 @@ const Questions = () => {
         }
     };
 
+
     useEffect(() => {
         fetchAllCourses();
     }, []);
 
+    // When the selected unit changes, update available types and selected types
     useEffect(() => {
         if (selectedUnit) {
             const types = selectedUnit?.type ? selectedUnit.type : [];
@@ -90,26 +84,26 @@ const Questions = () => {
     }, [selectedUnit]);
 
 
-
     useEffect(() => {
-        if (selectedSubunit?._id && selectedPublisher?._id && questionType) {
-            fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
+        if (selectedCourse?._id && selectedPart?._id && selectedPublisher?._id && selectedUnit?._id && selectedSubunit?._id && questionType) {
+            fetchQuestions(selectedCourse._id, selectedPart._id, selectedPublisher._id, selectedUnit._id, selectedSubunit._id, currentPage);
         }
-    }, [selectedSubunit, selectedPublisher, questionType, currentPage, selectedTypes, selectedLanguage]);
+    }, [selectedCourse, selectedPart, selectedPublisher, selectedUnit, selectedSubunit, questionType, currentPage, selectedTypes, selectedLanguage]);
 
-
-    const fetchQuestions = async (subunitId, publisherId, page = 1, limit = 5) => {
+    const fetchQuestions = async (courseId, partId, publisherId, unitId, subunitId, page = 1, limit = 5) => {
         try {
             dispatch(ShowLoading());
             const response = await questionServices.getAllQuestions(
-                subunitId,
+                courseId,
+                partId,
                 publisherId,
+                unitId,
+                subunitId,
                 page,
                 limit,
                 selectedTypes,
                 selectedLanguage
             );
-
             setQuestions(response.questions);
             setCurrentPage(response.currentPage);
             setTotalPages(response.totalPages);
@@ -121,31 +115,26 @@ const Questions = () => {
         }
     };
 
-
-
-
-
     const handleDeleteQuestion = async (questionId) => {
         try {
             dispatch(ShowLoading());
             await questionServices.deleteQuestion(questionId);
             message.success("Question deleted successfully");
-            fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
+            fetchQuestions(selectedCourse._id, selectedPart._id, selectedPublisher._id, selectedUnit._id, selectedSubunit._id, currentPage);
         } catch (error) {
-            console.error("Failed to delete question:", error);
             message.error("Failed to delete question");
         } finally {
             dispatch(HideLoading());
         }
     };
 
-
-
+    // --- Option helpers updated for nested structure ---
     const getCourseOptions = () =>
-        course.map(course => ({ value: course._id, label: course.name }));
+        course.map(c => ({ value: c._id, label: c.name }));
 
+    // Publishers belong to a selected PART (course -> parts[] -> publishers[])
     const getPublisherOptions = () =>
-        selectedCourse?.publishers?.map(pub => ({
+        selectedPart?.publishers?.map(pub => ({
             label: pub.name,
             value: pub._id
         })) || [];
@@ -156,8 +145,9 @@ const Questions = () => {
             value: part._id
         })) || [];
 
+    // Units belong to the selected PUBLISHER (part -> publishers[] -> units[])
     const getUnitOptions = () =>
-        selectedPart?.units?.map(unit => ({
+        selectedPublisher?.units?.map(unit => ({
             label: unit.name,
             value: unit._id
         })) || [];
@@ -169,7 +159,6 @@ const Questions = () => {
                 : [...prev, type]
         );
     };
-
 
     const handleLanguageChange = (e) => {
         const value = e.target.value;
@@ -184,6 +173,7 @@ const Questions = () => {
         });
     };
 
+    // Subunits belong to selected UNIT
     const getSubunitOptions = () =>
         selectedUnit?.subunits?.map(sub => ({
             label: sub.name,
@@ -196,8 +186,6 @@ const Questions = () => {
             value: type,
         })) || [];
 
-
-
     const handleOpenModal = () => {
         setEditingQuestion(null);
         setIsOpenModal(true);
@@ -206,19 +194,22 @@ const Questions = () => {
     const handleCloseModal = () => {
         setIsOpenModal(false);
         setEditingQuestion(null);
-        if (selectedSubunit?._id && selectedPublisher?._id) {
-            fetchQuestions(selectedSubunit._id, selectedPublisher._id, currentPage);
+        const courseId = selectedCourse?._id;
+        const partId = selectedPart?._id;
+        const publisherId = selectedPublisher?._id;
+        const unitId = selectedUnit?._id;
+        const subunitId = selectedSubunit?._id;
+
+        if (courseId && partId && publisherId && unitId && subunitId) {
+            fetchQuestions(courseId, partId, publisherId, unitId, subunitId, currentPage);
         }
     };
-
-
 
     const handleModalClose = () => {
         const hasUnsaved =
             (questionType?.includes('essay') && essayModalRef.current?.hasUnsavedChanges?.()) ||
             (questionType?.includes('rapid') && rapidModalRef.current?.hasUnsavedChanges?.()) ||
             (questionType?.includes('mcq') && mcqsModalRef.current?.hasUnsavedChanges?.());
-
 
         if (hasUnsaved) {
             Modal.confirm({
@@ -234,7 +225,6 @@ const Questions = () => {
             handleCloseModal();
         }
     };
-
 
 
     const onEdit = (questions) => {
@@ -269,7 +259,6 @@ const Questions = () => {
         setUploadWarnings([]);
         setUploadSuccess([]);
     }
-
 
     const handleUpload = async () => {
         if (!mcqFile && !essayFile && !rapidFile) {
@@ -349,7 +338,6 @@ const Questions = () => {
         }
     };
 
-
     return (
         <div className="questions">
 
@@ -409,10 +397,11 @@ const Questions = () => {
                     options={getCourseOptions()}
                     value={selectedCourse?._id || null}
                     onChange={(id) => {
-                        const found = course.find(course => course._id === id);
+                        const found = course.find(c => c._id === id);
                         setSelectedCourse(found);
-                        setSelectedPublisher(null);
+                        // reset downstream selections
                         setSelectedPart(null);
+                        setSelectedPublisher(null);
                         setSelectedUnit(null);
                         setSelectedSubunit(null);
                         setQuestionType(null);
@@ -437,6 +426,7 @@ const Questions = () => {
                             onChange={(partId) => {
                                 const part = selectedCourse.parts.find(p => p._id === partId);
                                 setSelectedPart(part);
+                                // reset downstream selections
                                 setSelectedPublisher(null);
                                 setSelectedUnit(null);
                                 setSelectedSubunit(null);
@@ -458,8 +448,10 @@ const Questions = () => {
                             options={getPublisherOptions()}
                             value={selectedPublisher?._id || null}
                             onChange={(pubId) => {
-                                const publisher = selectedCourse.publishers.find(p => p._id === pubId);
+                                // publisher is inside selectedPart.publishers
+                                const publisher = selectedPart?.publishers?.find(p => p._id === pubId) || null;
                                 setSelectedPublisher(publisher);
+                                // reset downstream
                                 setSelectedUnit(null);
                                 setSelectedSubunit(null);
                                 setQuestionType(null);
@@ -481,7 +473,8 @@ const Questions = () => {
                         options={getUnitOptions()}
                         value={selectedUnit?._id || null}
                         onChange={(unitId) => {
-                            const unit = selectedPart.units.find(u => u._id === unitId);
+                            // unit is inside selectedPublisher.units
+                            const unit = selectedPublisher?.units?.find(u => u._id === unitId) || null;
                             setSelectedUnit(unit);
                             setSelectedSubunit(null);
                             setQuestions([]);
@@ -501,7 +494,7 @@ const Questions = () => {
                         options={getSubunitOptions()}
                         value={selectedSubunit?._id || null}
                         onChange={(subunitId) => {
-                            const subunit = selectedUnit.subunits.find(s => s._id === subunitId);
+                            const subunit = selectedUnit?.subunits?.find(s => s._id === subunitId) || null;
                             setSelectedSubunit(subunit);
                         }}
 
@@ -636,8 +629,11 @@ const Questions = () => {
                     mcqsModalRef={mcqsModalRef}
                     rapidModalRef={rapidModalRef}
                     essayModalRef={essayModalRef}
-                    selectedSubunit={selectedSubunit}
+                    selectedCourse={selectedCourse}
+                    selectedPart={selectedPart}
                     selectedPublisher={selectedPublisher}
+                    selectedUnit={selectedUnit}
+                    selectedSubunit={selectedSubunit}
                     editingQuestion={editingQuestion}
                     handleCloseModal={handleCloseModal}
                 />

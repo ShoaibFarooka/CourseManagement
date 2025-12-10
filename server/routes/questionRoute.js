@@ -6,36 +6,36 @@ const { upload } = require('../middleware/multerMiddleware');
 const questionSchemas = require("../validationSchemas/questionSchemas");
 
 router.get(
-    "/get-all-questions/:subunitId/:publisherId",
+    "/get-all-questions/:courseId/:partId/:publisherId/:unitId/:subunitId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateParams(questionSchemas.getAllQuestionsSchema),
     controller.getAllQuestions
 );
 
 router.post(
-    "/add/essay/:subunitId/:publisherId",
+    "/add/essay/:courseId/:partId/:publisherId/:unitId/:subunitId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateParams(questionSchemas.getAllQuestionsSchema),
     validationMiddleware.validateBody(questionSchemas.essayQuestionSchema),
     controller.addEssayQuestion
 );
 
 router.post(
-    "/add/rapid/:subunitId/:publisherId",
+    "/add/rapid/:courseId/:partId/:publisherId/:unitId/:subunitId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateParams(questionSchemas.getAllQuestionsSchema),
     validationMiddleware.validateBody(questionSchemas.rapidQuestionSchema),
     controller.addRapidQuestion
 );
 
 router.post(
-    "/add/mcq/:subunitId/:publisherId",
+    "/add/mcq/:courseId/:partId/:publisherId/:unitId/:subunitId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(questionSchemas.subunitAndPublisherIdSchema),
+    validationMiddleware.validateParams(questionSchemas.getAllQuestionsSchema),
     validationMiddleware.validateBody(questionSchemas.mcqQuestionSchema),
     controller.addMcqQuestion
 );

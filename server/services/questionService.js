@@ -2,46 +2,58 @@ const Question = require("../models/questionModel");
 const Course = require("../models/courseModel");
 const fs = require("fs");
 const XLSX = require("xlsx");
-
-const getAllQuestions = async (
-    subunitId,
+const getAllQuestions = async ({
+    courseId,
+    partId,
     publisherId,
+    unitId,
+    subunitId,
     page = 1,
     limit = 5,
     types = [],
-    languages = []
-) => {
-    const filter = {
-        subunitId,
-        publisherId,
-    };
+    languages = [],
+}) => {
+    // Build filter
+    const filter = {};
 
-    if (types.length > 0) {
-        filter.type = { $in: types };
-    }
+    if (subunitId) filter.subunitId = subunitId;
+    if (publisherId) filter.publisherId = publisherId;
 
-    if (languages.length > 0) {
-        filter.language = { $in: languages };
-    }
-
-    const skip = (page - 1) * limit;
-
+    // Fetch questions
     let questions = await Question.find(filter);
 
+    // Optional: filter by course, part, unit by checking hierarchy
+    if (courseId || partId || unitId) {
+        questions = questions.filter(q => {
+            const course = q.courseId?.toString() === courseId;
+            const part = q.partId?.toString() === partId;
+            const unit = q.unitId?.toString() === unitId;
+            return (!courseId || course) && (!partId || part) && (!unitId || unit);
+        });
+    }
 
+    // Filter by types and languages
+    if (types.length > 0) {
+        questions = questions.filter(q => types.includes(q.type));
+    }
+    if (languages.length > 0) {
+        questions = questions.filter(q => languages.includes(q.language));
+    }
+
+    // Sorting
     const typeOrder = { mcq: 1, rapid: 2, essay: 3 };
     const languageOrder = { eng: 1, ar: 2, fr: 3 };
-
 
     questions.sort((a, b) => {
         const typeDiff = typeOrder[a.type] - typeOrder[b.type];
         if (typeDiff !== 0) return typeDiff;
-
         return languageOrder[a.language] - languageOrder[b.language];
     });
 
+    // Pagination
     const total = questions.length;
     const totalPages = Math.ceil(total / limit);
+    const skip = (page - 1) * limit;
     const paginatedQuestions = questions.slice(skip, skip + limit);
 
     return {
@@ -51,8 +63,6 @@ const getAllQuestions = async (
         currentPage: page,
     };
 };
-
-
 
 
 const addQuestion = async (data) => {
@@ -122,14 +132,6 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            const publisher = course.publishers.find(p =>
-                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
-            );
-            if (!publisher) {
-                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
-                continue;
-            }
-
             const part = course.parts.find(p =>
                 p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
             );
@@ -138,7 +140,15 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 continue;
             }
 
-            const unit = part.units.find(u =>
+            const publisher = part.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
+                continue;
+            }
+
+            const unit = publisher.units.find(u =>
                 u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
             );
             if (!unit) {
@@ -166,52 +176,21 @@ const addMCQQuestionsFromFile = async (filePath) => {
             }
 
             const optionA = row["Option A"];
-            if (!optionA) {
-                warnings.push({ rowNumber, reason: `Option A not found` });
-                continue;
-            }
             const explanationA = row["Explanation A"];
-            if (!explanationA) {
-                warnings.push({ rowNumber, reason: `Option A explanation not found` });
-                continue;
-            }
-
             const optionB = row["Option B"];
-            if (!optionB) {
-                warnings.push({ rowNumber, reason: `Option B not found` });
-                continue;
-            }
             const explanationB = row["Explanation B"];
-            if (!explanationB) {
-                warnings.push({ rowNumber, reason: `Option B explanation not found` });
-                continue;
-            }
-
             const optionC = row["Option C"];
-            if (!optionC) {
-                warnings.push({ rowNumber, reason: `Option C not found` });
-                continue;
-            }
             const explanationC = row["Explanation C"];
-            if (!explanationC) {
-                warnings.push({ rowNumber, reason: `Option C explanation not found` });
-                continue;
-            }
-
             const optionD = row["Option D"];
-            if (!optionD) {
-                warnings.push({ rowNumber, reason: `Option D not found` });
-                continue;
-            }
             const explanationD = row["Explanation D"];
-            if (!explanationD) {
-                warnings.push({ rowNumber, reason: `Option D explanation not found` });
+            const correctOption = row["Correct Option"]?.trim()?.toLowerCase();
+
+            if (![optionA, optionB, optionC, optionD, explanationA, explanationB, explanationC, explanationD].every(Boolean)) {
+                warnings.push({ rowNumber, reason: "Missing options or explanations" });
                 continue;
             }
 
-
-            const correctOption = row["Correct Option"]?.trim()?.toLowerCase();
-            if (!(["a", "b", "c", "d"].includes(correctOption))) {
+            if (!["a", "b", "c", "d"].includes(correctOption)) {
                 warnings.push({ rowNumber, reason: `Correct Option must be one of a, b, c, d` });
                 continue;
             }
@@ -221,7 +200,7 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 publisherId: publisher._id,
                 subunitId: subunit._id,
                 language,
-                statement: row["Statement"],
+                statement: row["Statement"]?.trim(),
                 options: {
                     a: { option: optionA, explanation: explanationA },
                     b: { option: optionB, explanation: explanationB },
@@ -247,14 +226,13 @@ const addMCQQuestionsFromFile = async (filePath) => {
 };
 
 
+
 const addRapidQuestionsFromFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    fs.unlink(filePath, (err) => {
-        if (err) console.error("Failed to delete temp file:", err);
-    });
+    fs.unlink(filePath, (err) => { if (err) console.error(err); });
 
     const questions = [];
     const warnings = [];
@@ -266,15 +244,7 @@ const addRapidQuestionsFromFile = async (filePath) => {
         try {
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
             if (!course) {
-                warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
-                continue;
-            }
-
-            const publisher = course.publishers.find(p =>
-                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
-            );
-            if (!publisher) {
-                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
+                warnings.push({ rowNumber, reason: `Course not found` });
                 continue;
             }
 
@@ -282,15 +252,23 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
             );
             if (!part) {
-                warnings.push({ rowNumber, reason: `Part not found: ${row["Part Name"]}` });
+                warnings.push({ rowNumber, reason: `Part not found` });
                 continue;
             }
 
-            const unit = part.units.find(u =>
+            const publisher = part.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: `Publisher not found` });
+                continue;
+            }
+
+            const unit = publisher.units.find(u =>
                 u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
             );
             if (!unit) {
-                warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
+                warnings.push({ rowNumber, reason: `Unit not found` });
                 continue;
             }
 
@@ -303,72 +281,43 @@ const addRapidQuestionsFromFile = async (filePath) => {
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
             );
             if (!subunit) {
-                warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
+                warnings.push({ rowNumber, reason: `Subunit not found` });
                 continue;
             }
 
             const language = row["Language"]?.trim()?.toLowerCase();
             if (!["eng", "ar", "fr"].includes(language)) {
-                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                warnings.push({ rowNumber, reason: `Invalid Language` });
                 continue;
             }
 
+            // collect subquestions
             const subquestions = [];
             let index = 1;
-
             while (row[`SubQ${index} Statement`]) {
                 const statement = row[`SubQ${index} Statement`]?.trim();
                 const optionA = row[`SubQ${index} Option A`]?.trim();
                 const explanationA = row[`SubQ${index} Explanation A`]?.trim();
                 const optionB = row[`SubQ${index} Option B`]?.trim();
                 const explanationB = row[`SubQ${index} Explanation B`]?.trim();
-                const correctOption = row[`SubQ${index} Correct Option`]?.trim().toLowerCase();
+                const correctOption = row[`SubQ${index} Correct Option`]?.trim()?.toLowerCase();
 
-
-                if (!statement) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Statement` });
-                    index++;
-                    continue;
-                }
-                if (!optionA) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Option A` });
-                    index++;
-                    continue;
-                }
-                if (!explanationA) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Explanation A` });
-                    index++;
-                    continue;
-                }
-                if (!optionB) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Option B` });
-                    index++;
-                    continue;
-                }
-                if (!explanationB) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing Explanation B` });
-                    index++;
-                    continue;
-                }
-                if (!["a", "b"].includes(correctOption)) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Invalid Correct Option (must be 'a' or 'b')` });
+                if (!statement || !optionA || !explanationA || !optionB || !explanationB || !["a", "b"].includes(correctOption)) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Invalid or missing fields` });
                     index++;
                     continue;
                 }
 
                 subquestions.push({
                     statement,
-                    options: {
-                        a: { option: optionA, explanation: explanationA },
-                        b: { option: optionB, explanation: explanationB },
-                    },
-                    correctOption,
+                    options: { a: { option: optionA, explanation: explanationA }, b: { option: optionB, explanation: explanationB } },
+                    correctOption
                 });
 
                 index++;
             }
 
-            if (subquestions.length === 0) {
+            if (!subquestions.length) {
                 warnings.push({ rowNumber, reason: "No valid subquestions found" });
                 continue;
             }
@@ -388,13 +337,9 @@ const addRapidQuestionsFromFile = async (filePath) => {
         }
     }
 
-    if (questions.length > 0) {
-        await Question.insertMany(questions);
-    }
+    if (questions.length > 0) await Question.insertMany(questions);
 
     console.log(`✅ ${questions.length} Rapid questions inserted.`);
-    console.log("Warnings: ", warnings);
-
     return { warnings, addedQuestionsCount: questions.length };
 };
 
@@ -404,88 +349,58 @@ const addEssayQuestionsFromFile = async (filePath) => {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    fs.unlink(filePath, (err) => {
-        if (err) console.error("Failed to delete temp file:", err);
-    });
+    fs.unlink(filePath, (err) => { if (err) console.error(err); });
 
     const questions = [];
     const warnings = [];
 
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        const rowNumber = i + 1;
+        const rowNumber = i + 2;
 
         try {
             const course = await Course.findOne({ name: row["Course Name"]?.trim() });
-            if (!course) {
-                warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
-                continue;
-            }
-
-            const publisher = course.publishers.find(p =>
-                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
-            );
-            if (!publisher) {
-                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
-                continue;
-            }
+            if (!course) { warnings.push({ rowNumber, reason: "Course not found" }); continue; }
 
             const part = course.parts.find(p =>
                 p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
             );
-            if (!part) {
-                warnings.push({ rowNumber, reason: `Part not found: ${row["Part Name"]}` });
-                continue;
-            }
+            if (!part) { warnings.push({ rowNumber, reason: "Part not found" }); continue; }
 
-            const unit = part.units.find(u =>
+            const publisher = part.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) { warnings.push({ rowNumber, reason: "Publisher not found" }); continue; }
+
+            const unit = publisher.units.find(u =>
                 u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
             );
-            if (!unit) {
-                warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
-                continue;
-            }
-            if (!Array.isArray(unit.type) || !unit.type.includes("essay")) {
-                warnings.push({ rowNumber, reason: `Unit does not support Essay type questions` });
-                continue;
-            }
+            if (!unit) { warnings.push({ rowNumber, reason: "Unit not found" }); continue; }
 
+            if (!Array.isArray(unit.type) || !unit.type.includes("essay")) {
+                warnings.push({ rowNumber, reason: "Unit does not support Essay type questions" });
+                continue;
+            }
 
             const subunit = unit.subunits.find(s =>
                 s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
             );
-            if (!subunit) {
-                warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
-                continue;
-            }
+            if (!subunit) { warnings.push({ rowNumber, reason: "Subunit not found" }); continue; }
 
             const language = row["Language"]?.trim()?.toLowerCase();
-            if (!["eng", "ar", "fr"].includes(language)) {
-                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
-                continue;
-            }
+            if (!["eng", "ar", "fr"].includes(language)) { warnings.push({ rowNumber, reason: "Invalid Language" }); continue; }
 
             const subquestions = [];
             let index = 1;
-
             while (row[`SubQ${index} Statement`]) {
                 const statement = row[`SubQ${index} Statement`]?.trim();
                 const explanation = row[`SubQ${index} Explanation`]?.trim();
-
-                if (!statement || !explanation) {
-                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing statement or explanation` });
-                    index++;
-                    continue;
-                }
-
+                if (!statement || !explanation) { warnings.push({ rowNumber, reason: `SubQ${index}: Missing statement or explanation` }); index++; continue; }
                 subquestions.push({ statement, explanation });
                 index++;
             }
 
-            if (subquestions.length === 0) {
-                warnings.push({ rowNumber, reason: "No valid subquestions found" });
-                continue;
-            }
+            if (!subquestions.length) { warnings.push({ rowNumber, reason: "No valid subquestions found" }); continue; }
 
             questions.push({
                 type: "essay",
@@ -493,7 +408,7 @@ const addEssayQuestionsFromFile = async (filePath) => {
                 subunitId: subunit._id,
                 language,
                 content: row["Content"]?.trim(),
-                subquestions,
+                subquestions
             });
 
         } catch (err) {
@@ -501,15 +416,12 @@ const addEssayQuestionsFromFile = async (filePath) => {
         }
     }
 
-    if (questions.length > 0) {
-        await Question.insertMany(questions);
-    }
+    if (questions.length > 0) await Question.insertMany(questions);
 
     console.log(`✅ ${questions.length} Essay questions inserted.`);
-    console.log("Warnings: ", warnings);
-
     return { warnings, addedQuestionsCount: questions.length };
 };
+
 
 
 module.exports = {

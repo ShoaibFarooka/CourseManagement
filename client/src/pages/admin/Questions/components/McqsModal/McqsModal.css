@@ -51,7 +51,7 @@
 }
 
 
-.mcqs .submit-btn {
+.mcqs .mcq-submit-btn {
     display: flex;
     justify-content: center;
     align-items: center;

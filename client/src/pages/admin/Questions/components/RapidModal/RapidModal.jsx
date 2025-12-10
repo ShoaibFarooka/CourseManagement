@@ -7,7 +7,7 @@ import { message } from 'antd';
 import questionServices from '../../../../../services/questionServices';
 import SelectDropDown from '../../../../../components/Select/SelectDropDown';
 
-const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClose }, ref) => {
+const RapidModal = forwardRef(({ courseId, partId, unitId, subUnitId, publisherId, question, onRequestClose }, ref) => {
     const [showContent, setShowContent] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
     const [initialFormData, setInitialFormData] = useState(null);
@@ -26,6 +26,8 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
     const [showSubmitFormBtn, setShowSubmitFormBtn] = useState(false);
 
     const dispatch = useDispatch();
+
+
 
     useEffect(() => {
         if (question) {
@@ -249,7 +251,7 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                 await questionServices.updateQuestion(question._id, payload);
                 message.success("Question updated successfully");
             } else {
-                await questionServices.addRapidQuestion(subUnitId, publisherId, payload);
+                await questionServices.addRapidQuestion(courseId, partId, publisherId, unitId, subUnitId, payload);
                 message.success("Question submitted successfully");
             }
 
@@ -409,14 +411,14 @@ const RapidModal = forwardRef(({ subUnitId, publisherId, question, onRequestClos
                         {errors.correctOption && <span className='error-text'>{errors.correctOption}</span>}
                     </div>
 
-                    <div className='submit-btn'>
+                    <div className='rapid-submit-btn'>
                         <button className='btn' onClick={handleSaveSubQuestion}>Save SubQuestion</button>
                     </div>
                 </div>
             )}
 
             {showSubmitFormBtn && (
-                <div className='submit-btn'>
+                <div className='rapid-submit-btn'>
                     <button className='btn' onClick={handleSubmitForm}>
                         {question?._id ? "Update" : "Add Rapid"}
                     </button>

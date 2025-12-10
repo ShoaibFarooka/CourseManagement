@@ -8,9 +8,12 @@ const ObjectId = yup
         mongoose.Types.ObjectId.isValid(value)
     );
 
-const subunitAndPublisherIdSchema = yup.object().shape({
-    subunitId: ObjectId.required("Subunit ID is required"),
+const getAllQuestionsSchema = yup.object().shape({
+    courseId: ObjectId.required("Course ID is required"),
+    partId: ObjectId.required("Part ID is required"),
     publisherId: ObjectId.required("Publisher ID is required"),
+    unitId: ObjectId.required("Unit ID is required"),
+    subunitId: ObjectId.required("Subunit ID is required"),
 });
 
 
@@ -83,6 +86,6 @@ module.exports = {
     essayQuestionSchema,
     rapidQuestionSchema,
     mcqQuestionSchema,
-    subunitAndPublisherIdSchema,
+    getAllQuestionsSchema,
     questionIdSchema,
 };

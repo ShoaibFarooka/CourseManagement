@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/question";
 
 const questionService = {
-    getAllQuestions: async (subunitId, publisherId, page = 1, limit = 5, types = [], language) => {
+    getAllQuestions: async (courseId, partId, publisherId, unitId, subunitId, page = 1, limit = 5, types = [], language) => {
         try {
             const params = new URLSearchParams();
             params.append('page', page);
@@ -22,7 +22,7 @@ const questionService = {
             }
 
             const response = await axiosInstance.get(
-                `${BASE_URL}/get-all-questions/${subunitId}/${publisherId}?${params.toString()}`
+                `${BASE_URL}/get-all-questions/${courseId}/${partId}/${publisherId}/${unitId}/${subunitId}?${params.toString()}`
             );
 
             return response.data;
@@ -32,10 +32,10 @@ const questionService = {
     },
 
 
-    addEssayQuestion: async (subunitId, publisherId, payload) => {
+    addEssayQuestion: async (courseId, partId, publisherId, unitId, subunitId, payload) => {
         try {
             const response = await axiosInstance.post(
-                `${BASE_URL}/add/essay/${subunitId}/${publisherId}`,
+                `${BASE_URL}/add/essay/${courseId}/${partId}/${publisherId}/${unitId}/${subunitId}`,
                 payload
             );
             return response.data;
@@ -44,10 +44,10 @@ const questionService = {
         }
     },
 
-    addRapidQuestion: async (subunitId, publisherId, payload) => {
+    addRapidQuestion: async (courseId, partId, publisherId, unitId, subunitId, payload) => {
         try {
             const response = await axiosInstance.post(
-                `${BASE_URL}/add/rapid/${subunitId}/${publisherId}`,
+                `${BASE_URL}/add/rapid/${courseId}/${partId}/${publisherId}/${unitId}/${subunitId}`,
                 payload
             );
             return response.data;
@@ -56,10 +56,10 @@ const questionService = {
         }
     },
 
-    addMcqQuestion: async (subunitId, publisherId, payload) => {
+    addMcqQuestion: async (courseId, partId, publisherId, unitId, subunitId, payload) => {
         try {
             const response = await axiosInstance.post(
-                `${BASE_URL}/add/mcq/${subunitId}/${publisherId}`,
+                `${BASE_URL}/add/mcq/${courseId}/${partId}/${publisherId}/${unitId}/${subunitId}`,
                 payload
             );
             return response.data;

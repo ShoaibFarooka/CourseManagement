@@ -2,7 +2,14 @@ const questionService = require("../services/questionService");
 
 const getAllQuestions = async (req, res, next) => {
     try {
-        const { subunitId, publisherId } = req.params;
+        const {
+            courseId,
+            partId,
+            publisherId,
+            unitId,
+            subunitId
+        } = req.params;
+
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
 
@@ -12,20 +19,23 @@ const getAllQuestions = async (req, res, next) => {
                 : req.query.types.split(',')
             : [];
 
-        const language = req.query.language
-            ? Array.isArray(req.query.language)
-                ? req.query.language
-                : [req.query.language]
+        const languages = req.query.languages
+            ? Array.isArray(req.query.languages)
+                ? req.query.languages
+                : req.query.languages.split(',')
             : [];
 
-        const result = await questionService.getAllQuestions(
-            subunitId,
+        const result = await questionService.getAllQuestions({
+            course: courseId,
+            partId,
             publisherId,
+            unitId,
+            subunitId,
             page,
             limit,
             types,
-            language
-        );
+            languages
+        });
 
         res.status(200).json(result);
     } catch (error) {
@@ -35,15 +45,19 @@ const getAllQuestions = async (req, res, next) => {
 };
 
 
+
 const addEssayQuestion = async (req, res, next) => {
     try {
-        const { subunitId, publisherId } = req.params;
+        const { courseId, partId, publisherId, unitId, subunitId, } = req.params;
 
         const questionData = {
             ...req.body,
             type: "essay",
-            subunitId,
+            course: courseId,
+            partId,
             publisherId,
+            unitId,
+            subunitId,
         };
 
         await questionService.addQuestion(questionData);
@@ -56,13 +70,16 @@ const addEssayQuestion = async (req, res, next) => {
 
 const addRapidQuestion = async (req, res, next) => {
     try {
-        const { subunitId, publisherId } = req.params;
+        const { courseId, partId, publisherId, unitId, subunitId, } = req.params;
 
         const questionData = {
             ...req.body,
             type: "rapid",
-            subunitId,
+            course: courseId,
+            partId,
             publisherId,
+            unitId,
+            subunitId,
         };
 
         await questionService.addQuestion(questionData);
@@ -75,13 +92,16 @@ const addRapidQuestion = async (req, res, next) => {
 
 const addMcqQuestion = async (req, res, next) => {
     try {
-        const { subunitId, publisherId } = req.params;
+        const { courseId, partId, publisherId, unitId, subunitId, } = req.params;
 
         const questionData = {
             ...req.body,
             type: "mcq",
-            subunitId,
+            course: courseId,
+            partId,
             publisherId,
+            unitId,
+            subunitId,
         };
 
         await questionService.addQuestion(questionData);
@@ -119,7 +139,6 @@ const deleteQuestion = async (req, res, next) => {
 
 const uploadMCQQuestions = async (req, res) => {
     try {
-        console.log("Uploaded file:", req.file);
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
         }
@@ -129,17 +148,17 @@ const uploadMCQQuestions = async (req, res) => {
 
         res.status(200).json({
             message: `${result.addedQuestionsCount} MCQ questions uploaded successfully`,
-            warnings: result.warnings,
+            warnings: result.warnings
         });
     } catch (error) {
         console.error("Error uploading MCQ questions:", error);
-        res.status(500).json({ error: "Something went wrong while processing the file" });
+        res.status(500).json({ error: "An error occurred while processing the file" });
     }
 };
 
+
 const uploadRapidQuestions = async (req, res) => {
     try {
-        console.log("Uploaded file:", req.file);
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
         }
@@ -149,17 +168,17 @@ const uploadRapidQuestions = async (req, res) => {
 
         res.status(200).json({
             message: `${result.addedQuestionsCount} Rapid questions uploaded successfully`,
-            warnings: result.warnings,
+            warnings: result.warnings
         });
     } catch (error) {
         console.error("Error uploading Rapid questions:", error);
-        res.status(500).json({ error: "Something went wrong while processing the file" });
+        res.status(500).json({ error: "An error occurred while processing the file" });
     }
 };
 
+
 const uploadEssayQuestions = async (req, res) => {
     try {
-        console.log("Uploaded file:", req.file);
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
         }
@@ -169,13 +188,14 @@ const uploadEssayQuestions = async (req, res) => {
 
         res.status(200).json({
             message: `${result.addedQuestionsCount} Essay questions uploaded successfully`,
-            warnings: result.warnings,
+            warnings: result.warnings
         });
     } catch (error) {
         console.error("Error uploading Essay questions:", error);
-        res.status(500).json({ error: "Something went wrong while processing the file" });
+        res.status(500).json({ error: "An error occurred while processing the file" });
     }
 };
+
 
 module.exports = {
     getAllQuestions,

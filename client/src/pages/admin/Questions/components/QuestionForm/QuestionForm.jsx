@@ -4,7 +4,7 @@ import EssayModal from '../EssayModal/EssayModal';
 import RapidModal from '../RapidModal/RapidModal';
 import McqsModal from '../McqsModal/McqsModal';
 import { useState, useEffect } from 'react';
-const QuestionForm = ({ getTypeOptions, handleCloseModal, mcqsModalRef, rapidModalRef, essayModalRef, selectedSubunit, selectedPublisher, editingQuestion, }) => {
+const QuestionForm = ({ getTypeOptions, handleCloseModal, mcqsModalRef, rapidModalRef, essayModalRef, selectedCourse, selectedPart, selectedUnit, selectedSubunit, selectedPublisher, editingQuestion, }) => {
 
     const [selectedType, setSelectedType] = useState(editingQuestion?.type || null);
 
@@ -32,8 +32,11 @@ const QuestionForm = ({ getTypeOptions, handleCloseModal, mcqsModalRef, rapidMod
             {selectedType === 'essay' && (
                 <EssayModal
                     ref={essayModalRef}
-                    subUnitId={selectedSubunit?._id}
+                    courseId={selectedCourse._id}
+                    partId={selectedPart._id}
                     publisherId={selectedPublisher?._id}
+                    unitId={selectedUnit._id}
+                    subUnitId={selectedSubunit?._id}
                     question={editingQuestion}
                     onRequestClose={handleCloseModal}
                 />
@@ -42,8 +45,11 @@ const QuestionForm = ({ getTypeOptions, handleCloseModal, mcqsModalRef, rapidMod
             {selectedType === 'rapid' && (
                 <RapidModal
                     ref={rapidModalRef}
-                    subUnitId={selectedSubunit?._id}
+                    courseId={selectedCourse._id}
+                    partId={selectedPart._id}
                     publisherId={selectedPublisher?._id}
+                    unitId={selectedUnit._id}
+                    subUnitId={selectedSubunit?._id}
                     question={editingQuestion}
                     onRequestClose={handleCloseModal}
                 />
@@ -52,8 +58,11 @@ const QuestionForm = ({ getTypeOptions, handleCloseModal, mcqsModalRef, rapidMod
             {selectedType === 'mcq' && (
                 <McqsModal
                     ref={mcqsModalRef}
-                    subUnitId={selectedSubunit?._id}
+                    courseId={selectedCourse._id}
+                    partId={selectedPart._id}
                     publisherId={selectedPublisher?._id}
+                    unitId={selectedUnit._id}
+                    subUnitId={selectedSubunit?._id}
                     question={editingQuestion}
                     onRequestClose={handleCloseModal}
                 />
