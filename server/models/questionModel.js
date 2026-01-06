@@ -11,19 +11,19 @@ const questionSchema = new mongoose.Schema({
         ref: "course",
         required: true,
     },
-    partId: {
+    part: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
-    publisherId: {
+    publisher: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
-    unitId: {
+    unit: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
-    subunitId: {
+    subunit: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },

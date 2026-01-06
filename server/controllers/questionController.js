@@ -27,10 +27,10 @@ const getAllQuestions = async (req, res, next) => {
 
         const result = await questionService.getAllQuestions({
             course: courseId,
-            partId,
-            publisherId,
-            unitId,
-            subunitId,
+            part: partId,
+            publisher: publisherId,
+            unit: unitId,
+            subunit: subunitId,
             page,
             limit,
             types,
@@ -54,10 +54,10 @@ const addEssayQuestion = async (req, res, next) => {
             ...req.body,
             type: "essay",
             course: courseId,
-            partId,
-            publisherId,
-            unitId,
-            subunitId,
+            part: partId,
+            publisher: publisherId,
+            unit: unitId,
+            subunit: subunitId,
         };
 
         await questionService.addQuestion(questionData);
@@ -76,10 +76,10 @@ const addRapidQuestion = async (req, res, next) => {
             ...req.body,
             type: "rapid",
             course: courseId,
-            partId,
-            publisherId,
-            unitId,
-            subunitId,
+            part: partId,
+            publisher: publisherId,
+            unit: unitId,
+            subunit: subunitId,
         };
 
         await questionService.addQuestion(questionData);
@@ -98,10 +98,10 @@ const addMcqQuestion = async (req, res, next) => {
             ...req.body,
             type: "mcq",
             course: courseId,
-            partId,
-            publisherId,
-            unitId,
-            subunitId,
+            part: partId,
+            publisher: publisherId,
+            unit: unitId,
+            subunit: subunitId,
         };
 
         await questionService.addQuestion(questionData);
@@ -196,6 +196,71 @@ const uploadEssayQuestions = async (req, res) => {
     }
 };
 
+const validateMCQQuestions = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = req.file.path;
+        const result = await questionService.validateMCQQuestionsFile(filePath);
+
+        res.status(200).json({
+            message: result.isValid
+                ? "MCQ file validation successful"
+                : "MCQ file validation completed with warnings",
+            warnings: result.warnings
+        });
+
+    } catch (error) {
+        console.error("Error validating MCQ questions:", error);
+        res.status(500).json({ error: "An error occurred while validating the file" });
+    }
+};
+
+const validateRapidQuestions = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = req.file.path;
+        const result = await questionService.validateRapidQuestionsFile(filePath);
+
+        res.status(200).json({
+            message: result.isValid
+                ? "Rapid questions file validation successful"
+                : "Rapid questions file validation completed with warnings",
+            warnings: result.warnings
+        });
+
+    } catch (error) {
+        console.error("Error validating Rapid questions:", error);
+        res.status(500).json({ error: "An error occurred while validating the file" });
+    }
+};
+
+const validateEssayQuestions = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const filePath = req.file.path;
+        const result = await questionService.validateEssayQuestionsFile(filePath);
+
+        res.status(200).json({
+            message: result.isValid
+                ? "Essay questions file validation successful"
+                : "Essay questions file validation completed with warnings",
+            warnings: result.warnings
+        });
+
+    } catch (error) {
+        console.error("Error validating Essay questions:", error);
+        res.status(500).json({ error: "An error occurred while validating the file" });
+    }
+};
 
 module.exports = {
     getAllQuestions,
@@ -206,5 +271,8 @@ module.exports = {
     deleteQuestion,
     uploadMCQQuestions,
     uploadRapidQuestions,
-    uploadEssayQuestions
+    uploadEssayQuestions,
+    validateMCQQuestions,
+    validateRapidQuestions,
+    validateEssayQuestions
 };

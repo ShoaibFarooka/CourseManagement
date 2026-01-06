@@ -25,9 +25,9 @@ const getAllQuestions = async ({
     // Optional: filter by course, part, unit by checking hierarchy
     if (courseId || partId || unitId) {
         questions = questions.filter(q => {
-            const course = q.courseId?.toString() === courseId;
-            const part = q.partId?.toString() === partId;
-            const unit = q.unitId?.toString() === unitId;
+            const course = q.course?.toString() === courseId;
+            const part = q.part?.toString() === partId;
+            const unit = q.unit?.toString() === unitId;
             return (!courseId || course) && (!partId || part) && (!unitId || unit);
         });
     }
@@ -423,6 +423,304 @@ const addEssayQuestionsFromFile = async (filePath) => {
 };
 
 
+const validateMCQQuestionsFile = async (filePath) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    fs.unlink(filePath, (err) => {
+        if (err) console.error("Failed to delete temp file:", err);
+    });
+
+    const warnings = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowNumber = i + 2;
+
+        try {
+            const course = await Course.findOne({
+                name: row["Course Name"]?.trim()
+            });
+
+            if (!course) {
+                warnings.push({ rowNumber, reason: `Course not found: ${row["Course Name"]}` });
+                continue;
+            }
+
+            const part = course.parts.find(p =>
+                p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
+            );
+
+            if (!part) {
+                warnings.push({ rowNumber, reason: `Part not found: ${row["Part Name"]}` });
+                continue;
+            }
+
+            const publisher = part.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: `Publisher not found: ${row["Publisher Name"]}` });
+                continue;
+            }
+
+            const unit = publisher.units.find(u =>
+                u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
+            );
+
+            if (!unit) {
+                warnings.push({ rowNumber, reason: `Unit not found: ${row["Unit Name"]}` });
+                continue;
+            }
+
+            if (!Array.isArray(unit.type) || !unit.type.includes("mcq")) {
+                warnings.push({ rowNumber, reason: `Unit does not support MCQ type questions` });
+                continue;
+            }
+
+            const subunit = unit.subunits.find(s =>
+                s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
+            );
+
+            if (!subunit) {
+                warnings.push({ rowNumber, reason: `Subunit not found: ${row["Subunit Name"]}` });
+                continue;
+            }
+
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: `Invalid Language. Must be 'eng', 'ar', or 'fr'` });
+                continue;
+            }
+
+            const optionA = row["Option A"];
+            const explanationA = row["Explanation A"];
+            const optionB = row["Option B"];
+            const explanationB = row["Explanation B"];
+            const optionC = row["Option C"];
+            const explanationC = row["Explanation C"];
+            const optionD = row["Option D"];
+            const explanationD = row["Explanation D"];
+            const correctOption = row["Correct Option"]?.trim()?.toLowerCase();
+
+            if (![optionA, optionB, optionC, optionD, explanationA, explanationB, explanationC, explanationD].every(Boolean)) {
+                warnings.push({ rowNumber, reason: "Missing options or explanations" });
+                continue;
+            }
+
+            if (!["a", "b", "c", "d"].includes(correctOption)) {
+                warnings.push({ rowNumber, reason: `Correct Option must be one of a, b, c, d` });
+                continue;
+            }
+
+        } catch (err) {
+            warnings.push({
+                rowNumber,
+                reason: `Unexpected error: ${err.message}`
+            });
+        }
+    }
+
+    return {
+        isValid: warnings.length === 0,
+        warnings
+    };
+};
+
+const validateRapidQuestionsFile = async (filePath) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    fs.unlink(filePath, (err) => { if (err) console.error(err); });
+
+    const warnings = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowNumber = i + 2;
+
+        try {
+            const course = await Course.findOne({ name: row["Course Name"]?.trim() });
+            if (!course) {
+                warnings.push({ rowNumber, reason: "Course not found" });
+                continue;
+            }
+
+            const part = course.parts.find(p =>
+                p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
+            );
+            if (!part) {
+                warnings.push({ rowNumber, reason: "Part not found" });
+                continue;
+            }
+
+            const publisher = part.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: "Publisher not found" });
+                continue;
+            }
+
+            const unit = publisher.units.find(u =>
+                u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
+            );
+            if (!unit) {
+                warnings.push({ rowNumber, reason: "Unit not found" });
+                continue;
+            }
+
+            if (!Array.isArray(unit.type) || !unit.type.includes("rapid")) {
+                warnings.push({ rowNumber, reason: "Unit does not support Rapid type questions" });
+                continue;
+            }
+
+            const subunit = unit.subunits.find(s =>
+                s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
+            );
+            if (!subunit) {
+                warnings.push({ rowNumber, reason: "Subunit not found" });
+                continue;
+            }
+
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: "Invalid Language" });
+                continue;
+            }
+
+            let hasValidSubQuestion = false;
+            let index = 1;
+
+            while (row[`SubQ${index} Statement`]) {
+                const statement = row[`SubQ${index} Statement`]?.trim();
+                const optionA = row[`SubQ${index} Option A`]?.trim();
+                const explanationA = row[`SubQ${index} Explanation A`]?.trim();
+                const optionB = row[`SubQ${index} Option B`]?.trim();
+                const explanationB = row[`SubQ${index} Explanation B`]?.trim();
+                const correctOption = row[`SubQ${index} Correct Option`]?.trim()?.toLowerCase();
+
+                if (!statement || !optionA || !explanationA || !optionB || !explanationB || !["a", "b"].includes(correctOption)) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Invalid or missing fields` });
+                } else {
+                    hasValidSubQuestion = true;
+                }
+
+                index++;
+            }
+
+            if (!hasValidSubQuestion) {
+                warnings.push({ rowNumber, reason: "No valid subquestions found" });
+            }
+
+        } catch (err) {
+            warnings.push({ rowNumber, reason: `Unexpected error: ${err.message}` });
+        }
+    }
+
+    return {
+        isValid: warnings.length === 0,
+        warnings
+    };
+};
+
+const validateEssayQuestionsFile = async (filePath) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    fs.unlink(filePath, (err) => { if (err) console.error(err); });
+
+    const warnings = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowNumber = i + 2;
+
+        try {
+            const course = await Course.findOne({ name: row["Course Name"]?.trim() });
+            if (!course) {
+                warnings.push({ rowNumber, reason: "Course not found" });
+                continue;
+            }
+
+            const part = course.parts.find(p =>
+                p.name.trim().toLowerCase() === row["Part Name"]?.trim().toLowerCase()
+            );
+            if (!part) {
+                warnings.push({ rowNumber, reason: "Part not found" });
+                continue;
+            }
+
+            const publisher = part.publishers.find(p =>
+                p.name.trim().toLowerCase() === row["Publisher Name"]?.trim().toLowerCase()
+            );
+            if (!publisher) {
+                warnings.push({ rowNumber, reason: "Publisher not found" });
+                continue;
+            }
+
+            const unit = publisher.units.find(u =>
+                u.name.trim().toLowerCase() === row["Unit Name"]?.trim().toLowerCase()
+            );
+            if (!unit) {
+                warnings.push({ rowNumber, reason: "Unit not found" });
+                continue;
+            }
+
+            if (!Array.isArray(unit.type) || !unit.type.includes("essay")) {
+                warnings.push({ rowNumber, reason: "Unit does not support Essay type questions" });
+                continue;
+            }
+
+            const subunit = unit.subunits.find(s =>
+                s.name.trim().toLowerCase() === row["Subunit Name"]?.trim().toLowerCase()
+            );
+            if (!subunit) {
+                warnings.push({ rowNumber, reason: "Subunit not found" });
+                continue;
+            }
+
+            const language = row["Language"]?.trim()?.toLowerCase();
+            if (!["eng", "ar", "fr"].includes(language)) {
+                warnings.push({ rowNumber, reason: "Invalid Language" });
+                continue;
+            }
+
+            let hasValidSubQuestion = false;
+            let index = 1;
+
+            while (row[`SubQ${index} Statement`]) {
+                const statement = row[`SubQ${index} Statement`]?.trim();
+                const explanation = row[`SubQ${index} Explanation`]?.trim();
+
+                if (!statement || !explanation) {
+                    warnings.push({ rowNumber, reason: `SubQ${index}: Missing statement or explanation` });
+                } else {
+                    hasValidSubQuestion = true;
+                }
+
+                index++;
+            }
+
+            if (!hasValidSubQuestion) {
+                warnings.push({ rowNumber, reason: "No valid subquestions found" });
+            }
+
+        } catch (err) {
+            warnings.push({ rowNumber, reason: `Unexpected error: ${err.message}` });
+        }
+    }
+
+    return {
+        isValid: warnings.length === 0,
+        warnings
+    };
+};
+
 
 module.exports = {
     getAllQuestions,
@@ -431,5 +729,8 @@ module.exports = {
     deleteQuestion,
     addMCQQuestionsFromFile,
     addRapidQuestionsFromFile,
-    addEssayQuestionsFromFile
+    addEssayQuestionsFromFile,
+    validateMCQQuestionsFile,
+    validateRapidQuestionsFile,
+    validateEssayQuestionsFile,
 };

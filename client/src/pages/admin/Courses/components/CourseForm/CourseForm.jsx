@@ -526,8 +526,10 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
     const resetUnitForm = () => {
         setTempUnit({ name: "", type: [] });
-        setSelectedPublisherIndexes({ partIndex: null, publisherIndex: null });
         setEditingUnitIndex(null);
+        clearFieldError("unitName");
+        clearFieldError("unitType");
+        setShowAddUnitSection(false);
     };
 
     const handleManageUnits = (partIndex, publisherIndex) => {
@@ -577,6 +579,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setSelectedPublisherIndexes({ partIndex, publisherIndex });
         setEditingUnitIndex(unitIndex);
         setTempUnit({ name: unit.name, type: Array.isArray(unit.type) ? unit.type : [] });
+
+        setShowAddUnitSection(true);
     };
 
     const handleClickSaveUnit = () => {

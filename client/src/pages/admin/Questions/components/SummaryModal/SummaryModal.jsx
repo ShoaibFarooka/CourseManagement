@@ -1,14 +1,14 @@
-import './UploadSummaryModal.css';
+import './SummaryModal.css';
 
 
-const UploadSummaryModal = ({ close, warnings = [], success = [] }) => {
+const SummaryModal = ({ close, warnings = [], success = [] }) => {
     return (
         <div className='summary'>
-            <div className='heading-lg title'>Upload Summary</div>
+            <div className='heading-lg title'>Summary</div>
 
             {success.length > 0 && (
                 <div className='success-section'>
-                    <h3 className='heading-md success-title'>Successfully Uploaded ✅</h3>
+                    <h3 className='heading-md success-title'>Successfully Validated ✅</h3>
                     <ul className='list'>
                         {success.map((item, index) => (
                             <li
@@ -48,4 +48,4 @@ const UploadSummaryModal = ({ close, warnings = [], success = [] }) => {
 };
 
 
-export default UploadSummaryModal
+export default SummaryModal

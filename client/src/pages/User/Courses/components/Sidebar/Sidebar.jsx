@@ -3,7 +3,7 @@ import "./Sidebar.css";
 import { FaBars, FaChevronRight } from "react-icons/fa";
 
 const Sidebar = forwardRef(({ onMenuSelect }, ref) => {
-    const [activeMenu, setActiveMenu] = useState("Unit Exams");
+    const [activeMenu, setActiveMenu] = useState("Dashboard");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const sidebarRef = useRef(null);
 
@@ -22,7 +22,7 @@ const Sidebar = forwardRef(({ onMenuSelect }, ref) => {
         closeSidebar: () => setIsSidebarOpen(false),
     }));
 
-    const menuItems = ["Unit Exams", "Practice Exams", "Package Exams"];
+    const menuItems = ["Dashboard", "Unit Exams", "Practice Exams", "Package Exams"];
 
     return (
         <div className="sidebar-wrapper" ref={sidebarRef}>

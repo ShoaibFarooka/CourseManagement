@@ -9,7 +9,9 @@ import CustomModal from '../../../components/CustomModal/CustomModal';
 import questionServices from '../../../services/questionServices';
 import { message, Modal } from 'antd';
 import QuestionForm from './components/QuestionForm/QuestionForm';
-import UploadSummaryModal from './components/UploadSummaryModal/UploadSummaryModal';
+import SummaryModal from './components/SummaryModal/SummaryModal';
+import { FaFileUpload } from "react-icons/fa";
+import { GrValidate } from "react-icons/gr";
 
 
 const Questions = () => {
@@ -153,11 +155,15 @@ const Questions = () => {
         })) || [];
 
     const handleCheckboxChange = (type) => {
-        setSelectedTypes((prev) =>
-            prev.includes(type)
+        setSelectedTypes((prev) => {
+            if (prev.includes(type) && prev.length === 1) {
+                return prev;
+            }
+
+            return prev.includes(type)
                 ? prev.filter((t) => t !== type)
-                : [...prev, type]
-        );
+                : [...prev, type];
+        });
     };
 
     const handleLanguageChange = (e) => {
@@ -165,6 +171,10 @@ const Questions = () => {
         const checked = e.target.checked;
 
         setSelectedLanguage((prev) => {
+            if (!checked && prev.length === 1) {
+                return prev;
+            }
+
             if (checked) {
                 return [...prev, value];
             } else {
@@ -250,15 +260,6 @@ const Questions = () => {
         }
     };
 
-    const handleOpenSummaryModal = () => {
-        setIsOpenSummary(true);
-    }
-
-    const handleCloseSummaryModal = () => {
-        setIsOpenSummary(false);
-        setUploadWarnings([]);
-        setUploadSuccess([]);
-    }
 
     const handleUpload = async () => {
         if (!mcqFile && !essayFile && !rapidFile) {
@@ -337,6 +338,119 @@ const Questions = () => {
             handleOpenSummaryModal();
         }
     };
+    /* 
+        const handleUpload = async () => {
+        if (!mcqFile && !essayFile && !rapidFile) {
+            message.warning("Please select at least one file before uploading");
+            return;
+        }
+    
+        dispatch(ShowLoading());
+    
+        try {
+            if (mcqFile) {
+                await questionServices.uploadMcqExcel(mcqFile);
+                setMcqFile(null);
+                if (mcqFileRef.current) mcqFileRef.current.value = "";
+            }
+    
+            if (rapidFile) {
+                await questionServices.uploadRapidExcel(rapidFile);
+                setRapidFile(null);
+                if (rapidFileRef.current) rapidFileRef.current.value = "";
+            }
+    
+            if (essayFile) {
+                await questionServices.uploadEssayExcel(essayFile);
+                setEssayFile(null);
+                if (essayFileRef.current) essayFileRef.current.value = "";
+            }
+    
+            message.success("Files uploaded successfully");
+    
+        } catch (err) {
+            console.error("Upload failed:", err);
+            message.error("An unexpected error occurred during file upload.");
+        } finally {
+            dispatch(HideLoading());
+        }
+    }; */
+
+
+    const handleOpenSummaryModal = () => {
+        setIsOpenSummary(true);
+    }
+
+    const handleCloseSummaryModal = () => {
+        setIsOpenSummary(false);
+        setUploadWarnings([]);
+        setUploadSuccess([]);
+    }
+
+    const handleCheckFile = async () => {
+        if (!mcqFile && !essayFile && !rapidFile) {
+            message.warning("Please select at least one file before checking");
+            return;
+        }
+
+        const results = [];
+        dispatch(ShowLoading());
+
+        try {
+            if (mcqFile) {
+                const res = await questionServices.checkMcqExcel(mcqFile);
+                results.push({ type: "MCQ", ...res });
+                setMcqFile(null);
+                if (mcqFileRef.current) mcqFileRef.current.value = "";
+            }
+
+            if (rapidFile) {
+                const res = await questionServices.checkRapidExcel(rapidFile);
+                results.push({ type: "Rapid", ...res });
+                setRapidFile(null);
+                if (rapidFileRef.current) rapidFileRef.current.value = "";
+            }
+
+            if (essayFile) {
+                const res = await questionServices.checkEssayExcel(essayFile);
+                results.push({ type: "Essay", ...res });
+                setEssayFile(null);
+                if (essayFileRef.current) essayFileRef.current.value = "";
+            }
+
+            const allWarnings = [];
+            const allSuccess = [];
+
+            results.forEach(result => {
+                if (Array.isArray(result.warnings) && result.warnings.length > 0) {
+                    result.warnings.forEach(warning => {
+                        allWarnings.push({
+                            type: result.type,
+                            rowNumber: warning.rowNumber,
+                            reason: warning.reason,
+                        });
+                    });
+                }
+
+                allSuccess.push({
+                    type: result.type,
+                    message: result.message
+                });
+            });
+
+            setUploadWarnings(allWarnings);
+            setUploadSuccess(allSuccess);
+
+        } catch (err) {
+            console.error("File validation failed:", err);
+            message.error("An unexpected error occurred during file validation.");
+        } finally {
+            dispatch(HideLoading());
+            handleOpenSummaryModal();
+        }
+    };
+
+
 
     return (
         <div className="questions">
@@ -374,7 +488,16 @@ const Questions = () => {
                 </div>
 
                 <div className='upload-btn'>
-                    <button className='btn' onClick={handleUpload}>Upload</button>
+                    <GrValidate
+                        size={24}
+                        className='file-btn'
+                        onClick={handleCheckFile}
+                    />
+                    <FaFileUpload
+                        size={24}
+                        className='file-btn'
+                        onClick={handleUpload}
+                    />
                 </div>
 
             </div>
@@ -382,7 +505,7 @@ const Questions = () => {
             <CustomModal
                 isOpen={isOpenSummary} onRequestClose={handleCloseSummaryModal} contentLabel='Summary Form'
             >
-                <UploadSummaryModal
+                <SummaryModal
                     close={handleCloseSummaryModal}
                     warnings={uploadWarnings}
                     success={uploadSuccess}

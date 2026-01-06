@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./Course.css";
+import "./CoursesDashboard.css";
 import Sidebar from "./components/Sidebar/Sidebar";
 import UnitExams from "./components/UnitExams/UnitExams";
 import PracticeExams from "./components/PracticeExams/PracticeExams";
 import PackageExams from "./components/PackageExams/PackageExams";
+import Dashboard from "./components/Dashboard/Dashboard";
 
-const Course = () => {
-    const [selectedExamType, setSelectedExamType] = useState("Unit Exams");
+const CoursesDashboard = () => {
+    const [selectedExamType, setSelectedExamType] = useState("Dashboard");
     const sidebarRef = useRef(null);
 
     useEffect(() => {
@@ -28,6 +29,8 @@ const Course = () => {
 
     const renderContent = () => {
         switch (selectedExamType) {
+            case "Dashboard":
+                return <Dashboard />
             case "Unit Exams":
                 return <UnitExams />;
             case "Practice Exams":
@@ -54,4 +57,4 @@ const Course = () => {
     );
 };
 
-export default Course;
+export default CoursesDashboard;

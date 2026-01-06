@@ -16,6 +16,17 @@
     justify-content: center;
     align-items: center;
     padding-top: 30px;
+    gap: 10px;
+}
+
+.questions .container .upload-btn .file-btn {
+    color: var(--btn-text);
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+.questions .container .upload-btn .file-btn:hover {
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 .questions .label {

@@ -83,6 +83,32 @@ router.post(
     controller.uploadEssayQuestions
 )
 
+router.post(
+    "/check-mcqs",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    upload.single("file"),
+    validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
+    controller.validateMCQQuestions
+)
+
+router.post(
+    "/check-rapid",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    upload.single("file"),
+    validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
+    controller.validateRapidQuestions
+)
+
+router.post(
+    "/check-essay",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    upload.single("file"),
+    validationMiddleware.validateFile({ required: true, fileType: "xlsx" }),
+    controller.validateEssayQuestions
+)
 
 
 module.exports = router;

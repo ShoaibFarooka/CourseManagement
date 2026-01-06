@@ -144,6 +144,63 @@ const questionService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    checkMcqExcel: async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await axiosInstance.post(
+                `${BASE_URL}/check-mcqs`,
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    checkRapidExcel: async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await axiosInstance.post(
+                `${BASE_URL}/check-rapid`,
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    checkEssayExcel: async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await axiosInstance.post(
+                `${BASE_URL}/check-essay`,
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 
 };

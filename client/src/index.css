@@ -95,6 +95,7 @@ html {
   --testimonial-card-bg: #FAFAFA;
   --sidebar: #FFFFFF;
   --sidebar-border: #1E1E1E0A;
+  --sidebar-selected-value-bg: #2699A1;
   --checkbox: #2699A1;
   --unit-exams-bg: #FFFFFF;
   --table-header: #EAECF0;
@@ -188,6 +189,7 @@ html {
   --testimonial-card-bg: #141414;
   --sidebar: #1E1E1E;
   --sidebar-border: #FFFFFF0A;
+  --sidebar-selected-value-bg: #2e2d2d;
   --checkbox: #667085;
   --unit-exams-bg: #1E1E1E;
   --table-header: #EAECF0;
