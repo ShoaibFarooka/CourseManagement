@@ -6,34 +6,69 @@ const RequestDeviceAccess = async (req, res, next) => {
         const userId = req.user?.id;
         const { visitorId, userAgent } = req.body;
 
-        if (!visitorId || !userAgent) {
-            return res.status(400).json({ message: "visitorId and userAgent are required." });
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
-        let ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.socket.remoteAddress;
+        if (!visitorId || !userAgent) {
+            return res.status(400).json({
+                message: "visitorId and userAgent are required."
+            });
+        }
 
-        const geo = await getCountryFromIP(ip) || {};
+        const ip =
+            req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+            req.ip ||
+            req.socket?.remoteAddress;
+
+        const geo = (await getCountryFromIP(ip)) || {};
+
         const location = {
             country: geo.country || "Unknown",
             region: geo.region || "Unknown",
             city: geo.city || "Unknown",
         };
 
-        const result = await requestService.requestDeviceAccess(userId, visitorId, userAgent, location);
+        const result = await requestService.requestDeviceAccess(
+            userId,
+            visitorId,
+            userAgent,
+            location
+        );
 
-        if (result.alreadyAllowed) {
-            return res.status(200).json({ message: "Device already allowed." });
+        if (result.alreadyAllowed === true) {
+            return res.status(200).json({
+                status: "allowed",
+                message: "Device already allowed"
+            });
         }
 
-        res.status(201).json({
-            message: "Device access request sent. Waiting for admin approval.",
-            requestId: result.request._id,
+        if (result.alreadyRequested === true) {
+            return res.status(200).json({
+                status: "pending",
+                message: "Device request already pending approval",
+                requestId: result.requestId
+            });
+        }
+
+        if (result.request?._id) {
+            return res.status(201).json({
+                status: "pending",
+                message: "Device access request sent",
+                requestId: result.request._id
+            });
+        }
+
+        return res.status(500).json({
+            message: "Unexpected request state"
         });
+
     } catch (error) {
         console.error("RequestDeviceAccess Error:", error);
         next(error);
     }
 };
+
 
 const ApproveDeviceRequest = async (req, res, next) => {
     try {
@@ -119,9 +154,8 @@ const UnblockUser = async (req, res, next) => {
 
 const getUserDevices = async (req, res, next) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user?.id;
         const devices = await requestService.getUserDevices(userId);
-
         res.status(200).json({
             message: "Allowed devices fetched successfully.",
             devices,

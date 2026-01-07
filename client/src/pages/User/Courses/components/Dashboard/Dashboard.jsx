@@ -2,8 +2,16 @@ import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import arrow from '../../../../../assets/icons/arrow.png';
 import profile from '../../../../../assets/images/profile.jpg';
-
+import CustomModal from '../../../../../components/CustomModal/CustomModal';
+import DeviceVerification from "../DeviceVerification/DeviceVerification";
+import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { message } from 'antd';
+import requestService from '../../../../../services/requestService';
+import { getBasicDeviceInfo } from '../../../../../utilis/deviceInfoUtils';
+import { fetchUserInfo, fetchAllowedDevices, fetchPurchasedCourses, checkCurrentDeviceStatus, setCurrentDeviceStatus } from '../../../../../redux/userSlice';
 const Dashboard = () => {
+
     const courses = [
         {
             id: 1,
@@ -34,10 +42,7 @@ const Dashboard = () => {
         }
     ];
 
-    /**
-     * MOCKED PAYMENT DATA
-     * (Later comes from backend Payment model)
-     */
+
     const purchasedParts = {
         1: ["Part A"],        // Math 101 → only Part A purchased
         2: ["Mechanics"],     // Physics → only Mechanics purchased
@@ -45,10 +50,19 @@ const Dashboard = () => {
     };
 
     const [selectedParts, setSelectedParts] = useState({});
+    const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
+    const dispatch = useDispatch();
 
-    /**
-     * Auto-select first accessible part
-     */
+    const { purchasedCourses, currentDeviceStatus } = useSelector(state => state.user);
+
+
+    useEffect(() => {
+        dispatch(fetchAllowedDevices());
+        //dispatch(fetchPurchasedCourses());
+        dispatch(checkCurrentDeviceStatus());
+        handlefetchallcourses();
+    }, [dispatch]);
+
     useEffect(() => {
         const initialSelection = {};
         courses.forEach(course => {
@@ -104,6 +118,46 @@ const Dashboard = () => {
         return "-";
     };
 
+
+    const handleCloseDeviceRequestModal = () => {
+        setIsOpenDeviceRequestModal(false);
+    }
+
+    const handleRequestAccess = async () => {
+        const deviceInfo = await getBasicDeviceInfo();
+        const deviceKey = `device_request_${deviceInfo.visitorId}`;
+
+        setIsOpenDeviceRequestModal(true);
+
+        const cached = JSON.parse(localStorage.getItem(deviceKey));
+        if (cached?.status === "pending") {
+            message.info("Your device request is already pending approval.");
+            return;
+        }
+
+        try {
+            dispatch(ShowLoading());
+            const res = await requestService.createDeviceRequest(deviceInfo);
+
+            localStorage.setItem(
+                deviceKey,
+                JSON.stringify({
+                    status: res.status,
+                    requestId: res.requestId,
+                    timestamp: Date.now()
+                })
+            );
+
+            message.success(res.message);
+
+        } catch (err) {
+            message.error(err?.response?.data?.message || "Something went wrong");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
+
     return (
         <div className="dashboard-container">
             <div className="profile-circle">
@@ -114,8 +168,24 @@ const Dashboard = () => {
                 />
             </div>
             <div className="device-request">
-                <button className="request-btn">Device-Verification</button>
+                {currentDeviceStatus === true ? (
+                    <span className="verified">Device Verified</span>
+                ) : (
+                    <button className="request-btn" onClick={handleRequestAccess}>
+                        Device Verification
+                    </button>
+                )}
             </div>
+
+            <CustomModal
+                isOpen={isOpenDeviceRequestModal}
+                onRequestClose={handleCloseDeviceRequestModal}
+                contentLabel='Device Verification'
+                width="60%"
+            >
+                <DeviceVerification />
+            </CustomModal>
+
             <div className="table-header">
                 <span className="header">Course <img src={arrow} alt="arrow" /></span>
                 <span className="header">Parts <img src={arrow} alt="arrow" /></span>

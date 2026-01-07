@@ -1,0 +1,52 @@
+.device-verification {
+    padding: 65px 45px 65px 45px;
+    font-family: var(--font-family);
+    background-color: var(--unit-exams-bg);
+}
+
+.device-verification .title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.device-verification .sub-title {
+    text-align: center;
+    margin-top: 10px;
+    color: var(--text-color);
+}
+
+.device-verification .contact-now {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.device-verification .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.device-verification .social-icons a {
+    margin-top: 20px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+@media only screen and (max-width:500px) {
+    .device-verification .title {
+        font-size: 1.5rem;
+    }
+
+    .device-verification .sub-title {
+        font-size: 0.8rem;
+    }
+
+    .device-verification .social-icons {
+        gap: 10px;
+    }
+}

@@ -21,11 +21,7 @@ const requestService = {
             const response = await axiosInstance.get(BASE_URL, { withCredentials: true });
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -34,11 +30,7 @@ const requestService = {
             const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/approve`, {}, { withCredentials: true });
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -47,11 +39,7 @@ const requestService = {
             const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/reject`, {}, { withCredentials: true });
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -64,11 +52,7 @@ const requestService = {
             );
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -81,11 +65,7 @@ const requestService = {
             );
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -98,11 +78,7 @@ const requestService = {
             );
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -115,27 +91,19 @@ const requestService = {
             );
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
 
-    getUserDevices: async (userId) => {
+    getUserDevices: async () => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/${userId}/devices`, {
+            const response = await axiosInstance.get(`${BASE_URL}/user/devices`, {
                 withCredentials: true,
             });
-            return response.data.devices;
+            return { devices: response.data }
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 
@@ -146,11 +114,7 @@ const requestService = {
             });
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw error;
         }
     },
 

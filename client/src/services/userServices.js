@@ -146,11 +146,7 @@ const userService = {
             );
             return response.data;
         } catch (error) {
-            if (error.response) {
-                throw error.response.data;
-            } else {
-                throw new Error("Network error, server not reachable");
-            }
+            throw (error);
         }
     },
 };

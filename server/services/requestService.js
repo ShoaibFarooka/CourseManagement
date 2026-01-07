@@ -1,5 +1,7 @@
 const User = require("../models/userModel");
 const Request = require("../models/deviceVerificationRequestModel");
+const UserAllowedDevice = require("../models/userAllowedDeviceModel");
+
 
 const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
     const user = await User.findById(userId);
@@ -9,30 +11,44 @@ const requestDeviceAccess = async (userId, visitorId, userAgent, location) => {
         throw error;
     }
 
-    const deviceExists = user.allowedDevices.some(
-        (d) => d.deviceId === visitorId
-    );
+    const userDevices = await UserAllowedDevice.findOne({ user: userId });
 
-    if (deviceExists) {
+    if (userDevices?.allowedDevices.some(d => d.deviceId === visitorId)) {
         return { alreadyAllowed: true };
     }
 
-    const isNewUser = user.allowedDevices.length === 0;
+    const existingRequest = await Request.findOne({
+        user: userId,
+        "deviceInfo.visitorId": visitorId,
+        status: "pending"
+    });
+
+    if (existingRequest) {
+        return {
+            alreadyRequested: true,
+            requestId: existingRequest._id
+        };
+    }
+
+    const isNewUser = !userDevices || userDevices.allowedDevices.length === 0;
 
     const request = new Request({
-        user: user._id,
-        deviceInfo: {
-            visitorId,
-            userAgent,
-            location
-        },
-        isNewUser
+        user: userId,
+        deviceInfo: { visitorId, userAgent, location },
+        isNewUser,
+        status: "pending"
     });
 
     await request.save();
 
-    return { alreadyAllowed: false, request };
+    return {
+        alreadyAllowed: false,
+        alreadyRequested: false,
+        request
+    };
 };
+
+
 
 const approveDeviceRequest = async (requestId) => {
     const request = await Request.findById(requestId).populate("user");
@@ -42,23 +58,29 @@ const approveDeviceRequest = async (requestId) => {
         throw error;
     }
 
-    const user = request.user;
+    let userDevices = await UserAllowedDevice.findOne({ user: request.user._id });
 
-    user.allowedDevices.push({
+    if (!userDevices) {
+        userDevices = new UserAllowedDevice({
+            user: request.user._id,
+            allowedDevices: []
+        });
+    }
+
+    userDevices.allowedDevices.push({
         deviceId: request.deviceInfo.visitorId,
         userAgent: request.deviceInfo.userAgent,
-        country: request.deviceInfo.location.country,
-        region: request.deviceInfo.location.region,
-        city: request.deviceInfo.location.city,
+        location: request.deviceInfo.location
     });
 
-    await user.save();
+    await userDevices.save();
 
     request.status = "approved";
     await request.save();
 
-    return { user, request };
+    return { request };
 };
+
 
 const rejectDeviceRequest = async (requestId) => {
     const request = await Request.findById(requestId);
@@ -86,7 +108,6 @@ const getAllRequests = async () => {
     });
 };
 
-
 const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
     const request = await Request.findById(requestId).populate("user");
     if (!request) {
@@ -95,37 +116,37 @@ const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
         throw error;
     }
 
-    const user = request.user;
-
-    const deviceIndex = user.allowedDevices.findIndex(
-        (d) => d.deviceId === targetDeviceId
-    );
-
-    if (deviceIndex === -1) {
-        const error = new Error("Device not found in user's allowed devices");
+    const userDevices = await UserAllowedDevice.findOne({ user: request.user._id });
+    if (!userDevices) {
+        const error = new Error("No devices found for user");
         error.code = 404;
         throw error;
     }
 
-    user.allowedDevices[deviceIndex] = {
+    const deviceIndex = userDevices.allowedDevices.findIndex(
+        d => d.deviceId === targetDeviceId
+    );
+
+    if (deviceIndex === -1) {
+        const error = new Error("Device not found");
+        error.code = 404;
+        throw error;
+    }
+
+    userDevices.allowedDevices[deviceIndex] = {
         deviceId: request.deviceInfo.visitorId,
         userAgent: request.deviceInfo.userAgent,
-        location: {
-            country: request.deviceInfo.location.country,
-            region: request.deviceInfo.location.region,
-            city: request.deviceInfo.location.city,
-        },
-        addedAt: user.allowedDevices[deviceIndex].addedAt,
-        lastUsedAt: new Date(),
+        location: request.deviceInfo.location
     };
 
-    await user.save();
+    await userDevices.save();
 
     request.status = "approved";
     await request.save();
 
-    return { user, request };
+    return { request };
 };
+
 
 
 
@@ -158,42 +179,42 @@ const unblockUser = async (userId) => {
 };
 
 const getUserDevices = async (userId) => {
-    const user = await User.findById(userId).select("allowedDevices name email");
-    if (!user) {
-        const error = new Error("User not found");
-        error.code = 404;
-        throw error;
-    }
+    const devices = await UserAllowedDevice.findOne({ user: userId })
+        .populate("user", "name email");
 
-    return user.allowedDevices;
+    if (!devices) return [];
+
+    return devices.allowedDevices;
 };
 
 
 const removeUserDevice = async (userId, deviceId) => {
-    const user = await User.findById(userId);
-    if (!user) {
-        const error = new Error("User not found");
+    const userDevices = await UserAllowedDevice.findOne({ user: userId });
+    if (!userDevices) {
+        const error = new Error("User devices not found");
         error.code = 404;
         throw error;
     }
 
-    const deviceIndex = user.allowedDevices.findIndex((d) => d.deviceId === deviceId);
+    const index = userDevices.allowedDevices.findIndex(
+        d => d.deviceId === deviceId
+    );
 
-    if (deviceIndex === -1) {
-        const error = new Error("Device not found in user's allowed devices");
+    if (index === -1) {
+        const error = new Error("Device not found");
         error.code = 404;
         throw error;
     }
 
-    user.allowedDevices.splice(deviceIndex, 1);
-    await user.save();
+    userDevices.allowedDevices.splice(index, 1);
+    await userDevices.save();
 
     await Request.updateMany(
-        { "deviceInfo.visitorId": deviceId, user: userId, status: "approved" },
+        { "deviceInfo.visitorId": deviceId, user: userId },
         { $set: { status: "revoked" } }
     );
 
-    return user;
+    return userDevices;
 };
 
 const deleteRequest = async (requestId) => {

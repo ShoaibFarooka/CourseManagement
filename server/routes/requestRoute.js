@@ -63,7 +63,11 @@ router.delete(
     controller.removeUserDevice
 );
 
-router.get("/:userId/devices", controller.getUserDevices);
+router.get(
+    "/user/devices",
+    authMiddleware.authenticateRequest,
+    controller.getUserDevices
+);
 router.delete("/delete/:requestId", controller.DeleteRequest);
 
 

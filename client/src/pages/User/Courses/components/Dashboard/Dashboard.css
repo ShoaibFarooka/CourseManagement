@@ -36,6 +36,32 @@
     margin-bottom: 10px;
 }
 
+.dashboard-container .device-request .verified {
+    font-size: 1rem;
+    font-weight: 700;
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.dashboard-container .device-request .verified::after {
+    content: "✓";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    text-align: center;
+    background-color: #22c55e;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: bold;
+    line-height: 1rem;
+    font-size: 0.75rem;
+}
+
+
 .dashboard-container .device-request .request-btn {
     background-color: var(--secondary-color);
     color: #000000;
