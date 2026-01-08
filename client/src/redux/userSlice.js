@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ShowLoading, HideLoading } from './loaderSlice';
 import userService from '../services/userServices';
-import requestService from '../services/requestService';
-import paymentService from '../services/paymentService';
+import deviceRequestService from '../services/deviceRequestService';
+import paymentRequestService from '../services/paymentRequestService';
 import { getBasicDeviceInfo } from '../utilis/deviceInfoUtils';
 
 
@@ -26,8 +26,8 @@ export const fetchAllowedDevices = createAsyncThunk(
     async (_, { dispatch, rejectWithValue }) => {
         dispatch(ShowLoading());
         try {
-            const res = await requestService.getUserDevices()
-            return res.devices || [];
+            const res = await deviceRequestService.getUserDevices()
+            return res.devices.devices || [];
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
         } finally {
@@ -42,7 +42,7 @@ export const fetchPurchasedCourses = createAsyncThunk(
     async (_, { dispatch, rejectWithValue }) => {
         dispatch(ShowLoading());
         try {
-            const res = await paymentService.getUserPayments();
+            const res = await paymentRequestService.getUserPayments();
             const courses = res.payments.map(payment => ({
                 paymentId: payment._id,
                 courseId: payment.course._id,
@@ -70,8 +70,8 @@ export const checkCurrentDeviceStatus = createAsyncThunk(
             let allowedDevices = state.user.allowedDevices || [];
 
             if (allowedDevices.length === 0) {
-                const result = await dispatch(fetchAllowedDevices()).unwrap();
-                allowedDevices = result.devices || result || [];
+                const result = await dispatch(fetchAllowedDevices()).unwrap()
+                allowedDevices = result || [];
             }
 
             const deviceInfo = await getBasicDeviceInfo();

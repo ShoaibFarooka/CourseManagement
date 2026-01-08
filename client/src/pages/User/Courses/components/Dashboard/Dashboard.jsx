@@ -7,7 +7,7 @@ import DeviceVerification from "../DeviceVerification/DeviceVerification";
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { message } from 'antd';
-import requestService from '../../../../../services/requestService';
+import deviceRequestService from '../../../../../services/deviceRequestService';
 import { getBasicDeviceInfo } from '../../../../../utilis/deviceInfoUtils';
 import { fetchUserInfo, fetchAllowedDevices, fetchPurchasedCourses, checkCurrentDeviceStatus, setCurrentDeviceStatus } from '../../../../../redux/userSlice';
 const Dashboard = () => {
@@ -60,7 +60,6 @@ const Dashboard = () => {
         dispatch(fetchAllowedDevices());
         //dispatch(fetchPurchasedCourses());
         dispatch(checkCurrentDeviceStatus());
-        handlefetchallcourses();
     }, [dispatch]);
 
     useEffect(() => {
@@ -137,7 +136,7 @@ const Dashboard = () => {
 
         try {
             dispatch(ShowLoading());
-            const res = await requestService.createDeviceRequest(deviceInfo);
+            const res = await deviceRequestService.createDeviceRequest(deviceInfo);
 
             localStorage.setItem(
                 deviceKey,

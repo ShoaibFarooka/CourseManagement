@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import './Requests.css';
-import deviceRequestService from "../../../services/deviceRequestService";
+import "./Payment.css";
+import paymentRequestService from "../../../services/paymentRequestService"
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
-import { message, Popconfirm } from "antd";
-import del from "../../../assets/icons/del.png";
 import CustomModal from "../../../components/CustomModal/CustomModal";
-import RequestInfo from "./components/RequestInfo/RequestInfo";
+import PaymentInfo from "./components/PaymentInfo/PaymentInfo"
 
-const Requests = () => {
+const Payment = () => {
     const [requests, setRequests] = useState([]);
     const [filter, setFilter] = useState("all");
     const [selectedUser, setSelectedUser] = useState(null);
@@ -25,17 +23,18 @@ const Requests = () => {
         try {
             dispatch(ShowLoading());
 
-            const response = await deviceRequestService.getAllRequests(
+            const response = await paymentRequestService.getAllRequests(
                 page,
                 PAGE_LIMIT,
                 filter
             );
+
             setRequests(response.requests || []);
             setCurrentPage(response.currentPage || 1);
             setTotalPages(response.totalPages || 1);
 
-        } catch (err) {
-            console.error("Error fetching requests:", err);
+        } catch (error) {
+            console.error("Error fetching payment requests:", error);
         } finally {
             dispatch(HideLoading());
         }
@@ -59,59 +58,22 @@ const Requests = () => {
         setIsOpenModal(false);
     };
 
-    const handleDeleteRequest = async (requestId) => {
-        try {
-            dispatch(ShowLoading());
-            await deviceRequestService.deleteDeviceRequest(requestId);
-
-            fetchRequests(currentPage);
-
-            message.success("Request deleted successfully");
-        } catch (err) {
-            console.error("Error deleting request:", err);
-            message.error("Failed to delete request");
-        } finally {
-            dispatch(HideLoading());
-        }
-    };
-
     return (
         <div style={{ padding: "20px" }}>
             <h1 className="heading-lg" style={{ marginBottom: "20px" }}>
-                Device Requests
+                Payment Requests
             </h1>
 
             <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                <button
-                    className={`btn ${filter === "all" ? "active" : ""}`}
-                    onClick={() => setFilter("all")}
-                >
-                    All
-                </button>
-                <button
-                    className={`btn ${filter === "pending" ? "active" : ""}`}
-                    onClick={() => setFilter("pending")}
-                >
-                    Pending
-                </button>
-                <button
-                    className={`btn ${filter === "approved" ? "active" : ""}`}
-                    onClick={() => setFilter("approved")}
-                >
-                    Approved
-                </button>
-                <button
-                    className={`btn ${filter === "rejected" ? "active" : ""}`}
-                    onClick={() => setFilter("rejected")}
-                >
-                    Rejected
-                </button>
-                <button
-                    className={`btn ${filter === "blocked" ? "active" : ""}`}
-                    onClick={() => setFilter("blocked")}
-                >
-                    Blocked
-                </button>
+                {["all", "pending", "approved", "rejected"].map(status => (
+                    <button
+                        key={status}
+                        className={`btn ${filter === status ? "active" : ""}`}
+                        onClick={() => setFilter(status)}
+                    >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
+                ))}
             </div>
 
             <div className="table-container">
@@ -119,34 +81,24 @@ const Requests = () => {
                     <thead>
                         <tr>
                             <th style={{ width: "5%" }}>#</th>
-                            <th style={{ width: "20%" }}>User Name</th>
-                            <th style={{ width: "25%" }}>Email</th>
-                            <th style={{ width: "15%" }}>Payment Status</th>
-                            <th style={{ width: "15%" }}> Req Status</th>
-                            <th style={{ width: "15%", textAlign: "center" }}>Actions</th>
+                            <th style={{ width: "40%" }}>User</th>
+                            <th style={{ width: "30%" }}>Status</th>
+                            <th style={{ width: "25%", textAlign: "center" }}>Action</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {requests.length === 0 ? (
                             <tr>
-                                <td colSpan="6" style={{ textAlign: "center" }}>
+                                <td colSpan="3" style={{ textAlign: "center" }}>
                                     No requests found
                                 </td>
                             </tr>
                         ) : (
                             requests.map((req, index) => (
-                                <tr key={req._id || index}>
+                                <tr key={req._id}>
                                     <td>{(currentPage - 1) * PAGE_LIMIT + index + 1}</td>
                                     <td>{req.user?.name || "-"}</td>
-                                    <td>{req.user?.email || "-"}</td>
-                                    <td>
-                                        {req.user?.paymentStatus === true
-                                            ? "Paid"
-                                            : req.user?.paymentStatus === false
-                                                ? "Unpaid"
-                                                : "-"}
-                                    </td>
                                     <td style={{ textTransform: "capitalize" }}>{req.status}</td>
                                     <td>
                                         <div className="action-btn-wrapper" style={{ justifyContent: "center" }}>
@@ -156,17 +108,6 @@ const Requests = () => {
                                             >
                                                 View
                                             </button>
-
-                                            <Popconfirm
-                                                title="Are you sure you want to Delete?"
-                                                onConfirm={() => handleDeleteRequest(req._id)}
-                                                okText="Yes"
-                                                cancelText="No"
-                                            >
-                                                <button className="action-btn">
-                                                    <img src={del} alt="Delete" />
-                                                </button>
-                                            </Popconfirm>
                                         </div>
                                     </td>
                                 </tr>
@@ -180,7 +121,7 @@ const Requests = () => {
                 <div className="pagination-controls">
                     <button
                         className="btn"
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
                         disabled={currentPage === 1}
                     >
                         Previous
@@ -199,14 +140,10 @@ const Requests = () => {
                             acc.push(page);
                             return acc;
                         }, [])
-                        .map((item, idx) => {
-                            if (item === "ellipsis") {
-                                return (
-                                    <span key={`ellipsis-${idx}`} className="ellipsis">...</span>
-                                );
-                            }
-
-                            return (
+                        .map((item, idx) =>
+                            item === "ellipsis" ? (
+                                <span key={`ellipsis-${idx}`} className="ellipsis">...</span>
+                            ) : (
                                 <button
                                     key={item}
                                     className={`manage-btn page-btn ${currentPage === item ? "active" : ""}`}
@@ -214,32 +151,29 @@ const Requests = () => {
                                 >
                                     {item}
                                 </button>
-                            );
-                        })}
+                            )
+                        )}
 
                     <button
                         className="btn"
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
                         disabled={currentPage === totalPages}
                     >
                         Next
                     </button>
                 </div>
             )}
-
             <CustomModal
                 isOpen={isOpenModal}
                 onRequestClose={handleCloseModal}
-                contentLabel="Request Info"
+                contentLabel="Payment Request Info"
             >
-                <RequestInfo
-                    user={selectedUser}
-                    request={selectedRequest}
-                    fetchRequests={() => fetchRequests(currentPage)}
+                <PaymentInfo
+                    paymentRequests={selectedRequest}
                 />
             </CustomModal>
         </div>
     );
 };
 
-export default Requests;
+export default Payment;

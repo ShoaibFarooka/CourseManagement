@@ -2,7 +2,7 @@ import axiosInstance from "./axiosInstance";
 
 const BASE_URL = "/api/request";
 
-const requestService = {
+const deviceRequestService = {
     createDeviceRequest: async (payload) => {
         try {
             const response = await axiosInstance.post(BASE_URL, payload, { withCredentials: true });
@@ -16,14 +16,24 @@ const requestService = {
         }
     },
 
-    getAllRequests: async () => {
+    getAllRequests: async (page = 1, limit = 5, filter = "all") => {
         try {
-            const response = await axiosInstance.get(BASE_URL, { withCredentials: true });
+            const params = new URLSearchParams();
+            params.append("page", page);
+            params.append("limit", limit);
+            params.append("filter", filter);
+
+            const response = await axiosInstance.get(
+                `${BASE_URL}?${params.toString()}`,
+                { withCredentials: true }
+            );
+
             return response.data;
         } catch (error) {
             throw error;
         }
     },
+
 
     approveDeviceRequest: async (requestId) => {
         try {
@@ -119,6 +129,16 @@ const requestService = {
     },
 
 
+    fetchUserDevicesById: async (userId) => {
+        try {
+            const response = await axiosInstance.get(`${BASE_URL}/${userId}/devices`, {
+                withCredentials: true,
+            });
+            return { devices: response.data }
+        } catch (error) {
+            throw error;
+        }
+    },
 };
 
-export default requestService;
+export default deviceRequestService;

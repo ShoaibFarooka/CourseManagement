@@ -11,24 +11,26 @@ import ContactUs from "../pages/common/ContactUs/ContactUs";
 import UserCourses from "../pages/common/Courses/Courses";
 import PrivacyPolicy from "../pages/common/PrivacyPolicy/PrivacyPolicy";
 import Requests from "../pages/admin/Requests/Requests";
-import Profile from "../pages/User/Profile/Profile";
+//import Profile from "../pages/User/Profile/Profile";
 import OtpVerification from "../pages/User/otpverification/otpVerification";
 import InvalidLink from "../pages/common/InvalidLink/InvalidLink";
 import CoursesDashboard from "../pages/User/Courses/CoursesDashboard";
 import Quiz from "../pages/User/Quiz/Quiz";
 import ProgressReport from "../pages/User/ProgressReport/ProgressReport";
+import Payment from '../pages/admin/Payment/Payment';
 
 const routes = [
     //Admin
     { path: "/admin/Courses", element: <Courses />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/admin/questions", element: <Questions />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/admin/requests", element: <Requests />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/admin/payments", element: <Payment />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
 
     //User
     { path: "/forgot-password", element: <ForgetPassword />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/reset-password", element: <ResetPassword />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/otp-verification", element: <OtpVerification />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
-    { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    /*  { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true }, */
     { path: "/courses", element: <CoursesDashboard />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/quiz", element: <Quiz />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/progress-report", element: <ProgressReport />, protected: false, authRedirect: false, showHeader: true, showFooter: true },

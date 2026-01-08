@@ -7,7 +7,8 @@ const AdminFooter = () => {
     const navLinks = [
         { name: "Courses", to: "/admin/courses" },
         { name: "Questions", to: "/admin/questions" },
-        { name: "Requests", to: "/admin/requests" }
+        { name: "Requests", to: "/admin/requests" },
+        { name: "Payments", to: "/admin/payments" }
     ];
 
 

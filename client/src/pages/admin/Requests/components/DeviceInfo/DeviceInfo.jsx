@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
-import requestService from "../../../../../services/requestService";
+import deviceRequestService from "../../../../../services/deviceRequestService";
 
 const DeviceInfo = ({
     user,
@@ -18,8 +18,8 @@ const DeviceInfo = ({
     const getAllUserDevices = async (userId) => {
         try {
             dispatch(ShowLoading());
-            const response = await requestService.getUserDevices(userId);
-            setDevices(response?.data || response || []);
+            const response = await deviceRequestService.fetchUserDevicesById(userId);
+            setDevices(response?.devices.devices || []);
         } catch (err) {
             console.error("Error fetching devices:", err);
             message.error(err.message || "Failed to fetch devices");

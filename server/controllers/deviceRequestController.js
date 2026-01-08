@@ -1,5 +1,5 @@
-const { getCountryFromIP } = require("../utils/deviceInfoUtils");
-const requestService = require("../services/requestService.js");
+const { getCountryFromIP } = require("../utils/deviceInfoUtils.js");
+const deviceRequestService = require("../services/deviceRequestService.js");
 
 const RequestDeviceAccess = async (req, res, next) => {
     try {
@@ -29,7 +29,7 @@ const RequestDeviceAccess = async (req, res, next) => {
             city: geo.city || "Unknown",
         };
 
-        const result = await requestService.requestDeviceAccess(
+        const result = await deviceRequestService.requestDeviceAccess(
             userId,
             visitorId,
             userAgent,
@@ -73,7 +73,7 @@ const RequestDeviceAccess = async (req, res, next) => {
 const ApproveDeviceRequest = async (req, res, next) => {
     try {
         const { requestId } = req.params;
-        await requestService.approveDeviceRequest(requestId);
+        await deviceRequestService.approveDeviceRequest(requestId);
 
         res.status(200).json({ message: "Device approved successfully." });
     } catch (error) {
@@ -84,7 +84,7 @@ const ApproveDeviceRequest = async (req, res, next) => {
 const RejectDeviceRequest = async (req, res, next) => {
     try {
         const { requestId } = req.params;
-        await requestService.rejectDeviceRequest(requestId);
+        await deviceRequestService.rejectDeviceRequest(requestId);
 
         res.status(200).json({ message: "Device request rejected." });
     } catch (error) {
@@ -94,12 +94,22 @@ const RejectDeviceRequest = async (req, res, next) => {
 
 const GetAllRequests = async (req, res, next) => {
     try {
-        const requests = await requestService.getAllRequests();
-        res.status(200).json(requests);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const filter = req.query.filter || "all";
+
+        const result = await deviceRequestService.getAllRequests(
+            page,
+            limit,
+            filter
+        );
+
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }
 };
+
 const OverwriteDeviceRequest = async (req, res, next) => {
     try {
         const { requestId } = req.params;
@@ -109,7 +119,7 @@ const OverwriteDeviceRequest = async (req, res, next) => {
             return res.status(400).json({ message: "targetDeviceId is required" });
         }
 
-        const result = await requestService.overwriteDeviceRequest(requestId, targetDeviceId);
+        const result = await deviceRequestService.overwriteDeviceRequest(requestId, targetDeviceId);
 
         res.status(200).json({
             message: "Device overwritten successfully.",
@@ -126,7 +136,7 @@ const OverwriteDeviceRequest = async (req, res, next) => {
 const BlockUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const user = await requestService.blockUser(userId);
+        const user = await deviceRequestService.blockUser(userId);
 
         res.status(200).json({
             message: "User blocked successfully.",
@@ -141,7 +151,7 @@ const BlockUser = async (req, res, next) => {
 const UnblockUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const user = await requestService.unblockUser(userId);
+        const user = await deviceRequestService.unblockUser(userId);
 
         res.status(200).json({
             message: "User unblocked successfully.",
@@ -155,7 +165,7 @@ const UnblockUser = async (req, res, next) => {
 const getUserDevices = async (req, res, next) => {
     try {
         const userId = req.user?.id;
-        const devices = await requestService.getUserDevices(userId);
+        const devices = await deviceRequestService.getUserDevices(userId);
         res.status(200).json({
             message: "Allowed devices fetched successfully.",
             devices,
@@ -173,7 +183,7 @@ const removeUserDevice = async (req, res, next) => {
             return res.status(400).json({ message: "userId and deviceId are required." });
         }
 
-        const user = await requestService.removeUserDevice(userId, deviceId);
+        const user = await deviceRequestService.removeUserDevice(userId, deviceId);
 
         res.status(200).json({
             message: "Device removed successfully.",
@@ -187,11 +197,24 @@ const removeUserDevice = async (req, res, next) => {
 const DeleteRequest = async (req, res, next) => {
     try {
         const { requestId } = req.params;
-        const deletedRequest = await requestService.deleteRequest(requestId);
+        const deletedRequest = await deviceRequestService.deleteRequest(requestId);
 
         res.status(200).json({
             message: "Request deleted successfully.",
             deletedRequest,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const fetchUserDevicesById = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const devices = await deviceRequestService.fetchUserDevicesById(userId);
+        res.status(200).json({
+            message: "Allowed devices fetched successfully.",
+            devices,
         });
     } catch (error) {
         next(error);
@@ -212,4 +235,5 @@ module.exports = {
     getUserDevices,
     removeUserDevice,
     DeleteRequest,
+    fetchUserDevicesById,
 };

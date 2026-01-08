@@ -97,16 +97,43 @@ const rejectDeviceRequest = async (requestId) => {
 };
 
 
-const getAllRequests = async () => {
-    const requests = await Request.find()
-        .populate("user", "name email isBlocked paymentStatus allowedDevices");
+const getAllRequests = async (page, limit, filter) => {
+    const skip = (page - 1) * limit;
 
-    return requests.map(req => {
+    const query = {};
+
+    if (filter === "blocked") {
+        query["user.isBlocked"] = true;
+    } else if (filter !== "all") {
+        query.status = filter;
+    }
+
+    const [requests, totalCount] = await Promise.all([
+        Request.find(query)
+            .populate("user", "name email isBlocked paymentStatus allowedDevices")
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 }),
+
+        Request.countDocuments(query)
+    ]);
+
+    const mappedRequests = requests.map(req => {
         const reqObj = req.toObject();
-        if (reqObj.user?.isBlocked) reqObj.status = "blocked";
+        if (reqObj.user?.isBlocked) {
+            reqObj.status = "blocked";
+        }
         return reqObj;
     });
+
+    return {
+        requests: mappedRequests,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalCount
+    };
 };
+
 
 const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
     const request = await Request.findById(requestId).populate("user");
@@ -178,7 +205,18 @@ const unblockUser = async (userId) => {
     return user;
 };
 
+// for user side aysnc thunk api call
 const getUserDevices = async (userId) => {
+    const devices = await UserAllowedDevice.findOne({ user: userId })
+        .populate("user", "name email");
+
+    if (!devices) return [];
+
+    return devices.allowedDevices;
+};
+
+//for admin request page to get particular user allowed devices
+const fetchUserDevicesById = async (userId) => {
     const devices = await UserAllowedDevice.findOne({ user: userId })
         .populate("user", "name email");
 
@@ -240,4 +278,5 @@ module.exports = {
     getUserDevices,
     removeUserDevice,
     deleteRequest,
+    fetchUserDevicesById,
 };

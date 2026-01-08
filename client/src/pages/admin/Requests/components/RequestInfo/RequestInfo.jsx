@@ -3,7 +3,7 @@ import "./RequestInfo.css";
 import { message } from "antd";
 import { useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
-import requestService from "../../../../../services/requestService";
+import deviceRequestService from "../../../../../services/deviceRequestService";
 import DeviceInfo from "../DeviceInfo/DeviceInfo";
 
 const RequestInfo = ({ user, request, fetchRequests }) => {
@@ -33,7 +33,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
     const handleApprove = async (requestId) => {
         try {
             dispatch(ShowLoading());
-            await requestService.approveDeviceRequest(requestId);
+            await deviceRequestService.approveDeviceRequest(requestId);
             message.success("Request approved successfully");
             await refreshRequestState();
         } catch (err) {
@@ -47,7 +47,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
     const handleReject = async (requestId) => {
         try {
             dispatch(ShowLoading());
-            await requestService.rejectDeviceRequest(requestId);
+            await deviceRequestService.rejectDeviceRequest(requestId);
             message.success("Request rejected successfully");
             await refreshRequestState();
         } catch (err) {
@@ -62,10 +62,10 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         try {
             dispatch(ShowLoading());
             if (isBlocked) {
-                await requestService.unblockDeviceRequest(userId);
+                await deviceRequestService.unblockDeviceRequest(userId);
                 message.success("User unblocked successfully");
             } else {
-                await requestService.blockDeviceRequest(userId);
+                await deviceRequestService.blockDeviceRequest(userId);
                 message.success("User blocked successfully");
             }
             await refreshRequestState();
@@ -80,7 +80,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
     const handleOverwriteDevice = async (targetDeviceId) => {
         try {
             dispatch(ShowLoading());
-            await requestService.overwriteDeviceRequest(currentRequest._id, { targetDeviceId });
+            await deviceRequestService.overwriteDeviceRequest(currentRequest._id, { targetDeviceId });
             message.success("Device overwritten successfully");
             await refreshRequestState();
         } catch (err) {
@@ -94,7 +94,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
     const handleRemoveDevice = async (deviceId) => {
         try {
             dispatch(ShowLoading());
-            await requestService.removeUserDevice(currentUser._id, deviceId);
+            await deviceRequestService.removeUserDevice(currentUser._id, deviceId);
             message.success("Device removed successfully");
             setShowDevices(false);
             await refreshRequestState();

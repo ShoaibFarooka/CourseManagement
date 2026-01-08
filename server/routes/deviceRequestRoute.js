@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const controller = require("../controllers/requestController");
+const controller = require("../controllers/deviceRequestController");
 const authMiddleware = require("../middleware/authMiddleware");
 const validationMiddleware = require("../middleware/validationMiddleware");
 const requestSchemas = require("../validationSchemas/requestSchemas");
@@ -68,7 +68,15 @@ router.get(
     authMiddleware.authenticateRequest,
     controller.getUserDevices
 );
+
 router.delete("/delete/:requestId", controller.DeleteRequest);
+
+router.get(
+    "/:userId/devices",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    controller.fetchUserDevicesById
+);
 
 
 
