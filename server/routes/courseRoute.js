@@ -36,4 +36,9 @@ router.delete(
     controller.DeleteCourse
 );
 
+router.get(
+    "/fetch-all-courses",
+    controller.fetchAllCoursesWithParts
+)
+
 module.exports = router;

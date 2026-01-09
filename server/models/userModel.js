@@ -34,10 +34,6 @@ const userSchema = new mongoose.Schema(
       default: "user",
       enum: ["admin", "user"],
     },
-    paymentStatus: {
-      type: Boolean,
-      default: false,
-    },
     isBlocked: {
       type: Boolean,
       default: false,

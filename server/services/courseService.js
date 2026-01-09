@@ -101,9 +101,25 @@ const deleteCourse = async (courseId) => {
     }
 };
 
+const fetchAllCoursesWithParts = async () => {
+    return await Course.aggregate([
+        { $unwind: "$parts" },
+        {
+            $project: {
+                _id: 0,
+                courseId: "$_id",
+                courseName: "$name",
+                partId: "$parts._id",
+                partName: "$parts.name",
+            }
+        },
+    ]);
+};
+
 module.exports = {
     getAllCourses,
     addCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    fetchAllCoursesWithParts,
 };

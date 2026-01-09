@@ -110,7 +110,7 @@ const getAllRequests = async (page, limit, filter) => {
 
     const [requests, totalCount] = await Promise.all([
         Request.find(query)
-            .populate("user", "name email isBlocked paymentStatus allowedDevices")
+            .populate("user", "name email isBlocked allowedDevices")
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 }),

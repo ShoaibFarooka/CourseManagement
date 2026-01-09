@@ -5,15 +5,14 @@ const validationMiddleware = require("../middleware/validationMiddleware");
 const paymentRequestSchemas = require("../validationSchemas/paymentRequestSchemas");
 
 router.post(
-    "/",
+    "/create-request",
     authMiddleware.authenticateRequest,
-    authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateBody(paymentRequestSchemas.createPaymentRequestSchema),
     controller.CreatePaymentRequest
 );
 
 router.get(
-    "/",
+    "/fetch-all-requests",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.GetAllPaymentRequests
@@ -21,21 +20,21 @@ router.get(
 
 
 router.get(
-    "/:paymentId",
+    "/fetch-request/:paymentId",
     authMiddleware.authenticateRequest,
     validationMiddleware.validateParams(paymentRequestSchemas.paymentRequestIdSchema),
     controller.GetPaymentRequestById
 );
 
 router.get(
-    "/user/:userId",
+    "/fetch-user-request/:userId",
     authMiddleware.authenticateRequest,
     validationMiddleware.validateParams(paymentRequestSchemas.userIdSchema),
     controller.GetPaymentRequestsByUser
 );
 
 router.patch(
-    "/update/:paymentId",
+    "/update-payment/:paymentId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(paymentRequestSchemas.paymentRequestIdSchema),
@@ -44,7 +43,7 @@ router.patch(
 );
 
 router.delete(
-    "/:paymentId",
+    "/delete-payment/:paymentId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(paymentRequestSchemas.paymentRequestIdSchema),

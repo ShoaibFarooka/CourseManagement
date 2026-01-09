@@ -1,13 +1,28 @@
 const paymentRequestService = require("../services/paymentRequestService");
 
+const PaymentRequest = require('../models/paymentRequestModel');
+
 const CreatePaymentRequest = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id;
         const { courseId, partId } = req.body;
 
         if (!courseId || !partId) {
             return res.status(400).json({
                 message: "courseId and partId are required.",
+            });
+        }
+
+        const existingRequest = await PaymentRequest.findOne({
+            user: userId,
+            course: courseId,
+            part: partId,
+            status: { $in: ["pending", "rejected"] }
+        });
+
+        if (existingRequest) {
+            return res.status(409).json({
+                message: "You already have a pending or rejected request for this course and part."
             });
         }
 
@@ -25,6 +40,7 @@ const CreatePaymentRequest = async (req, res, next) => {
         next(error);
     }
 };
+
 
 const GetAllPaymentRequests = async (req, res, next) => {
     try {

@@ -34,7 +34,15 @@ const courseService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+    fetchAllCoursesWithParts: async () => {
+        try {
+            const response = await axiosInstance.get(`${BASE_URL}/fetch-all-courses`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
 };
 
 export default courseService;

@@ -44,9 +44,23 @@ const DeleteCourse = async (req, res, next) => {
     }
 };
 
+const fetchAllCoursesWithParts = async (req, res, next) => {
+    try {
+        const courses = await courseService.fetchAllCoursesWithParts();
+
+        res.status(200).json({
+            message: "Courses fetched successfully",
+            courses,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     GetAllCourses,
     AddCourse,
     UpdateCourse,
-    DeleteCourse
+    DeleteCourse,
+    fetchAllCoursesWithParts
 };

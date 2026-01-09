@@ -1,11 +1,11 @@
 import axiosInstance from "./axiosInstance";
 
-const BASE_URL = "/api/request";
+const BASE_URL = "/api/device-request";
 
 const deviceRequestService = {
     createDeviceRequest: async (payload) => {
         try {
-            const response = await axiosInstance.post(BASE_URL, payload, { withCredentials: true });
+            const response = await axiosInstance.post(`${BASE_URL}/create-request`, payload, { withCredentials: true });
             return response.data;
         } catch (error) {
             if (error.response) {
@@ -24,7 +24,7 @@ const deviceRequestService = {
             params.append("filter", filter);
 
             const response = await axiosInstance.get(
-                `${BASE_URL}?${params.toString()}`,
+                `${BASE_URL}/fetch-all-requests?${params.toString()}`,
                 { withCredentials: true }
             );
 
@@ -37,7 +37,7 @@ const deviceRequestService = {
 
     approveDeviceRequest: async (requestId) => {
         try {
-            const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/approve`, {}, { withCredentials: true });
+            const response = await axiosInstance.patch(`${BASE_URL}/approve-device/${requestId}`, {}, { withCredentials: true });
             return response.data;
         } catch (error) {
             throw error;
@@ -46,7 +46,7 @@ const deviceRequestService = {
 
     rejectDeviceRequest: async (requestId) => {
         try {
-            const response = await axiosInstance.patch(`${BASE_URL}/${requestId}/reject`, {}, { withCredentials: true });
+            const response = await axiosInstance.patch(`${BASE_URL}/reject-device/${requestId}`, {}, { withCredentials: true });
             return response.data;
         } catch (error) {
             throw error;
@@ -56,7 +56,7 @@ const deviceRequestService = {
     overwriteDeviceRequest: async (requestId, targetDeviceId) => {
         try {
             const response = await axiosInstance.patch(
-                `${BASE_URL}/${requestId}/overwrite`,
+                `${BASE_URL}/overwrite-device/${requestId}`,
                 { targetDeviceId },
                 { withCredentials: true }
             );
@@ -66,10 +66,10 @@ const deviceRequestService = {
         }
     },
 
-    blockDeviceRequest: async (userId) => {
+    blockUser: async (userId) => {
         try {
             const response = await axiosInstance.patch(
-                `${BASE_URL}/${userId}/block`,
+                `${BASE_URL}/block-user/${userId}`,
                 {},
                 { withCredentials: true }
             );
@@ -79,10 +79,10 @@ const deviceRequestService = {
         }
     },
 
-    unblockDeviceRequest: async (userId) => {
+    unblockUser: async (userId) => {
         try {
             const response = await axiosInstance.patch(
-                `${BASE_URL}/${userId}/unblock`,
+                `${BASE_URL}/unblock-user/${userId}`,
                 {},
                 { withCredentials: true }
             );
@@ -96,7 +96,7 @@ const deviceRequestService = {
     removeUserDevice: async (userId, deviceId) => {
         try {
             const response = await axiosInstance.delete(
-                `${BASE_URL}/${userId}/device/${deviceId}`,
+                `${BASE_URL}/user-device/${userId}/${deviceId}`,
                 { withCredentials: true }
             );
             return response.data;
@@ -108,7 +108,7 @@ const deviceRequestService = {
 
     getUserDevices: async () => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/user/devices`, {
+            const response = await axiosInstance.get(`${BASE_URL}/user-devices`, {
                 withCredentials: true,
             });
             return { devices: response.data }
@@ -119,7 +119,7 @@ const deviceRequestService = {
 
     deleteDeviceRequest: async (requestId) => {
         try {
-            const response = await axiosInstance.delete(`${BASE_URL}/delete/${requestId}`, {
+            const response = await axiosInstance.delete(`${BASE_URL}/delete-device-request/${requestId}`, {
                 withCredentials: true,
             });
             return response.data;
@@ -131,7 +131,7 @@ const deviceRequestService = {
 
     fetchUserDevicesById: async (userId) => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/${userId}/devices`, {
+            const response = await axiosInstance.get(`${BASE_URL}/user-devices/${userId}`, {
                 withCredentials: true,
             });
             return { devices: response.data }

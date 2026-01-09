@@ -118,12 +118,11 @@ const Requests = () => {
                 <table className="table">
                     <thead>
                         <tr>
-                            <th style={{ width: "5%" }}>#</th>
+                            <th style={{ width: "10%" }}>#</th>
                             <th style={{ width: "20%" }}>User Name</th>
-                            <th style={{ width: "25%" }}>Email</th>
-                            <th style={{ width: "15%" }}>Payment Status</th>
-                            <th style={{ width: "15%" }}> Req Status</th>
-                            <th style={{ width: "15%", textAlign: "center" }}>Actions</th>
+                            <th style={{ width: "30%" }}>Email</th>
+                            <th style={{ width: "20%" }}> Req Status</th>
+                            <th style={{ width: "20%", textAlign: "center" }}>Actions</th>
                         </tr>
                     </thead>
 
@@ -140,13 +139,6 @@ const Requests = () => {
                                     <td>{(currentPage - 1) * PAGE_LIMIT + index + 1}</td>
                                     <td>{req.user?.name || "-"}</td>
                                     <td>{req.user?.email || "-"}</td>
-                                    <td>
-                                        {req.user?.paymentStatus === true
-                                            ? "Paid"
-                                            : req.user?.paymentStatus === false
-                                                ? "Unpaid"
-                                                : "-"}
-                                    </td>
                                     <td style={{ textTransform: "capitalize" }}>{req.status}</td>
                                     <td>
                                         <div className="action-btn-wrapper" style={{ justifyContent: "center" }}>

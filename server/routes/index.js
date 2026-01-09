@@ -10,6 +10,6 @@ const paymentRequestRoute = require('./paymentRequestRoute');
 router.use('/user', userRoute);
 router.use('/question', questionRoute);
 router.use('/course', courseRoute);
-router.use('/request', deviceRequestRoute);
+router.use('/device-request', deviceRequestRoute);
 router.use('/payment-request', paymentRequestRoute);
 module.exports = router;

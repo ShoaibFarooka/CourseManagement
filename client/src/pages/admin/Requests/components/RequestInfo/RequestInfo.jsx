@@ -30,17 +30,32 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         return "Desktop";
     };
 
+    const refreshRequestState = async () => {
+        const updatedRequests = await fetchRequests();
+        if (!updatedRequests) return;
+
+        const updatedReq = updatedRequests.find((r) => r._id === currentRequest._id);
+        if (updatedReq) {
+            setCurrentRequest(updatedReq);
+            setCurrentUser(updatedReq.user);
+        }
+    };
+
     const handleApprove = async (requestId) => {
         try {
             dispatch(ShowLoading());
             await deviceRequestService.approveDeviceRequest(requestId);
             message.success("Request approved successfully");
+            setCurrentRequest(prev => ({
+                ...prev,
+                status: "approved",
+            }))
             await refreshRequestState();
         } catch (err) {
-            console.error("Error approving request:", err);
             message.error("Failed to approve request");
         } finally {
             dispatch(HideLoading());
+            setShowDevices(false);
         }
     };
 
@@ -49,12 +64,16 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             dispatch(ShowLoading());
             await deviceRequestService.rejectDeviceRequest(requestId);
             message.success("Request rejected successfully");
+            setCurrentRequest(prev => ({
+                ...prev,
+                status: "rejected",
+            }))
             await refreshRequestState();
         } catch (err) {
-            console.error("Error rejecting request:", err);
             message.error("Failed to reject request");
         } finally {
             dispatch(HideLoading());
+            setShowDevices(false);
         }
     };
 
@@ -62,15 +81,14 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         try {
             dispatch(ShowLoading());
             if (isBlocked) {
-                await deviceRequestService.unblockDeviceRequest(userId);
+                await deviceRequestService.unblockUser(userId);
                 message.success("User unblocked successfully");
             } else {
-                await deviceRequestService.blockDeviceRequest(userId);
+                await deviceRequestService.blockUser(userId);
                 message.success("User blocked successfully");
             }
             await refreshRequestState();
         } catch (err) {
-            console.error("Error toggling block:", err);
             message.error("Failed to change block status");
         } finally {
             dispatch(HideLoading());
@@ -84,10 +102,10 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             message.success("Device overwritten successfully");
             await refreshRequestState();
         } catch (err) {
-            console.error("Error overwriting device:", err);
             message.error("Failed to overwrite device");
         } finally {
             dispatch(HideLoading());
+            setShowDevices(false);
         }
     };
 
@@ -96,24 +114,12 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             dispatch(ShowLoading());
             await deviceRequestService.removeUserDevice(currentUser._id, deviceId);
             message.success("Device removed successfully");
-            setShowDevices(false);
             await refreshRequestState();
         } catch (err) {
-            console.error("Error removing device:", err);
             message.error(err.message || "Failed to remove device");
         } finally {
             dispatch(HideLoading());
-        }
-    };
-
-    const refreshRequestState = async () => {
-        const updatedRequests = await fetchRequests();
-        if (!updatedRequests) return;
-
-        const updatedReq = updatedRequests.find((r) => r._id === currentRequest._id);
-        if (updatedReq) {
-            setCurrentRequest(updatedReq);
-            setCurrentUser(updatedReq.user);
+            setShowDevices(false);
         }
     };
 
@@ -192,6 +198,9 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
 
             <div className="heading-lg">Device Information</div>
             <div className="heading-sm section">
+                <div>
+                    <span className="label">Visitor ID:</span> {currentRequest.deviceInfo?.visitorId}
+                </div>
                 <div>
                     <span className="label">Device Type:</span> {getDeviceType(currentRequest.deviceInfo?.userAgent)}
                 </div>

@@ -5,21 +5,21 @@ const validationMiddleware = require("../middleware/validationMiddleware");
 const requestSchemas = require("../validationSchemas/requestSchemas");
 
 router.post(
-    "/",
+    "/create-request",
     authMiddleware.authenticateRequest,
     validationMiddleware.validateBody(requestSchemas.deviceRequestSchema),
     controller.RequestDeviceAccess
 );
 
 router.get(
-    "/",
+    "/fetch-all-requests",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.GetAllRequests
 );
 
 router.patch(
-    "/:requestId/approve",
+    "/approve-device/:requestId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(requestSchemas.deviceRequestActionSchema),
@@ -27,7 +27,7 @@ router.patch(
 );
 
 router.patch(
-    "/:requestId/reject",
+    "/reject-device/:requestId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(requestSchemas.deviceRequestActionSchema),
@@ -35,7 +35,7 @@ router.patch(
 );
 
 router.patch(
-    "/:requestId/overwrite",
+    "/overwrite-device/:requestId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(requestSchemas.deviceRequestActionSchema),
@@ -43,36 +43,39 @@ router.patch(
 );
 
 router.patch(
-    "/:userId/block",
+    "/block-user/:userId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.BlockUser
 );
 
 router.patch(
-    "/:userId/unblock",
+    "/unblock-user/:userId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.UnblockUser
 );
 
 router.delete(
-    "/:userId/device/:deviceId",
+    "/user-device/:userId/:deviceId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.removeUserDevice
 );
 
 router.get(
-    "/user/devices",
+    "/user-devices",
     authMiddleware.authenticateRequest,
     controller.getUserDevices
 );
 
-router.delete("/delete/:requestId", controller.DeleteRequest);
+router.delete(
+    "/delete-device-request/:requestId",
+    controller.DeleteRequest
+);
 
 router.get(
-    "/:userId/devices",
+    "user-devices/:userId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.fetchUserDevicesById

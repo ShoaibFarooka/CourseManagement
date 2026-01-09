@@ -8,69 +8,28 @@ import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { message } from 'antd';
 import deviceRequestService from '../../../../../services/deviceRequestService';
+import paymentRequestService from '../../../../../services/paymentRequestService';
 import { getBasicDeviceInfo } from '../../../../../utilis/deviceInfoUtils';
-import { fetchUserInfo, fetchAllowedDevices, fetchPurchasedCourses, checkCurrentDeviceStatus, setCurrentDeviceStatus } from '../../../../../redux/userSlice';
-const Dashboard = () => {
-
-    const courses = [
-        {
-            id: 1,
-            name: "Math 101",
-            status: "Active",
-            statusType: "active",
-            startDate: "2026-01-01",
-            expiryDate: "2026-01-15",
-            parts: ["Part A", "Part B", "Part C"]
-        },
-        {
-            id: 2,
-            name: "Physics 201",
-            status: "Expired",
-            statusType: "error",
-            startDate: "2025-12-01",
-            expiryDate: "2025-12-31",
-            parts: ["Mechanics", "Thermodynamics"]
-        },
-        {
-            id: 3,
-            name: "Chemistry 101",
-            status: "Available",
-            statusType: "inactive",
-            startDate: null,
-            expiryDate: null,
-            parts: ["Organic", "Inorganic"]
-        }
-    ];
 
 
-    const purchasedParts = {
-        1: ["Part A"],        // Math 101 → only Part A purchased
-        2: ["Mechanics"],     // Physics → only Mechanics purchased
-        3: []                 // Chemistry → nothing purchased
-    };
+const Dashboard = ({ allCourses }) => {
 
     const [selectedParts, setSelectedParts] = useState({});
     const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
+
     const dispatch = useDispatch();
-
-    const { purchasedCourses, currentDeviceStatus } = useSelector(state => state.user);
-
-
-    useEffect(() => {
-        dispatch(fetchAllowedDevices());
-        //dispatch(fetchPurchasedCourses());
-        dispatch(checkCurrentDeviceStatus());
-    }, [dispatch]);
+    const { currentDeviceStatus } = useSelector(state => state.user);
 
     useEffect(() => {
         const initialSelection = {};
-        courses.forEach(course => {
-            const accessible = purchasedParts[course.id] || [];
-            initialSelection[course.id] =
-                accessible[0] || course.parts[0];
+        allCourses.forEach(course => {
+            if (course.parts.length > 0) {
+                initialSelection[course.id] = course.parts[0].id;
+            }
         });
         setSelectedParts(initialSelection);
-    }, []);
+    }, [allCourses])
+
 
     const getDaysLeft = (startDate, expiryDate) => {
         if (!expiryDate || !startDate) return null;
@@ -111,50 +70,63 @@ const Dashboard = () => {
         return "green";
     };
 
-    const getActionText = (hasAccess, daysLeft) => {
-        if (!hasAccess) return "Request Access";
-        if (daysLeft === 0) return "Renew Access";
-        return "-";
-    };
 
 
     const handleCloseDeviceRequestModal = () => {
         setIsOpenDeviceRequestModal(false);
     }
 
-    const handleRequestAccess = async () => {
-        const deviceInfo = await getBasicDeviceInfo();
-        const deviceKey = `device_request_${deviceInfo.visitorId}`;
-
-        setIsOpenDeviceRequestModal(true);
-
-        const cached = JSON.parse(localStorage.getItem(deviceKey));
-        if (cached?.status === "pending") {
-            message.info("Your device request is already pending approval.");
-            return;
-        }
-
+    const handleDeviceRequestAccess = async () => {
         try {
             dispatch(ShowLoading());
+            const deviceInfo = await getBasicDeviceInfo();
             const res = await deviceRequestService.createDeviceRequest(deviceInfo);
 
-            localStorage.setItem(
-                deviceKey,
-                JSON.stringify({
-                    status: res.status,
-                    requestId: res.requestId,
-                    timestamp: Date.now()
-                })
-            );
+            if (res.alreadyAllowed) {
+                message.info("This device is already allowed.");
+                return;
+            }
 
-            message.success(res.message);
+            if (res.alreadyRequested) {
+                message.info("Your device request is already pending approval.");
+                return;
+            }
+
+            message.success(res.message || "Device request submitted successfully.");
 
         } catch (err) {
-            message.error(err?.response?.data?.message || "Something went wrong");
+            message.error(
+                err?.response?.data?.message || "Something went wrong"
+            );
+        } finally {
+            dispatch(HideLoading());
+            setIsOpenDeviceRequestModal(true);
+        }
+    };
+
+    const handlePaymentRequest = async (courseId, partId) => {
+        try {
+            dispatch(ShowLoading());
+
+            const res = await paymentRequestService.createPaymentRequest(courseId, partId);
+
+            message.success(res?.data?.message || "Payment Request Submitted Successfully!");
+        } catch (error) {
+            if (error?.response?.status === 409) {
+                message.warning(error.response.data.message || "You already have a pending request for this course and part.");
+            } else {
+                message.error(error?.response?.data?.message || "Something went wrong");
+            }
         } finally {
             dispatch(HideLoading());
         }
     };
+
+    const { purchasedCourses } = useSelector(state => state.user);
+    const getPurchasedInfo = (courseId, partId) => {
+        return purchasedCourses.find(pc => pc.courseId === courseId && pc.partId === partId);
+    };
+
 
 
     return (
@@ -170,7 +142,7 @@ const Dashboard = () => {
                 {currentDeviceStatus === true ? (
                     <span className="verified">Device Verified</span>
                 ) : (
-                    <button className="request-btn" onClick={handleRequestAccess}>
+                    <button className="request-btn" onClick={handleDeviceRequestAccess}>
                         Device Verification
                     </button>
                 )}
@@ -194,23 +166,29 @@ const Dashboard = () => {
             </div>
 
             <div className="table-body">
-                {courses.map(course => {
-                    const daysLeft = getDaysLeft(course.startDate, course.expiryDate);
-                    const percentage = getExpiryPercentage(course.startDate, course.expiryDate);
-                    const color = getExpiryColor(daysLeft, course.startDate, course.expiryDate);
+                {allCourses.map(course => {
+                    const selectedPartId = selectedParts[course.id] || (course.parts[0]?.id || "");
+                    const purchased = getPurchasedInfo(course.id, selectedPartId);
 
-                    const selectedPart = selectedParts[course.id];
-                    const hasAccess =
-                        purchasedParts[course.id]?.includes(selectedPart);
+                    const startDate = purchased?.startDate;
+                    const expiryDate = purchased?.expiryDate;
+
+                    const daysLeft = getDaysLeft(startDate, expiryDate);
+                    const percentage = getExpiryPercentage(startDate, expiryDate);
+                    const color = getExpiryColor(daysLeft, startDate, expiryDate);
+                    const actionText = !purchased
+                        ? "Request Access"
+                        : daysLeft === 0
+                            ? "Renew Access"
+                            : "-";
 
                     return (
-                        <div key={course.id} className="table-row">
+                        <div key={course.id + selectedPartId} className="table-row">
                             <div className="table-cell course-name">{course.name}</div>
-
                             <div className="table-cell parts">
                                 <select
                                     className="parts-select"
-                                    value={selectedPart || ""}
+                                    value={selectedPartId || ""}
                                     onChange={e =>
                                         setSelectedParts({
                                             ...selectedParts,
@@ -218,16 +196,20 @@ const Dashboard = () => {
                                         })
                                     }
                                 >
-                                    {course.parts.map((part, index) => (
-                                        <option key={index} value={part}>
-                                            {part}
+                                    {course.parts.map(partOption => (
+                                        <option key={partOption.id} value={partOption.id}>
+                                            {partOption.name}
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
-                            <div className={`table-cell status ${course.statusType}`}>
-                                {course.status}
+                            <div className={`table-cell status ${actionText === "-" ? "active" : "inactive"}`}>
+                                {daysLeft !== null
+                                    ? daysLeft > 0
+                                        ? "Active"
+                                        : "Expired"
+                                    : "Available"}
                             </div>
 
                             <div className="table-cell expiry">
@@ -249,18 +231,24 @@ const Dashboard = () => {
                             </div>
 
                             <div className="table-cell actions">
-                                {getActionText(hasAccess, daysLeft) === "-" ? (
-                                    <div className="access-granted">-</div>
-                                ) : (
-                                    <button className="access-btn">
-                                        {getActionText(hasAccess, daysLeft)}
+                                {actionText !== "-" ? (
+                                    <button
+                                        className="access-btn"
+                                        onClick={() =>
+                                            handlePaymentRequest(course.id, selectedPartId)
+                                        }
+                                    >
+                                        {actionText}
                                     </button>
+                                ) : (
+                                    <div className="access-granted">-</div>
                                 )}
                             </div>
                         </div>
                     );
                 })}
             </div>
+
         </div>
     );
 };
