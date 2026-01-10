@@ -19,7 +19,7 @@ const paymentRequestService = {
         }
     },
 
-    getAllRequests: async (page = 1, limit = 5, status = "all") => {
+    getAllPaymentRequests: async (page = 1, limit = 5, status = "all") => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/fetch-all-requests`, {
                 params: { page, limit, status },
@@ -31,10 +31,10 @@ const paymentRequestService = {
         }
     },
 
-    getRequestById: async (paymentId) => {
+    getpaymentRequestById: async (requestId) => {
         try {
             const response = await axiosInstance.get(
-                `${BASE_URL}/fetch-request/${paymentId}`,
+                `${BASE_URL}/fetch-request/${requestId}`,
                 { withCredentials: true }
             );
             return response.data;
@@ -56,10 +56,10 @@ const paymentRequestService = {
     },
 
 
-    updateRequestStatus: async (requestId, payload) => {
+    approvePaymentRequest: async (requestId, courseId, partId, payload) => {
         try {
             const response = await axiosInstance.patch(
-                `${BASE_URL}/update-payment/${requestId}`,
+                `${BASE_URL}/approve-payment-request/${requestId}/${courseId}/${partId}`,
                 payload,
                 { withCredentials: true }
             );
@@ -69,10 +69,23 @@ const paymentRequestService = {
         }
     },
 
-    deleteRequest: async (requestId) => {
+    rejectPaymentRequest: async (requestId, payload) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/reject-payment-request/${requestId}`,
+                payload,
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    deletepaymentRequest: async (requestId) => {
         try {
             const response = await axiosInstance.delete(
-                `${BASE_URL}/delete-payment/${requestId}`,
+                `${BASE_URL}/delete-payment-request/${requestId}`,
                 { withCredentials: true }
             );
             return response.data;

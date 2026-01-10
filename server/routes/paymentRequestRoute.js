@@ -20,9 +20,9 @@ router.get(
 
 
 router.get(
-    "/fetch-request/:paymentId",
+    "/fetch-request/:requestId",
     authMiddleware.authenticateRequest,
-    validationMiddleware.validateParams(paymentRequestSchemas.paymentRequestIdSchema),
+    validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
     controller.GetPaymentRequestById
 );
 
@@ -34,19 +34,28 @@ router.get(
 );
 
 router.patch(
-    "/update-payment/:paymentId",
+    "/approve-payment-request/:requestId/:courseId/:partId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(paymentRequestSchemas.paymentRequestIdSchema),
-    validationMiddleware.validateBody(paymentRequestSchemas.updatePaymentRequestStatusSchema),
-    controller.UpdatePaymentRequestStatus
+    validationMiddleware.validateParams(paymentRequestSchemas.validateparamsIdSchema),
+    validationMiddleware.validateBody(paymentRequestSchemas.approvePaymentRequestSchema),
+    controller.ApprovePaymentRequest
+);
+
+router.patch(
+    "/reject-payment-request/:requestId",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
+    validationMiddleware.validateBody(paymentRequestSchemas.rejectPaymentRequestSchema),
+    controller.RejectPaymentRequest
 );
 
 router.delete(
-    "/delete-payment/:paymentId",
+    "/delete-payment-request/:requestId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(paymentRequestSchemas.paymentRequestIdSchema),
+    validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
     controller.DeletePaymentRequest
 );
 

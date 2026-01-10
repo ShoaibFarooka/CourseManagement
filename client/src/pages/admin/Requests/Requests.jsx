@@ -25,7 +25,7 @@ const Requests = () => {
         try {
             dispatch(ShowLoading());
 
-            const response = await deviceRequestService.getAllRequests(
+            const response = await deviceRequestService.getAllDevicesRequests(
                 page,
                 PAGE_LIMIT,
                 filter

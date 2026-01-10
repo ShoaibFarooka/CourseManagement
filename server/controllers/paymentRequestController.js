@@ -97,20 +97,27 @@ const GetPaymentRequestById = async (req, res, next) => {
 };
 
 
-const UpdatePaymentRequestStatus = async (req, res, next) => {
+const ApprovePaymentRequest = async (req, res, next) => {
     try {
-        const { requestId } = req.params;
-        const { status } = req.body;
+        const userId = req.user?.id;
+        const { requestId, courseId, partId } = req.params;
+        const { status, amount, startDate, expiryDate, comment } = req.body;
 
         if (!status) {
             return res.status(400).json({ message: "status is required." });
         }
 
-        const updatedRequest =
-            await paymentRequestService.updatePaymentRequestStatus(
-                requestId,
-                status
-            );
+        const updatedRequest = await paymentRequestService.approvePaymentRequest(
+            requestId,
+            userId,
+            courseId,
+            partId,
+            amount,
+            startDate,
+            expiryDate,
+            comment,
+            status
+        );
 
         res.status(200).json({
             message: `Payment request ${status} successfully.`,
@@ -120,6 +127,31 @@ const UpdatePaymentRequestStatus = async (req, res, next) => {
         next(error);
     }
 };
+
+
+const RejectPaymentRequest = async (req, res, next) => {
+    try {
+        const { requestId } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ message: "status is required." });
+        }
+
+        const updatedRequest = await paymentRequestService.rejectPaymentRequest(
+            requestId,
+            status
+        );
+
+        res.status(200).json({
+            message: `Payment request ${status} successfully.`,
+            request: updatedRequest,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 
 const DeletePaymentRequest = async (req, res, next) => {
@@ -144,6 +176,7 @@ module.exports = {
     GetAllPaymentRequests,
     GetPaymentRequestsByUser,
     GetPaymentRequestById,
-    UpdatePaymentRequestStatus,
+    ApprovePaymentRequest,
+    RejectPaymentRequest,
     DeletePaymentRequest,
 };

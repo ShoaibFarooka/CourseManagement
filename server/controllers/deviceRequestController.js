@@ -92,13 +92,13 @@ const RejectDeviceRequest = async (req, res, next) => {
     }
 };
 
-const GetAllRequests = async (req, res, next) => {
+const GetAllDevicesRequests = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const filter = req.query.filter || "all";
 
-        const result = await deviceRequestService.getAllRequests(
+        const result = await deviceRequestService.getAllDevicesRequests(
             page,
             limit,
             filter
@@ -228,7 +228,7 @@ module.exports = {
     RequestDeviceAccess,
     ApproveDeviceRequest,
     RejectDeviceRequest,
-    GetAllRequests,
+    GetAllDevicesRequests,
     OverwriteDeviceRequest,
     BlockUser,
     UnblockUser,

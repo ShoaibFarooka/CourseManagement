@@ -97,7 +97,7 @@ const rejectDeviceRequest = async (requestId) => {
 };
 
 
-const getAllRequests = async (page, limit, filter) => {
+const getAllDevicesRequests = async (page, limit, filter) => {
     const skip = (page - 1) * limit;
 
     const query = {};
@@ -271,7 +271,7 @@ module.exports = {
     requestDeviceAccess,
     approveDeviceRequest,
     rejectDeviceRequest,
-    getAllRequests,
+    getAllDevicesRequests,
     overwriteDeviceRequest,
     blockUser,
     unblockUser,

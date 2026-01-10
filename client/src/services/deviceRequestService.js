@@ -16,7 +16,7 @@ const deviceRequestService = {
         }
     },
 
-    getAllRequests: async (page = 1, limit = 5, filter = "all") => {
+    getAllDevicesRequests: async (page = 1, limit = 5, filter = "all") => {
         try {
             const params = new URLSearchParams();
             params.append("page", page);

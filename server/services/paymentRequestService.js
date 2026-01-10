@@ -1,5 +1,6 @@
 const PaymentRequest = require("../models/paymentRequestModel");
 const User = require("../models/userModel");
+const payment = require("../models/paymentModel");
 
 const createPaymentRequest = async (userId, courseId, partId) => {
     const user = await User.findById(userId);
@@ -35,7 +36,7 @@ const getAllPaymentRequests = async (page = 1, limit = 5, statusFilter = "all") 
 
     const requests = await PaymentRequest.find(query)
         .populate("user", "name email isBlocked paymentStatus allowedDevices")
-        .populate("course", "title")
+        .populate("course", "name parts")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -68,7 +69,7 @@ const getPaymentRequestsByUser = async (userId) => {
     }
 
     return await PaymentRequest.find({ user: userId })
-        .populate("course", "title")
+        .populate("course", "name")
         .sort({ createdAt: -1 });
 };
 
@@ -76,7 +77,7 @@ const getPaymentRequestsByUser = async (userId) => {
 const getPaymentRequestById = async (requestId) => {
     const request = await PaymentRequest.findById(requestId)
         .populate("user", "name email")
-        .populate("course", "title");
+        .populate("course", "name");
 
     if (!request) {
         const error = new Error("Payment request not found");
@@ -88,13 +89,37 @@ const getPaymentRequestById = async (requestId) => {
 };
 
 
-const updatePaymentRequestStatus = async (requestId, status) => {
-    const validStatuses = ["pending", "approved", "rejected"];
-    if (!validStatuses.includes(status)) {
-        const error = new Error("Invalid status");
-        error.code = 400;
+const approvePaymentRequest = async (requestId, userId, courseId, partId, amount, startDate, expiryDate, comment, status) => {
+
+    const request = await PaymentRequest.findById(requestId);
+    if (!request) {
+        const error = new Error("Payment request not found");
+        error.code = 404;
         throw error;
     }
+
+
+    const newPayment = new payment({
+        paymentRequest: requestId,
+        user: userId,
+        course: courseId,
+        part: partId,
+        amount,
+        startDate,
+        expiryDate,
+        comment
+    })
+
+
+    await newPayment.save();
+    request.status = status;
+    await request.save();
+
+    return request;
+};
+
+
+const rejectPaymentRequest = async (requestId, status) => {
 
     const request = await PaymentRequest.findById(requestId);
     if (!request) {
@@ -127,6 +152,7 @@ module.exports = {
     getAllPaymentRequests,
     getPaymentRequestsByUser,
     getPaymentRequestById,
-    updatePaymentRequestStatus,
+    approvePaymentRequest,
+    rejectPaymentRequest,
     deletePaymentRequest,
 };

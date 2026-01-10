@@ -15,7 +15,7 @@ router.get(
     "/fetch-all-requests",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
-    controller.GetAllRequests
+    controller.GetAllDevicesRequests
 );
 
 router.patch(

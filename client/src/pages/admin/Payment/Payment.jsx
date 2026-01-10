@@ -23,7 +23,7 @@ const Payment = () => {
         try {
             dispatch(ShowLoading());
 
-            const response = await paymentRequestService.getAllRequests(
+            const response = await paymentRequestService.getAllPaymentRequests(
                 page,
                 PAGE_LIMIT,
                 filter
@@ -50,7 +50,7 @@ const Payment = () => {
 
     const handleOpenModal = (req) => {
         setIsOpenModal(true);
-        setSelectedUser(req.user);
+        //setSelectedUser(req.user);
         setSelectedRequest(req);
     };
 
@@ -167,9 +167,12 @@ const Payment = () => {
                 isOpen={isOpenModal}
                 onRequestClose={handleCloseModal}
                 contentLabel="Payment Request Info"
+                width="60%"
             >
                 <PaymentInfo
-                    paymentRequests={selectedRequest}
+                    paymentRequest={selectedRequest}
+                    fetchRequests={fetchRequests}
+                    onClose={handleCloseModal}
                 />
             </CustomModal>
         </div>
