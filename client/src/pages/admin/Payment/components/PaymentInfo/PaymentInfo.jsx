@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { message } from "antd";
 import paymentRequestService from "../../../../../services/paymentRequestService";
 import "./PaymentInfo.css";
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
 
-const PaymentInfo = ({ paymentRequest, onClose, fetchRequests }) => {
+const PaymentInfo = ({ paymentRequest, onClose, fetchPaymentRequests }) => {
 
     const { user, course, part, status, _id } = paymentRequest || {};
     const [formData, setFormData] = useState({
@@ -15,6 +15,14 @@ const PaymentInfo = ({ paymentRequest, onClose, fetchRequests }) => {
         comment: "",
     });
     const [errors, setErrors] = useState({});
+    const [paymentDetails, setPaymentDetails] = useState(null);
+    const isPending = status === "pending";
+
+    useEffect(() => {
+        if (status === "approved") {
+            fetchPaymentDetails();
+        }
+    }, [status, _id])
 
     const dispatch = useDispatch();
 
@@ -94,7 +102,7 @@ const PaymentInfo = ({ paymentRequest, onClose, fetchRequests }) => {
             dispatch(ShowLoading());
             const { amount, startDate, expiryDate, comment } = formData;
 
-            await paymentRequestService.approvePaymentRequest(_id, course._id, part,
+            await paymentRequestService.approvePaymentRequest(_id, user._id, course._id, part,
                 {
                     status: newStatus,
                     amount,
@@ -112,7 +120,7 @@ const PaymentInfo = ({ paymentRequest, onClose, fetchRequests }) => {
             message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());
-            fetchRequests();
+            fetchPaymentRequests();
             onClose();
         }
     };
@@ -126,17 +134,27 @@ const PaymentInfo = ({ paymentRequest, onClose, fetchRequests }) => {
             message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());
-            fetchRequests();
+            fetchPaymentRequests();
             onClose();
         }
     }
 
+    const fetchPaymentDetails = async () => {
+        try {
+            dispatch(ShowLoading());
+            const res = await paymentRequestService.getPaymentDetails(_id);
+            setPaymentDetails(res.request);
+        } catch (error) {
+            message.error(error?.response?.data?.message || "Something went wrong");
+        } finally {
+            dispatch(HideLoading());
+        }
+    }
 
-    if (!paymentRequest) return <div>Error Fetching Request!</div>;
 
     return (
         <div className="payment-info-container">
-            <h2>Payment Request Details</h2>
+            <div className="title">Payment Request Details</div>
             <div className="payment-info-row">
                 <span className="label">User Name:</span>
                 <span>{user?.name || "-"}</span>
@@ -158,77 +176,111 @@ const PaymentInfo = ({ paymentRequest, onClose, fetchRequests }) => {
                 <span style={{ textTransform: "capitalize" }}>{status}</span>
             </div>
 
-            <form
-                className="form"
-                onSubmit={(e) => e.preventDefault()}
-            >
-                <div className="payment-details">
-                    <div className="payment-inputs">
-                        <label htmlFor="amount">Amount:</label>
-                        <input
-                            type="number"
-                            id="amount"
-                            name="amount"
-                            className="input"
-                            value={formData.amount}
-                            onChange={handleChange}
-                        />
+            {status === "approved" && paymentDetails && (
+                <div className="payment-approved-details">
+
+                    <div className="payment-info-row">
+                        <span className="label">Amount:</span>
+                        <span>{paymentDetails.amount}</span>
                     </div>
-                    {errors.amount && <span className="error-text">{errors.amount}</span>}
-                </div>
 
-
-                <div className="payment-details">
-                    <div className="payment-inputs">
-                        <label htmlFor="startDate">Start Date:</label>
-                        <input
-                            type="date"
-                            id="startDate"
-                            name="startDate"
-                            className="input"
-                            value={formData.startDate}
-                            onChange={handleChange}
-                            min={new Date().toISOString().split("T")[0]}
-                        />
+                    <div className="payment-info-row">
+                        <span className="label">Start Date:</span>
+                        <span>
+                            {new Date(paymentDetails.startDate).toLocaleDateString()}
+                        </span>
                     </div>
-                    {errors.startDate && <span className="error-text">{errors.startDate}</span>}
-                </div>
 
-
-                <div className="payment-details">
-                    <div className="payment-inputs">
-                        <label htmlFor="expiryDate">Expiry Date:</label>
-                        <input
-                            type="date"
-                            id="expiryDate"
-                            name="expiryDate"
-                            className="input"
-                            value={formData.expiryDate}
-                            onChange={handleChange}
-                            min={formData.startDate || new Date().toISOString().split("T")[0]}
-                        />
+                    <div className="payment-info-row">
+                        <span className="label">Expiry Date:</span>
+                        <span>
+                            {new Date(paymentDetails.expiryDate).toLocaleDateString()}
+                        </span>
                     </div>
-                    {errors.expiryDate && <span className="error-text">{errors.expiryDate}</span>}
+
+                    {paymentDetails.comment && (
+                        <div className="payment-info-row">
+                            <span className="label">Comments:</span>
+                            <span>{paymentDetails.comment}</span>
+                        </div>
+                    )}
                 </div>
+            )}
 
 
-                <div className="payment-details">
-                    <div className="payment-inputs">
-                        <label htmlFor="comment">Comments:</label>
-                        <textarea
-                            id="comment"
-                            name="comment"
-                            className="input"
-                            rows={3}
-                            value={formData.comment}
-                            onChange={handleChange}
-                        />
+            {isPending && (
+                <form
+                    className="form"
+                    onSubmit={(e) => e.preventDefault()}
+                >
+                    <div className="payment-details">
+                        <div className="payment-inputs">
+                            <label htmlFor="amount">Amount:</label>
+                            <input
+                                type="number"
+                                id="amount"
+                                name="amount"
+                                className="input"
+                                value={formData.amount}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        {errors.amount && <span className="error-text">{errors.amount}</span>}
                     </div>
-                </div>
-                <div className="payment-info-actions">
-                    {getActionButtons()}
-                </div>
-            </form>
+
+
+                    <div className="payment-details">
+                        <div className="payment-inputs">
+                            <label htmlFor="startDate">Start Date:</label>
+                            <input
+                                type="date"
+                                id="startDate"
+                                name="startDate"
+                                className="input"
+                                value={formData.startDate}
+                                onChange={handleChange}
+                                min={new Date().toISOString().split("T")[0]}
+                            />
+                        </div>
+                        {errors.startDate && <span className="error-text">{errors.startDate}</span>}
+                    </div>
+
+
+                    <div className="payment-details">
+                        <div className="payment-inputs">
+                            <label htmlFor="expiryDate">Expiry Date:</label>
+                            <input
+                                type="date"
+                                id="expiryDate"
+                                name="expiryDate"
+                                className="input"
+                                value={formData.expiryDate}
+                                onChange={handleChange}
+                                min={formData.startDate || new Date().toISOString().split("T")[0]}
+                            />
+                        </div>
+                        {errors.expiryDate && <span className="error-text">{errors.expiryDate}</span>}
+                    </div>
+
+
+                    <div className="payment-details">
+                        <div className="payment-inputs">
+                            <label htmlFor="comment">Comments:</label>
+                            <textarea
+                                id="comment"
+                                name="comment"
+                                className="input"
+                                rows={3}
+                                value={formData.comment}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+                </form>
+            )}
+            <div className="payment-info-actions">
+                {getActionButtons()}
+            </div>
 
         </div>
     );

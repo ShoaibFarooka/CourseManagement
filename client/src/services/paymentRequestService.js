@@ -31,35 +31,11 @@ const paymentRequestService = {
         }
     },
 
-    getpaymentRequestById: async (requestId) => {
-        try {
-            const response = await axiosInstance.get(
-                `${BASE_URL}/fetch-request/${requestId}`,
-                { withCredentials: true }
-            );
-            return response.data;
-        } catch (error) {
-            throw (error);
-        }
-    },
 
-    getRequestsByUser: async (userId) => {
-        try {
-            const response = await axiosInstance.get(
-                `${BASE_URL}/fetch-user-request/${userId}`,
-                { withCredentials: true }
-            );
-            return response.data;
-        } catch (error) {
-            throw (error);
-        }
-    },
-
-
-    approvePaymentRequest: async (requestId, courseId, partId, payload) => {
+    approvePaymentRequest: async (requestId, userId, courseId, partId, payload) => {
         try {
             const response = await axiosInstance.patch(
-                `${BASE_URL}/approve-payment-request/${requestId}/${courseId}/${partId}`,
+                `${BASE_URL}/approve-payment-request/${requestId}/${userId}/${courseId}/${partId}`,
                 payload,
                 { withCredentials: true }
             );
@@ -86,6 +62,31 @@ const paymentRequestService = {
         try {
             const response = await axiosInstance.delete(
                 `${BASE_URL}/delete-payment-request/${requestId}`,
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    getUserPayments: async () => {
+        try {
+            const response = await axiosInstance.get(
+                `${BASE_URL}/fetch-user-payments`,
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+
+    getPaymentDetails: async (requestId) => {
+        try {
+            const response = await axiosInstance.get(
+                `${BASE_URL}/fetch-payment-details/${requestId}`,
                 { withCredentials: true }
             );
             return response.data;

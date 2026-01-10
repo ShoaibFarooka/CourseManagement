@@ -5,11 +5,12 @@ import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
 import CustomModal from "../../../components/CustomModal/CustomModal";
 import PaymentInfo from "./components/PaymentInfo/PaymentInfo"
+import del from '../../../assets/icons/del.png';
+import { message, Popconfirm } from "antd";
 
 const Payment = () => {
     const [requests, setRequests] = useState([]);
     const [filter, setFilter] = useState("all");
-    const [selectedUser, setSelectedUser] = useState(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -19,7 +20,7 @@ const Payment = () => {
 
     const dispatch = useDispatch();
 
-    const fetchRequests = async (page = 1) => {
+    const fetchPaymentRequests = async (page = 1) => {
         try {
             dispatch(ShowLoading());
 
@@ -34,7 +35,7 @@ const Payment = () => {
             setTotalPages(response.totalPages || 1);
 
         } catch (error) {
-            console.error("Error fetching payment requests:", error);
+            message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());
         }
@@ -45,18 +46,30 @@ const Payment = () => {
     }, [filter]);
 
     useEffect(() => {
-        fetchRequests(currentPage);
+        fetchPaymentRequests(currentPage);
     }, [currentPage, filter]);
 
     const handleOpenModal = (req) => {
         setIsOpenModal(true);
-        //setSelectedUser(req.user);
         setSelectedRequest(req);
     };
 
     const handleCloseModal = () => {
         setIsOpenModal(false);
     };
+
+    const handleDeletePaymentRequest = async (id) => {
+        try {
+            dispatch(ShowLoading());
+            await paymentRequestService.deletepaymentRequest(id);
+            fetchPaymentRequests(currentPage);
+            message.success("Request Deleted Successfully");
+        } catch (error) {
+            message.error(error.response?.data?.error || "Something went Wrong!");
+        } finally {
+            dispatch(HideLoading());
+        }
+    }
 
     return (
         <div style={{ padding: "20px" }}>
@@ -108,6 +121,18 @@ const Payment = () => {
                                             >
                                                 View
                                             </button>
+
+
+                                            <Popconfirm
+                                                title="Are you sure you want to Delete?"
+                                                onConfirm={() => handleDeletePaymentRequest(req._id)}
+                                                okText="Yes"
+                                                cancelText="No"
+                                            >
+                                                <button className="action-btn">
+                                                    <img src={del} alt="Delete" />
+                                                </button>
+                                            </Popconfirm>
                                         </div>
                                     </td>
                                 </tr>
@@ -171,7 +196,7 @@ const Payment = () => {
             >
                 <PaymentInfo
                     paymentRequest={selectedRequest}
-                    fetchRequests={fetchRequests}
+                    fetchPaymentRequests={fetchPaymentRequests}
                     onClose={handleCloseModal}
                 />
             </CustomModal>

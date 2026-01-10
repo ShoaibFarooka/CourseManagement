@@ -8,10 +8,11 @@ import PackageExams from "./components/PackageExams/PackageExams";
 import Dashboard from "./components/Dashboard/Dashboard";
 import courseService from '../../../services/courseService';
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
     fetchAllowedDevices,
-    checkCurrentDeviceStatus
+    checkCurrentDeviceStatus,
+    fetchPurchasedCourses
 } from '../../../redux/userSlice';
 
 const CoursesDashboard = () => {
@@ -56,6 +57,7 @@ const CoursesDashboard = () => {
     useEffect(() => {
         dispatch(fetchAllowedDevices());
         dispatch(checkCurrentDeviceStatus());
+        dispatch(fetchPurchasedCourses());
         fetchAllCourses();
     }, [])
 

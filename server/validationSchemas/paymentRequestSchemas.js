@@ -39,6 +39,11 @@ const validateparamsIdSchema = yup.object().shape({
         .matches(/^[0-9a-fA-F]{24}$/, "Invalid payment request ID format")
         .required("Payment request ID is required"),
 
+    userId: yup
+        .string()
+        .matches(/^[0-9a-fA-F]{24}$/, "Invalid user ID format")
+        .required("User ID is required"),
+
     courseId: yup
         .string()
         .matches(/^[0-9a-fA-F]{24}$/, "Invalid course ID format")

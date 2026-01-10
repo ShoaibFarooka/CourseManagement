@@ -19,22 +19,8 @@ router.get(
 );
 
 
-router.get(
-    "/fetch-request/:requestId",
-    authMiddleware.authenticateRequest,
-    validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
-    controller.GetPaymentRequestById
-);
-
-router.get(
-    "/fetch-user-request/:userId",
-    authMiddleware.authenticateRequest,
-    validationMiddleware.validateParams(paymentRequestSchemas.userIdSchema),
-    controller.GetPaymentRequestsByUser
-);
-
 router.patch(
-    "/approve-payment-request/:requestId/:courseId/:partId",
+    "/approve-payment-request/:requestId/:userId/:courseId/:partId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(paymentRequestSchemas.validateparamsIdSchema),
@@ -57,6 +43,21 @@ router.delete(
     authMiddleware.verifyRole(["admin"]),
     validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
     controller.DeletePaymentRequest
+);
+
+router.get(
+    "/fetch-payment-details/:requestId",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
+    controller.GetPaymentDetails
+);
+
+
+router.get(
+    "/fetch-user-payments",
+    authMiddleware.authenticateRequest,
+    controller.GetUserPayments
 );
 
 module.exports = router;

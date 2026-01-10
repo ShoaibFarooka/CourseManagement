@@ -35,7 +35,7 @@ const Requests = () => {
             setTotalPages(response.totalPages || 1);
 
         } catch (err) {
-            console.error("Error fetching requests:", err);
+            message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());
         }
@@ -67,9 +67,8 @@ const Requests = () => {
             fetchRequests(currentPage);
 
             message.success("Request deleted successfully");
-        } catch (err) {
-            console.error("Error deleting request:", err);
-            message.error("Failed to delete request");
+        } catch (error) {
+            message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());
         }

@@ -53,13 +53,14 @@ const Dashboard = ({ allCourses }) => {
         const start = new Date(startDate);
         const end = new Date(expiryDate);
 
-        const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-        if (totalDays <= 0) return 100;
-        if (today < start) return 0;
-        if (today > end) return 100;
+        const totalDays = (end - start) / (1000 * 60 * 60 * 24);
 
-        const elapsedDays = Math.ceil((today - start) / (1000 * 60 * 60 * 24));
-        return Math.min(Math.round((elapsedDays / totalDays) * 100), 100);
+        if (today < start) return 0;
+        if (today >= end) return 100;
+
+        const elapsedDays = (today - start) / (1000 * 60 * 60 * 24);
+
+        return Math.round((elapsedDays / totalDays) * 100);
     };
 
     const getExpiryColor = (daysLeft, startDate, expiryDate) => {
@@ -124,7 +125,10 @@ const Dashboard = ({ allCourses }) => {
 
     const { purchasedCourses } = useSelector(state => state.user);
     const getPurchasedInfo = (courseId, partId) => {
-        return purchasedCourses.find(pc => pc.courseId === courseId && pc.partId === partId);
+        return purchasedCourses.find(pc =>
+            String(pc.courseId) === String(courseId) &&
+            String(pc.partId) === String(partId)
+        );
     };
 
 
@@ -173,18 +177,26 @@ const Dashboard = ({ allCourses }) => {
                     const startDate = purchased?.startDate;
                     const expiryDate = purchased?.expiryDate;
 
-                    const daysLeft = getDaysLeft(startDate, expiryDate);
-                    const percentage = getExpiryPercentage(startDate, expiryDate);
-                    const color = getExpiryColor(daysLeft, startDate, expiryDate);
+                    const daysLeft = purchased ? getDaysLeft(startDate, expiryDate) : null;
+                    const percentage = purchased ? getExpiryPercentage(startDate, expiryDate) : 0;
+                    const color = purchased ? getExpiryColor(daysLeft, startDate, expiryDate) : "inactive";
+
                     const actionText = !purchased
                         ? "Request Access"
                         : daysLeft === 0
                             ? "Renew Access"
                             : "-";
 
+                    const statusText = !purchased
+                        ? "Available"
+                        : daysLeft > 0
+                            ? "Active"
+                            : "Expired";
+
                     return (
                         <div key={course.id + selectedPartId} className="table-row">
                             <div className="table-cell course-name">{course.name}</div>
+
                             <div className="table-cell parts">
                                 <select
                                     className="parts-select"
@@ -204,12 +216,8 @@ const Dashboard = ({ allCourses }) => {
                                 </select>
                             </div>
 
-                            <div className={`table-cell status ${actionText === "-" ? "active" : "inactive"}`}>
-                                {daysLeft !== null
-                                    ? daysLeft > 0
-                                        ? "Active"
-                                        : "Expired"
-                                    : "Available"}
+                            <div className={`table-cell status ${daysLeft > 0 ? "active" : "inactive"}`}>
+                                {statusText}
                             </div>
 
                             <div className="table-cell expiry">
@@ -217,7 +225,7 @@ const Dashboard = ({ allCourses }) => {
                                     <div className="progress-bar">
                                         <div
                                             className={`progress-fill ${color}`}
-                                            style={{ width: `${percentage}%` }}
+                                            style={{ width: `${Number(percentage)}%` }}
                                         />
                                     </div>
                                     <span className="progress-text">

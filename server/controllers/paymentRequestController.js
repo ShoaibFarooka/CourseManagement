@@ -61,46 +61,9 @@ const GetAllPaymentRequests = async (req, res, next) => {
     }
 };
 
-const GetPaymentRequestsByUser = async (req, res, next) => {
-    try {
-        const { userId } = req.params;
-
-        if (!userId) {
-            return res.status(400).json({ message: "userId is required." });
-        }
-
-        const requests = await paymentRequestService.getPaymentRequestsByUser(userId);
-
-        res.status(200).json({
-            message: "User payment requests fetched successfully.",
-            requests,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-const GetPaymentRequestById = async (req, res, next) => {
-    try {
-        const { requestId } = req.params;
-
-        const request = await paymentRequestService.getPaymentRequestById(requestId);
-
-        res.status(200).json({
-            message: "Payment request fetched successfully.",
-            request,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-
 const ApprovePaymentRequest = async (req, res, next) => {
     try {
-        const userId = req.user?.id;
-        const { requestId, courseId, partId } = req.params;
+        const { requestId, userId, courseId, partId } = req.params;
         const { status, amount, startDate, expiryDate, comment } = req.body;
 
         if (!status) {
@@ -152,8 +115,6 @@ const RejectPaymentRequest = async (req, res, next) => {
     }
 };
 
-
-
 const DeletePaymentRequest = async (req, res, next) => {
     try {
         const { requestId } = req.params;
@@ -171,12 +132,47 @@ const DeletePaymentRequest = async (req, res, next) => {
 };
 
 
+const GetUserPayments = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(400).json({ message: "userId is required." });
+        }
+
+        const requests = await paymentRequestService.getUserPayments(userId);
+
+        res.status(200).json({
+            message: "User payment requests fetched successfully.",
+            requests,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+const GetPaymentDetails = async (req, res, next) => {
+    try {
+        const { requestId } = req.params;
+
+        const request = await paymentRequestService.getPaymentDetails(requestId);
+
+        res.status(200).json({
+            message: "Payment Details fetched successfully.",
+            request,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 module.exports = {
     CreatePaymentRequest,
     GetAllPaymentRequests,
-    GetPaymentRequestsByUser,
-    GetPaymentRequestById,
     ApprovePaymentRequest,
     RejectPaymentRequest,
     DeletePaymentRequest,
+    GetUserPayments,
+    GetPaymentDetails,
 };
