@@ -137,6 +137,62 @@ const Contact = async (req, res, next) => {
 };
 
 
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const updateData = req.body;
+
+    const updatedUser = await userService.updateUser(userId, updateData);
+
+    res.status(200).json({
+      success: true,
+      message: "User information updated successfully",
+      data: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        country: updatedUser.country,
+      },
+    });
+  } catch (err) {
+    res.status(err.code || 500).json({
+      success: false,
+      message: err.message || "Internal server error",
+    });
+  }
+};
+
+const updateProfileImage = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file uploaded",
+      });
+    }
+
+
+    const imagePath = `/static/uploads/${req.file.filename}`;
+
+    const updatedUser = await userService.updateProfileImage(userId, imagePath);
+
+    res.status(200).json({
+      success: true,
+      message: "Profile image updated successfully",
+      data: {
+        id: updatedUser._id,
+        profileImage: updatedUser.profileImage,
+      },
+    });
+  } catch (err) {
+    res.status(err.code || 500).json({
+      success: false,
+      message: err.message || "Internal server error",
+    });
+  }
+};
 
 module.exports = {
   RegisterUser,
@@ -147,5 +203,7 @@ module.exports = {
   ForgotPassword,
   VerifyResetToken,
   ResetPassword,
-  Contact
+  Contact,
+  updateUser,
+  updateProfileImage,
 };

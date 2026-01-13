@@ -3,6 +3,7 @@ const controller = require("../controllers/userController");
 const authMiddleware = require("../middleware/authMiddleware");
 const userSchemas = require("../validationSchemas/userSchemas");
 const validationMiddleware = require("../middleware/validationMiddleware");
+const { upload } = require("../middleware/multerMiddleware");
 
 router.post(
   "/:usertype-register",
@@ -53,6 +54,20 @@ router.post(
   "/Contact-Us",
   validationMiddleware.validateBody(userSchemas.contactSchema),
   controller.Contact
+);
+
+router.patch(
+  "/update-user-info",
+  authMiddleware.authenticateRequest,
+  validationMiddleware.validateBody(userSchemas.updateUserSchema),
+  controller.updateUser
+)
+
+router.patch(
+  "/update-user-profile-Image",
+  authMiddleware.authenticateRequest,
+  upload.single("profileImage"),
+  controller.updateProfileImage
 );
 
 

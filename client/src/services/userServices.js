@@ -109,10 +109,10 @@ const userService = {
             throw error;
         }
     },
-    updateUserProfile: async (payload, id) => {
+    updateUserProfileImage: async (payload) => {
         try {
             const response = await axiosInstance.patch(
-                `${BASE_URL}/update-user-profile/${id}`,
+                `${BASE_URL}/update-user-profile-Image`,
                 payload,
                 {
                     withCredentials: true,

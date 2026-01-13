@@ -1,0 +1,220 @@
+.profile {
+    background:
+        var(--banner-2-bg),
+        url(../../../assets/images/login.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 128px;
+}
+
+.profile-container {
+    padding-top: 50px;
+    width: 100%;
+    font-family: var(--font-family);
+    background: var(--unit-exams-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.upload-btn {
+    display: inline-block;
+    background-color: var(--secondary-color);
+    color: #000000;
+    font-family: var(--font-family);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: none;
+}
+
+.upload-btn:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+    max-width: 700px;
+    gap: 20px;
+    box-shadow: var(--question-section-box-shadow);
+    padding: 30px 30px;
+    border-radius: 20px;
+}
+
+.profile-form .title {
+    font-size: 2rem;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.form-group .country-dropdown {
+    color: var(--text-color);
+    background-color: var(--unit-exams-bg);
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.save-btn {
+    display: inline-block;
+    background-color: var(--secondary-color);
+    color: #000000;
+    font-family: var(--font-family);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 30px;
+}
+
+.account-info {
+    margin-top: 30px;
+    padding-top: 10px;
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 30px
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.status.active {
+    color: var(--secondary-color)
+}
+
+.status.suspended {
+    color: rgb(255, 55, 55);
+}
+
+.verified {
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+.not-verified {
+    color: rgb(255, 55, 55);
+    font-weight: bold;
+}
+
+@media only screen and (max-width: 600px) {
+    .profile-container {
+        padding: 20px;
+    }
+
+    .profile-form {
+        width: 90%;
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .upload-btn,
+    .save-btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+
+    .profile-form .title {
+        font-size: 1.8rem;
+    }
+
+    .account-info {
+        width: 90%;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .profile-container {
+        padding-top: 30px;
+    }
+
+    .profile-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group .country-dropdown {
+        font-size: 0.9rem;
+        padding: 6px 8px;
+    }
+
+    .upload-btn,
+    .save-btn {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+
+    .profile-form {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .profile-form .title {
+        font-size: 1.5rem;
+    }
+
+    .account-info {
+        width: 95%;
+        font-size: 0.9rem;
+    }
+}

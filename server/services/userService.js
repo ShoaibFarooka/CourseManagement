@@ -106,6 +106,9 @@ const fetchUser = async (userId) => {
   const userProjection = {
     name: 1,
     email: 1,
+    country: 1,
+    phone: 1,
+    isBlocked: 1,
     role: 1,
   };
   const user = await User.findById(userId, userProjection);
@@ -166,6 +169,51 @@ const resetPassword = async (token, newPassword) => {
   await user.save();
 };
 
+const updateUser = async (userId, updateData) => {
+  const allowedFields = ["name", "email", "phone", "country"];
+  const updates = {};
+
+  allowedFields.forEach((field) => {
+    if (updateData[field] !== undefined) {
+      updates[field] = updateData[field];
+    }
+  });
+
+  if (updates.email) {
+    const existingUser = await User.findOne({ email: updates.email, _id: { $ne: userId } });
+    if (existingUser) {
+      const error = new Error("A user with that email already exists!");
+      error.code = 409;
+      throw error;
+    }
+  }
+  const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true });
+  if (!updatedUser) {
+    const error = new Error("User not found!");
+    error.code = 404;
+    throw error;
+  }
+
+  return updatedUser;
+};
+
+const updateProfileImage = async (userId, imagePath) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error("User not found!");
+    error.code = 404;
+    throw error;
+  }
+
+  user.profileImage = imagePath; // store path relative to /static
+  await user.save();
+
+  return user;
+};
+
+
+
+
 module.exports = {
   createUser,
   loginUser,
@@ -175,4 +223,6 @@ module.exports = {
   createResetToken,
   verifyResetToken,
   resetPassword,
+  updateUser,
+  updateProfileImage,
 };

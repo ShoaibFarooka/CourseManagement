@@ -50,11 +50,23 @@ const contactSchema = yup.object().shape({
     .min(10, "Message must be at least 10 characters"),
 });
 
+const updateUserSchema = yup.object().shape({
+  name: yup.string().trim().optional(),
+  email: yup.string().trim().email("Invalid email address").optional(),
+  phone: yup
+    .string()
+    .trim()
+    .matches(/^\+?\d{7,15}$/, "Invalid phone number")
+    .optional(),
+  country: yup.string().trim().optional(),
+});
+
 module.exports = {
   loginSchema,
   registerSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   contactSchema,
+  updateUserSchema,
 };
 
