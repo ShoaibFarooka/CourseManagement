@@ -218,6 +218,7 @@
     font-weight: 600;
     margin-top: 3px;
     color: var(--text-color);
+    text-wrap: nowrap;
 }
 
 .dashboard-container .table-body .table-row .actions {

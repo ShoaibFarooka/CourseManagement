@@ -12,7 +12,7 @@
     background-color: var(--unit-exams-bg);
     font-family: var(--font-family);
     color: var(--text-color);
-    padding: 57px 93px 47px 93px;
+    padding: 57px 93px 20px 93px;
     font-size: 2rem;
     color: var(--text-color);
     font-weight: 700;
@@ -49,6 +49,7 @@
 .progress-report-container .row-2 {
     display: flex;
 }
+
 
 .progress-report-container .overall-score {
     display: flex;
@@ -241,6 +242,34 @@
     color: #2636A1;
 }
 
+/* =========================
+   TABLET — 1024px
+========================= */
+
+@media (max-width: 1024px) {
+    .progress-report-container {
+        padding: 40px;
+    }
+
+    .main-title {
+        padding: 40px 40px 20px 40px;
+        font-size: 1.75rem;
+    }
+
+    .progress-report-container .row-2 {
+        gap: 20px;
+    }
+
+    .progress-report-container .status-per-question {
+        gap: 30px;
+        padding: 50px 20px;
+    }
+}
+
+
+/* =========================
+   SMALL TABLET / LARGE MOBILE — 900px
+========================= */
 
 @media (max-width: 900px) {
     .progress-report-container .row-1 {
@@ -248,28 +277,79 @@
         gap: 20px;
     }
 
-    .progress-report-container .overall-score,
-    .progress-report-container .answers-status,
-    .progress-report-container .retake-assessment {
-        width: 100%;
-        padding: 20px;
+    .progress-report-container .row-2 {
+        flex-direction: column;
+        gap: 20px;
     }
 
+    .progress-report-container .overall-score,
+    .progress-report-container .answers-status,
+    .progress-report-container .retake-assessment,
+    .progress-report-container .status-per-question {
+        width: 100%;
+    }
+
+    .progress-report-container .status-per-question {
+        padding: 40px 20px;
+    }
 }
 
-@media (max-width: 500px) {
-    .progress-report-container .title {
-        padding: 30px 20px;
+
+/* =========================
+   MOBILE — 600px
+========================= */
+
+@media (max-width: 600px) {
+    .main-title {
+        padding: 30px 20px 15px 20px;
         font-size: 1.5rem;
+        text-align: center;
     }
 
     .progress-report-container {
         padding: 20px;
+        gap: 15px;
+    }
+
+    .progress-report-container .overall-score {
+        padding: 25px 20px 40px 20px;
+    }
+
+    .progress-report-container .answers-status {
+        padding: 20px;
+    }
+
+    .progress-report-container .retake-assessment .logo {
+        padding: 40px 20px 30px 20px;
     }
 
     .progress-report-container .status-per-question {
         flex-direction: column;
-        gap: 30px;
+        gap: 25px;
         padding: 30px 15px;
+    }
+}
+
+
+/* =========================
+   SMALL MOBILE — 400px
+========================= */
+
+@media (max-width: 400px) {
+    .main-title {
+        font-size: 1.3rem;
+    }
+
+    .progress-report-container .status-per-question .report .heading {
+        font-size: 1.1rem;
+    }
+
+    .progress-report-container .status-per-question .report .sub-heading {
+        font-size: 0.9rem;
+    }
+
+    .progress-report-container .retake-assessment .retake-btn {
+        font-size: 1rem;
+        padding: 10px;
     }
 }

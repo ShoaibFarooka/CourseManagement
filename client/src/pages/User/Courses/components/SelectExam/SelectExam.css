@@ -1,0 +1,67 @@
+.select-exam-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 75px 40px 20px 40px;
+    background: var(--unit-exams-bg);
+    font-family: var(--font-family);
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    color: var(--text-color);
+}
+
+.field {
+    margin-bottom: 22px;
+}
+
+.field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text-color);
+}
+
+.field select {
+    width: 100%;
+    max-width: 400px;
+    height: 42px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    color: var(--text-color);
+    border: 1px solid var(--sidebar-border);
+    background: var(--unit-exams-bg);
+    outline: none;
+}
+
+.field select:disabled {
+    background-color: var(--unit-exams-bg);
+    cursor: not-allowed;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 100px;
+}
+
+.next-btn {
+    background-color: var(--secondary-color);
+    color: #000000;
+    font-family: var(--font-family);
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    border-radius: 14px;
+    border: none;
+}
+
+.next-btn:hover {
+    cursor: pointer;
+    opacity: 0.9;
+}

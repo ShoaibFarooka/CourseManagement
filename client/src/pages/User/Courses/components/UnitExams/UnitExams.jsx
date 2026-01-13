@@ -1,90 +1,58 @@
-import React from "react";
-import "./UnitExams.css";
-import { FaPlus } from "react-icons/fa";
-import arrow from '../../../../../assets/icons/arrow.png';
+import React, { useState } from "react";
+import SelectExam from "../SelectExam/SelectExam";
+import UnitExamContent from "../UnitExamContent/UnitExamContent";
 
-const UnitExams = () => {
-    const topics = [
-        {
-            id: 1,
-            name: "Foundation of Internal Auditing",
-            status: "20/23 Attempted",
-            statusType: "active",
-            proficiency: 80,
-        },
-        {
-            id: 2,
-            name: "Independence, Objectivity and Proficiency",
-            status: "12/20 Attempted",
-            statusType: "warning",
-            proficiency: 50,
-        },
-        {
-            id: 3,
-            name: "Bold text column",
-            status: "6/23 Attempted",
-            statusType: "error",
-            proficiency: 80,
-        },
-        ...Array.from({ length: 5 }, (_, i) => ({
-            id: `inactive-${i + 1}`,
-            name: "Bold text column",
-            status: "Inactive",
-            statusType: "inactive",
-            proficiency: 0,
-        })),
-    ];
+const UnitExams = ({ allCourses }) => {
+    const [step, setStep] = useState("select");
+
+    const [selectedCourseId, setSelectedCourseId] = useState("");
+    const [selectedPartId, setSelectedPartId] = useState("");
+    const [selectedUnitId, setSelectedUnitId] = useState("");
+
+    const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
+    const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
+    const selectedUnit = selectedPart?.units?.find(u => u.id === selectedUnitId);
+
+    const handleNext = () => {
+        if (!selectedCourse || !selectedPart || !selectedUnit) return;
+        setStep("exam");
+    };
+
+    if (step === "select") {
+        return (
+            <SelectExam
+                examType="unit"
+                courses={allCourses}
+                parts={selectedCourse?.parts || []}
+                units={selectedPart?.units || []}
+
+                selectedCourse={selectedCourseId}
+                selectedPart={selectedPartId}
+                selectedUnit={selectedUnitId}
+
+                onCourseChange={(e) => {
+                    setSelectedCourseId(e.target.value);
+                    setSelectedPartId("");
+                    setSelectedUnitId("");
+                }}
+
+                onPartChange={(e) => {
+                    setSelectedPartId(e.target.value);
+                    setSelectedUnitId("");
+                }}
+
+                onUnitChange={(e) => setSelectedUnitId(e.target.value)}
+                onNext={handleNext}
+            />
+        );
+    }
 
     return (
-        <div className="unit-exams-container">
-
-            <div className="guideline">
-                Select the topics you wish to study, click on + icon to expand
-            </div>
-
-            <div className="table-header">
-                <span>Courses <img src={arrow} alt="arrow" /></span>
-                <span>Quiz Status <img src={arrow} alt="arrow" /></span>
-                <span>Proficiency Score <img src={arrow} alt="arrow" /></span>
-            </div>
-
-            <div className="topics-list">
-                {topics.map((topic) => (
-                    <div key={topic.id} className="topic-row">
-                        <div className="topic-info">
-                            <FaPlus className="topic-icon" />
-                            <input
-                                type="checkbox"
-                                className="topic-checkbox"
-                            />
-                            <span className="topic-name">{topic.name}</span>
-                        </div>
-
-                        <div
-                            className={`topic-status ${topic.statusType}`}
-                        >
-                            {topic.status}
-                        </div>
-
-                        <div className="topic-progress">
-                            <div className="progress-bar">
-                                <div
-                                    className={`progress-fill ${topic.statusType}`}
-                                    style={{ width: `${topic.proficiency}%` }}
-                                ></div>
-                            </div>
-                            <span className="progress-text">
-                                {topic.proficiency}%
-                            </span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div className="next-btn-container">
-                <button className="button next">Next</button>
-            </div>
-        </div>
+        <UnitExamContent
+            course={selectedCourse}
+            part={selectedPart}
+            unit={selectedUnit}
+        />
     );
 };
 

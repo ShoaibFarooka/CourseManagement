@@ -85,13 +85,13 @@ const CoursesDashboard = () => {
                     allCourses={allCourses}
                 />
             case "Unit Exams":
-                return <UnitExams />;
+                return <UnitExams allCourses={allCourses} />;
             case "Practice Exams":
-                return <PracticeExams />;
+                return <PracticeExams allCourses={allCourses} />;
             case "Package Exams":
-                return <PackageExams />;
+                return <PackageExams allCourses={allCourses} />;
             default:
-                return <UnitExams />;
+                return <Dashboard />;
         }
     };
 

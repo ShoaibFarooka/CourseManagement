@@ -43,7 +43,6 @@ export const fetchPurchasedCourses = createAsyncThunk(
         dispatch(ShowLoading());
         try {
             const res = await paymentRequestService.getUserPayments();
-            console.log(res.requests);
             const courses = res.requests.map(payment => ({
                 paymentId: payment._id,
                 courseId: payment.course._id,

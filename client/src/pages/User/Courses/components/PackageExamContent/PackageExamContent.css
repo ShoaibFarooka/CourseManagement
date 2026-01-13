@@ -1,0 +1,133 @@
+.package-exam {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--unit-exams-bg);
+    font-family: var(--font-family);
+    padding: 75px 40px 212px 40px;
+}
+
+.package-exam .description {
+    font-weight: 400;
+    font-size: 1.125rem;
+    color: var(--text-color);
+    text-align: justify;
+    margin-bottom: 50px;
+}
+
+.package-exam .package {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.package-exam .package .pkg-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+
+.package-exam .package .pkg-checkbox .checkbox {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--checkbox);
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: transparent;
+    transition: all 0.2s ease;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.package-exam .package .pkg-checkbox .checkbox:checked {
+    background-color: var(--checkbox);
+    border-color: var(--checkbox);
+}
+
+.package-exam .package .pkg-checkbox .checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    color: var(--checkbox);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.package-exam .buttons-container {
+    margin-top: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.package-exam .buttons-container .back {
+    background-color: transparent;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    width: 210px;
+    font-size: 1rem;
+    padding: 15px 48px;
+}
+
+.package-exam .buttons-container .update {
+    width: 210px;
+    font-size: 1rem;
+    text-wrap: nowrap;
+    padding: 15px 48px;
+}
+
+
+
+@media only screen and (max-width: 835px) {
+    .package-exam {
+        padding: 100px 30px 120px 30px;
+    }
+
+    .package-exam .description {
+        font-size: 0.9rem;
+        margin-bottom: 30px;
+    }
+
+    .package-exam .package {
+        gap: 12px;
+    }
+
+    .package-exam .buttons-container .back,
+    .package-exam .buttons-container .update {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .package-exam {
+        padding: 100px 20px 100px 20px;
+    }
+
+    .package-exam .description {
+        font-size: 0.9rem;
+        text-align: left;
+    }
+
+    .package-exam .package .pkg-title {
+        font-size: 0.9rem;
+    }
+
+    .package-exam .buttons-container {
+        margin-top: 0px;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .package-exam .buttons-container .back,
+    .package-exam .buttons-container .update {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 12px 0;
+    }
+}

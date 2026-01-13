@@ -1,40 +1,60 @@
-import React from 'react'
-import './PracticeExams.css';
-const PracticeExams = () => {
+import React, { useState } from "react";
+import SelectExam from "../SelectExam/SelectExam";
+import PracticeExamContent from '../PracticeExamContent/PracticeExamContent'
+
+const PracticeExams = ({ allCourses }) => {
+    const [step, setStep] = useState("select");
+
+    const [selectedCourseId, setSelectedCourseId] = useState("");
+    const [selectedPartId, setSelectedPartId] = useState("");
+    const [selectedUnitId, setSelectedUnitId] = useState("");
+
+    const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
+    const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
+    const selectedUnit = selectedPart?.units?.find(u => u.id === selectedUnitId);
+
+    const handleNext = () => {
+        if (!selectedCourse || !selectedPart || !selectedUnit) return;
+        setStep("exam");
+    };
+
+    if (step === "select") {
+        return (
+            <SelectExam
+                examType="unit"
+                courses={allCourses}
+                parts={selectedCourse?.parts || []}
+                units={selectedPart?.units || []}
+
+                selectedCourse={selectedCourseId}
+                selectedPart={selectedPartId}
+                selectedUnit={selectedUnitId}
+
+                onCourseChange={(e) => {
+                    setSelectedCourseId(e.target.value);
+                    setSelectedPartId("");
+                    setSelectedUnitId("");
+                }}
+
+                onPartChange={(e) => {
+                    setSelectedPartId(e.target.value);
+                    setSelectedUnitId("");
+                }}
+
+                onUnitChange={(e) => setSelectedUnitId(e.target.value)}
+                onNext={handleNext}
+            />
+        );
+    }
+
     return (
-        <div className='practice-exam'>
+        <PracticeExamContent
+            onBack={() => setStep("select")}
+            course={selectedCourse}
+            part={selectedPart}
+            unit={selectedUnit}
+        />
+    );
+};
 
-            <div className='description'>
-                Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur tempus urna at turpis condimentum lobortis. Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu
-            </div>
-
-            <div className='select-exam'>
-
-                <div className='exam-type'>
-                    <span className='exam-checkbox'><input type="checkbox" className='checkbox' /></span>
-                    <span>Full Length Exam</span>
-                    <span className='exam-details'>125 MCQS - 150 Minutes</span>
-                </div>
-
-                <div className='exam-type'>
-                    <span className='exam-checkbox'><input type="checkbox" className='checkbox' /></span>
-
-                    <span>Quick Diagnostic</span>
-                    <span className='exam-details'>50 MCQS - 60 Minutes</span>
-                </div>
-
-                <span className='note'>Norem: ipsum dolor sit amet, consectetur</span>
-            </div>
-
-            <div className='description-2'>Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur tempus urna at turpis condimentum lobortis. Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu
-            </div>
-
-            <div className='buttons-container'>
-                <button className='button back'>Back</button>
-                <button className='button start'>Start Exam</button>
-            </div>
-        </div>
-    )
-}
-
-export default PracticeExams
+export default PracticeExams;
