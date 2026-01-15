@@ -41,4 +41,9 @@ router.get(
     controller.fetchAllCoursesWithParts
 )
 
+router.get(
+    '/fetch-units-and-subunits',
+    controller.getAllUnitsWithSubunits
+)
+
 module.exports = router;

@@ -21,19 +21,23 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
 
+    const [errors, setErrors] = useState({});
+
     const accountStatus = user?.isBlocked === false ? "Active" : "Suspended";
+
 
     useEffect(() => {
         if (user) {
             setFormData({
                 name: user.name || "",
                 email: user.email || "",
-                phone: user.phone || "",
+                phone: user.phone ? user.phone.toString() : "",
                 country: user.country || "",
             });
-            setProfileImage(user.profileImage || profileimg);
+            setProfileImage(user.image || profileimg);
         }
     }, [user]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -41,6 +45,7 @@ const Profile = () => {
             ...prev,
             [name]: value,
         }));
+        setErrors(prev => ({ ...prev, [name]: "" }));
     };
 
     const handleImageChange = (e) => {
@@ -50,25 +55,73 @@ const Profile = () => {
         }
     };
 
+
+    const validateForm = () => {
+        const newErrors = {};
+        const phoneRegex = /^[0-9]{7,15}$/;
+
+        if (!formData.name.trim()) newErrors.name = "Username is required";
+        if (!formData.email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Invalid email format";
+        }
+
+        if (!formData.country.trim()) newErrors.country = "Country is required";
+
+        const phoneStr = formData.phone ? formData.phone.toString() : "";
+        if (!phoneStr.trim()) {
+            newErrors.phone = "Phone number is required";
+        } else if (!phoneRegex.test(phoneStr)) {
+            newErrors.phone = "Invalid phone number";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) return;
+
+
+        const hasFormChanged =
+            formData.name !== user?.name ||
+            formData.email !== user?.email ||
+            (formData.phone || "") !== (user?.phone ? user.phone.toString() : "") ||
+            formData.country !== user?.country;
+
+        const hasImageChanged = !!imageFile;
+
+        if (!hasFormChanged && !hasImageChanged) {
+            message.info("No changes detected.");
+            return;
+        }
+
         try {
             dispatch(ShowLoading());
-            if (imageFile) {
+
+            if (hasImageChanged) {
                 const imageFormData = new FormData();
                 imageFormData.append("profileImage", imageFile);
                 await userService.updateUserProfileImage(imageFormData);
             }
 
-            const res = await userService.updateUserInfo(formData);
+            if (hasFormChanged) {
+                await userService.updateUserInfo(formData);
+            }
 
             message.success("Profile updated successfully!");
         } catch (error) {
+            console.log(error);
             message.error(error.response?.data.message || "Something went wrong!");
         } finally {
             dispatch(HideLoading());
         }
     };
+
 
     return (
         <>
@@ -92,7 +145,7 @@ const Profile = () => {
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Username</label>
+                            <label>Name</label>
                             <input
                                 type="text"
                                 name="name"
@@ -100,6 +153,7 @@ const Profile = () => {
                                 onChange={handleChange}
                                 className="input"
                             />
+                            {errors.name && <span className="error-text">{errors.name}</span>}
                         </div>
 
                         <div className="form-group">
@@ -111,6 +165,7 @@ const Profile = () => {
                                 onChange={handleChange}
                                 className="input"
                             />
+                            {errors.email && <span className="error-text">{errors.email}</span>}
                         </div>
                     </div>
 
@@ -119,9 +174,13 @@ const Profile = () => {
                             <label>Country</label>
                             <CountryDropdown
                                 value={formData.country}
-                                onChange={(val) => setFormData(prev => ({ ...prev, country: val }))}
+                                onChange={(val) => {
+                                    setFormData(prev => ({ ...prev, country: val }));
+                                    setErrors(prev => ({ ...prev, country: "" }));
+                                }}
                                 className="input country-dropdown"
                             />
+                            {errors.country && <span className="error-text">{errors.country}</span>}
                         </div>
 
                         <div className="form-group">
@@ -133,6 +192,7 @@ const Profile = () => {
                                 onChange={handleChange}
                                 className="input"
                             />
+                            {errors.phone && <span className="error-text">{errors.phone}</span>}
                         </div>
                     </div>
 

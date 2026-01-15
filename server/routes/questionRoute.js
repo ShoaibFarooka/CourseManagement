@@ -110,5 +110,9 @@ router.post(
     controller.validateEssayQuestions
 )
 
+router.post(
+    "/fetch-questions",
+    controller.fetchQuestionsWithFilters
+)
 
 module.exports = router;

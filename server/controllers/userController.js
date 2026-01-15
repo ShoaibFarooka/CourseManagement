@@ -137,7 +137,7 @@ const Contact = async (req, res, next) => {
 };
 
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const userId = req.user?.id;
     const updateData = req.body;
@@ -155,15 +155,12 @@ const updateUser = async (req, res) => {
         country: updatedUser.country,
       },
     });
-  } catch (err) {
-    res.status(err.code || 500).json({
-      success: false,
-      message: err.message || "Internal server error",
-    });
+  } catch (error) {
+    next(error)
   }
 };
 
-const updateProfileImage = async (req, res) => {
+const updateProfileImage = async (req, res, next) => {
   try {
     const userId = req.user?.id;
     if (!req.file) {
@@ -172,6 +169,7 @@ const updateProfileImage = async (req, res) => {
         message: "No image file uploaded",
       });
     }
+
 
 
     const imagePath = `/static/uploads/${req.file.filename}`;
@@ -186,11 +184,8 @@ const updateProfileImage = async (req, res) => {
         profileImage: updatedUser.profileImage,
       },
     });
-  } catch (err) {
-    res.status(err.code || 500).json({
-      success: false,
-      message: err.message || "Internal server error",
-    });
+  } catch (error) {
+    next(error);
   }
 };
 

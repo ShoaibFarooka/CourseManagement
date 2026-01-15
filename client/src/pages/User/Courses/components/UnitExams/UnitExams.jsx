@@ -7,14 +7,14 @@ const UnitExams = ({ allCourses }) => {
 
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [selectedPartId, setSelectedPartId] = useState("");
-    const [selectedUnitId, setSelectedUnitId] = useState("");
+    const [selectedPublisherId, setselectedPublisherId] = useState("");
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
-    const selectedUnit = selectedPart?.units?.find(u => u.id === selectedUnitId);
+    const selectedPublisher = selectedPart?.publishers?.find(p => p._id === selectedPublisherId);
 
     const handleNext = () => {
-        if (!selectedCourse || !selectedPart || !selectedUnit) return;
+        if (!selectedCourse || !selectedPart || !selectedPublisher) return;
         setStep("exam");
     };
 
@@ -24,24 +24,24 @@ const UnitExams = ({ allCourses }) => {
                 examType="unit"
                 courses={allCourses}
                 parts={selectedCourse?.parts || []}
-                units={selectedPart?.units || []}
+                publishers={selectedPart?.publishers || []}
 
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
-                selectedUnit={selectedUnitId}
+                selectedPublisher={selectedPublisherId}
 
                 onCourseChange={(e) => {
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
-                    setSelectedUnitId("");
+                    setselectedPublisherId("");
                 }}
 
                 onPartChange={(e) => {
                     setSelectedPartId(e.target.value);
-                    setSelectedUnitId("");
+                    setselectedPublisherId("");
                 }}
 
-                onUnitChange={(e) => setSelectedUnitId(e.target.value)}
+                onPublisherChange={(e) => setselectedPublisherId(e.target.value)}
                 onNext={handleNext}
             />
         );
@@ -49,10 +49,7 @@ const UnitExams = ({ allCourses }) => {
 
     return (
         <UnitExamContent
-            course={selectedCourse}
-            part={selectedPart}
-            unit={selectedUnit}
-        />
+            publisher={selectedPublisherId} />
     );
 };
 

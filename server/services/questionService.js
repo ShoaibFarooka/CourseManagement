@@ -13,16 +13,14 @@ const getAllQuestions = async ({
     types = [],
     languages = [],
 }) => {
-    // Build filter
     const filter = {};
 
     if (subunitId) filter.subunitId = subunitId;
     if (publisherId) filter.publisherId = publisherId;
 
-    // Fetch questions
+
     let questions = await Question.find(filter);
 
-    // Optional: filter by course, part, unit by checking hierarchy
     if (courseId || partId || unitId) {
         questions = questions.filter(q => {
             const course = q.course?.toString() === courseId;
@@ -32,7 +30,6 @@ const getAllQuestions = async ({
         });
     }
 
-    // Filter by types and languages
     if (types.length > 0) {
         questions = questions.filter(q => types.includes(q.type));
     }
@@ -40,7 +37,6 @@ const getAllQuestions = async ({
         questions = questions.filter(q => languages.includes(q.language));
     }
 
-    // Sorting
     const typeOrder = { mcq: 1, rapid: 2, essay: 3 };
     const languageOrder = { eng: 1, ar: 2, fr: 3 };
 
@@ -50,7 +46,6 @@ const getAllQuestions = async ({
         return languageOrder[a.language] - languageOrder[b.language];
     });
 
-    // Pagination
     const total = questions.length;
     const totalPages = Math.ceil(total / limit);
     const skip = (page - 1) * limit;
@@ -64,7 +59,6 @@ const getAllQuestions = async ({
     };
 };
 
-
 const addQuestion = async (data) => {
     try {
         const question = await Question.create(data);
@@ -76,7 +70,6 @@ const addQuestion = async (data) => {
         throw error;
     }
 };
-
 
 const updateQuestion = async (questionId, data) => {
     const question = await Question.findById(questionId);
@@ -97,7 +90,6 @@ const updateQuestion = async (questionId, data) => {
         throw error;
     }
 };
-
 
 const deleteQuestion = async (questionId) => {
     const deleted = await Question.findByIdAndDelete(questionId);
@@ -225,8 +217,6 @@ const addMCQQuestionsFromFile = async (filePath) => {
     return { warnings, addedQuestionsCount: questions.length };
 };
 
-
-
 const addRapidQuestionsFromFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -343,7 +333,6 @@ const addRapidQuestionsFromFile = async (filePath) => {
     return { warnings, addedQuestionsCount: questions.length };
 };
 
-
 const addEssayQuestionsFromFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -421,7 +410,6 @@ const addEssayQuestionsFromFile = async (filePath) => {
     console.log(`✅ ${questions.length} Essay questions inserted.`);
     return { warnings, addedQuestionsCount: questions.length };
 };
-
 
 const validateMCQQuestionsFile = async (filePath) => {
     const workbook = XLSX.readFile(filePath);
@@ -721,6 +709,56 @@ const validateEssayQuestionsFile = async (filePath) => {
     };
 };
 
+const FetchQuestionsWithFilters = async ({
+    publisherId,
+    selectedUnits = [],
+    selectedSubunits = {},
+    page = 1,
+    limit = 10,
+}) => {
+
+    const skip = (page - 1) * limit;
+
+    const orConditions = [];
+
+    selectedUnits.forEach(unitId => {
+        const subunits = selectedSubunits[unitId];
+
+        if (!subunits || subunits.length === 0) {
+            orConditions.push({ unit: unitId });
+        }
+
+        else {
+            orConditions.push({
+                unit: unitId,
+                subunit: { $in: subunits }
+            });
+        }
+    });
+
+    const query = {
+        publisher: publisherId,
+        $or: orConditions
+    };
+
+    const [questions, total] = await Promise.all([
+        Question.find(query)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        Question.countDocuments(query)
+    ]);
+
+    return {
+        questions,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        }
+    };
+};
 
 module.exports = {
     getAllQuestions,
@@ -733,4 +771,5 @@ module.exports = {
     validateMCQQuestionsFile,
     validateRapidQuestionsFile,
     validateEssayQuestionsFile,
+    FetchQuestionsWithFilters,
 };

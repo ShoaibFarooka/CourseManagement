@@ -9,14 +9,16 @@
     font-family: var(--font-family);
 }
 
-.guideline {
+/* Guideline */
+.unit-exams-container .guideline {
     font-size: 1.375rem;
     font-weight: 600;
     color: var(--text-color);
     margin-bottom: 25px;
 }
 
-.table-header {
+/* Table Header */
+.unit-exams-container .unit-table-header {
     display: grid;
     grid-template-columns: 1fr 0.5fr 0.5fr;
     justify-items: center;
@@ -29,51 +31,49 @@
     margin-bottom: 0.75rem;
 }
 
-.topics-list {
+/* Topic List */
+.unit-exams-container .unit-topic-list {
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
 }
 
-.topic-row {
+/* Topic Row */
+.unit-exams-container .unit-topic-row {
     display: grid;
     grid-template-columns: 1.3fr 0.5fr 0.5fr;
-    justify-items: left;
     background: var(--table-values-bg);
-    border-top: none;
-    border-left: none;
-    border-right: none;
     border-bottom: 1px solid var(--table-header-border);
     padding: 0.8rem 1rem;
-    transition: all 0.2s ease;
     cursor: pointer;
 }
 
-.topic-info {
+/* Topic Info */
+.unit-exams-container .unit-topic-info {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
     gap: 10px;
 }
 
-.topic-checkbox {
+.unit-exams-container .unit-topic-checkbox {
     width: 16px;
     height: 16px;
     accent-color: var(--primary-color);
+}
+
+.unit-exams-container .unit-topic-icon {
+    font-size: 0.8rem;
+    color: var(--text-color);
     cursor: pointer;
 }
 
-.topic-icon {
-    font-size: 0.8rem;
-    color: var(--text-color);
-}
-
-.topic-name {
+.unit-exams-container .unit-topic-name {
     font-weight: 500;
     color: var(--text-color);
 }
 
-.topic-status {
+/* Status */
+.unit-exams-container .unit-topic-status {
     padding: 0.3rem 0.6rem;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -81,111 +81,108 @@
     min-width: 90px;
 }
 
-.topic-status.active {
+.unit-topic-status.active {
     background: #4DC4CE2B;
     color: #19a974;
-
 }
 
-.topic-status.warning {
+.unit-topic-status.warning {
     background: #FFFAF2;
     color: #f4a300;
 }
 
-.topic-status.error {
+.unit-topic-status.error {
     background: #FFF3F3;
     color: #d32f2f;
 }
 
-.topic-status.inactive {
-    background: #f2f2f2;
-    color: #888;
+.unit-topic-status.inactive {
+    background: var(--table-values-bg);
+    color: var(--text-muted, #888);
 }
 
-
-.topic-progress {
+/* Progress */
+.unit-exams-container .unit-topic-progress {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    width: 100%;
+    gap: 6px;
 }
 
-.progress-bar {
+.unit-exams-container .unit-progress-bar {
     width: 50%;
     height: 15px;
     background: #218D9521;
     border-radius: 29px;
     overflow: hidden;
-    box-shadow: 0px 0.89px 16.06px 0px #0000000A;
 }
 
-.progress-fill {
+.unit-exams-container .unit-progress-fill {
     height: 100%;
     background: #218C95;
     border-radius: 5px;
-    transition: width 0.3s ease;
+    transition: width 0.4s ease;
 }
 
-.progress-fill.warning {
+.unit-progress-fill.warning {
     background: #FAC053;
 }
 
-.progress-fill.error {
+.unit-progress-fill.error {
     background: #FA5353;
 }
 
-.progress-fill.inactive {
-    background: #888;
+.unit-progress-fill.inactive {
+    background: var(--text-muted, #888);
 }
 
-.progress-fill {
-    transition: width 0.4s ease, background-color 0.3s ease;
-}
-
-.progress-text {
+.unit-exams-container .unit-progress-text {
     font-size: 0.8rem;
     color: var(--text-color);
-    min-width: 30px;
-    text-align: right;
 }
 
-.subunit-wrapper {
+
+/* Subunits */
+
+.unit-exams-container .unit-subunit-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+}
+
+.unit-exams-container .unit-subunit-wrapper {
     padding-left: 48px;
-    background: #fafafa;
+    background: var(--table-values-bg);
 }
 
-.subunit-row {
+.unit-exams-container .unit-subunit-row {
     display: flex;
     align-items: center;
     padding: 10px 0;
 }
 
-.subunit-info {
+.unit-exams-container .unit-subunit-info {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.subunit-name {
-    font-size: 14px;
-    color: #444;
+.unit-exams-container .unit-subunit-name {
+    font-size: 0.875rem;
+    color: var(--text-color);
 }
 
-.topic-icon {
-    cursor: pointer;
-}
-
-
-.next-btn-container {
+/* Footer */
+.unit-exams-container .unit-next-btn-container {
     margin-top: 2rem;
     text-align: right;
 }
 
-.next-btn-container .next {
-    width: 210px;
-    font-size: 1rem;
-    padding: 15px 48px;
+.unit-exams-container .unit-next-btn-container .next:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
 }
 
 @media only screen and (max-width: 1200px) {
@@ -193,12 +190,12 @@
         padding: 50px 80px 180px 50px;
     }
 
-    .progress-bar {
+    .unit-exams-container .unit-progress-bar {
         width: 60%;
         height: 15px;
     }
 
-    .topic-status {
+    .unit-exams-container .unit-topic-status {
         min-width: 80px;
         font-size: 0.8rem;
         padding: 0.28rem 0.5rem;
@@ -210,12 +207,12 @@
         padding: 40px 30px 150px 20px;
     }
 
-    .progress-bar {
+    .unit-exams-container .unit-progress-bar {
         width: 65%;
         height: 14px;
     }
 
-    .topic-status {
+    .unit-exams-container .unit-topic-status {
         min-width: 75px;
         font-size: 0.78rem;
         padding: 0.25rem 0.5rem;
@@ -227,12 +224,12 @@
         padding: 100px 20px 120px 20px;
     }
 
-    .progress-bar {
+    .unit-exams-container .unit-progress-bar {
         width: 60%;
         height: 13px;
     }
 
-    .topic-status {
+    .unit-exams-container .unit-topic-status {
         min-width: 70px;
         font-size: 0.75rem;
         padding: 0.25rem 0.45rem;
@@ -244,30 +241,29 @@
         padding: 100px 10px 100px 10px;
     }
 
-
-    .table-header {
+    .unit-exams-container .unit-table-header {
         font-size: 0.75rem;
         grid-template-columns: 1fr 0.6fr 0.7fr;
         padding: 10px 0;
     }
 
-    .topic-row {
+    .unit-exams-container .unit-topic-row {
         grid-template-columns: 1fr 0.5fr 0.5fr;
-        padding: 0.6rem 0.6rem;
+        padding: 0.6rem;
     }
 
-    .progress-bar {
+    .unit-exams-container .unit-progress-bar {
         width: 60%;
         height: 10px;
     }
 
-    .topic-status {
+    .unit-exams-container .unit-topic-status {
         min-width: auto;
         font-size: 0.7rem;
         padding: 0.25rem 0.4rem;
     }
 
-    .progress-text {
+    .unit-exams-container .unit-progress-text {
         min-width: 20px;
     }
 }
@@ -277,52 +273,52 @@
         padding: 100px 8px 80px 8px;
     }
 
-    .table-header {
+    .unit-exams-container .unit-table-header {
         font-size: 0.75rem;
         grid-template-columns: 1fr 0.6fr 0.7fr;
         padding: 10px 0;
     }
 
-    .topic-row {
+    .unit-exams-container .unit-topic-row {
         grid-template-columns: 0.9fr 0.5fr 0.5fr;
-        padding: 0.6rem 0.6rem;
+        padding: 0.6rem;
     }
 
-    .topic-info {
+    .unit-exams-container .unit-topic-info {
         gap: 6px;
     }
 
-    .topic-checkbox {
+    .unit-exams-container .unit-topic-checkbox {
         width: 14px;
         height: 14px;
     }
 
-    .topic-icon {
+    .unit-exams-container .unit-topic-icon {
         font-size: 0.7rem;
     }
 
-    .topic-name {
+    .unit-exams-container .unit-topic-name {
         font-size: 0.75rem;
     }
 
-    .topic-status {
+    .unit-exams-container .unit-topic-status {
         font-size: 0.68rem;
         min-width: 50px;
         padding: 0.2rem 0.35rem;
         border-radius: 6px;
     }
 
-    .progress-bar {
+    .unit-exams-container .unit-progress-bar {
         width: 55%;
         height: 9px;
     }
 
-    .progress-text {
+    .unit-exams-container .unit-progress-text {
         font-size: 0.7rem;
         min-width: 10px;
     }
 
-    .next-btn-container {
+    .unit-exams-container .unit-next-btn-container {
         margin-top: 1.5rem;
     }
 }

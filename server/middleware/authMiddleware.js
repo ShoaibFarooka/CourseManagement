@@ -5,6 +5,7 @@ const authenticateRequest = (req, res, next) => {
   try {
     const token = req.headers["authorization"]?.split(" ")[1];
 
+
     if (!token) {
       const error = new Error("Invalid or missing token!");
       error.code = 401;

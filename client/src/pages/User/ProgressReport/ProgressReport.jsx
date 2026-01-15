@@ -1,10 +1,28 @@
-import React from 'react'
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import './ProgressReport.css';
 import ProgressCircle from './components/ProgressCircle/ProgressCircle';
 import progress1 from '../../../assets/icons/progress1.png';
 import progress2 from '../../../assets/icons/progress2.png';
+import { useNavigate } from 'react-router-dom';
 
 const ProgressReport = () => {
+    const { state } = useLocation();
+    const {
+        overallScore = 0,
+        correctAnswers = 0,
+        incorrectAnswers = 0,
+        mcqScore = 0,
+        rapidScore = 0,
+        essayScore = 0
+    } = state || {};
+
+    const navigate = useNavigate();
+
+    const handleClickRetake = () => {
+        navigate('/quiz');
+    }
+
     return (
         <>
             <div className='progress-report'></div>
@@ -14,23 +32,25 @@ const ProgressReport = () => {
             <div className='progress-report-container'>
 
                 <div className='row-1'>
-
                     <div className='overall-score'>
                         <div className='heading'>Overall Score</div>
-                        <ProgressCircle strokeColor="#3cd89e" />
-                        <div className='sub-heading'>Your percentage is 80%</div>
+                        <ProgressCircle strokeColor="#3cd89e" progress={overallScore} />
+                        <div className='sub-heading'>Your percentage is {overallScore}%</div>
                     </div>
 
                     <div className='answers-status'>
-
                         <div className='correct'>
                             <div className='correct-circle'></div>
-                            <div className='numbers'><span className='highlight-correct'>14</span> Correct Answers</div>
+                            <div className='numbers'>
+                                <span className='highlight-correct'>{correctAnswers}</span> Correct Answers
+                            </div>
                         </div>
 
                         <div className='incorrect'>
                             <div className='incorrect-circle'></div>
-                            <div className='numbers'><span className='highlight-incorrect'>2</span> Incorrect Answers</div>
+                            <div className='numbers'>
+                                <span className='highlight-incorrect'>{incorrectAnswers}</span> Incorrect Answers
+                            </div>
                         </div>
                     </div>
 
@@ -40,7 +60,11 @@ const ProgressReport = () => {
                             <img src={progress2} alt="Logo" className='img-2' />
                         </div>
                         <div className='retake-btn-container'>
-                            <button className='retake-btn'>Retake Assessment</button>
+                            <button
+                                className='retake-btn'
+                                onClick={handleClickRetake}
+                            >Retake Assessment
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -48,32 +72,27 @@ const ProgressReport = () => {
                 <div className='row-2'>
                     <div className='status-per-question'>
                         <div className='report'>
-                            <div className='heading'>MCQS</div>
-                            <ProgressCircle strokeColor="#A12668" />
-                            <div className='sub-heading'>Your percentage is
-                                <span className='highlight-mcq'> 80%</span>
-                            </div>
+                            <div className='heading'>MCQs</div>
+                            <ProgressCircle strokeColor="#A12668" progress={mcqScore} />
+                            <div className='sub-heading'>Your percentage is <span className='highlight-mcq'> {mcqScore}%</span></div>
                         </div>
+
                         <div className='report'>
                             <div className='heading'>Rapid</div>
-                            <ProgressCircle strokeColor="#26A149" />
-                            <div className='sub-heading'>Your percentage is
-                                <span className='highlight-rapid'> 80%</span>
-                            </div>
+                            <ProgressCircle strokeColor="#26A149" progress={rapidScore} />
+                            <div className='sub-heading'>Your percentage is <span className='highlight-rapid'> {rapidScore}%</span></div>
                         </div>
+
                         <div className='report'>
                             <div className='heading'>Essay</div>
-                            <ProgressCircle strokeColor="#2636A1" />
-                            <div className='sub-heading'>Your percentage is
-                                <span className='highlight-essay'> 80%</span>
-                            </div>
+                            <ProgressCircle strokeColor="#2636A1" progress={essayScore} />
+                            <div className='sub-heading'>Your percentage is <span className='highlight-essay'> {essayScore}%</span></div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </>
-    )
-}
+    );
+};
 
-export default ProgressReport
+export default ProgressReport;

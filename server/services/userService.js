@@ -9,6 +9,7 @@ const createUser = async (userData, role) => {
     password,
     phone,
     country,
+    image,
   } = userData;
 
   let existingUser = await User.findOne({ email });
@@ -27,6 +28,7 @@ const createUser = async (userData, role) => {
     email,
     password: passwordDigest,
     role,
+    image,
   });
 
   return user;
@@ -110,6 +112,7 @@ const fetchUser = async (userId) => {
     phone: 1,
     isBlocked: 1,
     role: 1,
+    image: 1,
   };
   const user = await User.findById(userId, userProjection);
   if (!user) {
@@ -205,7 +208,7 @@ const updateProfileImage = async (userId, imagePath) => {
     throw error;
   }
 
-  user.profileImage = imagePath; // store path relative to /static
+  user.profileImage = imagePath;
   await user.save();
 
   return user;

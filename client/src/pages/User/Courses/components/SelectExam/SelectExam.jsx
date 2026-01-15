@@ -5,13 +5,13 @@ const SelectExam = ({
     examType,
     courses = [],
     parts = [],
-    units = [],
+    publishers = [],
     selectedCourse,
     selectedPart,
-    selectedUnit,
+    selectedPublisher,
     onCourseChange,
     onPartChange,
-    onUnitChange,
+    onPublisherChange,
     onNext,
 }) => {
     return (
@@ -22,7 +22,7 @@ const SelectExam = ({
             <div className="field">
                 <label>Select the Course</label>
                 <select value={selectedCourse || ""} onChange={onCourseChange}>
-                    <option>Select Course</option>
+                    <option value="">Select Course</option>
                     {courses.map(course => (
                         <option key={course.id} value={course.id}>
                             {course.name}
@@ -38,7 +38,7 @@ const SelectExam = ({
                     onChange={onPartChange}
                     disabled={!selectedCourse}
                 >
-                    <option>Select Part</option>
+                    <option value="">Select Part</option>
                     {parts.map(part => (
                         <option key={part.id} value={part.id}>
                             {part.name}
@@ -49,16 +49,16 @@ const SelectExam = ({
 
             {(examType === "unit" || examType === "practice") && (
                 <div className="field">
-                    <label>Select Unit</label>
+                    <label>Select Publihser</label>
                     <select
-                        value={selectedUnit || ""}
-                        onChange={onUnitChange}
+                        value={selectedPublisher || ""}
+                        onChange={onPublisherChange}
                         disabled={!selectedPart}
                     >
-                        <option>Select Unit</option>
-                        {units.map(unit => (
-                            <option key={unit.id} value={unit.id}>
-                                {unit.name}
+                        <option value="">Select Publihser</option>
+                        {publishers.map(publisher => (
+                            <option key={publisher._id} value={publisher._id}>
+                                {publisher.name}
                             </option>
                         ))}
                     </select>

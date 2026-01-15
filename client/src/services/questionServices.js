@@ -201,7 +201,32 @@ const questionService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+
+    fetchQuestionsWithFilters: async ({
+        publisherId,
+        selectedUnits = [],
+        selectedSubunits = {},
+        page = 1,
+        limit = 10,
+    }) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/fetch-questions`,
+                {
+                    publisherId,
+                    selectedUnits,
+                    selectedSubunits,
+                    page,
+                    limit
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
 
 };
 

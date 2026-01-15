@@ -26,6 +26,7 @@ const CoursesDashboard = () => {
     const fetchAllCourses = async () => {
         try {
             dispatch(ShowLoading());
+
             const res = await courseService.fetchAllCoursesWithParts();
             const groupedCourses = {};
 
@@ -38,10 +39,17 @@ const CoursesDashboard = () => {
                     };
                 }
 
-                groupedCourses[item.courseId].parts.push({
-                    id: item.partId,
-                    name: item.partName
-                });
+                const existingPart = groupedCourses[item.courseId].parts.find(
+                    part => part.id === item.partId
+                );
+
+                if (!existingPart) {
+                    groupedCourses[item.courseId].parts.push({
+                        id: item.partId,
+                        name: item.partName,
+                        publishers: item.publishers || []
+                    });
+                }
             });
 
             const formattedCourses = Object.values(groupedCourses);
@@ -53,6 +61,7 @@ const CoursesDashboard = () => {
             dispatch(HideLoading());
         }
     };
+
 
     useEffect(() => {
         dispatch(fetchAllowedDevices());

@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from "react";
 import "./Rapid.css";
+import { useNavigate } from "react-router-dom";
 
-const Rapid = ({ data, onNext, onBack, onAnswerSelect, selectedOption, isLastQuestion, isFirstQuestion }) => {
+const Rapid = ({
+    data,
+    onNext,
+    onBack,
+    onAnswerSelect,
+    selectedOption,
+    isLastQuestion,
+    isFirstQuestion,
+    handleQuizSubmit,
+}) => {
     const concept = data;
     const [activeSubIndex, setActiveSubIndex] = useState(0);
     const [localSelection, setLocalSelection] = useState("");
 
     const subquestion = concept?.subquestions?.[activeSubIndex];
     const key = subquestion ? `${concept.id}-${activeSubIndex}` : null;
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (key) {
@@ -24,7 +35,7 @@ const Rapid = ({ data, onNext, onBack, onAnswerSelect, selectedOption, isLastQue
         );
     }
 
-    const optionKeys = Object.keys(subquestion.options);
+    const optionKeys = Object.keys(subquestion.options || {});
 
     const handleOptionClick = (optionKey) => {
         setLocalSelection(optionKey);
@@ -62,6 +73,11 @@ const Rapid = ({ data, onNext, onBack, onAnswerSelect, selectedOption, isLastQue
         }
     };
 
+    const handleClickSubmit = () => {
+        flushAnswer();
+        handleQuizSubmit();
+    }
+
     return (
         <div className="rapid-container">
             <div className="title">Core Concepts</div>
@@ -78,36 +94,36 @@ const Rapid = ({ data, onNext, onBack, onAnswerSelect, selectedOption, isLastQue
             <div className="question-section">
                 <div className="question">{subquestion.question}</div>
                 <div className="options">
-                    {optionKeys.map((optKey) => (
-                        <label
-                            key={optKey}
-                            className={`option ${localSelection === optKey ? "selected" : ""}`}
-                        >
-                            <input
-                                type="radio"
-                                name={`rapid-${concept.id}-${activeSubIndex}`}
-                                value={optKey}
-                                checked={localSelection === optKey}
-                                onChange={() => handleOptionClick(optKey)}
-                            />
-                            {subquestion.options[optKey]}
-                        </label>
-                    ))}
+                    {optionKeys.map((optKey) => {
+                        const optionObj = subquestion.options[optKey];
+                        // Defensive: handle both string and object
+                        const optionText =
+                            typeof optionObj === "string" ? optionObj : optionObj?.option || "";
+
+                        return (
+                            <label
+                                key={optKey}
+                                className={`option ${localSelection === optKey ? "selected" : ""}`}
+                            >
+                                <input
+                                    type="radio"
+                                    name={`rapid-${concept.id}-${activeSubIndex}`}
+                                    value={optKey}
+                                    checked={localSelection === optKey}
+                                    onChange={() => handleOptionClick(optKey)}
+                                />
+                                {optionText}
+                            </label>
+                        );
+                    })}
                 </div>
             </div>
 
             <div className="navigation">
-                <button
-                    className="nav-btn"
-                    onClick={handleBackClick}
-                    disabled={isFirstQuestion}
-                >
+                <button className="nav-btn" onClick={handleBackClick} disabled={isFirstQuestion}>
                     Back
                 </button>
-                <button
-                    className="submit-btn"
-                    onClick={flushAnswer}
-                >
+                <button className="submit-btn" onClick={handleClickSubmit}>
                     Submit
                 </button>
                 <button

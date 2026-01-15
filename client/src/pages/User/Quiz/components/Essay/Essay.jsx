@@ -10,6 +10,7 @@ const Essay = ({
     selectedOption = {},
     isLastQuestion,
     isFirstQuestion,
+    handleQuizSubmit,
 }) => {
     const [activeSubIndex, setActiveSubIndex] = useState(0);
     const subquestions = data?.subquestions || [];
@@ -64,12 +65,13 @@ const Essay = ({
         }
 
         flushAnswer();
-        alert("Essay submitted successfully!");
+        handleQuizSubmit();
     };
 
     const currentSub = subquestions[activeSubIndex];
     const wordCount =
         localAnswer.trim() === "" ? 0 : localAnswer.trim().split(/\s+/).filter(Boolean).length;
+
 
     return (
         <div className="essay-container">

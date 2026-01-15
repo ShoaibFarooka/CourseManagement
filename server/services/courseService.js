@@ -111,8 +111,43 @@ const fetchAllCoursesWithParts = async () => {
                 courseName: "$name",
                 partId: "$parts._id",
                 partName: "$parts.name",
+                publishers: {
+                    $map: {
+                        input: "$parts.publishers",
+                        as: "publisher",
+                        in: {
+                            _id: "$$publisher._id",
+                            name: "$$publisher.name"
+                        }
+                    }
+                }
             }
-        },
+        }
+    ]);
+};
+
+const fetchAllUnitsWithSubunits = async () => {
+    return await Course.aggregate([
+        { $unwind: "$parts" },
+        { $unwind: "$parts.publishers" },
+        { $unwind: "$parts.publishers.units" },
+        {
+            $project: {
+                _id: 0,
+                unitId: "$parts.publishers.units._id",
+                unitName: "$parts.publishers.units.name",
+                subunits: {
+                    $map: {
+                        input: "$parts.publishers.units.subunits",
+                        as: "sub",
+                        in: {
+                            _id: "$$sub._id",
+                            name: "$$sub.name"
+                        }
+                    }
+                }
+            }
+        }
     ]);
 };
 
@@ -122,4 +157,5 @@ module.exports = {
     updateCourse,
     deleteCourse,
     fetchAllCoursesWithParts,
+    fetchAllUnitsWithSubunits,
 };

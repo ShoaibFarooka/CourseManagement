@@ -1,39 +1,88 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./UnitExamContent.css";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import arrow from '../../../../../assets/icons/arrow.png';
+import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
+import { useDispatch } from "react-redux";
+import courseService from "../../../../../services/courseService";
+import { message } from "antd";
+import { useNavigate } from 'react-router-dom';
+import questionService from '../../../../../services/questionServices';
 
-const UnitExamContent = () => {
+const UnitExamContent = ({ publisher }) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [expandedUnit, setExpandedUnit] = useState(null);
+    const [units, setUnits] = useState([]);
 
-    const topics = [
-        {
-            id: 1,
-            name: "Foundation of Internal Auditing",
-            status: "20/23 Attempted",
-            statusType: "active",
-            proficiency: 80,
-            subunits: [
-                { id: "1-1", name: "Introduction to IA" },
-                { id: "1-2", name: "IA Standards" },
-                { id: "1-3", name: "Role of IA" },
-            ],
-        },
-        {
-            id: 2,
-            name: "Independence, Objectivity and Proficiency",
-            status: "12/20 Attempted",
-            statusType: "warning",
-            proficiency: 50,
-            subunits: [
-                { id: "2-1", name: "Independence" },
-                { id: "2-2", name: "Objectivity" },
-            ],
-        },
-    ];
+    const [selectedUnits, setSelectedUnits] = useState([]);
+    const [selectedSubunits, setSelectedSubunits] = useState({});
 
     const toggleAccordion = (id) => {
         setExpandedUnit(prev => (prev === id ? null : id));
+    };
+
+    const fetchUnitsandSubunits = async () => {
+        try {
+            dispatch(ShowLoading());
+            const res = await courseService.fetchUnitsAndSubunits();
+            setUnits(res.data);
+        } catch (error) {
+            message.error(error?.response?.data?.message || "Something went wrong!");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
+    useEffect(() => {
+        fetchUnitsandSubunits();
+    }, []);
+
+    const handleUnitCheck = (unitId, unitSubunits) => {
+        const isSelected = selectedUnits.includes(unitId);
+
+        if (isSelected) {
+            setSelectedUnits(selectedUnits.filter(id => id !== unitId));
+            setSelectedSubunits(prev => {
+                const copy = { ...prev };
+                delete copy[unitId];
+                return copy;
+            });
+        } else {
+            setSelectedUnits([...selectedUnits, unitId]);
+            setSelectedSubunits(prev => ({
+                ...prev,
+                [unitId]: prev[unitId]?.length ? prev[unitId] : unitSubunits.map(s => s._id)
+            }));
+        }
+    };
+
+    const handleSubunitCheck = (unitId, subunitId) => {
+        const otherUnitsSelected = selectedUnits.filter(id => id !== unitId).length > 0;
+
+        if (otherUnitsSelected && !selectedUnits.includes(unitId)) return;
+
+        setSelectedUnits(prev => prev.includes(unitId) ? prev : [...prev, unitId]);
+
+        setSelectedSubunits(prev => {
+            const unitSubs = prev[unitId] || [];
+            if (unitSubs.includes(subunitId)) {
+                return { ...prev, [unitId]: unitSubs.filter(id => id !== subunitId) };
+            } else {
+                return { ...prev, [unitId]: [...unitSubs, subunitId] };
+            }
+        });
+    };
+
+
+    const handleClickNext = () => {
+        navigate("/quiz", {
+            state: {
+                publisherId: publisher,
+                selectedUnits,
+                selectedSubunits
+            }
+        });
     };
 
     return (
@@ -43,54 +92,72 @@ const UnitExamContent = () => {
                 Select the topics you wish to study, click on + icon to expand
             </div>
 
-            <div className="table-header">
-                <span>Courses <img src={arrow} alt="arrow" /></span>
-                <span>Quiz Status <img src={arrow} alt="arrow" /></span>
+            <div className="unit-table-header">
+                <span>Units <img src={arrow} alt="arrow" /></span>
+                <span>Status <img src={arrow} alt="arrow" /></span>
                 <span>Proficiency Score <img src={arrow} alt="arrow" /></span>
             </div>
 
-            <div className="topics-list">
-                {topics.map((topic) => (
-                    <React.Fragment key={topic.id}>
+            <div className="unit-topic-list">
+                {units.map(topic => (
+                    <React.Fragment key={topic.unitId}>
 
-                        <div className="topic-row">
-                            <div className="topic-info">
+                        <div className="unit-topic-row">
+                            <div className="unit-topic-info">
                                 <span
-                                    className="topic-icon"
-                                    onClick={() => toggleAccordion(topic.id)}
+                                    className="unit-topic-icon"
+                                    onClick={() => toggleAccordion(topic.unitId)}
                                 >
-                                    {expandedUnit === topic.id ? <FaMinus /> : <FaPlus />}
+                                    {expandedUnit === topic.unitId ? <FaMinus /> : <FaPlus />}
                                 </span>
 
-                                <input type="checkbox" className="topic-checkbox" />
-                                <span className="topic-name">{topic.name}</span>
+                                <input
+                                    type="checkbox"
+                                    className="unit-topic-checkbox"
+                                    checked={selectedUnits.includes(topic.unitId)}
+                                    onChange={() => handleUnitCheck(topic.unitId, topic.subunits)}
+                                />
+                                <span className="unit-topic-name">{topic.unitName}</span>
                             </div>
 
-                            <div className={`topic-status ${topic.statusType}`}>
-                                {topic.status}
+                            <div className={`unit-topic-status active`}>
+                                Pending
                             </div>
 
-                            <div className="topic-progress">
-                                <div className="progress-bar">
+                            <div className="unit-topic-progress">
+                                <div className="unit-progress-bar">
                                     <div
-                                        className={`progress-fill ${topic.statusType}`}
-                                        style={{ width: `${topic.proficiency}%` }}
+                                        className={`unit-progress-fill active`}
+                                        style={{ width: `0%` }}
                                     />
                                 </div>
-                                <span className="progress-text">{topic.proficiency}%</span>
+                                <span className="unit-progress-text">0%</span>
                             </div>
                         </div>
 
-                        {expandedUnit === topic.id && (
-                            <div className="subunit-wrapper">
-                                {topic.subunits.map(sub => (
-                                    <div key={sub.id} className="subunit-row">
-                                        <div className="subunit-info">
-                                            <input type="checkbox" className="topic-checkbox" />
-                                            <span className="subunit-name">{sub.name}</span>
+                        {expandedUnit === topic.unitId && (
+                            <div className="unit-subunit-wrapper">
+                                <div className="unit-subunit-label">Subunits</div>
+
+                                {topic.subunits.map(sub => {
+                                    const otherUnitSelected = selectedUnits.some(id => id !== topic.unitId);
+                                    const disabled = otherUnitSelected && !selectedUnits.includes(topic.unitId);
+
+                                    return (
+                                        <div key={sub._id} className="unit-subunit-row">
+                                            <div className="unit-subunit-info">
+                                                <input
+                                                    type="checkbox"
+                                                    className="unit-topic-checkbox"
+                                                    checked={selectedSubunits[topic.unitId]?.includes(sub._id) || false}
+                                                    onChange={() => handleSubunitCheck(topic.unitId, sub._id)}
+                                                    disabled={disabled}
+                                                />
+                                                <span className="unit-subunit-name">{sub.name}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
 
@@ -98,9 +165,16 @@ const UnitExamContent = () => {
                 ))}
             </div>
 
-            <div className="next-btn-container">
-                <button className="button next">Next</button>
+            <div className="unit-next-btn-container">
+                <button
+                    className="button next"
+                    disabled={selectedUnits.length === 0}
+                    onClick={handleClickNext}
+                >
+                    Next
+                </button>
             </div>
+
         </div>
     );
 };

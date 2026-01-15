@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
 import './MCQs.css';
+import { useNavigate } from "react-router-dom";
 
-const MCQs = ({ question, questionIndex, selectedOption, onAnswerSelect, onNext, onBack, isLastQuestion, isFirstQuestion }) => {
+const MCQs = ({
+    question,
+    questionIndex,
+    selectedOption,
+    onAnswerSelect,
+    onNext,
+    onBack,
+    isLastQuestion,
+    isFirstQuestion,
+    handleQuizSubmit,
+}) => {
 
     const [localSelection, setLocalSelection] = useState(selectedOption || "");
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         setLocalSelection(selectedOption || "");
@@ -19,8 +32,12 @@ const MCQs = ({ question, questionIndex, selectedOption, onAnswerSelect, onNext,
         }
     };
 
+    const handleClickSubmit = () => {
+        flushAnswer();
+        handleQuizSubmit();
+    }
+
     const optionKeys = question.options ? Object.keys(question.options) : [];
-    const optionValues = question.options ? Object.values(question.options) : [];
 
     return (
         <div className="question-section">
@@ -28,25 +45,30 @@ const MCQs = ({ question, questionIndex, selectedOption, onAnswerSelect, onNext,
             <div className="question">{question.statement}</div>
 
             <div className="options">
-                {optionValues.map((opt, i) => (
-                    <label
-                        key={i}
-                        className={`option ${localSelection === optionKeys[i] ? "selected" : ""}`}
-                    >
-                        <input
-                            type="radio"
-                            name={`question-${question.id}`}
-                            checked={localSelection === optionKeys[i]}
-                            onChange={() => handleOptionClick(optionKeys[i])}
-                        />
-                        {opt}
-                    </label>
-                ))}
+                {optionKeys.map((optKey) => {
+                    const optObj = question.options[optKey];
+                    const optText = typeof optObj === "string" ? optObj : optObj?.option || "";
+
+                    return (
+                        <label
+                            key={optKey}
+                            className={`option ${localSelection === optKey ? "selected" : ""}`}
+                        >
+                            <input
+                                type="radio"
+                                name={`question-${question.id}`}
+                                checked={localSelection === optKey}
+                                onChange={() => handleOptionClick(optKey)}
+                            />
+                            {optText}
+                        </label>
+                    );
+                })}
             </div>
 
             <div className="question-buttons">
                 <button onClick={onBack} disabled={isFirstQuestion}>Back</button>
-                <button onClick={flushAnswer}>Submit</button>
+                <button onClick={handleClickSubmit}>Submit</button>
                 <button onClick={() => {
                     flushAnswer();
                     if (onNext) onNext();

@@ -57,10 +57,25 @@ const fetchAllCoursesWithParts = async (req, res, next) => {
     }
 };
 
+const getAllUnitsWithSubunits = async (req, res, next) => {
+    try {
+        const units = await courseService.fetchAllUnitsWithSubunits();
+
+        res.status(200).json({
+            success: true,
+            count: units.length,
+            data: units
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     GetAllCourses,
     AddCourse,
     UpdateCourse,
     DeleteCourse,
-    fetchAllCoursesWithParts
+    fetchAllCoursesWithParts,
+    getAllUnitsWithSubunits,
 };

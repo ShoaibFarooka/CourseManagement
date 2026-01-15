@@ -39,12 +39,9 @@ const getAllQuestions = async (req, res, next) => {
 
         res.status(200).json(result);
     } catch (error) {
-        console.error("Error in getAllQuestions:", error);
         next(error);
     }
 };
-
-
 
 const addEssayQuestion = async (req, res, next) => {
     try {
@@ -137,7 +134,7 @@ const deleteQuestion = async (req, res, next) => {
     }
 };
 
-const uploadMCQQuestions = async (req, res) => {
+const uploadMCQQuestions = async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
@@ -151,13 +148,11 @@ const uploadMCQQuestions = async (req, res) => {
             warnings: result.warnings
         });
     } catch (error) {
-        console.error("Error uploading MCQ questions:", error);
-        res.status(500).json({ error: "An error occurred while processing the file" });
+        next(error);
     }
 };
 
-
-const uploadRapidQuestions = async (req, res) => {
+const uploadRapidQuestions = async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
@@ -171,13 +166,11 @@ const uploadRapidQuestions = async (req, res) => {
             warnings: result.warnings
         });
     } catch (error) {
-        console.error("Error uploading Rapid questions:", error);
-        res.status(500).json({ error: "An error occurred while processing the file" });
+        next(error);
     }
 };
 
-
-const uploadEssayQuestions = async (req, res) => {
+const uploadEssayQuestions = async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
@@ -191,12 +184,11 @@ const uploadEssayQuestions = async (req, res) => {
             warnings: result.warnings
         });
     } catch (error) {
-        console.error("Error uploading Essay questions:", error);
-        res.status(500).json({ error: "An error occurred while processing the file" });
+        next(error);
     }
 };
 
-const validateMCQQuestions = async (req, res) => {
+const validateMCQQuestions = async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
@@ -213,12 +205,11 @@ const validateMCQQuestions = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error validating MCQ questions:", error);
-        res.status(500).json({ error: "An error occurred while validating the file" });
+        next(error);
     }
 };
 
-const validateRapidQuestions = async (req, res) => {
+const validateRapidQuestions = async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
@@ -235,12 +226,11 @@ const validateRapidQuestions = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error validating Rapid questions:", error);
-        res.status(500).json({ error: "An error occurred while validating the file" });
+        next(error);
     }
 };
 
-const validateEssayQuestions = async (req, res) => {
+const validateEssayQuestions = async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
@@ -257,8 +247,42 @@ const validateEssayQuestions = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error validating Essay questions:", error);
-        res.status(500).json({ error: "An error occurred while validating the file" });
+        next(error);
+    }
+};
+
+const fetchQuestionsWithFilters = async (req, res, next) => {
+    try {
+        const {
+            publisherId,
+            selectedUnits,
+            selectedSubunits,
+            page,
+            limit
+        } = req.body;
+
+        if (!publisherId || !selectedUnits || selectedUnits.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Publisher and at least one unit are required"
+            });
+        }
+
+        const result = await questionService.FetchQuestionsWithFilters({
+            publisherId,
+            selectedUnits,
+            selectedSubunits,
+            page,
+            limit
+        });
+
+        res.status(200).json({
+            data: result.questions,
+            pagination: result.pagination
+        });
+
+    } catch (error) {
+        next(error);
     }
 };
 
@@ -274,5 +298,6 @@ module.exports = {
     uploadEssayQuestions,
     validateMCQQuestions,
     validateRapidQuestions,
-    validateEssayQuestions
+    validateEssayQuestions,
+    fetchQuestionsWithFilters
 };
