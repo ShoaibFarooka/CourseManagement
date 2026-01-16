@@ -1,7 +1,6 @@
 import axiosInstance from "./axiosInstance";
 
 const BASE_URL = "/api/user";
-const token = localStorage.getItem("course-managment-jwt-token");
 
 const userService = {
     loginUser: async (payload) => {
@@ -113,15 +112,10 @@ const userService = {
 
     updateUserProfileImage: async (payload) => {
         try {
-            const token = localStorage.getItem("course-managment-jwt-token");
             const response = await axiosInstance.patch(
                 `${BASE_URL}/update-user-profile-Image`,
                 payload,
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data"
-                    },
                     withCredentials: true
                 }
 

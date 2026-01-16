@@ -24,7 +24,7 @@ const Profile = () => {
     const [errors, setErrors] = useState({});
 
     const accountStatus = user?.isBlocked === false ? "Active" : "Suspended";
-
+    const baseURL = import.meta.env.VITE_BASE_URL;
 
     useEffect(() => {
         if (user) {
@@ -34,7 +34,7 @@ const Profile = () => {
                 phone: user.phone ? user.phone.toString() : "",
                 country: user.country || "",
             });
-            setProfileImage(user.image || profileimg);
+            setProfileImage(`${baseURL}${user?.image}`);
         }
     }, [user]);
 
@@ -122,7 +122,7 @@ const Profile = () => {
         }
     };
 
-
+    console.log(profileImage);
     return (
         <>
             <div className="profile"></div>
@@ -130,7 +130,7 @@ const Profile = () => {
             <div className="profile-container">
                 <div className="profile-image-section">
                     <img
-                        src={profileImage || profileimg}
+                        src={profileImage}
                         alt="Profile"
                         className="profile-image"
                     />
