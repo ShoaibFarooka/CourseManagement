@@ -5,6 +5,7 @@ import { isAuthenticated } from '../../utilis/authUtilis';
 import { fetchUserInfo } from '../../redux/userSlice';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import { checkCurrentDeviceStatus, fetchPurchasedCourses } from '../../redux/userSlice';
 
 const Layout = ({ showHeader, showFooter, children }) => {
     const isAuth = isAuthenticated();
@@ -13,9 +14,10 @@ const Layout = ({ showHeader, showFooter, children }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log("Layout effect")
         if (isAuth && !user) {
             dispatch(fetchUserInfo());
+            dispatch(checkCurrentDeviceStatus());
+            dispatch(fetchPurchasedCourses());
         }
     }, [isAuth, user]);
 

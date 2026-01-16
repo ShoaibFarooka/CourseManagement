@@ -15,7 +15,11 @@ export const menuItems = {
         { path: '/About-Us' },
         { path: '/Contact-Us' },
         { path: "/courses/:exam" },
-        { path: '/course' },
+        { path: '/courses' },
+        { path: '/courses/dashboard' },
+        { path: '/courses/unit-exams' },
+        { path: '/courses/practice-exams' },
+        { path: '/courses/package-exams' },
         { path: '/quiz' },
         { path: '/progress-report' },
     ]

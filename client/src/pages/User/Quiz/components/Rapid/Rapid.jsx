@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Rapid.css";
-import { useNavigate } from "react-router-dom";
 
 const Rapid = ({
     data,
     onNext,
     onBack,
     onAnswerSelect,
-    selectedOption,
+    selectedOption = {},
     isLastQuestion,
     isFirstQuestion,
     handleQuizSubmit,
@@ -17,14 +16,17 @@ const Rapid = ({
     const [localSelection, setLocalSelection] = useState("");
 
     const subquestion = concept?.subquestions?.[activeSubIndex];
-    const key = subquestion ? `${concept.id}-${activeSubIndex}` : null;
-    const navigate = useNavigate();
 
+    const answerKey = concept && subquestion
+        ? `${concept._id || concept.id}-${activeSubIndex}`
+        : null;
+
+    /** Restore saved answer when subquestion changes */
     useEffect(() => {
-        if (key) {
-            setLocalSelection(selectedOption?.[key] || "");
+        if (answerKey) {
+            setLocalSelection(selectedOption[answerKey] || "");
         }
-    }, [key, selectedOption]);
+    }, [answerKey, selectedOption]);
 
     if (!concept || !subquestion) {
         return (
@@ -37,53 +39,56 @@ const Rapid = ({
 
     const optionKeys = Object.keys(subquestion.options || {});
 
-    const handleOptionClick = (optionKey) => {
-        setLocalSelection(optionKey);
-    };
-
-    const flushAnswer = () => {
-        if (key && localSelection) {
-            onAnswerSelect?.(key, localSelection);
+    const saveAnswer = () => {
+        if (answerKey && localSelection) {
+            onAnswerSelect(answerKey, localSelection);
         }
     };
 
     const handleNextClick = () => {
         if (!localSelection) {
-            alert("Please select an option before moving to next question.");
+            alert("Please select an option before continuing.");
             return;
         }
 
-        flushAnswer();
+        saveAnswer();
 
         if (activeSubIndex < concept.subquestions.length - 1) {
-            setActiveSubIndex(activeSubIndex + 1);
-            setLocalSelection("");
+            setActiveSubIndex((prev) => prev + 1);
         } else {
             setActiveSubIndex(0);
-            setLocalSelection("");
-            if (onNext) onNext();
+            onNext?.();
         }
     };
 
     const handleBackClick = () => {
+        saveAnswer();
+
         if (activeSubIndex > 0) {
-            setActiveSubIndex(activeSubIndex - 1);
+            setActiveSubIndex((prev) => prev - 1);
         } else {
-            if (onBack) onBack();
+            onBack?.();
         }
     };
 
-    const handleClickSubmit = () => {
-        flushAnswer();
+    const handleSubmitClick = () => {
+        if (!localSelection) {
+            alert("Please select an option before submitting.");
+            return;
+        }
+
+        saveAnswer();
         handleQuizSubmit();
-    }
+    };
 
     return (
         <div className="rapid-container">
             <div className="title">Core Concepts</div>
 
             <div className="core-concepts">
-                <button className="concept-btn active">{concept.concept}</button>
+                <button className="concept-btn active">
+                    {concept.concept}
+                </button>
             </div>
 
             <div className="concept-info">
@@ -93,24 +98,26 @@ const Rapid = ({
 
             <div className="question-section">
                 <div className="question">{subquestion.question}</div>
+
                 <div className="options">
                     {optionKeys.map((optKey) => {
                         const optionObj = subquestion.options[optKey];
-                        // Defensive: handle both string and object
                         const optionText =
-                            typeof optionObj === "string" ? optionObj : optionObj?.option || "";
+                            typeof optionObj === "string"
+                                ? optionObj
+                                : optionObj?.option || "";
 
                         return (
                             <label
                                 key={optKey}
-                                className={`option ${localSelection === optKey ? "selected" : ""}`}
+                                className={`option ${localSelection === optKey ? "selected" : ""
+                                    }`}
                             >
                                 <input
                                     type="radio"
-                                    name={`rapid-${concept.id}-${activeSubIndex}`}
-                                    value={optKey}
+                                    name={`rapid-${answerKey}`}
                                     checked={localSelection === optKey}
-                                    onChange={() => handleOptionClick(optKey)}
+                                    onChange={() => setLocalSelection(optKey)}
                                 />
                                 {optionText}
                             </label>
@@ -120,16 +127,31 @@ const Rapid = ({
             </div>
 
             <div className="navigation">
-                <button className="nav-btn" onClick={handleBackClick} disabled={isFirstQuestion}>
+                <button
+                    className="nav-btn"
+                    onClick={handleBackClick}
+                    disabled={isFirstQuestion && activeSubIndex === 0}
+                >
                     Back
                 </button>
-                <button className="submit-btn" onClick={handleClickSubmit}>
-                    Submit
-                </button>
+
+                {isLastQuestion &&
+                    activeSubIndex === concept.subquestions.length - 1 && (
+                        <button
+                            className="submit-btn"
+                            onClick={handleSubmitClick}
+                        >
+                            Submit
+                        </button>
+                    )}
+
                 <button
-                    disabled={isLastQuestion}
-                    onClick={handleNextClick}
                     className="nav-btn"
+                    onClick={handleNextClick}
+                    disabled={
+                        isLastQuestion &&
+                        activeSubIndex === concept.subquestions.length - 1
+                    }
                 >
                     Next
                 </button>

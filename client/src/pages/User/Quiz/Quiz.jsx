@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { FaChevronLeft } from "react-icons/fa";
 import { TiStopwatch } from "react-icons/ti";
 import "./Quiz.css";
@@ -15,6 +15,8 @@ import questionService from "../../../services/questionServices";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
+const QUIZ_TIME = 300;
+
 const Quiz = () => {
     const { state } = useLocation();
     const dispatch = useDispatch();
@@ -29,11 +31,13 @@ const Quiz = () => {
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
-    const [time, setTime] = useState(300);
+    const [time, setTime] = useState(QUIZ_TIME);
 
+    /* -------------------- Fetch Questions -------------------- */
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
             dispatch(ShowLoading());
+
             const res = await questionService.fetchQuestionsWithFilters({
                 publisherId,
                 selectedUnits,
@@ -42,10 +46,15 @@ const Quiz = () => {
                 limit,
             });
 
-            setQuestions(prev => [...prev, ...res.data]);
+            if (pageToFetch === 1) {
+                setQuestions(res.data);
+            } else {
+                setQuestions(prev => [...prev, ...res.data]);
+            }
+
             setTotalQuestions(res.pagination.total);
         } catch (error) {
-            message.error(error.response?.data?.error || "Something went wrong!");
+            message.error(error.response?.data?.error || "Failed to load questions");
         } finally {
             dispatch(HideLoading());
         }
@@ -55,11 +64,12 @@ const Quiz = () => {
         fetchQuestions(page);
     }, [page]);
 
-
+    /* -------------------- Timer -------------------- */
     useEffect(() => {
         const timer = setInterval(() => {
             setTime(prev => (prev > 0 ? prev - 1 : 0));
         }, 1000);
+
         return () => clearInterval(timer);
     }, []);
 
@@ -69,14 +79,20 @@ const Quiz = () => {
         return `${mins}:${secs < 10 ? "0" + secs : secs}`;
     };
 
-    const handleAnswerSelect = (questionId, optionKey) => {
-        setAnswers(prev => ({ ...prev, [questionId]: optionKey }));
+    /* -------------------- Answer Handling -------------------- */
+    const handleAnswerSelect = (key, value) => {
+        setAnswers(prev => ({
+            ...prev,
+            [key]: value,
+        }));
     };
 
+    /* -------------------- Navigation -------------------- */
     const goToQuestion = (index) => setCurrentIndex(index);
 
     const nextQuestion = () => {
         const nextIndex = currentIndex + 1;
+
         if (nextIndex >= questions.length - 3 && questions.length < totalQuestions) {
             setPage(prev => prev + 1);
         }
@@ -84,109 +100,70 @@ const Quiz = () => {
         setCurrentIndex(Math.min(nextIndex, questions.length - 1));
     };
 
-    const prevQuestion = () =>
+    const prevQuestion = () => {
         setCurrentIndex(prev => Math.max(prev - 1, 0));
+    };
 
     const currentQuestion = questions[currentIndex];
     const isFirstQuestion = currentIndex === 0;
     const isLastQuestion = currentIndex === totalQuestions - 1;
 
-    const totalSteps = questions.reduce((acc, q) => {
-        if (q.type === "mcq") return acc + 1;
-        if (q.type === "rapid" || q.type === "essay") return acc + (q.subquestions?.length || 0);
-        return acc;
-    }, 0);
-
-    const answeredSteps = questions.reduce((acc, q) => {
-        if (q.type === "mcq") return acc + (answers[q.id] ? 1 : 0);
-        if (q.type === "rapid" || q.type === "essay") {
-            const answeredSubs = q.subquestions?.filter((_, i) => answers[`${q.id}-${i}`])?.length || 0;
-            return acc + answeredSubs;
-        }
-        return acc;
-    }, 0);
-
-    const progress = Math.round((answeredSteps / totalSteps) * 100);
-
-    const correctCount = questions.reduce((acc, q) => {
-        if (q.type === "mcq" && answers[q.id] === q.correctOption) return acc + 1;
-        if (q.type === "rapid") {
-            const correctSubs = q.subquestions?.reduce((subAcc, sub, i) => {
-                const key = `${q.id}-${i}`;
-                if (answers[key] && answers[key] === sub.correctOption) return subAcc + 1;
-                return subAcc;
-            }, 0) || 0;
-            return acc + correctSubs;
-        }
-        return acc;
-    }, 0);
-
-    const incorrectCount = questions.reduce((acc, q) => {
-        if (q.type === "mcq" && answers[q.id] && answers[q.id] !== q.correctOption) return acc + 1;
-        if (q.type === "rapid") {
-            const incorrectSubs = q.subquestions?.reduce((subAcc, sub, i) => {
-                const key = `${q.id}-${i}`;
-                if (answers[key] && answers[key] !== sub.correctOption) return subAcc + 1;
-                return subAcc;
-            }, 0) || 0;
-            return acc + incorrectSubs;
-        }
-        return acc;
-    }, 0);
-
-    const unansweredCount = totalSteps - Object.keys(answers).length;
-
-    const handleQuizSubmit = () => {
-        // Calculate counts per type
-        let totalMCQs = 0, correctMCQs = 0;
-        let totalRapid = 0, correctRapid = 0;
-        let totalEssay = 0, correctEssay = 0;
-
-        questions.forEach(q => {
-            if (q.type === "mcq") {
-                totalMCQs += 1;
-                if (answers[q.id] === q.correctOption) correctMCQs += 1;
-            } else if (q.type === "rapid") {
-                const subCount = q.subquestions?.length || 0;
-                totalRapid += subCount;
-                q.subquestions?.forEach((sub, i) => {
-                    const key = `${q.id}-${i}`;
-                    if (answers[key] && answers[key] === sub.correctOption) correctRapid += 1;
-                });
-            } else if (q.type === "essay") {
-                const subCount = q.subquestions?.length || 0;
-                totalEssay += subCount;
-                q.subquestions?.forEach((sub, i) => {
-                    const key = `${q.id}-${i}`;
-                    // For essay, you can consider non-empty answer as "correct" if needed
-                    if (answers[key] && answers[key].trim().length > 0) correctEssay += 1;
-                });
+    /* -------------------- Progress Calculations -------------------- */
+    const totalSteps = useMemo(() => {
+        return questions.reduce((acc, q) => {
+            if (q.type === "mcq") return acc + 1;
+            if (q.type === "rapid" || q.type === "essay") {
+                return acc + (q.subquestions?.length || 0);
             }
-        });
+            return acc;
+        }, 0);
+    }, [questions]);
 
-        const overallScore = Math.round(((correctMCQs + correctRapid + correctEssay) / (totalMCQs + totalRapid + totalEssay)) * 100);
-        const mcqScore = totalMCQs > 0 ? Math.round((correctMCQs / totalMCQs) * 100) : 0;
-        const rapidScore = totalRapid > 0 ? Math.round((correctRapid / totalRapid) * 100) : 0;
-        const essayScore = totalEssay > 0 ? Math.round((correctEssay / totalEssay) * 100) : 0;
+    const answeredSteps = Object.keys(answers).length;
 
+    const progress = totalSteps === 0
+        ? 0
+        : Math.round((answeredSteps / totalSteps) * 100);
+
+    /* -------------------- Correct / Incorrect -------------------- */
+    const correctCount = useMemo(() => {
+        return questions.reduce((acc, q) => {
+            if (q.type === "mcq") {
+                const key = `mcq:${q._id}`;
+                return answers[key] === q.correctOption ? acc + 1 : acc;
+            }
+
+            if (q.type === "rapid") {
+                return acc + (q.subquestions?.reduce((sAcc, sub, i) => {
+                    const key = `rapid:${q._id}:${i}`;
+                    return answers[key] === sub.correctOption ? sAcc + 1 : sAcc;
+                }, 0) || 0);
+            }
+
+            return acc;
+        }, 0);
+    }, [questions, answers]);
+
+    const incorrectCount = answeredSteps - correctCount;
+    const unansweredCount = totalSteps - answeredSteps;
+
+    /* -------------------- Submit Quiz -------------------- */
+    const handleQuizSubmit = () => {
         navigate("/progress-report", {
             state: {
-                overallScore,
-                correctAnswers: correctMCQs + correctRapid + correctEssay,
-                incorrectAnswers: (totalMCQs + totalRapid + totalEssay) - (correctMCQs + correctRapid + correctEssay),
-                mcqScore,
-                rapidScore,
-                essayScore,
+                overallScore: progress,
+                correctAnswers: correctCount,
+                incorrectAnswers: incorrectCount,
             }
         });
     };
 
-
+    /* -------------------- Render -------------------- */
     return (
         <div className="quiz-container">
             <div className="quiz-main">
                 <div className="button-container">
-                    <button className="back-btn" onClick={() => console.log("Back")}>
+                    <button className="back-btn">
                         <FaChevronLeft /> BACK
                     </button>
                 </div>
@@ -200,6 +177,7 @@ const Quiz = () => {
                 </div>
 
                 <ProgressBar progress={progress} />
+
                 <QuizStatus
                     correct={correctCount}
                     marked={0}
@@ -211,7 +189,7 @@ const Quiz = () => {
                     <MCQs
                         question={currentQuestion}
                         questionIndex={currentIndex}
-                        selectedOption={answers[currentQuestion.id]}
+                        selectedOption={answers[`mcq:${currentQuestion._id}`]}
                         onAnswerSelect={handleAnswerSelect}
                         onNext={nextQuestion}
                         onBack={prevQuestion}
@@ -224,10 +202,10 @@ const Quiz = () => {
                 {currentQuestion?.type === "rapid" && (
                     <Rapid
                         data={currentQuestion}
+                        selectedAnswers={answers}
+                        onAnswerSelect={handleAnswerSelect}
                         onNext={nextQuestion}
                         onBack={prevQuestion}
-                        onAnswerSelect={handleAnswerSelect}
-                        selectedOption={answers}
                         isFirstQuestion={isFirstQuestion}
                         isLastQuestion={isLastQuestion}
                         handleQuizSubmit={handleQuizSubmit}
@@ -237,10 +215,10 @@ const Quiz = () => {
                 {currentQuestion?.type === "essay" && (
                     <Essay
                         data={currentQuestion}
+                        selectedAnswers={answers}
+                        onAnswerSelect={handleAnswerSelect}
                         onNext={nextQuestion}
                         onBack={prevQuestion}
-                        onAnswerSelect={handleAnswerSelect}
-                        selectedOption={answers}
                         isFirstQuestion={isFirstQuestion}
                         isLastQuestion={isLastQuestion}
                         handleQuizSubmit={handleQuizSubmit}

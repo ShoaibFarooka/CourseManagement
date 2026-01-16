@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./Essay.css";
-import { message } from 'antd';
+import { message } from "antd";
 
 const Essay = ({
-    data = {},
+    data,
     onNext,
     onBack,
     onAnswerSelect,
@@ -13,110 +13,142 @@ const Essay = ({
     handleQuizSubmit,
 }) => {
     const [activeSubIndex, setActiveSubIndex] = useState(0);
-    const subquestions = data?.subquestions || [];
     const [localAnswer, setLocalAnswer] = useState("");
 
-    const currentKey = `${data.id}-${activeSubIndex}`;
+    const subquestions = data?.subquestions || [];
+    const currentSub = subquestions[activeSubIndex];
 
+    const answerKey =
+        data && currentSub
+            ? `${data._id || data.id}-${activeSubIndex}`
+            : null;
+
+    /** Restore saved answer */
     useEffect(() => {
-        setLocalAnswer(selectedOption[currentKey] || "");
-    }, [activeSubIndex]);
+        if (answerKey) {
+            setLocalAnswer(selectedOption[answerKey] || "");
+        }
+    }, [answerKey, selectedOption]);
 
-    const handleAnswerChange = (e) => {
-        setLocalAnswer(e.target.value);
-    };
+    const wordCount =
+        localAnswer.trim() === ""
+            ? 0
+            : localAnswer.trim().split(/\s+/).filter(Boolean).length;
 
-    const flushAnswer = () => {
+    const saveAnswer = () => {
         const trimmed = localAnswer.trim();
-        if (trimmed && onAnswerSelect) {
-            onAnswerSelect(currentKey, trimmed);
+        if (answerKey && trimmed) {
+            onAnswerSelect(answerKey, trimmed);
         }
     };
 
-    const handleClickNext = () => {
-        const wordCount = localAnswer.trim().split(/\s+/).filter(Boolean).length;
+    const validateAnswer = () => {
         if (wordCount < 5) {
             message.warning("Please write at least 5 words before continuing.");
-            return;
+            return false;
         }
+        return true;
+    };
 
-        flushAnswer();
+    const handleNextClick = () => {
+        if (!validateAnswer()) return;
+
+        saveAnswer();
 
         if (activeSubIndex < subquestions.length - 1) {
-            setActiveSubIndex(activeSubIndex + 1);
-        } else if (onNext) {
-            onNext(flushAnswer);
+            setActiveSubIndex((prev) => prev + 1);
+        } else {
+            setActiveSubIndex(0);
+            onNext?.();
         }
     };
 
-    const handleClickBack = () => {
+    const handleBackClick = () => {
+        saveAnswer();
+
         if (activeSubIndex > 0) {
-            setActiveSubIndex(activeSubIndex - 1);
-        } else if (onBack) {
-            onBack();
+            setActiveSubIndex((prev) => prev - 1);
+        } else {
+            onBack?.();
         }
     };
 
-    const handleSubmit = () => {
-        const wordCount = localAnswer.trim().split(/\s+/).filter(Boolean).length;
-        if (wordCount < 5) {
-            message.warning("Please write at least 5 words before submitting.");
-            return;
-        }
+    const handleSubmitClick = () => {
+        if (!validateAnswer()) return;
 
-        flushAnswer();
+        saveAnswer();
         handleQuizSubmit();
     };
 
-    const currentSub = subquestions[activeSubIndex];
-    const wordCount =
-        localAnswer.trim() === "" ? 0 : localAnswer.trim().split(/\s+/).filter(Boolean).length;
-
+    if (!data || !currentSub) {
+        return (
+            <div className="essay-container">
+                <div className="essay-title">Essay Content</div>
+                <p>No essay questions available.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="essay-container">
             <div className="essay-title">Essay Content</div>
-            <p className="essay-content">{data.content || "No essay content available."}</p>
 
-            {currentSub ? (
-                <div className="essay-question-section">
-                    <div className="essay-question">{currentSub.statement}</div>
+            <p className="essay-content">
+                {data.content || "No essay content available."}
+            </p>
 
-                    <textarea
-                        className="essay-textarea"
-                        placeholder="Write your answer here..."
-                        value={localAnswer}
-                        onChange={handleAnswerChange}
-                    />
-
-                    {wordCount >= 5 && currentSub.explanation && (
-                        <div className="essay-correct-answer fade-in">
-                            <div className="answer-heading">Correct Answer</div>
-                            <p className="answer-text">{currentSub.explanation}</p>
-                        </div>
-                    )}
-
-                    <div className="essay-navigation">
-                        <button className="nav-btn" onClick={handleClickBack} disabled={isFirstQuestion}>
-                            Back
-                        </button>
-
-                        <button className="submit-btn" onClick={handleSubmit}>
-                            Submit
-                        </button>
-
-                        <button
-                            className="nav-btn"
-                            onClick={handleClickNext}
-                            disabled={isLastQuestion && activeSubIndex === subquestions.length - 1}
-                        >
-                            Next
-                        </button>
-                    </div>
+            <div className="essay-question-section">
+                <div className="essay-question">
+                    {currentSub.statement}
                 </div>
-            ) : (
-                <p>No subquestions available.</p>
-            )}
+
+                <textarea
+                    className="essay-textarea"
+                    placeholder="Write your answer here..."
+                    value={localAnswer}
+                    onChange={(e) => setLocalAnswer(e.target.value)}
+                />
+
+                {wordCount >= 5 && currentSub.explanation && (
+                    <div className="essay-correct-answer fade-in">
+                        <div className="answer-heading">Correct Answer</div>
+                        <p className="answer-text">
+                            {currentSub.explanation}
+                        </p>
+                    </div>
+                )}
+
+                <div className="essay-navigation">
+                    <button
+                        className="nav-btn"
+                        onClick={handleBackClick}
+                        disabled={isFirstQuestion && activeSubIndex === 0}
+                    >
+                        Back
+                    </button>
+
+                    {isLastQuestion &&
+                        activeSubIndex === subquestions.length - 1 && (
+                            <button
+                                className="submit-btn"
+                                onClick={handleSubmitClick}
+                            >
+                                Submit
+                            </button>
+                        )}
+
+                    <button
+                        className="nav-btn"
+                        onClick={handleNextClick}
+                        disabled={
+                            isLastQuestion &&
+                            activeSubIndex === subquestions.length - 1
+                        }
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

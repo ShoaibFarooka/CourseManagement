@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
-import arrow from '../../../../../assets/icons/arrow.png';
-import profile from '../../../../../assets/images/profile.jpg';
-import CustomModal from '../../../../../components/CustomModal/CustomModal';
-import DeviceVerification from "../DeviceVerification/DeviceVerification";
-import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { message } from 'antd';
-import deviceRequestService from '../../../../../services/deviceRequestService';
-import paymentRequestService from '../../../../../services/paymentRequestService';
-import { getBasicDeviceInfo } from '../../../../../utilis/deviceInfoUtils';
+import arrow from "../../../assets/icons/arrow.png";
+import profile from "../../../assets/images/profile.jpg";
+import CustomModal from "../../../components/CustomModal/CustomModal";
+import DeviceVerification from "./components/DeviceVerification/DeviceVerification";
+import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { message } from "antd";
+import deviceRequestService from "../../../services/deviceRequestService";
+import paymentRequestService from "../../../services/paymentRequestService";
+import courseService from "../../../services/courseService";
+import { getBasicDeviceInfo } from "../../../utilis/deviceInfoUtils";
+
+const Dashboard = () => {
+    const dispatch = useDispatch();
+
+    const { currentDeviceStatus, purchasedCourses } = useSelector(
+        state => state.user
+    );
 
 
-const Dashboard = ({ allCourses }) => {
-
+    const [allCourses, setAllCourses] = useState([]);
     const [selectedParts, setSelectedParts] = useState({});
     const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
 
-    const dispatch = useDispatch();
-    const { currentDeviceStatus } = useSelector(state => state.user);
+    useEffect(() => {
+        fetchAllCourses();
+    }, []);
 
     useEffect(() => {
         const initialSelection = {};
@@ -28,22 +36,68 @@ const Dashboard = ({ allCourses }) => {
             }
         });
         setSelectedParts(initialSelection);
-    }, [allCourses])
+    }, [allCourses]);
 
+    const fetchAllCourses = async () => {
+        try {
+            dispatch(ShowLoading());
+
+            const res = await courseService.fetchAllCoursesWithParts();
+            const groupedCourses = {};
+
+            res.courses.forEach(item => {
+                if (!groupedCourses[item.courseId]) {
+                    groupedCourses[item.courseId] = {
+                        id: item.courseId,
+                        name: item.courseName,
+                        parts: []
+                    };
+                }
+
+                const exists = groupedCourses[item.courseId].parts.find(
+                    part => part.id === item.partId
+                );
+
+                if (!exists) {
+                    groupedCourses[item.courseId].parts.push({
+                        id: item.partId,
+                        name: item.partName,
+                        publishers: item.publishers || []
+                    });
+                }
+            });
+
+            setAllCourses(Object.values(groupedCourses));
+        } catch (error) {
+            message.error(
+                error?.response?.data?.message || "Something went wrong"
+            );
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
+    const getPurchasedInfo = (courseId, partId) => {
+        return purchasedCourses.find(
+            pc =>
+                String(pc.courseId) === String(courseId) &&
+                String(pc.partId) === String(partId)
+        );
+    };
 
     const getDaysLeft = (startDate, expiryDate) => {
         if (!expiryDate || !startDate) return null;
+
         const today = new Date();
-        const end = new Date(expiryDate);
         const start = new Date(startDate);
+        const end = new Date(expiryDate);
 
         if (today < start) {
             return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
         }
 
-        const diffTime = end - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays > 0 ? diffDays : 0;
+        const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+        return diff > 0 ? diff : 0;
     };
 
     const getExpiryPercentage = (startDate, expiryDate) => {
@@ -53,14 +107,13 @@ const Dashboard = ({ allCourses }) => {
         const start = new Date(startDate);
         const end = new Date(expiryDate);
 
-        const totalDays = (end - start) / (1000 * 60 * 60 * 24);
+        const total = (end - start) / (1000 * 60 * 60 * 24);
 
         if (today < start) return 0;
         if (today >= end) return 100;
 
-        const elapsedDays = (today - start) / (1000 * 60 * 60 * 24);
-
-        return Math.round((elapsedDays / totalDays) * 100);
+        const elapsed = (today - start) / (1000 * 60 * 60 * 24);
+        return Math.round((elapsed / total) * 100);
     };
 
     const getExpiryColor = (daysLeft, startDate, expiryDate) => {
@@ -71,15 +124,10 @@ const Dashboard = ({ allCourses }) => {
         return "green";
     };
 
-
-
-    const handleCloseDeviceRequestModal = () => {
-        setIsOpenDeviceRequestModal(false);
-    }
-
     const handleDeviceRequestAccess = async () => {
         try {
             dispatch(ShowLoading());
+
             const deviceInfo = await getBasicDeviceInfo();
             const res = await deviceRequestService.createDeviceRequest(deviceInfo);
 
@@ -94,7 +142,6 @@ const Dashboard = ({ allCourses }) => {
             }
 
             message.success(res.message || "Device request submitted successfully.");
-
         } catch (err) {
             message.error(
                 err?.response?.data?.message || "Something went wrong"
@@ -109,44 +156,41 @@ const Dashboard = ({ allCourses }) => {
         try {
             dispatch(ShowLoading());
 
-            const res = await paymentRequestService.createPaymentRequest(courseId, partId);
+            const res = await paymentRequestService.createPaymentRequest(
+                courseId,
+                partId
+            );
 
-            message.success(res?.data?.message || "Payment Request Submitted Successfully!");
+            message.success(
+                res?.data?.message || "Payment Request Submitted Successfully!"
+            );
         } catch (error) {
             if (error?.response?.status === 409) {
-                message.warning(error.response.data.message || "You already have a pending request for this course and part.");
+                message.warning(error.response.data.message);
             } else {
-                message.error(error?.response?.data?.message || "Something went wrong");
+                message.error(
+                    error?.response?.data?.message || "Something went wrong"
+                );
             }
         } finally {
             dispatch(HideLoading());
         }
     };
 
-    const { purchasedCourses } = useSelector(state => state.user);
-    const getPurchasedInfo = (courseId, partId) => {
-        return purchasedCourses.find(pc =>
-            String(pc.courseId) === String(courseId) &&
-            String(pc.partId) === String(partId)
-        );
-    };
-
-
-
     return (
         <div className="dashboard-container">
             <div className="profile-circle">
-                <img
-                    src={profile}
-                    alt="User"
-                    className="profile-image"
-                />
+                <img src={profile} alt="User" className="profile-image" />
             </div>
+
             <div className="device-request">
-                {currentDeviceStatus === true ? (
+                {currentDeviceStatus ? (
                     <span className="verified">Device Verified</span>
                 ) : (
-                    <button className="request-btn" onClick={handleDeviceRequestAccess}>
+                    <button
+                        className="request-btn"
+                        onClick={handleDeviceRequestAccess}
+                    >
                         Device Verification
                     </button>
                 )}
@@ -154,32 +198,44 @@ const Dashboard = ({ allCourses }) => {
 
             <CustomModal
                 isOpen={isOpenDeviceRequestModal}
-                onRequestClose={handleCloseDeviceRequestModal}
-                contentLabel='Device Verification'
+                onRequestClose={() => setIsOpenDeviceRequestModal(false)}
+                contentLabel="Device Verification"
                 width="60%"
             >
                 <DeviceVerification />
             </CustomModal>
 
             <div className="table-header">
-                <span className="header">Course <img src={arrow} alt="arrow" /></span>
-                <span className="header">Parts <img src={arrow} alt="arrow" /></span>
-                <span className="header">Status <img src={arrow} alt="arrow" /></span>
-                <span className="header">Expiry <img src={arrow} alt="arrow" /></span>
-                <span className="header">Action <img src={arrow} alt="arrow" /></span>
+                <span className="header">Course <img src={arrow} alt="" /></span>
+                <span className="header">Parts <img src={arrow} alt="" /></span>
+                <span className="header">Status <img src={arrow} alt="" /></span>
+                <span className="header">Expiry <img src={arrow} alt="" /></span>
+                <span className="header">Action <img src={arrow} alt="" /></span>
             </div>
 
             <div className="table-body">
                 {allCourses.map(course => {
-                    const selectedPartId = selectedParts[course.id] || (course.parts[0]?.id || "");
+                    const selectedPartId = selectedParts[course.id];
                     const purchased = getPurchasedInfo(course.id, selectedPartId);
 
-                    const startDate = purchased?.startDate;
-                    const expiryDate = purchased?.expiryDate;
+                    const daysLeft = purchased
+                        ? getDaysLeft(purchased.startDate, purchased.expiryDate)
+                        : null;
 
-                    const daysLeft = purchased ? getDaysLeft(startDate, expiryDate) : null;
-                    const percentage = purchased ? getExpiryPercentage(startDate, expiryDate) : 0;
-                    const color = purchased ? getExpiryColor(daysLeft, startDate, expiryDate) : "inactive";
+                    const percentage = purchased
+                        ? getExpiryPercentage(
+                            purchased.startDate,
+                            purchased.expiryDate
+                        )
+                        : 0;
+
+                    const color = purchased
+                        ? getExpiryColor(
+                            daysLeft,
+                            purchased.startDate,
+                            purchased.expiryDate
+                        )
+                        : "inactive";
 
                     const actionText = !purchased
                         ? "Request Access"
@@ -194,13 +250,18 @@ const Dashboard = ({ allCourses }) => {
                             : "Expired";
 
                     return (
-                        <div key={course.id + selectedPartId} className="table-row">
-                            <div className="table-cell course-name">{course.name}</div>
+                        <div
+                            key={`${course.id}-${selectedPartId}`}
+                            className="table-row"
+                        >
+                            <div className="table-cell course-name">
+                                {course.name}
+                            </div>
 
                             <div className="table-cell parts">
                                 <select
                                     className="parts-select"
-                                    value={selectedPartId || ""}
+                                    value={selectedPartId}
                                     onChange={e =>
                                         setSelectedParts({
                                             ...selectedParts,
@@ -208,9 +269,9 @@ const Dashboard = ({ allCourses }) => {
                                         })
                                     }
                                 >
-                                    {course.parts.map(partOption => (
-                                        <option key={partOption.id} value={partOption.id}>
-                                            {partOption.name}
+                                    {course.parts.map(part => (
+                                        <option key={part.id} value={part.id}>
+                                            {part.name}
                                         </option>
                                     ))}
                                 </select>
@@ -225,7 +286,7 @@ const Dashboard = ({ allCourses }) => {
                                     <div className="progress-bar">
                                         <div
                                             className={`progress-fill ${color}`}
-                                            style={{ width: `${Number(percentage)}%` }}
+                                            style={{ width: `${percentage}%` }}
                                         />
                                     </div>
                                     <span className="progress-text">
@@ -243,7 +304,10 @@ const Dashboard = ({ allCourses }) => {
                                     <button
                                         className="access-btn"
                                         onClick={() =>
-                                            handlePaymentRequest(course.id, selectedPartId)
+                                            handlePaymentRequest(
+                                                course.id,
+                                                selectedPartId
+                                            )
                                         }
                                     >
                                         {actionText}
@@ -256,7 +320,6 @@ const Dashboard = ({ allCourses }) => {
                     );
                 })}
             </div>
-
         </div>
     );
 };

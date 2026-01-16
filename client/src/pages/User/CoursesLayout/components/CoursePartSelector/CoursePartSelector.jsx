@@ -1,7 +1,7 @@
 import React from "react";
-import "./SelectExam.css";
+import "./CoursePartSelector.css";
 
-const SelectExam = ({
+const CoursePartSelector = ({
     examType,
     courses = [],
     parts = [],
@@ -74,4 +74,4 @@ const SelectExam = ({
     );
 };
 
-export default SelectExam;
+export default CoursePartSelector;

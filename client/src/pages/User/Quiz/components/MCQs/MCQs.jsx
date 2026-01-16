@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import './MCQs.css';
-import { useNavigate } from "react-router-dom";
+import "./MCQs.css";
 
 const MCQs = ({
     question,
@@ -13,10 +12,7 @@ const MCQs = ({
     isFirstQuestion,
     handleQuizSubmit,
 }) => {
-
     const [localSelection, setLocalSelection] = useState(selectedOption || "");
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         setLocalSelection(selectedOption || "");
@@ -28,26 +24,34 @@ const MCQs = ({
 
     const flushAnswer = () => {
         if (localSelection !== "") {
-            onAnswerSelect(question.id, localSelection);
+            onAnswerSelect(`mcq:${question._id}`, localSelection);
         }
     };
 
-    const handleClickSubmit = () => {
+    const handleSubmit = () => {
         flushAnswer();
         handleQuizSubmit();
-    }
+    };
 
     const optionKeys = question.options ? Object.keys(question.options) : [];
 
     return (
         <div className="question-section">
-            <div className="question-no">Question {questionIndex + 1}</div>
-            <div className="question">{question.statement}</div>
+            <div className="question-no">
+                Question {questionIndex + 1}
+            </div>
+
+            <div className="question">
+                {question.statement}
+            </div>
 
             <div className="options">
                 {optionKeys.map((optKey) => {
                     const optObj = question.options[optKey];
-                    const optText = typeof optObj === "string" ? optObj : optObj?.option || "";
+                    const optText =
+                        typeof optObj === "string"
+                            ? optObj
+                            : optObj?.option || "";
 
                     return (
                         <label
@@ -56,7 +60,7 @@ const MCQs = ({
                         >
                             <input
                                 type="radio"
-                                name={`question-${question.id}`}
+                                name={`mcq-${question._id}`}
                                 checked={localSelection === optKey}
                                 onChange={() => handleOptionClick(optKey)}
                             />
@@ -67,12 +71,23 @@ const MCQs = ({
             </div>
 
             <div className="question-buttons">
-                <button onClick={onBack} disabled={isFirstQuestion}>Back</button>
-                <button onClick={handleClickSubmit}>Submit</button>
-                <button onClick={() => {
-                    flushAnswer();
-                    if (onNext) onNext();
-                }} disabled={isLastQuestion}>Next</button>
+                <button onClick={onBack} disabled={isFirstQuestion}>
+                    Back
+                </button>
+
+                <button onClick={handleSubmit}>
+                    Submit
+                </button>
+
+                <button
+                    onClick={() => {
+                        flushAnswer();
+                        onNext && onNext();
+                    }}
+                    disabled={isLastQuestion}
+                >
+                    Next
+                </button>
             </div>
         </div>
     );

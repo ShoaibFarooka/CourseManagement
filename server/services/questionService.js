@@ -189,8 +189,13 @@ const addMCQQuestionsFromFile = async (filePath) => {
 
             questions.push({
                 type: "mcq",
-                publisherId: publisher._id,
-                subunitId: subunit._id,
+
+                course: course._id,
+                part: part._id,
+                publisher: publisher._id,
+                unit: unit._id,
+                subunit: subunit._id,
+
                 language,
                 statement: row["Statement"]?.trim(),
                 options: {
@@ -201,6 +206,7 @@ const addMCQQuestionsFromFile = async (filePath) => {
                 },
                 correctOption,
             });
+
 
         } catch (err) {
             warnings.push({ rowNumber, reason: `Unexpected error: ${err.message}` });
@@ -314,8 +320,11 @@ const addRapidQuestionsFromFile = async (filePath) => {
 
             questions.push({
                 type: "rapid",
-                publisherId: publisher._id,
-                subunitId: subunit._id,
+                course: course._id,
+                part: part._id,
+                publisher: publisher._id,
+                unit: unit._id,
+                subunit: subunit._id,
                 language,
                 concept: row["Concept"]?.trim(),
                 definition: row["Definition"]?.trim(),
@@ -393,8 +402,11 @@ const addEssayQuestionsFromFile = async (filePath) => {
 
             questions.push({
                 type: "essay",
-                publisherId: publisher._id,
-                subunitId: subunit._id,
+                course: course._id,
+                part: part._id,
+                publisher: publisher._id,
+                unit: unit._id,
+                subunit: subunit._id,
                 language,
                 content: row["Content"]?.trim(),
                 subquestions

@@ -7,7 +7,6 @@ import { useDispatch } from "react-redux";
 import courseService from "../../../../../services/courseService";
 import { message } from "antd";
 import { useNavigate } from 'react-router-dom';
-import questionService from '../../../../../services/questionServices';
 
 const UnitExamContent = ({ publisher }) => {
     const dispatch = useDispatch();
