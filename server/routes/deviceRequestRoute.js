@@ -75,7 +75,7 @@ router.delete(
 );
 
 router.get(
-    "user-devices/:userId",
+    "/user-devices/:userId",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyRole(["admin"]),
     controller.fetchUserDevicesById
