@@ -151,10 +151,12 @@ const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
     }
 
     const deviceIndex = userDevices.allowedDevices.findIndex(
-        d => d.deviceId === targetDeviceId
+        d => String(d.deviceId) === String(targetDeviceId)
     );
 
     if (deviceIndex === -1) {
+        console.log("Allowed devices:", userDevices.allowedDevices);
+        console.log("Target deviceId:", targetDeviceId);
         const error = new Error("Device not found");
         error.code = 404;
         throw error;
@@ -173,6 +175,7 @@ const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
 
     return { request };
 };
+
 
 
 

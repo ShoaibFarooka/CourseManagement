@@ -57,7 +57,7 @@ const deviceRequestService = {
         try {
             const response = await axiosInstance.patch(
                 `${BASE_URL}/overwrite-device/${requestId}`,
-                { targetDeviceId },
+                targetDeviceId,
                 { withCredentials: true }
             );
             return response.data;

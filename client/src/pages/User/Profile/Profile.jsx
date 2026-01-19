@@ -122,7 +122,6 @@ const Profile = () => {
         }
     };
 
-    console.log(profileImage);
     return (
         <>
             <div className="profile"></div>

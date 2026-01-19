@@ -43,9 +43,9 @@ const courseService = {
             throw error;
         }
     },
-    fetchUnitsAndSubunits: async () => {
+    fetchUnitsAndSubunits: async (payload) => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/fetch-units-and-subunits`);
+            const response = await axiosInstance.post(`${BASE_URL}/fetch-units-and-subunits`, payload);
             return response.data;
         } catch (error) {
             throw error;

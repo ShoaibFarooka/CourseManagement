@@ -126,11 +126,33 @@ const fetchAllCoursesWithParts = async () => {
     ]);
 };
 
-const fetchAllUnitsWithSubunits = async () => {
+
+const fetchAllUnitsWithSubunits = async (courseId, partId, publisherId) => {
     return await Course.aggregate([
-        { $unwind: "$parts" },
-        { $unwind: "$parts.publishers" },
-        { $unwind: "$parts.publishers.units" },
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(courseId)
+            }
+        },
+        {
+            $unwind: "$parts"
+        },
+        {
+            $match: {
+                "parts._id": new mongoose.Types.ObjectId(partId)
+            }
+        },
+        {
+            $unwind: "$parts.publishers"
+        },
+        {
+            $match: {
+                "parts.publishers._id": new mongoose.Types.ObjectId(publisherId)
+            }
+        },
+        {
+            $unwind: "$parts.publishers.units"
+        },
         {
             $project: {
                 _id: 0,
@@ -150,6 +172,7 @@ const fetchAllUnitsWithSubunits = async () => {
         }
     ]);
 };
+
 
 module.exports = {
     getAllCourses,

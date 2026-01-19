@@ -6,11 +6,40 @@
     margin-top: 30px;
 }
 
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
 .question-section .question-no {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-color);
-    margin-bottom: 30px;
+}
+
+.mark-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 2px solid #f59e0b;
+    border-radius: 8px;
+    color: #f59e0b;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mark-btn:hover {
+    background: #f59e0b;
+    color: white;
+}
+
+.mark-btn svg {
+    font-size: 1rem;
 }
 
 .question-section .question {
@@ -84,13 +113,13 @@
     cursor: not-allowed;
 }
 
-.question-buttons button:nth-child(2) {
+.question-buttons .submit-btn {
     background-color: var(--secondary-color);
     border: none;
     color: #000;
 }
 
-.question-buttons button:nth-child(2):hover {
+.question-buttons .submit-btn:hover {
     opacity: 0.7;
 }
 
@@ -100,9 +129,21 @@
         margin-top: 20px;
     }
 
+    .question-header {
+        margin-bottom: 20px;
+    }
+
     .question-section .question-no {
         font-size: 1.25rem;
-        margin-bottom: 20px;
+    }
+
+    .mark-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .mark-btn svg {
+        font-size: 0.9rem;
     }
 
     .question-section .question {
@@ -130,11 +171,24 @@
 @media only screen and (max-width: 576px) {
     .question-section {
         padding: 20px;
+    }
 
+    .question-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
     }
 
     .question-section .question-no {
         font-size: 1.1rem;
+    }
+
+    .mark-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.6rem;
+        font-size: 0.85rem;
     }
 
     .question-section .question {

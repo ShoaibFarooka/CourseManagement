@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaBookmark, FaRegBookmark } from "react-icons/fa"; // Add this import
 import "./MCQs.css";
 
 const MCQs = ({
@@ -11,6 +12,8 @@ const MCQs = ({
     isLastQuestion,
     isFirstQuestion,
     handleQuizSubmit,
+    isMarked = false,
+    onToggleMark,
 }) => {
     const [localSelection, setLocalSelection] = useState(selectedOption || "");
 
@@ -20,16 +23,10 @@ const MCQs = ({
 
     const handleOptionClick = (optKey) => {
         setLocalSelection(optKey);
+        onAnswerSelect(`mcq:${question._id}`, optKey);
     };
 
-    const flushAnswer = () => {
-        if (localSelection !== "") {
-            onAnswerSelect(`mcq:${question._id}`, localSelection);
-        }
-    };
-
-    const handleSubmit = () => {
-        flushAnswer();
+    const handleSubmitClick = () => {
         handleQuizSubmit();
     };
 
@@ -37,21 +34,24 @@ const MCQs = ({
 
     return (
         <div className="question-section">
-            <div className="question-no">
-                Question {questionIndex + 1}
+            <div className="question-header">
+                <div className="question-no">Question {questionIndex + 1}</div>
+                <button
+                    className="mark-btn"
+                    onClick={onToggleMark}
+                    title={isMarked ? "Unmark question" : "Mark for review"}
+                >
+                    {isMarked ? <FaBookmark /> : <FaRegBookmark />}
+                    {isMarked ? " Marked" : " Mark"}
+                </button>
             </div>
 
-            <div className="question">
-                {question.statement}
-            </div>
+            <div className="question">{question.statement}</div>
 
             <div className="options">
                 {optionKeys.map((optKey) => {
                     const optObj = question.options[optKey];
-                    const optText =
-                        typeof optObj === "string"
-                            ? optObj
-                            : optObj?.option || "";
+                    const optText = typeof optObj === "string" ? optObj : optObj?.option || "";
 
                     return (
                         <label
@@ -75,15 +75,14 @@ const MCQs = ({
                     Back
                 </button>
 
-                <button onClick={handleSubmit}>
-                    Submit
-                </button>
+                {isLastQuestion && (
+                    <button className="submit-btn" onClick={handleSubmitClick}>
+                        Submit
+                    </button>
+                )}
 
                 <button
-                    onClick={() => {
-                        flushAnswer();
-                        onNext && onNext();
-                    }}
+                    onClick={onNext}
                     disabled={isLastQuestion}
                 >
                     Next

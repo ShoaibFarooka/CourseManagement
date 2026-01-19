@@ -41,7 +41,7 @@ router.get(
     controller.fetchAllCoursesWithParts
 )
 
-router.get(
+router.post(
     '/fetch-units-and-subunits',
     controller.getAllUnitsWithSubunits
 )

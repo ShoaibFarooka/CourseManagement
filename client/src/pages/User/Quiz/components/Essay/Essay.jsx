@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import "./Essay.css";
 import { message } from "antd";
 
@@ -7,39 +8,30 @@ const Essay = ({
     onNext,
     onBack,
     onAnswerSelect,
-    selectedOption = {},
+    selectedAnswers = {},
     isLastQuestion,
     isFirstQuestion,
     handleQuizSubmit,
+    isMarked = false,
+    onToggleMark,
 }) => {
-    const [activeSubIndex, setActiveSubIndex] = useState(0);
-    const [localAnswer, setLocalAnswer] = useState("");
-
     const subquestions = data?.subquestions || [];
+    const [activeSubIndex, setActiveSubIndex] = useState(0);
+
     const currentSub = subquestions[activeSubIndex];
+    const answerKey = `essay:${data._id}:${activeSubIndex}`;
 
-    const answerKey =
-        data && currentSub
-            ? `${data._id || data.id}-${activeSubIndex}`
-            : null;
-
-    /** Restore saved answer */
     useEffect(() => {
-        if (answerKey) {
-            setLocalAnswer(selectedOption[answerKey] || "");
-        }
-    }, [answerKey, selectedOption]);
+        setActiveSubIndex(0);
+    }, [data._id]);
 
-    const wordCount =
-        localAnswer.trim() === ""
-            ? 0
-            : localAnswer.trim().split(/\s+/).filter(Boolean).length;
+    const localAnswer = selectedAnswers[answerKey] || "";
 
-    const saveAnswer = () => {
-        const trimmed = localAnswer.trim();
-        if (answerKey && trimmed) {
-            onAnswerSelect(answerKey, trimmed);
-        }
+    const wordCount = localAnswer.trim().split(/\s+/).filter(Boolean).length;
+
+    const handleChange = (e) => {
+        const value = e.target.value;
+        onAnswerSelect(answerKey, value);
     };
 
     const validateAnswer = () => {
@@ -53,30 +45,24 @@ const Essay = ({
     const handleNextClick = () => {
         if (!validateAnswer()) return;
 
-        saveAnswer();
-
         if (activeSubIndex < subquestions.length - 1) {
-            setActiveSubIndex((prev) => prev + 1);
+            setActiveSubIndex(prev => prev + 1);
         } else {
-            setActiveSubIndex(0);
             onNext?.();
         }
     };
 
     const handleBackClick = () => {
-        saveAnswer();
-
         if (activeSubIndex > 0) {
-            setActiveSubIndex((prev) => prev - 1);
+            setActiveSubIndex(prev => prev - 1);
         } else {
+            setActiveSubIndex(0);
             onBack?.();
         }
     };
 
     const handleSubmitClick = () => {
         if (!validateAnswer()) return;
-
-        saveAnswer();
         handleQuizSubmit();
     };
 
@@ -91,30 +77,35 @@ const Essay = ({
 
     return (
         <div className="essay-container">
-            <div className="essay-title">Essay Content</div>
-
-            <p className="essay-content">
-                {data.content || "No essay content available."}
-            </p>
+            <div className="essay-header">
+                <div className="essay-title">{data.title || "Essay Question"}</div>
+                <button
+                    className="mark-btn"
+                    onClick={onToggleMark}
+                    title={isMarked ? "Unmark question" : "Mark for review"}
+                >
+                    {isMarked ? <FaBookmark /> : <FaRegBookmark />}
+                    {isMarked ? " Marked" : " Mark"}
+                </button>
+            </div>
+            {data.content && <p className="essay-content">{data.content}</p>}
 
             <div className="essay-question-section">
                 <div className="essay-question">
-                    {currentSub.statement}
+                    {currentSub.statement} ({activeSubIndex + 1}/{subquestions.length})
                 </div>
 
                 <textarea
                     className="essay-textarea"
                     placeholder="Write your answer here..."
                     value={localAnswer}
-                    onChange={(e) => setLocalAnswer(e.target.value)}
+                    onChange={handleChange}
                 />
 
                 {wordCount >= 5 && currentSub.explanation && (
                     <div className="essay-correct-answer fade-in">
                         <div className="answer-heading">Correct Answer</div>
-                        <p className="answer-text">
-                            {currentSub.explanation}
-                        </p>
+                        <p className="answer-text">{currentSub.explanation}</p>
                     </div>
                 )}
 
@@ -127,23 +118,16 @@ const Essay = ({
                         Back
                     </button>
 
-                    {isLastQuestion &&
-                        activeSubIndex === subquestions.length - 1 && (
-                            <button
-                                className="submit-btn"
-                                onClick={handleSubmitClick}
-                            >
-                                Submit
-                            </button>
-                        )}
+                    {isLastQuestion && activeSubIndex === subquestions.length - 1 && (
+                        <button className="submit-btn" onClick={handleSubmitClick}>
+                            Submit
+                        </button>
+                    )}
 
                     <button
                         className="nav-btn"
                         onClick={handleNextClick}
-                        disabled={
-                            isLastQuestion &&
-                            activeSubIndex === subquestions.length - 1
-                        }
+                        disabled={isLastQuestion && activeSubIndex === subquestions.length - 1}
                     >
                         Next
                     </button>

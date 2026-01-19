@@ -56,10 +56,23 @@ const fetchAllCoursesWithParts = async (req, res, next) => {
         next(error);
     }
 };
-
 const getAllUnitsWithSubunits = async (req, res, next) => {
     try {
-        const units = await courseService.fetchAllUnitsWithSubunits();
+        const { courseId, partId, publisherId } = req.body;
+
+        console.log(courseId);
+        if (!courseId || !partId || !publisherId) {
+            return res.status(400).json({
+                success: false,
+                message: "courseId, partId, and publisherId are required"
+            });
+        }
+
+        const units = await courseService.fetchAllUnitsWithSubunits(
+            courseId,
+            partId,
+            publisherId
+        );
 
         res.status(200).json({
             success: true,
@@ -70,6 +83,7 @@ const getAllUnitsWithSubunits = async (req, res, next) => {
         next(error);
     }
 };
+
 
 module.exports = {
     GetAllCourses,

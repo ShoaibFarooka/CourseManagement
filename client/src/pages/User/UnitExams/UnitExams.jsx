@@ -98,9 +98,9 @@ const UnitExams = () => {
 
     return (
         <UnitExamContent
-            course={selectedCourse}
-            part={selectedPart}
-            publisher={selectedPublisher}
+            courseId={selectedCourseId}
+            partId={selectedPartId}
+            publisherId={selectedPublisherId}
         />
     );
 };

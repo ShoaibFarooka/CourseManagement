@@ -8,7 +8,7 @@ import courseService from "../../../../../services/courseService";
 import { message } from "antd";
 import { useNavigate } from 'react-router-dom';
 
-const UnitExamContent = ({ publisher }) => {
+const UnitExamContent = ({ courseId, partId, publisherId }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [expandedUnit, setExpandedUnit] = useState(null);
@@ -24,7 +24,11 @@ const UnitExamContent = ({ publisher }) => {
     const fetchUnitsandSubunits = async () => {
         try {
             dispatch(ShowLoading());
-            const res = await courseService.fetchUnitsAndSubunits();
+            const res = await courseService.fetchUnitsAndSubunits({
+                courseId,
+                partId,
+                publisherId
+            });
             setUnits(res.data);
         } catch (error) {
             message.error(error?.response?.data?.message || "Something went wrong!");
@@ -77,7 +81,7 @@ const UnitExamContent = ({ publisher }) => {
     const handleClickNext = () => {
         navigate("/quiz", {
             state: {
-                publisherId: publisher,
+                publisherId,
                 selectedUnits,
                 selectedSubunits
             }

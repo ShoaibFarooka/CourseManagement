@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import "./Rapid.css";
 
 const Rapid = ({
@@ -6,29 +7,18 @@ const Rapid = ({
     onNext,
     onBack,
     onAnswerSelect,
-    selectedOption = {},
+    selectedAnswers = {},
     isLastQuestion,
     isFirstQuestion,
     handleQuizSubmit,
+    isMarked = false,
+    onToggleMark,
 }) => {
-    const concept = data;
     const [activeSubIndex, setActiveSubIndex] = useState(0);
-    const [localSelection, setLocalSelection] = useState("");
+    const concept = data;
+    const subquestions = concept?.subquestions || [];
 
-    const subquestion = concept?.subquestions?.[activeSubIndex];
-
-    const answerKey = concept && subquestion
-        ? `${concept._id || concept.id}-${activeSubIndex}`
-        : null;
-
-    /** Restore saved answer when subquestion changes */
-    useEffect(() => {
-        if (answerKey) {
-            setLocalSelection(selectedOption[answerKey] || "");
-        }
-    }, [answerKey, selectedOption]);
-
-    if (!concept || !subquestion) {
+    if (!concept || subquestions.length === 0) {
         return (
             <div className="rapid-container">
                 <div className="title">Core Concepts</div>
@@ -37,57 +27,71 @@ const Rapid = ({
         );
     }
 
+    const subquestion = subquestions[activeSubIndex];
+    const answerKey = `rapid:${concept._id}:${activeSubIndex}`;
+
+    useEffect(() => {
+        const totalSubs = subquestions.length;
+        if (totalSubs === 0) return;
+
+        let targetIndex = 0;
+
+        for (let i = 0; i < totalSubs; i++) {
+            if (selectedAnswers[`rapid:${concept._id}:${i}`] === undefined) {
+                targetIndex = i;
+                break;
+            }
+        }
+
+        if (selectedAnswers[`rapid:${concept._id}:${totalSubs - 1}`] !== undefined) {
+            targetIndex = totalSubs - 1;
+        }
+
+        setActiveSubIndex(targetIndex);
+    }, [concept._id]);
+
+    const localSelection = selectedAnswers[answerKey] || "";
+
     const optionKeys = Object.keys(subquestion.options || {});
 
-    const saveAnswer = () => {
-        if (answerKey && localSelection) {
-            onAnswerSelect(answerKey, localSelection);
-        }
+    const handleOptionClick = (optKey) => {
+        onAnswerSelect(answerKey, optKey);
     };
 
     const handleNextClick = () => {
-        if (!localSelection) {
-            alert("Please select an option before continuing.");
-            return;
-        }
-
-        saveAnswer();
-
-        if (activeSubIndex < concept.subquestions.length - 1) {
-            setActiveSubIndex((prev) => prev + 1);
+        if (activeSubIndex < subquestions.length - 1) {
+            setActiveSubIndex(prev => prev + 1);
         } else {
-            setActiveSubIndex(0);
             onNext?.();
         }
     };
 
     const handleBackClick = () => {
-        saveAnswer();
-
         if (activeSubIndex > 0) {
-            setActiveSubIndex((prev) => prev - 1);
+            setActiveSubIndex(prev => prev - 1);
         } else {
+            setActiveSubIndex(0);
             onBack?.();
         }
     };
 
     const handleSubmitClick = () => {
-        if (!localSelection) {
-            alert("Please select an option before submitting.");
-            return;
-        }
-
-        saveAnswer();
         handleQuizSubmit();
     };
 
     return (
         <div className="rapid-container">
-            <div className="title">Core Concepts</div>
-
-            <div className="core-concepts">
-                <button className="concept-btn active">
-                    {concept.concept}
+            <div className="rapid-header">
+                <div className="core-concepts">
+                    <button className="concept-btn active">{concept.concept}</button>
+                </div>
+                <button
+                    className="mark-btn"
+                    onClick={onToggleMark}
+                    title={isMarked ? "Unmark question" : "Mark for review"}
+                >
+                    {isMarked ? <FaBookmark /> : <FaRegBookmark />}
+                    {isMarked ? " Marked" : " Mark"}
                 </button>
             </div>
 
@@ -97,27 +101,25 @@ const Rapid = ({
             </div>
 
             <div className="question-section">
-                <div className="question">{subquestion.question}</div>
+                <div className="question">
+                    {subquestion.question} ({activeSubIndex + 1}/{subquestions.length})
+                </div>
 
                 <div className="options">
                     {optionKeys.map((optKey) => {
                         const optionObj = subquestion.options[optKey];
-                        const optionText =
-                            typeof optionObj === "string"
-                                ? optionObj
-                                : optionObj?.option || "";
+                        const optionText = typeof optionObj === "string" ? optionObj : optionObj?.option || "";
 
                         return (
                             <label
                                 key={optKey}
-                                className={`option ${localSelection === optKey ? "selected" : ""
-                                    }`}
+                                className={`option ${localSelection === optKey ? "selected" : ""}`}
                             >
                                 <input
                                     type="radio"
                                     name={`rapid-${answerKey}`}
                                     checked={localSelection === optKey}
-                                    onChange={() => setLocalSelection(optKey)}
+                                    onChange={() => handleOptionClick(optKey)}
                                 />
                                 {optionText}
                             </label>
@@ -135,23 +137,16 @@ const Rapid = ({
                     Back
                 </button>
 
-                {isLastQuestion &&
-                    activeSubIndex === concept.subquestions.length - 1 && (
-                        <button
-                            className="submit-btn"
-                            onClick={handleSubmitClick}
-                        >
-                            Submit
-                        </button>
-                    )}
+                {isLastQuestion && activeSubIndex === subquestions.length - 1 && (
+                    <button className="submit-btn" onClick={handleSubmitClick}>
+                        Submit
+                    </button>
+                )}
 
                 <button
                     className="nav-btn"
                     onClick={handleNextClick}
-                    disabled={
-                        isLastQuestion &&
-                        activeSubIndex === concept.subquestions.length - 1
-                    }
+                    disabled={isLastQuestion && activeSubIndex === subquestions.length - 1}
                 >
                     Next
                 </button>

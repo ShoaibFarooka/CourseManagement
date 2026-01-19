@@ -102,7 +102,8 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             message.success("Device overwritten successfully");
             await refreshRequestState();
         } catch (err) {
-            message.error("Failed to overwrite device");
+            console.log(err);
+            message.error(err.response?.data?.error || "Failed to overwrite device");
         } finally {
             dispatch(HideLoading());
             setShowDevices(false);

@@ -3,41 +3,32 @@ import "./QuestionNavigator.css";
 
 const QuestionNavigator = ({
     questions = [],
+    totalQuestions = 0,
     currentIndex,
     onNavigate,
-    answers = {},
+    isQuestionAnswered,
 }) => {
-    const isAnswered = (q) => {
-        const questionId = q._id || q.id;
-
-        if (q.type === "rapid" || q.type === "essay") {
-            if (!Array.isArray(q.subquestions)) return false;
-
-            return q.subquestions.every((_, index) => {
-                const key = `${questionId}-${index}`;
-                return answers[key]?.toString().trim() !== "";
-            });
-        }
-
-        // MCQ
-        return answers[questionId] !== undefined;
-    };
+    const allQuestionSlots = Array.from({ length: totalQuestions }, (_, i) => {
+        const loadedQuestion = questions[i];
+        return loadedQuestion || null;
+    });
 
     return (
         <div className="question-navigator">
             <div className="title">All Questions</div>
 
             <ul>
-                {questions.map((q, i) => {
-                    const questionId = q._id || q.id;
+                {allQuestionSlots.map((q, i) => {
+                    const isLoaded = q !== null;
+                    const isAnswered = isLoaded && isQuestionAnswered(q);
 
                     return (
                         <li
-                            key={questionId}
+                            key={i}
                             onClick={() => onNavigate(i)}
                             className={`question-item
                                 ${i === currentIndex ? "active" : ""}
-                                ${isAnswered(q) ? "answered" : ""}
+                                ${isAnswered ? "answered" : ""}
                             `}
                         >
                             Question {i + 1}
