@@ -104,6 +104,11 @@
     margin-top: 30px;
 }
 
+.profile-container .profile-form .save-btn:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
 .profile-container .account-info {
     margin-top: 30px;
     padding-top: 10px;
@@ -120,7 +125,7 @@
 }
 
 .profile-container .account-info .status-row .status.active {
-    color: var(--secondary-color)
+    color: rgb(48, 246, 21);
 }
 
 .profile-container .account-info .status-row .status.suspended {
@@ -128,7 +133,7 @@
 }
 
 .profile-container .account-info .status-row .verified {
-    color: var(--secondary-color);
+    color: rgb(48, 246, 21);
     font-weight: bold;
 }
 

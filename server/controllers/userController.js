@@ -181,7 +181,7 @@ const updateProfileImage = async (req, res, next) => {
       message: "Profile image updated successfully",
       data: {
         id: updatedUser._id,
-        profileImage: updatedUser.profileImage,
+        image: updatedUser.image,
       },
     });
   } catch (error) {

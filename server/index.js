@@ -47,7 +47,11 @@ morgan.format('short', (tokens, req, res) => {
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use(helmet());
+app.use(
+    "/static",
+    helmet.crossOriginResourcePolicy({ policy: "cross-origin" }),
+    express.static(path.join(__dirname, "static"))
+);
 app.use(compression());
 app.use(trimMiddleware);
 app.use('/static', express.static(path.join(__dirname, 'static')));

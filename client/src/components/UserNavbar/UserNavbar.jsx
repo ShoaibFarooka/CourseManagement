@@ -28,6 +28,7 @@ const UserNavbar = () => {
     const navigate = useNavigate();
 
     const { user } = useSelector(state => state.user);
+    const baseURL = import.meta.env.VITE_BASE_URL;
 
     const navLinks = [
         { name: "Accounting Products", dropdown: true },
@@ -194,7 +195,7 @@ const UserNavbar = () => {
                         ) : (
                             <div className="profile-dropdown" ref={mobileProfileRef}>
                                 <img
-                                    src={Profile}
+                                    src={`${baseURL}${user?.image}` || Profile}
                                     alt="Profile"
                                     className="profile-pic"
                                     onClick={() => setOpenMobileProfileDropdown(!openMobileProfileDropdown)}
@@ -229,8 +230,7 @@ const UserNavbar = () => {
                 ) : (
                     <div className="profile-dropdown" ref={profileRef}>
                         <img
-                            // write user.avatar for the dynamic funcntionality 
-                            src={Profile}
+                            src={`${baseURL}${user?.image}` || Profile}
                             alt="Profile"
                             className="profile-pic"
                             onClick={() => setOpenProfileDropdown(!openProfileDropdown)}

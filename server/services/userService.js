@@ -208,7 +208,7 @@ const updateProfileImage = async (userId, imagePath) => {
     throw error;
   }
 
-  user.profileImage = imagePath;
+  user.image = imagePath;
   await user.save();
 
   return user;

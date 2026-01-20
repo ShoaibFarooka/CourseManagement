@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
-import profileimg from '../../../assets/images/profile.jpg';
 import { CountryDropdown } from 'react-country-region-selector';
 import { useSelector, useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
