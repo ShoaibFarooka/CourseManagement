@@ -22,7 +22,15 @@ const Quiz = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { publisherId, selectedUnits, selectedSubunits } = state || {};
+    const {
+        source,
+        publisherId,
+        selectedUnits,
+        selectedSubunits,
+        courseId,
+        partId,
+        examType
+    } = state || {};
 
     const [questions, setQuestions] = useState([]);
     const [loadedPages, setLoadedPages] = useState(new Set());
@@ -35,40 +43,75 @@ const Quiz = () => {
     const [time, setTime] = useState(QUIZ_TIME);
 
 
-    //Fetch Questions 
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
-            if (loadedPages.has(pageToFetch)) return;
+            // Practice or Package exams are not paginated
+            if ((source === 'practice-exam' || source === 'package-exam') && loadedPages.has(1)) return;
+
+            // Unit exams may be paginated
+            if (source !== 'practice-exam' && source !== 'package-exam' && loadedPages.has(pageToFetch)) return;
 
             dispatch(ShowLoading());
 
-            const res = await questionService.fetchQuestionsWithFilters({
-                publisherId,
-                selectedUnits,
-                selectedSubunits,
-                page: pageToFetch,
-                limit,
-            });
+            let res;
 
-            setQuestions(prev => {
-                const newQuestions = [...prev];
-                const startIndex = (pageToFetch - 1) * limit;
-
-                res.data.forEach((q, idx) => {
-                    newQuestions[startIndex + idx] = q;
+            if (source === 'practice-exam') {
+                res = await questionService.fetchPracticeExamQuestions({
+                    courseId,
+                    partId,
+                    publisherId,
+                    examType // 'full' or 'quick'
                 });
 
-                return newQuestions;
-            });
+                setQuestions(res.data?.data || []);
+                setTotalQuestions(res.data?.pagination?.total || (res.data?.data?.length || 0));
+                setLoadedPages(new Set([1]));
 
-            setLoadedPages(prev => new Set([...prev, pageToFetch]));
-            setTotalQuestions(res.pagination.total);
+            } else if (source === 'package-exam') {
+                // Call the package exam API
+                res = await questionService.fetchPackageExamQuestions({
+                    courseId,
+                    partId,
+                    publisherId, // optional for mega review
+                    examType  // 'standard' or 'mega'
+                });
+
+                setQuestions(res.data || []);
+                setTotalQuestions(res.pagination?.total || (res.data?.data?.length || 0));
+                setLoadedPages(new Set([1]));
+
+            } else {
+                // Unit exams with pagination
+                res = await questionService.fetchQuestionsWithFilters({
+                    publisherId,
+                    selectedUnits,
+                    selectedSubunits,
+                    page: pageToFetch,
+                    limit,
+                });
+
+                setQuestions(prev => {
+                    const newQuestions = [...prev];
+                    const startIndex = (pageToFetch - 1) * limit;
+
+                    res.data.forEach((q, idx) => {
+                        newQuestions[startIndex + idx] = q;
+                    });
+
+                    return newQuestions;
+                });
+
+                setLoadedPages(prev => new Set([...prev, pageToFetch]));
+                setTotalQuestions(res.pagination.total);
+            }
+
         } catch (error) {
             message.error(error.response?.data?.error || "Failed to load questions");
         } finally {
             dispatch(HideLoading());
         }
     };
+
 
     useEffect(() => {
         fetchQuestions(1);
@@ -126,7 +169,7 @@ const Quiz = () => {
         setCurrentIndex(prev => Math.max(prev - 1, 0));
     };
 
-    const currentQuestion = questions[currentIndex];
+    const currentQuestion = questions[currentIndex] || null;
     const isFirstQuestion = currentIndex === 0;
     const isLastQuestion = currentIndex === totalQuestions - 1;
 
@@ -283,6 +326,10 @@ const Quiz = () => {
             }
         });
     };
+
+    if (!questions.length) {
+        return <div className="quiz-container">Loading questions...</div>;
+    }
 
     return (
         <div className="quiz-container">

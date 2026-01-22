@@ -115,4 +115,14 @@ router.post(
     controller.fetchQuestionsWithFilters
 )
 
+router.post(
+    "/fetch-practice-exam-questions",
+    controller.FetchQuestionsByPublisher
+)
+
+router.post(
+    "/fetch-review-package-questions",
+    controller.FetchReviewPackageQuestions
+);
+
 module.exports = router;

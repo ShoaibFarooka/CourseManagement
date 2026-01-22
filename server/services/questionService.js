@@ -1,7 +1,10 @@
 const Question = require("../models/questionModel");
 const Course = require("../models/courseModel");
+const mongoose = require('mongoose');
 const fs = require("fs");
 const XLSX = require("xlsx");
+
+
 const getAllQuestions = async ({
     courseId,
     partId,
@@ -772,6 +775,103 @@ const FetchQuestionsWithFilters = async ({
     };
 };
 
+
+const FetchQuestionsByPublisher = async ({
+    courseId,
+    partId,
+    publisherId,
+    examType,
+}) => {
+    const query = {
+        course: mongoose.Types.ObjectId.createFromHexString(courseId),
+        part: mongoose.Types.ObjectId.createFromHexString(partId),
+        publisher: mongoose.Types.ObjectId.createFromHexString(publisherId),
+    };
+
+    const totalQuestions = await Question.countDocuments(query);
+
+    let questions = [];
+
+    if (totalQuestions > 0) {
+        const fetchCount =
+            examType === 'quick'
+                ? Math.min(50, totalQuestions)
+                : Math.min(125, totalQuestions);
+
+        questions = await Question.aggregate([
+            { $match: query },
+            { $sample: { size: fetchCount } }
+        ]);
+    }
+
+    return {
+        success: true,
+        data: questions,
+        pagination: {
+            total: questions.length,
+            limit: examType === 'quick' ? 50 : 125,
+            totalPages: 1,
+            page: 1
+        }
+    };
+};
+
+const FetchReviewPackageQuestions = async ({
+    courseId,
+    partId,
+    packageType,
+    publisherId,
+}) => {
+    try {
+        let query = {
+            course: mongoose.Types.ObjectId.createFromHexString(courseId),
+            part: mongoose.Types.ObjectId.createFromHexString(partId),
+        };
+
+        // For standard review, filter by specific publisher
+        if (packageType === 'standard') {
+            if (!publisherId) {
+                throw new Error('publisherId is required for standard review');
+            }
+            query.publisher = mongoose.Types.ObjectId.createFromHexString(publisherId);
+        }
+
+        // Get total matching questions
+        const totalQuestions = await Question.countDocuments(query);
+
+        let questions = [];
+
+        if (totalQuestions > 0) {
+            // Determine fetch count based on package type
+            const fetchCount = packageType === 'standard'
+                ? Math.min(50, totalQuestions)  // Standard: 50 questions from one publisher
+                : Math.min(125, totalQuestions); // Mega: 125 questions from all publishers
+
+            questions = await Question.aggregate([
+                { $match: query },
+                { $sample: { size: fetchCount } }
+            ]);
+        }
+
+        return {
+            success: true,
+            data: questions,
+            packageType,
+            pagination: {
+                total: questions.length,
+                limit: packageType === 'standard' ? 50 : 125,
+                totalPages: 1,
+                page: 1
+            }
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+
+
 module.exports = {
     getAllQuestions,
     addQuestion,
@@ -784,4 +884,6 @@ module.exports = {
     validateRapidQuestionsFile,
     validateEssayQuestionsFile,
     FetchQuestionsWithFilters,
+    FetchQuestionsByPublisher,
+    FetchReviewPackageQuestions,
 };

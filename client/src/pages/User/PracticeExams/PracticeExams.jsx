@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import CoursePartSelector from "../CoursesLayout/components/CoursePartSelector/CoursePartSelector";
-import PracticeExamContent from './components/PracticeExamContent/PracticeExamContent';
+import PracticeExamContent from "./components/PracticeExamContent/PracticeExamContent";
 import courseService from '../../../services/courseService';
 import { message } from 'antd';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
 
-const PracticeExams = () => {
+const PraticeExams = () => {
     const [allCourses, setAllCourses] = useState([]);
     const [step, setStep] = useState("select");
 
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [selectedPartId, setSelectedPartId] = useState("");
-    const [selectedUnitId, setSelectedUnitId] = useState("");
+    const [selectedPublisherId, setSelectedPublisherId] = useState("");
 
     const dispatch = useDispatch();
 
@@ -39,7 +39,7 @@ const PracticeExams = () => {
                     groupedCourses[item.courseId].parts.push({
                         id: item.partId,
                         name: item.partName,
-                        units: item.units || []
+                        publishers: item.publishers || []
                     });
                 }
             });
@@ -52,16 +52,17 @@ const PracticeExams = () => {
         }
     };
 
+
     useEffect(() => {
         fetchAllCourses();
     }, []);
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
-    const selectedUnit = selectedPart?.units?.find(u => u.id === selectedUnitId);
+    const selectedPublisher = selectedPart?.publishers?.find(p => p._id === selectedPublisherId);
 
     const handleNext = () => {
-        if (!selectedCourse || !selectedPart || !selectedUnit) {
+        if (!selectedCourse || !selectedPart || !selectedPublisher) {
             message.warning("Please select all fields to proceed.");
             return;
         }
@@ -71,25 +72,25 @@ const PracticeExams = () => {
     if (step === "select") {
         return (
             <CoursePartSelector
-                examType="practice"
+                examType="unit"
                 courses={allCourses}
                 parts={selectedCourse?.parts || []}
-                units={selectedPart?.units || []}
+                publishers={selectedPart?.publishers || []}
 
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
-                selectedUnit={selectedUnitId}
+                selectedPublisher={selectedPublisherId}
 
                 onCourseChange={(e) => {
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
-                    setSelectedUnitId("");
+                    setSelectedPublisherId("");
                 }}
                 onPartChange={(e) => {
                     setSelectedPartId(e.target.value);
-                    setSelectedUnitId("");
+                    setSelectedPublisherId("");
                 }}
-                onUnitChange={(e) => setSelectedUnitId(e.target.value)}
+                onPublisherChange={(e) => setSelectedPublisherId(e.target.value)}
                 onNext={handleNext}
             />
         );
@@ -97,12 +98,11 @@ const PracticeExams = () => {
 
     return (
         <PracticeExamContent
-            onBack={() => setStep("select")}
-            course={selectedCourse}
-            part={selectedPart}
-            unit={selectedUnit}
+            courseId={selectedCourseId}
+            partId={selectedPartId}
+            publisherId={selectedPublisherId}
         />
     );
 };
 
-export default PracticeExams;
+export default PraticeExams;

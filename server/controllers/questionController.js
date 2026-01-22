@@ -286,6 +286,75 @@ const fetchQuestionsWithFilters = async (req, res, next) => {
     }
 };
 
+const FetchQuestionsByPublisher = async (req, res, next) => {
+    try {
+        const { courseId, partId, publisherId, examType } = req.body;
+
+        if (!courseId || !partId || !publisherId || !examType) {
+            return res.status(400).json({
+                success: false,
+                message: "courseId, partId, publisherId, and examType are required"
+            });
+        }
+
+        const result = await questionService.FetchQuestionsByPublisher({
+            courseId,
+            partId,
+            publisherId,
+            examType
+        });
+
+        res.status(200).json({
+            success: true,
+            data: result.data,
+            pagination: result.pagination
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+const FetchReviewPackageQuestions = async (req, res, next) => {
+    try {
+        const { courseId, partId, publisherId, packageType } = req.body;
+
+        if (!courseId || !partId || !packageType) {
+            return res.status(400).json({
+                success: false,
+                message: "courseId, partId, and packageType are required"
+            });
+        }
+
+        if (packageType === 'standard' && !publisherId) {
+            return res.status(400).json({
+                success: false,
+                message: "publisherId is required for standard review package"
+            });
+        }
+
+        const result = await questionService.FetchReviewPackageQuestions({
+            courseId,
+            partId,
+            packageType,
+            publisherId
+        });
+
+        res.status(200).json({
+            success: true,
+            data: result.data,
+            packageType: result.packageType,
+            pagination: result.pagination
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
 module.exports = {
     getAllQuestions,
     addEssayQuestion,
@@ -299,5 +368,7 @@ module.exports = {
     validateMCQQuestions,
     validateRapidQuestions,
     validateEssayQuestions,
-    fetchQuestionsWithFilters
+    fetchQuestionsWithFilters,
+    FetchQuestionsByPublisher,
+    FetchReviewPackageQuestions
 };

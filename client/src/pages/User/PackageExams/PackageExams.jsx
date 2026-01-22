@@ -12,7 +12,6 @@ const PackageExamsPage = () => {
 
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [selectedPartId, setSelectedPartId] = useState("");
-    const [selectedUnitId, setSelectedUnitId] = useState("");
 
     const dispatch = useDispatch();
 
@@ -39,7 +38,7 @@ const PackageExamsPage = () => {
                     groupedCourses[item.courseId].parts.push({
                         id: item.partId,
                         name: item.partName,
-                        units: item.units || []
+                        publishers: item.publishers || []
                     });
                 }
             });
@@ -58,10 +57,9 @@ const PackageExamsPage = () => {
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
-    const selectedUnit = selectedPart?.units?.find(u => u.id === selectedUnitId);
 
     const handleNext = () => {
-        if (!selectedCourse || !selectedPart || !selectedUnit) {
+        if (!selectedCourse || !selectedPart) {
             message.warning("Please select all fields to proceed.");
             return;
         }
@@ -74,22 +72,17 @@ const PackageExamsPage = () => {
                 examType="package"
                 courses={allCourses}
                 parts={selectedCourse?.parts || []}
-                units={selectedPart?.units || []}
 
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
-                selectedUnit={selectedUnitId}
 
                 onCourseChange={(e) => {
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
-                    setSelectedUnitId("");
                 }}
                 onPartChange={(e) => {
                     setSelectedPartId(e.target.value);
-                    setSelectedUnitId("");
                 }}
-                onUnitChange={(e) => setSelectedUnitId(e.target.value)}
                 onNext={handleNext}
             />
         );
@@ -97,10 +90,9 @@ const PackageExamsPage = () => {
 
     return (
         <PackageExamContent
-            onBack={() => setStep("select")}
-            course={selectedCourse}
+            courseId={selectedCourseId}
+            partId={selectedPartId}
             part={selectedPart}
-            unit={selectedUnit}
         />
     );
 };

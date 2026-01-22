@@ -228,6 +228,53 @@ const questionService = {
         }
     },
 
+    fetchPracticeExamQuestions: async ({
+        courseId,
+        partId,
+        publisherId,
+        examType,
+    }) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/fetch-practice-exam-questions`,
+                {
+                    courseId,
+                    partId,
+                    publisherId,
+                    examType
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    fetchPackageExamQuestions: async ({
+        courseId,
+        partId,
+        publisherId,
+        examType,
+    }) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/fetch-review-package-questions`,
+                {
+                    courseId,
+                    partId,
+                    publisherId,
+                    packageType: examType
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+
 };
 
 

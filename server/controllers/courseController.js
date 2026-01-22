@@ -60,7 +60,6 @@ const getAllUnitsWithSubunits = async (req, res, next) => {
     try {
         const { courseId, partId, publisherId } = req.body;
 
-        console.log(courseId);
         if (!courseId || !partId || !publisherId) {
             return res.status(400).json({
                 success: false,
