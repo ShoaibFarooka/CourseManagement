@@ -38,7 +38,8 @@ const PackageExamsPage = () => {
                     groupedCourses[item.courseId].parts.push({
                         id: item.partId,
                         name: item.partName,
-                        publishers: item.publishers || []
+                        standard: item.standard || null,
+                        mega: item.mega || []
                     });
                 }
             });
@@ -60,7 +61,7 @@ const PackageExamsPage = () => {
 
     const handleNext = () => {
         if (!selectedCourse || !selectedPart) {
-            message.warning("Please select all fields to proceed.");
+            message.warning("Please select course and part to proceed.");
             return;
         }
         setStep("exam");

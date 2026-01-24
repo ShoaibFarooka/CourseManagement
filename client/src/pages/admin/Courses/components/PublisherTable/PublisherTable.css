@@ -1,0 +1,24 @@
+.table tbody tr td input.standard-radio-btn,
+.table tbody tr td input.mega-checkbox {
+    display: block;
+    margin: 0 auto;
+    vertical-align: middle;
+    transform: scale(1.1);
+}
+
+
+.table thead th:nth-child(3),
+.table thead th:nth-child(4) {
+    text-align: center;
+}
+
+
+.mega-checkbox:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.standard-radio-btn:focus {
+    outline: none;
+    box-shadow: none;
+}

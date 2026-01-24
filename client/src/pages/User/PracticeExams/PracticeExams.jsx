@@ -12,7 +12,6 @@ const PraticeExams = () => {
 
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [selectedPartId, setSelectedPartId] = useState("");
-    const [selectedPublisherId, setSelectedPublisherId] = useState("");
 
     const dispatch = useDispatch();
 
@@ -20,6 +19,7 @@ const PraticeExams = () => {
         try {
             dispatch(ShowLoading());
             const res = await courseService.fetchAllCoursesWithParts();
+
             const groupedCourses = {};
 
             res.courses.forEach(item => {
@@ -38,8 +38,7 @@ const PraticeExams = () => {
                 if (!existingPart) {
                     groupedCourses[item.courseId].parts.push({
                         id: item.partId,
-                        name: item.partName,
-                        publishers: item.publishers || []
+                        name: item.partName
                     });
                 }
             });
@@ -52,18 +51,16 @@ const PraticeExams = () => {
         }
     };
 
-
     useEffect(() => {
         fetchAllCourses();
     }, []);
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
-    const selectedPublisher = selectedPart?.publishers?.find(p => p._id === selectedPublisherId);
 
     const handleNext = () => {
-        if (!selectedCourse || !selectedPart || !selectedPublisher) {
-            message.warning("Please select all fields to proceed.");
+        if (!selectedCourse || !selectedPart) {
+            message.warning("Please select a course and part to proceed.");
             return;
         }
         setStep("exam");
@@ -72,25 +69,18 @@ const PraticeExams = () => {
     if (step === "select") {
         return (
             <CoursePartSelector
-                examType="unit"
+                examType="practice"
                 courses={allCourses}
                 parts={selectedCourse?.parts || []}
-                publishers={selectedPart?.publishers || []}
 
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
-                selectedPublisher={selectedPublisherId}
 
                 onCourseChange={(e) => {
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
-                    setSelectedPublisherId("");
                 }}
-                onPartChange={(e) => {
-                    setSelectedPartId(e.target.value);
-                    setSelectedPublisherId("");
-                }}
-                onPublisherChange={(e) => setSelectedPublisherId(e.target.value)}
+                onPartChange={(e) => setSelectedPartId(e.target.value)}
                 onNext={handleNext}
             />
         );
@@ -100,7 +90,6 @@ const PraticeExams = () => {
         <PracticeExamContent
             courseId={selectedCourseId}
             partId={selectedPartId}
-            publisherId={selectedPublisherId}
         />
     );
 };

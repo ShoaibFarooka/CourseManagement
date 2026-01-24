@@ -111,18 +111,28 @@ router.post(
 )
 
 router.post(
-    "/fetch-questions",
+    "/fetch-unit-exam-questions",
     controller.fetchQuestionsWithFilters
 )
 
 router.post(
     "/fetch-practice-exam-questions",
-    controller.FetchQuestionsByPublisher
+    controller.FetchPracticeExamQuestions
 )
 
 router.post(
-    "/fetch-review-package-questions",
-    controller.FetchReviewPackageQuestions
+    "/fetch-standard-package-questions",
+    controller.FetchStandardReviewPackageQuestions
 );
+
+router.post(
+    "/fetch-mega-package-questions",
+    controller.FetchMegaReviewPackageQuestions
+);
+
+router.post(
+    '/get-total-question-in-part',
+    controller.CountQuestionsInPart
+)
 
 module.exports = router;

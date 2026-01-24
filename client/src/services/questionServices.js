@@ -208,11 +208,11 @@ const questionService = {
         selectedUnits = [],
         selectedSubunits = {},
         page = 1,
-        limit = 10,
+        limit = 20,
     }) => {
         try {
             const response = await axiosInstance.post(
-                `${BASE_URL}/fetch-questions`,
+                `${BASE_URL}/fetch-unit-exam-questions`,
                 {
                     publisherId,
                     selectedUnits,
@@ -231,8 +231,9 @@ const questionService = {
     fetchPracticeExamQuestions: async ({
         courseId,
         partId,
-        publisherId,
         examType,
+        page,
+        limit
     }) => {
         try {
             const response = await axiosInstance.post(
@@ -240,8 +241,9 @@ const questionService = {
                 {
                     courseId,
                     partId,
-                    publisherId,
-                    examType
+                    examType,
+                    page,
+                    pageSize: limit,
                 }
             );
 
@@ -251,23 +253,50 @@ const questionService = {
         }
     },
 
-    fetchPackageExamQuestions: async ({
-        courseId,
-        partId,
-        publisherId,
-        examType,
-    }) => {
+    fetchStandardReviewQuestions: async ({ courseId, partId, limit = 20, page = 1 }) => {
         try {
             const response = await axiosInstance.post(
-                `${BASE_URL}/fetch-review-package-questions`,
+                `${BASE_URL}/fetch-standard-package-questions`,
                 {
                     courseId,
                     partId,
-                    publisherId,
-                    packageType: examType
+                    limit,
+                    page
                 }
             );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
 
+    fetchMegaReviewQuestions: async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20 }) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/fetch-mega-package-questions`,
+                {
+                    courseId,
+                    partId,
+                    userLimit,
+                    page,
+                    pageSize
+                }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    CountQuestionsInPart: async ({ courseId, partId }) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/get-total-question-in-part`,
+                {
+                    courseId,
+                    partId,
+                }
+            );
             return response.data;
         } catch (error) {
             throw error;

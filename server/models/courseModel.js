@@ -45,6 +45,14 @@ const partSchema = new mongoose.Schema({
     publishers: {
         type: [publisherSchema],
         required: true
+    },
+    standard: {
+        type: String,
+        required: true,
+    },
+    mega: {
+        type: [String],
+        required: true,
     }
 });
 

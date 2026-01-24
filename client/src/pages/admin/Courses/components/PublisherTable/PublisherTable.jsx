@@ -10,7 +10,11 @@ const PublisherTable = ({
     onEdit,
     onManageUnits,
     onDelete,
-    selectedPublisherIndexes
+    selectedPublisherIndexes,
+    standard,
+    mega,
+    onStandardChange,
+    onMegaChange
 }) => {
     return (
         <div className="table-container">
@@ -24,6 +28,17 @@ const PublisherTable = ({
                             <div className="heading-md table-h1">Publisher Name</div>
                         </th>
                         <th>
+                            <div className="heading-md">
+                                Standard
+                            </div>
+                        </th>
+                        <th>
+                            <div className="heading-md">
+                                Mega
+                            </div>
+                        </th>
+
+                        <th>
                             <div className="heading-md table-h2">Actions</div>
                         </th>
                     </tr>
@@ -36,6 +51,26 @@ const PublisherTable = ({
                             </td>
                             <td>
                                 <div className="heading-sm table-h1">{publisher.name}</div>
+                            </td>
+                            <td>
+                                <input
+                                    type="radio"
+                                    name={`standard-${partIndex}`}
+                                    checked={standard === publisher.name}
+                                    onChange={() => onStandardChange(partIndex, publisher.name)}
+                                    className='standard-radio-btn'
+                                />
+                            </td>
+
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    checked={mega?.includes(publisher.name)}
+                                    onChange={(e) =>
+                                        onMegaChange(partIndex, publisher.name, e.target.checked)
+                                    }
+                                    className='mega-checkbox'
+                                />
                             </td>
                             <td>
                                 <div className="action-btn-wrapper">

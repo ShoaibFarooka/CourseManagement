@@ -729,7 +729,7 @@ const FetchQuestionsWithFilters = async ({
     selectedUnits = [],
     selectedSubunits = {},
     page = 1,
-    limit = 10,
+    limit = 20,
 }) => {
 
     const skip = (page - 1) * limit;
@@ -776,98 +776,295 @@ const FetchQuestionsWithFilters = async ({
 };
 
 
-const FetchQuestionsByPublisher = async ({
+const FetchPracticeExamQuestions = async ({
     courseId,
     partId,
-    publisherId,
     examType,
+    page = 1,
+    pageSize = 20
 }) => {
-    const query = {
-        course: mongoose.Types.ObjectId.createFromHexString(courseId),
-        part: mongoose.Types.ObjectId.createFromHexString(partId),
-        publisher: mongoose.Types.ObjectId.createFromHexString(publisherId),
-    };
+    const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
+    const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
 
-    const totalQuestions = await Question.countDocuments(query);
 
-    let questions = [];
+    const examLimit = examType === 'quick' ? 50 : 125;
 
-    if (totalQuestions > 0) {
-        const fetchCount =
-            examType === 'quick'
-                ? Math.min(50, totalQuestions)
-                : Math.min(125, totalQuestions);
 
-        questions = await Question.aggregate([
-            { $match: query },
-            { $sample: { size: fetchCount } }
-        ]);
+    const course = await Course.findOne(
+        { _id: courseObjId, "parts._id": partObjId },
+        { "parts.$": 1 }
+    ).lean();
+
+    if (!course || !course.parts.length) throw new Error("Part not found");
+
+    const part = course.parts[0];
+
+    if (!part.publishers || !part.publishers.length) {
+        throw new Error("No publishers found in this part");
     }
+
+
+    const publisherIds = part.publishers.map(p => p._id);
+
+
+    const publisherCount = publisherIds.length;
+    const questionsPerPublisher = Math.floor(examLimit / publisherCount);
+    const remainder = examLimit % publisherCount;
+
+
+    let distributedQuestions = [];
+
+    for (let index = 0; index < publisherIds.length; index++) {
+        const pubId = publisherIds[index];
+
+
+        const availableCount = await Question.countDocuments({
+            course: courseObjId,
+            part: partObjId,
+            publisher: pubId
+        });
+
+        if (availableCount === 0) continue;
+
+        let allocation = questionsPerPublisher;
+
+
+        if (index < remainder) {
+            allocation += 1;
+        }
+
+
+        allocation = Math.min(allocation, availableCount);
+
+
+        const randomQuestions = await Question.aggregate([
+            {
+                $match: {
+                    course: courseObjId,
+                    part: partObjId,
+                    publisher: pubId
+                }
+            },
+            { $sample: { size: allocation } }
+        ]);
+
+        distributedQuestions.push(...randomQuestions);
+    }
+
+
+    const shuffledQuestions = distributedQuestions.sort(() => Math.random() - 0.5);
+    const limitedQuestions = shuffledQuestions.slice(0, examLimit);
+
+    const totalPages = Math.ceil(limitedQuestions.length / pageSize);
+    const paginatedQuestions = limitedQuestions.slice((page - 1) * pageSize, page * pageSize);
 
     return {
         success: true,
-        data: questions,
+        data: paginatedQuestions,
         pagination: {
-            total: questions.length,
-            limit: examType === 'quick' ? 50 : 125,
-            totalPages: 1,
-            page: 1
+            total: limitedQuestions.length,
+            limit: pageSize,
+            totalPages,
+            page
         }
     };
 };
 
-const FetchReviewPackageQuestions = async ({
-    courseId,
-    partId,
-    packageType,
-    publisherId,
-}) => {
+
+const FetchStandardReviewQuestions = async ({ courseId, partId, page = 1 }) => {
     try {
-        let query = {
+        const course = await Course.findOne(
+            { _id: courseId, "parts._id": partId },
+            { "parts.$": 1 }
+        ).lean();
+
+        if (!course || !course.parts.length) throw new Error("Part not found");
+
+        const part = course.parts[0];
+
+        const standardPublisher = part.publishers.find(p => p.name === part.standard);
+        if (!standardPublisher) throw new Error("Standard publisher not found in this part");
+
+        const matchQuery = {
             course: mongoose.Types.ObjectId.createFromHexString(courseId),
             part: mongoose.Types.ObjectId.createFromHexString(partId),
+            publisher: standardPublisher._id,
         };
 
-        // For standard review, filter by specific publisher
-        if (packageType === 'standard') {
-            if (!publisherId) {
-                throw new Error('publisherId is required for standard review');
-            }
-            query.publisher = mongoose.Types.ObjectId.createFromHexString(publisherId);
-        }
+        const allQuestions = await Question.find(matchQuery).lean();
 
-        // Get total matching questions
-        const totalQuestions = await Question.countDocuments(query);
-
-        let questions = [];
-
-        if (totalQuestions > 0) {
-            // Determine fetch count based on package type
-            const fetchCount = packageType === 'standard'
-                ? Math.min(50, totalQuestions)  // Standard: 50 questions from one publisher
-                : Math.min(125, totalQuestions); // Mega: 125 questions from all publishers
-
-            questions = await Question.aggregate([
-                { $match: query },
-                { $sample: { size: fetchCount } }
-            ]);
-        }
+        const pageSize = 20;
+        const totalPages = Math.ceil(allQuestions.length / pageSize);
+        const paginatedQuestions = allQuestions.slice((page - 1) * pageSize, page * pageSize);
 
         return {
             success: true,
-            data: questions,
-            packageType,
+            packageType: "standard",
+            data: paginatedQuestions,
             pagination: {
-                total: questions.length,
-                limit: packageType === 'standard' ? 50 : 125,
-                totalPages: 1,
-                page: 1
+                total: allQuestions.length,
+                limit: pageSize,
+                totalPages,
+                page
             }
         };
+
     } catch (error) {
         throw error;
     }
 };
+
+
+
+const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1, pageSize = 20 }) => {
+    try {
+        if (!userLimit || userLimit <= 0) throw new Error("Valid userLimit is required");
+
+        const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
+        const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
+
+        const course = await Course.findOne(
+            { _id: courseObjId, "parts._id": partObjId },
+            { "parts.$": 1 }
+        ).lean();
+
+        if (!course || !course.parts.length) throw new Error("Part not found");
+
+        const part = course.parts[0];
+
+        if (!part.mega || !part.mega.length) throw new Error("Mega publishers not configured for this part");
+
+        const publisherIds = part.mega
+            .map(name => part.publishers.find(p => p.name === name)?._id)
+            .filter(Boolean);
+
+        if (!publisherIds.length) throw new Error("No valid mega publishers found");
+
+
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, userLimit);
+        const questionsNeeded = endIndex - startIndex;
+
+        if (questionsNeeded <= 0) {
+            return {
+                success: true,
+                packageType: "mega",
+                data: [],
+                pagination: {
+                    total: userLimit,
+                    limit: pageSize,
+                    totalPages: Math.ceil(userLimit / pageSize),
+                    page
+                }
+            };
+        }
+
+
+        const publisherCounts = await Promise.all(
+            publisherIds.map(async (pubId) => {
+                const count = await Question.countDocuments({
+                    course: courseObjId,
+                    part: partObjId,
+                    publisher: pubId
+                });
+                return { pubId, count };
+            })
+        );
+
+        const totalAvailable = publisherCounts.reduce((sum, p) => sum + p.count, 0);
+
+        if (totalAvailable === 0) throw new Error("No questions available");
+
+
+        let allQuestions = [];
+        let questionsFetched = 0;
+
+        for (const { pubId, count } of publisherCounts) {
+            if (questionsFetched >= questionsNeeded || count === 0) continue;
+
+
+            const proportion = count / totalAvailable;
+            const targetForPublisher = Math.ceil(questionsNeeded * proportion);
+            const toFetch = Math.min(
+                targetForPublisher,
+                questionsNeeded - questionsFetched,
+                count
+            );
+
+            if (toFetch <= 0) continue;
+
+            const questions = await Question.aggregate([
+                { $match: { course: courseObjId, part: partObjId, publisher: pubId } },
+                { $sample: { size: toFetch } }
+            ]);
+
+            allQuestions.push(...questions);
+            questionsFetched += questions.length;
+        }
+
+
+        if (questionsFetched < questionsNeeded) {
+            for (const { pubId, count } of publisherCounts) {
+                if (questionsFetched >= questionsNeeded) break;
+
+                const additionalNeeded = questionsNeeded - questionsFetched;
+                const questions = await Question.aggregate([
+                    { $match: { course: courseObjId, part: partObjId, publisher: pubId } },
+                    { $sample: { size: Math.min(additionalNeeded, count) } }
+                ]);
+
+                const newQuestions = questions.filter(q =>
+                    !allQuestions.some(existing => existing._id.equals(q._id))
+                );
+
+                allQuestions.push(...newQuestions);
+                questionsFetched += newQuestions.length;
+            }
+        }
+
+        allQuestions = allQuestions.sort(() => Math.random() - 0.5);
+
+        const totalPages = Math.ceil(userLimit / pageSize);
+
+        return {
+            success: true,
+            packageType: "mega",
+            data: allQuestions,
+            pagination: {
+                total: userLimit,
+                limit: pageSize,
+                totalPages,
+                page
+            }
+        };
+
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+const CountQuestionsInPart = async ({ courseId, partId }) => {
+    try {
+        const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
+        const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
+
+
+        const totalQuestions = await Question.countDocuments({
+            course: courseObjId,
+            part: partObjId
+        });
+
+        return {
+            success: true,
+            totalQuestions,
+        };
+
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 
 
@@ -884,6 +1081,8 @@ module.exports = {
     validateRapidQuestionsFile,
     validateEssayQuestionsFile,
     FetchQuestionsWithFilters,
-    FetchQuestionsByPublisher,
-    FetchReviewPackageQuestions,
+    FetchPracticeExamQuestions,
+    FetchStandardReviewQuestions,
+    FetchMegaReviewQuestions,
+    CountQuestionsInPart,
 };

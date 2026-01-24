@@ -47,7 +47,7 @@ const CoursePartSelector = ({
                 </select>
             </div>
 
-            {(examType === "unit" || examType === "practice") && (
+            {(examType === "unit") && (
                 <div className="field">
                     <label>Select Publihser</label>
                     <select

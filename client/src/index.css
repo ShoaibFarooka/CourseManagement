@@ -219,12 +219,10 @@ html {
   border: none;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  transition: background-color 0.3s ease, transform 0.2s ease-in-out;
 }
 
 .btn:hover {
-  background-color: var(--btn-hover);
-  transform: scale(1.05);
+  opacity: 0.8;
   cursor: pointer;
 }
 
@@ -486,6 +484,7 @@ textarea:focus {
 .table-container {
   overflow: auto;
   border-radius: var(--radius);
+
 }
 
 .table-h1 {

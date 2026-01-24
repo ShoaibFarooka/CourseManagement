@@ -1,4 +1,4 @@
-.modal {
+/* .modal {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -11,6 +11,52 @@
     overflow-y: auto;
     scrollbar-width: thin;
 }
+ */
+
+.modal {
+    position: fixed;
+    /* Remove these: */
+    /* top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); */
+
+    /* Replace with: */
+    inset: 0;
+    margin: auto;
+    width: 90%;
+    max-width: 1400px;
+    height: fit-content;
+    max-height: 90vh;
+
+    background-color: var(--modal-bg);
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+
+/* Add this NEW class for table-heavy modals */
+.modal.modal-with-tables {
+    transform: translate3d(-50%, -50%, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Fix specifically for tables in these modals */
+.modal-with-tables .table-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    border-radius: var(--radius);
+
+    isolation: isolate;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
 
 .overlay {
     background: rgba(155, 155, 173, 0.5);

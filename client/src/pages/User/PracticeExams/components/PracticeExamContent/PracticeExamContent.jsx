@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PracticeExamContent.css';
 
-const PracticeExamContent = ({ courseId, partId, publisherId }) => {
+const PracticeExamContent = ({ courseId, partId }) => {
 
     const [examType, setExamType] = useState(null);
     const navigate = useNavigate();
@@ -19,7 +19,6 @@ const PracticeExamContent = ({ courseId, partId, publisherId }) => {
                 source: "practice-exam",
                 courseId,
                 partId,
-                publisherId,
                 examType,
                 limit: examType === 'full' ? 125 : 50
             }

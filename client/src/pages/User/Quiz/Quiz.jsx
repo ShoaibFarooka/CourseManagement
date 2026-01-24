@@ -29,27 +29,30 @@ const Quiz = () => {
         selectedSubunits,
         courseId,
         partId,
-        examType
+        examType,
+        limit
     } = state || {};
 
     const [questions, setQuestions] = useState([]);
     const [loadedPages, setLoadedPages] = useState(new Set());
     const [markedQuestions, setMarkedQuestions] = useState(new Set());
-    const limit = 10;
     const [totalQuestions, setTotalQuestions] = useState(0);
-
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [time, setTime] = useState(QUIZ_TIME);
 
 
+    const PAGE_SIZE = 20;
+
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
-            // Practice or Package exams are not paginated
-            if ((source === 'practice-exam' || source === 'package-exam') && loadedPages.has(1)) return;
+            if (loadedPages.has(pageToFetch)) {
+                console.log(`Page ${pageToFetch} already loaded, skipping`);
+                return;
+            }
 
-            // Unit exams may be paginated
-            if (source !== 'practice-exam' && source !== 'package-exam' && loadedPages.has(pageToFetch)) return;
+            // Mark as loading immediately to prevent race conditions
+            setLoadedPages(prev => new Set([...prev, pageToFetch]));
 
             dispatch(ShowLoading());
 
@@ -59,56 +62,90 @@ const Quiz = () => {
                 res = await questionService.fetchPracticeExamQuestions({
                     courseId,
                     partId,
-                    publisherId,
-                    examType // 'full' or 'quick'
+                    examType,
+                    page: pageToFetch,
+                    limit: PAGE_SIZE
                 });
-
-                setQuestions(res.data?.data || []);
-                setTotalQuestions(res.data?.pagination?.total || (res.data?.data?.length || 0));
-                setLoadedPages(new Set([1]));
 
             } else if (source === 'package-exam') {
-                // Call the package exam API
-                res = await questionService.fetchPackageExamQuestions({
-                    courseId,
-                    partId,
-                    publisherId, // optional for mega review
-                    examType  // 'standard' or 'mega'
-                });
 
-                setQuestions(res.data || []);
-                setTotalQuestions(res.pagination?.total || (res.data?.data?.length || 0));
-                setLoadedPages(new Set([1]));
+                if (examType === 'standard') {
+                    res = await questionService.fetchStandardReviewQuestions({
+                        courseId,
+                        partId,
+                        page: pageToFetch,
+                        limit: PAGE_SIZE
+                    });
+                } else if (examType === 'mega') {
+                    res = await questionService.fetchMegaReviewQuestions({
+                        courseId,
+                        partId,
+                        userLimit: limit,
+                        page: pageToFetch,
+                        pageSize: PAGE_SIZE
+                    });
+                } else {
+                    throw new Error("Invalid package exam type");
+                }
 
             } else {
-                // Unit exams with pagination
                 res = await questionService.fetchQuestionsWithFilters({
                     publisherId,
                     selectedUnits,
                     selectedSubunits,
                     page: pageToFetch,
-                    limit,
+                    limit: PAGE_SIZE,
                 });
-
-                setQuestions(prev => {
-                    const newQuestions = [...prev];
-                    const startIndex = (pageToFetch - 1) * limit;
-
-                    res.data.forEach((q, idx) => {
-                        newQuestions[startIndex + idx] = q;
-                    });
-
-                    return newQuestions;
-                });
-
-                setLoadedPages(prev => new Set([...prev, pageToFetch]));
-                setTotalQuestions(res.pagination.total);
             }
 
+            setQuestions(prev => {
+                const newQuestions = [...prev];
+                const startIndex = (pageToFetch - 1) * PAGE_SIZE;
+
+                (res.data || []).forEach((q, idx) => {
+                    newQuestions[startIndex + idx] = q;
+                });
+
+                return newQuestions;
+            });
+
+            setTotalQuestions(res.pagination?.total || (res?.data?.length || 0));
+
         } catch (error) {
-            message.error(error.response?.data?.error || "Failed to load questions");
+            // Remove from loadedPages if request failed
+            setLoadedPages(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(pageToFetch);
+                return newSet;
+            });
+            message.error(error.response?.data?.error || error.message || "Failed to load questions");
         } finally {
             dispatch(HideLoading());
+        }
+    };
+
+    /*  Navigation */
+    const goToQuestion = async (index) => {
+        const pageNeeded = Math.floor(index / PAGE_SIZE) + 1;  // FIX: Use PAGE_SIZE
+
+        if (!loadedPages.has(pageNeeded)) {
+            await fetchQuestions(pageNeeded);
+        }
+
+        setCurrentIndex(index);
+    };
+
+    const nextQuestion = async () => {
+        const nextIndex = currentIndex + 1;
+
+        if (nextIndex < totalQuestions) {
+            const pageNeeded = Math.floor(nextIndex / PAGE_SIZE) + 1;  // FIX: Use PAGE_SIZE
+
+            if (!loadedPages.has(pageNeeded)) {
+                await fetchQuestions(pageNeeded);
+            }
+
+            setCurrentIndex(nextIndex);
         }
     };
 
@@ -141,29 +178,29 @@ const Quiz = () => {
     };
 
     /*  Navigation */
-    const goToQuestion = async (index) => {
-        const pageNeeded = Math.floor(index / limit) + 1;
-
-        if (!loadedPages.has(pageNeeded)) {
-            await fetchQuestions(pageNeeded);
-        }
-
-        setCurrentIndex(index);
-    };
-
-    const nextQuestion = async () => {
-        const nextIndex = currentIndex + 1;
-
-        if (nextIndex < totalQuestions) {
-            const pageNeeded = Math.floor(nextIndex / limit) + 1;
-
-            if (!loadedPages.has(pageNeeded)) {
-                await fetchQuestions(pageNeeded);
-            }
-
-            setCurrentIndex(nextIndex);
-        }
-    };
+    /*  const goToQuestion = async (index) => {
+         const pageNeeded = Math.floor(index / limit) + 1;
+ 
+         if (!loadedPages.has(pageNeeded)) {
+             await fetchQuestions(pageNeeded);
+         }
+ 
+         setCurrentIndex(index);
+     };
+ 
+     const nextQuestion = async () => {
+         const nextIndex = currentIndex + 1;
+ 
+         if (nextIndex < totalQuestions) {
+             const pageNeeded = Math.floor(nextIndex / limit) + 1;
+ 
+             if (!loadedPages.has(pageNeeded)) {
+                 await fetchQuestions(pageNeeded);
+             }
+ 
+             setCurrentIndex(nextIndex);
+         }
+     }; */
 
     const prevQuestion = () => {
         setCurrentIndex(prev => Math.max(prev - 1, 0));

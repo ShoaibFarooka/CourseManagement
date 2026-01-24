@@ -286,22 +286,23 @@ const fetchQuestionsWithFilters = async (req, res, next) => {
     }
 };
 
-const FetchQuestionsByPublisher = async (req, res, next) => {
+const FetchPracticeExamQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId, publisherId, examType } = req.body;
+        const { courseId, partId, examType, page, pageSize } = req.body;
 
-        if (!courseId || !partId || !publisherId || !examType) {
+        if (!courseId || !partId || !examType) {
             return res.status(400).json({
                 success: false,
-                message: "courseId, partId, publisherId, and examType are required"
+                message: "courseId, partId, and examType are required"
             });
         }
 
-        const result = await questionService.FetchQuestionsByPublisher({
+        const result = await questionService.FetchPracticeExamQuestions({
             courseId,
             partId,
-            publisherId,
-            examType
+            examType,
+            page: page || 1,
+            pageSize: pageSize || 20
         });
 
         res.status(200).json({
@@ -316,35 +317,28 @@ const FetchQuestionsByPublisher = async (req, res, next) => {
 };
 
 
-const FetchReviewPackageQuestions = async (req, res, next) => {
+const FetchStandardReviewPackageQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId, publisherId, packageType } = req.body;
+        const { courseId, partId, limit, page } = req.body;
 
-        if (!courseId || !partId || !packageType) {
+        if (!courseId || !partId) {
             return res.status(400).json({
                 success: false,
-                message: "courseId, partId, and packageType are required"
+                message: "courseId and partId are required"
             });
         }
 
-        if (packageType === 'standard' && !publisherId) {
-            return res.status(400).json({
-                success: false,
-                message: "publisherId is required for standard review package"
-            });
-        }
-
-        const result = await questionService.FetchReviewPackageQuestions({
+        const result = await questionService.FetchStandardReviewQuestions({
             courseId,
             partId,
-            packageType,
-            publisherId
+            page: page || 1,
+            limit: limit || 20,
         });
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            data: result.data,
             packageType: result.packageType,
+            data: result.data,
             pagination: result.pagination
         });
 
@@ -352,6 +346,70 @@ const FetchReviewPackageQuestions = async (req, res, next) => {
         next(error);
     }
 };
+
+
+const FetchMegaReviewPackageQuestions = async (req, res, next) => {
+    try {
+        const { courseId, partId, userLimit, page = 1, pageSize = 20 } = req.body;
+
+        if (!courseId || !partId) {
+            return res.status(400).json({
+                success: false,
+                message: "courseId and partId are required"
+            });
+        }
+
+        if (!userLimit || userLimit <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "userLimit is required for mega review package"
+            });
+        }
+
+        const result = await questionService.FetchMegaReviewQuestions({
+            courseId,
+            partId,
+            userLimit,
+            page,
+            pageSize
+        });
+
+        return res.status(200).json({
+            success: true,
+            packageType: result.packageType,
+            data: result.data,
+            pagination: result.pagination
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const CountQuestionsInPart = async (req, res, next) => {
+    try {
+        const { courseId, partId } = req.body;
+
+        if (!courseId || !partId) {
+            return res.status(400).json({
+                success: false,
+                message: "courseId and partId are required"
+            });
+        }
+
+        const result = await questionService.CountQuestionsInPart({
+            courseId,
+            partId
+        });
+
+        res.status(200).json(result);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 
 
@@ -369,6 +427,8 @@ module.exports = {
     validateRapidQuestions,
     validateEssayQuestions,
     fetchQuestionsWithFilters,
-    FetchQuestionsByPublisher,
-    FetchReviewPackageQuestions
+    FetchPracticeExamQuestions,
+    FetchStandardReviewPackageQuestions,
+    FetchMegaReviewPackageQuestions,
+    CountQuestionsInPart,
 };

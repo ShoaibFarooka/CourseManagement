@@ -79,6 +79,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                 ? data.parts.map((part) => ({
                     _id: part._id,
                     name: part.name,
+                    standard: part.standard || '',
+                    mega: Array.isArray(part.mega) ? [...part.mega] : [],
                     publishers: Array.isArray(part.publishers)
                         ? part.publishers.map((publisher) => ({
                             _id: publisher._id,
@@ -258,7 +260,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         const newPart = {
             name: trimmedName,
-            publishers: []
+            publishers: [],
+            standard: "",
+            mega: [],
         };
 
         setCourseData(prev => ({
@@ -300,7 +304,9 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         updatedParts[editingPartIndex] = {
             _id: existingPart?._id,
             name: trimmedName,
-            publishers: existingPart.publishers
+            publishers: existingPart.publishers,
+            standard: existingPart.standard || "",
+            mega: Array.isArray(existingPart.mega) ? existingPart.mega : [],
         };
 
         setCourseData(prev => ({
@@ -354,6 +360,49 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             publisherSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     };
+
+    // normalize the spaces for data consistency 
+    const normalize = (value) =>
+        value.trim().replace(/\s+/g, " ");
+
+    const handleStandardChange = (partIndex, publisherName) => {
+        const normalized = normalize(publisherName);
+
+        setCourseData(prev => {
+            const updatedParts = [...prev.parts];
+            updatedParts[partIndex] = {
+                ...updatedParts[partIndex],
+                standard: normalized
+            };
+            return { ...prev, parts: updatedParts };
+        });
+
+        setUnsavedChanges(prev => ({ ...prev, part: true }));
+    };
+
+    const handleMegaChange = (partIndex, publisherName, checked) => {
+        const normalized = normalize(publisherName);
+
+        setCourseData(prev => {
+            const updatedParts = [...prev.parts];
+            const part = updatedParts[partIndex];
+
+            const updatedMega = checked
+                ? [...new Set([...(part.mega || []), normalized])]
+                : (part.mega || []).filter(name => name !== normalized);
+
+            updatedParts[partIndex] = {
+                ...part,
+                mega: updatedMega
+            };
+
+            return { ...prev, parts: updatedParts };
+        });
+
+        setUnsavedChanges(prev => ({ ...prev, part: true }));
+    };
+
+
 
     // PUBLISHER HANDLERS 
     const handlePublisherInputChange = (e) => {
@@ -437,23 +486,40 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             value: editingPublisherValue,
             fieldKey: "publisher",
             label: "Publisher",
-            existingItems: courseData.parts[selectedPartIndexForPublisher]?.publishers?.map(p => p.name) || [],
+            existingItems:
+                courseData.parts[selectedPartIndexForPublisher]?.publishers?.map(p => p.name) || [],
             excludeIndex: editingPublisherIndex
         });
 
         if (!isValid) return;
 
         const updatedParts = [...courseData.parts];
-        const publishers = [...updatedParts[selectedPartIndexForPublisher].publishers];
+        const part = updatedParts[selectedPartIndexForPublisher];
+
+        const publishers = [...part.publishers];
         const existingPublisher = publishers[editingPublisherIndex];
+
+        const oldName = existingPublisher.name;
+        const newName = trimmedName;
+
 
         publishers[editingPublisherIndex] = {
             _id: existingPublisher?._id,
-            name: trimmedName,
+            name: newName,
             units: existingPublisher?.units || []
         };
 
-        updatedParts[selectedPartIndexForPublisher].publishers = publishers;
+
+        if (part.standard === oldName) {
+            part.standard = newName;
+        }
+
+
+        part.mega = (part.mega || []).map(m =>
+            m === oldName ? newName : m
+        );
+
+        part.publishers = publishers;
 
         setCourseData(prev => ({
             ...prev,
@@ -465,6 +531,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setShowAddpublisher(false);
         setSelectedPartIndexForPublisher(null);
     };
+
 
     const handleDeletePublisher = (partIndex, publisherIndex) => {
         const updatedParts = [...courseData.parts];
@@ -879,6 +946,11 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                 return false;
             }
 
+            if (!part.standard) {
+                message.error(`Please select a standard publisher for part "${part.name}"`);
+                return false;
+            }
+
             for (const publisher of part.publishers) {
                 if (!publisher.name || !publisher.name.trim()) {
                     message.error(`Publisher name is required in part "${part.name}"`);
@@ -926,6 +998,8 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             parts: data.parts?.map(part => ({
                 _id: part._id,
                 name: part.name,
+                standard: part.standard,
+                mega: Array.isArray(part.mega) ? part.mega : [],
                 publishers: part.publishers?.map(publisher => ({
                     _id: publisher._id,
                     name: publisher.name,
@@ -1091,6 +1165,11 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                                 onManageUnits={(publisherIndex) => handleManageUnits(partIndex, publisherIndex)}
                                 onDelete={(publisherIndex) => handleDeletePublisher(partIndex, publisherIndex)}
                                 selectedPublisherIndexes={selectedPublisherIndexes}
+                                standard={courseData.parts[partIndex].standard}
+                                mega={courseData.parts[partIndex].mega}
+                                onStandardChange={handleStandardChange}
+                                onMegaChange={handleMegaChange}
+
                             />
                         </>
                     )}

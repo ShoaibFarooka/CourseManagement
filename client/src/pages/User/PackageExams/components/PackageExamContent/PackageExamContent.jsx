@@ -1,104 +1,144 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PackageExamContent.css";
+import { useDispatch } from "react-redux";
+import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
+import questionService from "../../../../../services/questionServices";
+import { message } from "antd";
 
 const PackageExamContent = ({ courseId, partId, part }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const [selectedExam, setSelectedExam] = useState(null); // 'standard' or 'mega'
-    const [selectedPublisher, setSelectedPublisher] = useState("");
-    const [publishers, setPublishers] = useState([]);
+    const [selectedExam, setSelectedExam] = useState(null);
+    const [limit, setLimit] = useState("");
+    const [totalQuestions, setTotalQuestions] = useState(0);
+
+    const isStandardAvailable = Boolean(part?.standard);
+    const isMegaAvailable = Boolean(part?.mega?.length);
+
+
+    const fetchTotalQuestions = async () => {
+        try {
+            dispatch(ShowLoading());
+            const res = await questionService.CountQuestionsInPart({ courseId, partId });
+            setTotalQuestions(res.totalQuestions || 0);
+        } catch (error) {
+            message.error(error?.response?.data?.error || "Failed to fetch question count");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
 
     useEffect(() => {
-        if (part?.publishers) {
-            setPublishers(part.publishers);
+        if (isMegaAvailable) {
+            fetchTotalQuestions();
         }
-    }, [part]);
+    }, [courseId, partId, dispatch, isMegaAvailable]);
 
     const handleExamSelect = (examType) => {
         setSelectedExam(examType);
-        if (examType === "mega") setSelectedPublisher(""); // reset publisher if mega
+        if (examType === "standard") setLimit("");
     };
 
     const handleUpdate = () => {
-        if (selectedExam === "standard" && !selectedPublisher) {
-            alert("Please select a publisher for Standard Review");
+        if (!selectedExam) {
+            message.warning("Please select a package");
             return;
         }
 
-        // Navigate to Quiz with state
+        if (selectedExam === "mega") {
+            const numericLimit = Number(limit);
+            if (!numericLimit || numericLimit <= 0) {
+                message.warning("Please enter a valid number of questions for Mega Review");
+                return;
+            }
+
+            if (numericLimit > totalQuestions) {
+                message.warning(`You can select a maximum of ${totalQuestions} questions for this part`);
+                return;
+            }
+        }
+
         navigate("/quiz", {
             state: {
-                source: "package-exam", // similar to practice exam source
+                source: "package-exam",
                 courseId,
                 partId,
                 examType: selectedExam,
-                publisherId: selectedPublisher || null,
-            },
+                ...(selectedExam === "mega" && { limit: Number(limit) })
+            }
         });
     };
 
     return (
         <div className="package-exam">
-            {/* Standard Review */}
+
             <div
-                className={`package ${selectedExam === "standard" ? "selected" : ""}`}
-                onClick={() => handleExamSelect("standard")}
+                className={`package ${selectedExam === "standard" ? "selected" : ""} ${!isStandardAvailable ? "disabled" : ""}`}
+                onClick={() => isStandardAvailable && handleExamSelect("standard")}
             >
                 <span className="pkg-checkbox">
                     <input
                         type="radio"
                         checked={selectedExam === "standard"}
                         readOnly
+                        disabled={!isStandardAvailable}
                     />
                 </span>
                 <span className="pkg-title">Standard Review Package</span>
             </div>
-
-            {selectedExam === "standard" && (
-                <div className="publisher-dropdown">
-                    <label>Select Publisher:</label>
-                    <select
-                        value={selectedPublisher}
-                        onChange={(e) => setSelectedPublisher(e.target.value)}
-                    >
-                        <option value="">-- Select --</option>
-                        {publishers.map((pub) => (
-                            <option key={pub._id} value={pub._id}>
-                                {pub.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            )}
-
             <div className="description">
-                Norem ipsum dolor sit amet, consectetur adipiscing elit...
+                Standard review uses a predefined set of questions from the assigned publisher.
             </div>
 
-            {/* Mega Review */}
+
             <div
-                className={`package ${selectedExam === "mega" ? "selected" : ""}`}
-                onClick={() => handleExamSelect("mega")}
+                className={`package ${selectedExam === "mega" ? "selected" : ""} ${!isMegaAvailable ? "disabled" : ""}`}
+                onClick={() => isMegaAvailable && handleExamSelect("mega")}
             >
                 <span className="pkg-checkbox">
                     <input
                         type="radio"
                         checked={selectedExam === "mega"}
                         readOnly
+                        disabled={!isMegaAvailable}
                     />
                 </span>
                 <span className="pkg-title">Mega Review Package</span>
             </div>
 
+            {selectedExam === "mega" && (
+                <div className="limit-input">
+                    <label className="label">Number of Questions (Max {totalQuestions})</label>
+                    <input
+                        type="number"
+                        min="1"
+                        max={totalQuestions}
+                        value={limit}
+                        onChange={(e) => setLimit(e.target.value)}
+                        placeholder="Enter question limit"
+                        className="input"
+                    />
+                </div>
+            )}
+
             <div className="description">
-                Norem ipsum dolor sit amet, consectetur adipiscing elit...
+                Mega review randomly mixes questions from multiple publishers.
             </div>
 
-            {/* Update Button */}
+
+
             <div className="buttons-container">
-                <button className="button update" onClick={handleUpdate}>
-                    Update
+                <button
+                    className="button update"
+                    onClick={handleUpdate}
+                    disabled={
+                        (selectedExam === "standard" && !isStandardAvailable) ||
+                        (selectedExam === "mega" && (!isMegaAvailable || totalQuestions === 0))
+                    }
+                >
+                    Start Exam
                 </button>
             </div>
         </div>

@@ -45,7 +45,12 @@ const publisherSchema = yup.object().shape({
 // ---------------------- Part Schema ---------------------- //
 const partSchema = yup.object().shape({
     name: yup.string().trim().required("Part name is required"),
-
+    standard: yup.string().trim().required("Standard is required"),
+    mega: yup
+        .array()
+        .of(yup.string().trim())
+        .min(1, "At least one mega value is required")
+        .required("Mega is required"),
     publishers: yup
         .array()
         .of(publisherSchema)

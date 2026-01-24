@@ -4,7 +4,7 @@ import CrossIcon from '../../assets/icons/cross_icon.svg?react';
 
 Modal.setAppElement('#root');
 
-const CustomModal = ({ isOpen, onRequestClose, contentLabel, children, width = '90%' }) => {
+const CustomModal = ({ isOpen, onRequestClose, contentLabel, children, width = '90%', }) => {
     const modalStyle = {
         content: {
             width: width,

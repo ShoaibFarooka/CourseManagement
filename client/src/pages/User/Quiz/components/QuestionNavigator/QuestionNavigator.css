@@ -1,9 +1,27 @@
 .question-navigator {
-    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    width: 100%;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 100vh;
+    padding-right: 5px;
 }
+
+
+.question-navigator::-webkit-scrollbar {
+    width: 6px;
+}
+
+.question-navigator::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+.question-navigator::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 
 .question-navigator .title {
     font-size: 1.125rem;

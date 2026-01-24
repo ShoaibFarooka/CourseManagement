@@ -12,17 +12,32 @@ const getAllCourses = async () => {
     return courses;
 };
 
+const normalize = (value = "") =>
+    value.trim().replace(/\s+/g, " ");
+
+
 const addCourse = async (data) => {
     const { name, parts, timeRatio } = data;
 
     const course = await Course.create({
-        name,
+        name: normalize(name),
         timeRatio,
-        parts
+        parts: parts.map(part => ({
+            name: normalize(part.name),
+            standard: normalize(part.standard),
+            mega: Array.isArray(part.mega)
+                ? part.mega.map(normalize)
+                : [],
+            publishers: (part.publishers || []).map(publisher => ({
+                name: normalize(publisher.name),
+                units: publisher.units || []
+            }))
+        }))
     });
 
     return course;
 };
+
 
 
 const updateCourse = async (courseId, data) => {
@@ -35,7 +50,7 @@ const updateCourse = async (courseId, data) => {
         throw error;
     }
 
-    course.name = name;
+    course.name = normalize(name);
     course.timeRatio = timeRatio;
 
     course.parts = parts.map((part) => {
@@ -45,7 +60,11 @@ const updateCourse = async (courseId, data) => {
 
         return {
             _id: existingPart ? existingPart._id : new mongoose.Types.ObjectId(),
-            name: part.name,
+            name: normalize(part.name),
+            standard: normalize(part.standard),
+            mega: Array.isArray(part.mega)
+                ? part.mega.map(normalize)
+                : [],
             publishers: (part.publishers || []).map((publisher) => {
                 const existingPublisher = existingPart?.publishers.find(
                     (epub) => epub._id?.toString() === publisher._id
@@ -55,7 +74,7 @@ const updateCourse = async (courseId, data) => {
                     _id: existingPublisher
                         ? existingPublisher._id
                         : new mongoose.Types.ObjectId(),
-                    name: publisher.name,
+                    name: normalize(publisher.name),
                     units: (publisher.units || []).map((unit) => {
                         const existingUnit = existingPublisher?.units.find(
                             (eu) => eu._id?.toString() === unit._id
@@ -65,7 +84,7 @@ const updateCourse = async (courseId, data) => {
                             _id: existingUnit
                                 ? existingUnit._id
                                 : new mongoose.Types.ObjectId(),
-                            name: unit.name,
+                            name: normalize(unit.name),
                             type: unit.type,
                             subunits: (unit.subunits || []).map((sub) => {
                                 const existingSub = existingUnit?.subunits.find(
@@ -76,7 +95,7 @@ const updateCourse = async (courseId, data) => {
                                     _id: existingSub
                                         ? existingSub._id
                                         : new mongoose.Types.ObjectId(),
-                                    name: sub.name,
+                                    name: normalize(sub.name),
                                 };
                             }),
                         };
@@ -86,9 +105,9 @@ const updateCourse = async (courseId, data) => {
         };
     });
 
-    const updatedCourse = await course.save();
-    return updatedCourse;
+    return await course.save();
 };
+
 
 
 
@@ -111,6 +130,8 @@ const fetchAllCoursesWithParts = async () => {
                 courseName: "$name",
                 partId: "$parts._id",
                 partName: "$parts.name",
+                standard: "$parts.standard",
+                mega: "$parts.mega",
                 publishers: {
                     $map: {
                         input: "$parts.publishers",
