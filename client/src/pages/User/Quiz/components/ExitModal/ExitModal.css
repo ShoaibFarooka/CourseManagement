@@ -1,0 +1,50 @@
+.exit-modal-content {
+    text-align: center;
+    padding: 20px;
+    font-family: var(--font-family);
+    background-color: var(--unit-exams-bg);
+}
+
+.exit-modal-content .exit-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.exit-modal-content .exit-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.exit-modal-content .exit-buttons .exit-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: black;
+    font-weight: 600;
+}
+
+.exit-modal-content .exit-buttons .exit-confirm {
+    background-color: #f44336;
+}
+
+.exit-modal-content .exit-buttons .exit-confirm:hover {
+    opacity: 0.8;
+}
+
+.exit-modal-content .exit-buttons .exit-cancel {
+    background-color: var(--secondary-color);
+}
+
+.exit-modal-content .exit-buttons .exit-cancel:hover {
+    opacity: 0.8;
+}
+
+@media only screen and (max-width:500px) {
+    .exit-modal-content .exit-buttons {
+        flex-direction: column;
+    }
+}

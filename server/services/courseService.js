@@ -128,6 +128,7 @@ const fetchAllCoursesWithParts = async () => {
                 _id: 0,
                 courseId: "$_id",
                 courseName: "$name",
+                time: "$timeRatio",
                 partId: "$parts._id",
                 partName: "$parts.name",
                 standard: "$parts.standard",

@@ -21,12 +21,10 @@
     padding-left: 10px;
 }
 
-
 .mcqs .content {
     display: flex;
     flex-direction: column;
 }
-
 
 .mcqs .addquestion-btn {
     display: flex;
@@ -39,26 +37,23 @@
     gap: 20px;
 }
 
-.mcqs .option {
+.mcqs .mcqs-sub-form .mcq-options {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.mcqs .correct-option {
+.mcqs .mcqs-sub-form .correct-option {
     display: flex;
     flex-direction: column;
 }
 
-
-.mcqs .mcq-submit-btn {
+.mcqs .mcqs-sub-form .mcq-submit-btn {
     display: flex;
     justify-content: center;
     align-items: center;
     padding-top: 40px;
 }
-
-
 
 @media only screen and (max-width:768px) {
     .mcqs {

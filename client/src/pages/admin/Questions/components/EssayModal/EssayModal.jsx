@@ -213,7 +213,7 @@ const EssayModal = forwardRef(({ courseId, partId, unitId, subUnitId, publisherI
                 await questionServices.updateQuestion(question._id, formData);
                 message.success("Essay updated successfully");
             } else {
-                await questionServices.addEssayQuestion(courseId, partId, unitId, subUnitId, publisherId, formData);
+                await questionServices.addEssayQuestion(courseId, partId, publisherId, unitId, subUnitId, formData);
                 message.success("Essay submitted successfully");
             }
 

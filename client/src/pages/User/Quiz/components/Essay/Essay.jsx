@@ -14,6 +14,7 @@ const Essay = ({
     handleQuizSubmit,
     isMarked = false,
     onToggleMark,
+    source,
 }) => {
     const subquestions = data?.subquestions || [];
     const [activeSubIndex, setActiveSubIndex] = useState(0);
@@ -26,6 +27,7 @@ const Essay = ({
     }, [data._id]);
 
     const localAnswer = selectedAnswers[answerKey] || "";
+    const showExplanations = source === "unit-exam" || source === "package-exam";
 
     const wordCount = localAnswer.trim().split(/\s+/).filter(Boolean).length;
 
@@ -102,7 +104,7 @@ const Essay = ({
                     onChange={handleChange}
                 />
 
-                {wordCount >= 5 && currentSub.explanation && (
+                {showExplanations && wordCount >= 5 && currentSub.explanation && (
                     <div className="essay-correct-answer fade-in">
                         <div className="answer-heading">Correct Answer</div>
                         <p className="answer-text">{currentSub.explanation}</p>

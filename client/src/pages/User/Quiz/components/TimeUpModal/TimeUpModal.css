@@ -1,0 +1,50 @@
+.timeup-modal-content {
+    text-align: center;
+    padding: 20px;
+    font-family: var(--font-family);
+    background-color: var(--unit-exams-bg);
+}
+
+.timeup-modal-content .timeup-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.timeup-modal-content .timeup-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.timeup-modal-content .timeup-buttons .timeup-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: black;
+    font-weight: 600;
+}
+
+.timeup-modal-content .timeup-buttons .timeup-submit {
+    background-color: var(--secondary-color);
+}
+
+.timeup-modal-content .timeup-buttons .timeup-submit:hover {
+    opacity: 0.8;
+}
+
+.timeup-modal-content .timeup-buttons .timeup-continue {
+    background-color: var(--secondary-color);
+}
+
+.timeup-modal-content .timeup-buttons .timeup-continue:hover {
+    opacity: 0.8;
+}
+
+@media only screen and (max-width:500px) {
+    .timeup-modal-content .timeup-buttons {
+        flex-direction: column;
+    }
+}

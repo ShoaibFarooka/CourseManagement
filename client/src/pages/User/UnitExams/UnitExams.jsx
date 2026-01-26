@@ -27,7 +27,8 @@ const UnitExams = () => {
                     groupedCourses[item.courseId] = {
                         id: item.courseId,
                         name: item.courseName,
-                        parts: []
+                        parts: [],
+                        timeRatio: item.time,
                     };
                 }
 
@@ -101,6 +102,7 @@ const UnitExams = () => {
             courseId={selectedCourseId}
             partId={selectedPartId}
             publisherId={selectedPublisherId}
+            timeRatio={selectedCourse?.timeRatio}
         />
     );
 };

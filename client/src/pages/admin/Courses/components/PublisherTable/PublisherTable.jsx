@@ -28,12 +28,12 @@ const PublisherTable = ({
                             <div className="heading-md table-h1">Publisher Name</div>
                         </th>
                         <th>
-                            <div className="heading-md">
+                            <div className="heading-md publisher-radio-btn">
                                 Standard
                             </div>
                         </th>
                         <th>
-                            <div className="heading-md">
+                            <div className="heading-md publisher-radio-btn">
                                 Mega
                             </div>
                         </th>

@@ -32,10 +32,10 @@ const QuestionForm = ({ getTypeOptions, handleCloseModal, mcqsModalRef, rapidMod
             {selectedType === 'essay' && (
                 <EssayModal
                     ref={essayModalRef}
-                    courseId={selectedCourse._id}
-                    partId={selectedPart._id}
+                    courseId={selectedCourse?._id}
+                    partId={selectedPart?._id}
                     publisherId={selectedPublisher?._id}
-                    unitId={selectedUnit._id}
+                    unitId={selectedUnit?._id}
                     subUnitId={selectedSubunit?._id}
                     question={editingQuestion}
                     onRequestClose={handleCloseModal}

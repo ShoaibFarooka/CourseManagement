@@ -8,7 +8,7 @@ import courseService from "../../../../../services/courseService";
 import { message } from "antd";
 import { useNavigate } from 'react-router-dom';
 
-const UnitExamContent = ({ courseId, partId, publisherId }) => {
+const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [expandedUnit, setExpandedUnit] = useState(null);
@@ -81,9 +81,11 @@ const UnitExamContent = ({ courseId, partId, publisherId }) => {
     const handleClickNext = () => {
         navigate("/quiz", {
             state: {
+                source: "unit-exam",
                 publisherId,
                 selectedUnits,
-                selectedSubunits
+                selectedSubunits,
+                timeRatio,
             }
         });
     };

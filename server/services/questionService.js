@@ -4,13 +4,12 @@ const mongoose = require('mongoose');
 const fs = require("fs");
 const XLSX = require("xlsx");
 
-
 const getAllQuestions = async ({
-    courseId,
-    partId,
-    publisherId,
-    unitId,
-    subunitId,
+    course,
+    part,
+    publisher,
+    unit,
+    subunit,
     page = 1,
     limit = 5,
     types = [],
@@ -18,49 +17,49 @@ const getAllQuestions = async ({
 }) => {
     const filter = {};
 
-    if (subunitId) filter.subunitId = subunitId;
-    if (publisherId) filter.publisherId = publisherId;
+    // Convert IDs to ObjectIds and use correct field names
+    if (course) filter.course = mongoose.Types.ObjectId.createFromHexString(course);
+    if (part) filter.part = mongoose.Types.ObjectId.createFromHexString(part);
+    if (publisher) filter.publisher = mongoose.Types.ObjectId.createFromHexString(publisher);
+    if (unit) filter.unit = mongoose.Types.ObjectId.createFromHexString(unit);
+    if (subunit) filter.subunit = mongoose.Types.ObjectId.createFromHexString(subunit);
 
+    // Add type and language filters
+    if (types.length > 0) filter.type = { $in: types };
+    if (languages.length > 0) filter.language = { $in: languages };
 
-    let questions = await Question.find(filter);
+    // Get total count
+    const total = await Question.countDocuments(filter);
 
-    if (courseId || partId || unitId) {
-        questions = questions.filter(q => {
-            const course = q.course?.toString() === courseId;
-            const part = q.part?.toString() === partId;
-            const unit = q.unit?.toString() === unitId;
-            return (!courseId || course) && (!partId || part) && (!unitId || unit);
-        });
-    }
+    // Calculate pagination
+    const skip = (page - 1) * limit;
 
-    if (types.length > 0) {
-        questions = questions.filter(q => types.includes(q.type));
-    }
-    if (languages.length > 0) {
-        questions = questions.filter(q => languages.includes(q.language));
-    }
+    // Fetch questions with pagination
+    const questions = await Question.find(filter)
+        .lean()
+        .skip(skip)
+        .limit(limit);
 
+    // Define sort order
     const typeOrder = { mcq: 1, rapid: 2, essay: 3 };
     const languageOrder = { eng: 1, ar: 2, fr: 3 };
 
+    // Apply custom sorting
     questions.sort((a, b) => {
         const typeDiff = typeOrder[a.type] - typeOrder[b.type];
         if (typeDiff !== 0) return typeDiff;
         return languageOrder[a.language] - languageOrder[b.language];
     });
 
-    const total = questions.length;
-    const totalPages = Math.ceil(total / limit);
-    const skip = (page - 1) * limit;
-    const paginatedQuestions = questions.slice(skip, skip + limit);
-
     return {
-        questions: paginatedQuestions,
+        questions,
         total,
-        totalPages,
+        totalPages: Math.ceil(total / limit),
         currentPage: page,
     };
 };
+
+
 
 const addQuestion = async (data) => {
     try {
@@ -731,28 +730,40 @@ const FetchQuestionsWithFilters = async ({
     page = 1,
     limit = 20,
 }) => {
-
     const skip = (page - 1) * limit;
-
     const orConditions = [];
+
+    const publisherObjectId = mongoose.Types.ObjectId.createFromHexString(publisherId);
 
     selectedUnits.forEach(unitId => {
         const subunits = selectedSubunits[unitId];
+        const unitObjectId = mongoose.Types.ObjectId.createFromHexString(unitId);
 
         if (!subunits || subunits.length === 0) {
-            orConditions.push({ unit: unitId });
-        }
+            orConditions.push({ unit: unitObjectId });
+        } else {
+            const subunitObjectIds = subunits.map(id =>
+                mongoose.Types.ObjectId.createFromHexString(id)
+            );
 
-        else {
             orConditions.push({
-                unit: unitId,
-                subunit: { $in: subunits }
+                unit: unitObjectId,
+                subunit: { $in: subunitObjectIds }
+            });
+
+            orConditions.push({
+                unit: unitObjectId,
+                subunit: { $exists: false }
+            });
+            orConditions.push({
+                unit: unitObjectId,
+                subunit: null
             });
         }
     });
 
     const query = {
-        publisher: publisherId,
+        publisher: publisherObjectId,
         $or: orConditions
     };
 
@@ -774,7 +785,6 @@ const FetchQuestionsWithFilters = async ({
         }
     };
 };
-
 
 const FetchPracticeExamQuestions = async ({
     courseId,

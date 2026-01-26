@@ -9,6 +9,9 @@ import Essay from "./components/Essay/Essay";
 import ProgressCircle from "./components/ProgressCircle/ProgressCircle";
 import QuestionNavigator from "./components/QuestionNavigator/QuestionNavigator";
 import QuizStatus from "./components/QuizStatus/QuizStatus";
+import CustomModal from "../../../components/CustomModal/CustomModal";
+import ExitModal from "./components/ExitModal/ExitModal";
+import TimeUpModal from './components/TimeUpModal/TimeUpModal';
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { message } from "antd";
 import questionService from "../../../services/questionServices";
@@ -30,7 +33,8 @@ const Quiz = () => {
         courseId,
         partId,
         examType,
-        limit
+        limit,
+        timeRatio,
     } = state || {};
 
     const [questions, setQuestions] = useState([]);
@@ -40,7 +44,8 @@ const Quiz = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [time, setTime] = useState(QUIZ_TIME);
-
+    const [showTimeUpModal, setShowTimeUpModal] = useState(false);
+    const [showExitModal, setShowExitModal] = useState(false);
 
     const PAGE_SIZE = 20;
 
@@ -51,9 +56,7 @@ const Quiz = () => {
                 return;
             }
 
-            // Mark as loading immediately to prevent race conditions
             setLoadedPages(prev => new Set([...prev, pageToFetch]));
-
             dispatch(ShowLoading());
 
             let res;
@@ -66,9 +69,7 @@ const Quiz = () => {
                     page: pageToFetch,
                     limit: PAGE_SIZE
                 });
-
             } else if (source === 'package-exam') {
-
                 if (examType === 'standard') {
                     res = await questionService.fetchStandardReviewQuestions({
                         courseId,
@@ -87,7 +88,6 @@ const Quiz = () => {
                 } else {
                     throw new Error("Invalid package exam type");
                 }
-
             } else {
                 res = await questionService.fetchQuestionsWithFilters({
                     publisherId,
@@ -112,7 +112,6 @@ const Quiz = () => {
             setTotalQuestions(res.pagination?.total || (res?.data?.length || 0));
 
         } catch (error) {
-            // Remove from loadedPages if request failed
             setLoadedPages(prev => {
                 const newSet = new Set(prev);
                 newSet.delete(pageToFetch);
@@ -124,9 +123,8 @@ const Quiz = () => {
         }
     };
 
-    /*  Navigation */
     const goToQuestion = async (index) => {
-        const pageNeeded = Math.floor(index / PAGE_SIZE) + 1;  // FIX: Use PAGE_SIZE
+        const pageNeeded = Math.floor(index / PAGE_SIZE) + 1;
 
         if (!loadedPages.has(pageNeeded)) {
             await fetchQuestions(pageNeeded);
@@ -139,7 +137,7 @@ const Quiz = () => {
         const nextIndex = currentIndex + 1;
 
         if (nextIndex < totalQuestions) {
-            const pageNeeded = Math.floor(nextIndex / PAGE_SIZE) + 1;  // FIX: Use PAGE_SIZE
+            const pageNeeded = Math.floor(nextIndex / PAGE_SIZE) + 1;
 
             if (!loadedPages.has(pageNeeded)) {
                 await fetchQuestions(pageNeeded);
@@ -149,19 +147,50 @@ const Quiz = () => {
         }
     };
 
-
     useEffect(() => {
         fetchQuestions(1);
     }, []);
 
+    useEffect(() => {
+        if (!timeRatio || !totalQuestions) return;
+
+        const totalTimeInSeconds = Math.round(timeRatio * totalQuestions * 60);
+        setTime(totalTimeInSeconds);
+    }, [timeRatio, totalQuestions]);
+
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            e.preventDefault();
+            e.returnValue = ``;
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
     /* Timer */
     useEffect(() => {
+        if (time <= 0) {
+            setShowTimeUpModal(true);
+            return;
+        }
+
         const timer = setInterval(() => {
-            setTime(prev => (prev > 0 ? prev - 1 : 0));
+            setTime(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    setShowTimeUpModal(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
 
         return () => clearInterval(timer);
-    }, []);
+    }, [time]);
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
@@ -169,38 +198,12 @@ const Quiz = () => {
         return `${mins}:${secs < 10 ? "0" + secs : secs}`;
     };
 
-    /*  Answer Handling  */
     const handleAnswerSelect = (key, value) => {
         setAnswers(prev => ({
             ...prev,
             [key]: value,
         }));
     };
-
-    /*  Navigation */
-    /*  const goToQuestion = async (index) => {
-         const pageNeeded = Math.floor(index / limit) + 1;
- 
-         if (!loadedPages.has(pageNeeded)) {
-             await fetchQuestions(pageNeeded);
-         }
- 
-         setCurrentIndex(index);
-     };
- 
-     const nextQuestion = async () => {
-         const nextIndex = currentIndex + 1;
- 
-         if (nextIndex < totalQuestions) {
-             const pageNeeded = Math.floor(nextIndex / limit) + 1;
- 
-             if (!loadedPages.has(pageNeeded)) {
-                 await fetchQuestions(pageNeeded);
-             }
- 
-             setCurrentIndex(nextIndex);
-         }
-     }; */
 
     const prevQuestion = () => {
         setCurrentIndex(prev => Math.max(prev - 1, 0));
@@ -210,7 +213,6 @@ const Quiz = () => {
     const isFirstQuestion = currentIndex === 0;
     const isLastQuestion = currentIndex === totalQuestions - 1;
 
-    /*  Helper: Check if Question Answered  */
     const isQuestionAnswered = (question) => {
         if (!question) return false;
 
@@ -251,7 +253,6 @@ const Quiz = () => {
 
     const markedCount = markedQuestions.size;
 
-    /*  Progress Calculations */
     const totalStepsFromLoaded = useMemo(() => {
         return questions.reduce((acc, q) => {
             if (!q) return acc;
@@ -262,17 +263,13 @@ const Quiz = () => {
         }, 0);
     }, [questions]);
 
-    // Estimate average steps per question from loaded questions
     const averageStepsPerQuestion = useMemo(() => {
         const loadedCount = questions.filter(q => q).length;
         if (loadedCount === 0) return 1;
         return totalStepsFromLoaded / loadedCount;
     }, [totalStepsFromLoaded, questions]);
 
-    // Estimate total steps based on total questions
     const estimatedTotalSteps = Math.round(totalQuestions * averageStepsPerQuestion);
-
-    // Use estimated total steps
     const totalSteps = estimatedTotalSteps > 0 ? estimatedTotalSteps : totalStepsFromLoaded;
 
     const answeredSteps = useMemo(() => {
@@ -300,60 +297,106 @@ const Quiz = () => {
 
     const progress = totalSteps === 0 ? 0 : Math.round((answeredSteps / totalSteps) * 100);
 
-    /* Correct And Incorrect  */
+    /* Count answered questions (not steps) for unanswered calculation */
+    const answeredQuestionsCount = useMemo(() => {
+        let count = 0;
+        questions.forEach(q => {
+            if (!q) return;
+
+            if (q.type === "mcq") {
+                if (answers[`mcq:${q._id}`] !== undefined) {
+                    count += 1;
+                }
+            } else if (q.type === "essay") {
+                const essayAnswer = answers[`essay:${q._id}`];
+                if (essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0) {
+                    count += 1;
+                }
+            } else if (q.type === "rapid") {
+                // Count rapid as 1 question if ALL subquestions are answered
+                const totalSubs = q.subquestions?.length || 0;
+                const answeredSubs = q.subquestions?.filter((_, i) =>
+                    answers[`rapid:${q._id}:${i}`] !== undefined
+                ).length || 0;
+
+                if (totalSubs > 0 && answeredSubs === totalSubs) {
+                    count += 1;
+                }
+            }
+        });
+        return count;
+    }, [answers, questions]);
+
+    /* Correct And Incorrect - WITH WEIGHTED RAPID SCORING */
     const correctCount = useMemo(() => {
-        return questions.reduce((acc, q) => {
-            if (!q) return acc;
+        let totalCorrect = 0;
+
+        questions.forEach(q => {
+            if (!q) return;
+
             if (q.type === "mcq") {
                 const key = `mcq:${q._id}`;
                 if (answers[key] !== undefined && answers[key] === q.correctOption) {
-                    return acc + 1;
+                    totalCorrect += 1;
                 }
             }
 
             if (q.type === "rapid") {
-                const correctSubs = q.subquestions?.reduce((sAcc, sub, i) => {
+                const totalSubs = q.subquestions?.length || 0;
+                if (totalSubs === 0) return;
+
+                const weightPerSub = 1 / totalSubs;
+
+                q.subquestions?.forEach((sub, i) => {
                     const key = `rapid:${q._id}:${i}`;
                     if (answers[key] !== undefined && answers[key] === sub.correctOption) {
-                        return sAcc + 1;
+                        totalCorrect += weightPerSub;
                     }
-                    return sAcc;
-                }, 0) || 0;
-                return acc + correctSubs;
+                });
             }
+        });
 
-            return acc;
-        }, 0);
+        return Math.round(totalCorrect * 100) / 100;
     }, [questions, answers]);
 
     const incorrectCount = useMemo(() => {
-        return questions.reduce((acc, q) => {
-            if (!q) return acc;
+        let totalIncorrect = 0;
+
+        questions.forEach(q => {
+            if (!q) return;
+
             if (q.type === "mcq") {
                 const key = `mcq:${q._id}`;
                 if (answers[key] !== undefined && answers[key] !== q.correctOption) {
-                    return acc + 1;
+                    totalIncorrect += 1;
                 }
             }
 
             if (q.type === "rapid") {
-                const incorrectSubs = q.subquestions?.reduce((sAcc, sub, i) => {
+                const totalSubs = q.subquestions?.length || 0;
+                if (totalSubs === 0) return;
+
+                const weightPerSub = 1 / totalSubs;
+
+                q.subquestions?.forEach((sub, i) => {
                     const key = `rapid:${q._id}:${i}`;
                     if (answers[key] !== undefined && answers[key] !== sub.correctOption) {
-                        return sAcc + 1;
+                        totalIncorrect += weightPerSub;
                     }
-                    return sAcc;
-                }, 0) || 0;
-                return acc + incorrectSubs;
+                });
             }
+        });
 
-            return acc;
-        }, 0);
+        return Math.round(totalIncorrect * 100) / 100;
     }, [questions, answers]);
 
-    const unansweredCount = totalSteps - answeredSteps;
 
-    /*  Submit Quiz */
+    const totalActualQuestions = useMemo(() => {
+        return questions.filter(q => q).length;
+    }, [questions]);
+
+    const unansweredCount = totalActualQuestions - answeredQuestionsCount;
+
     const handleQuizSubmit = () => {
         navigate("/progress-report", {
             state: {
@@ -364,6 +407,36 @@ const Quiz = () => {
         });
     };
 
+    const handleTimeUpSubmit = () => {
+        setShowTimeUpModal(false);
+        handleQuizSubmit();
+    };
+
+    const handleTimeUpContinue = () => {
+        setShowTimeUpModal(false);
+    };
+
+    const handleBackClick = () => {
+        setShowExitModal(true);
+    };
+
+    const handleExitConfirm = () => {
+        setShowExitModal(false);
+        if (source === 'unit-exam') {
+            navigate("/unit-exams");
+        } else if (source === 'practice-exam') {
+            navigate("/practice-exams");
+        } else if (source === 'package-exam') {
+            navigate("/package-exams");
+        } else {
+            navigate("/dashboard");
+        }
+    };
+
+    const handleExitCancel = () => {
+        setShowExitModal(false);
+    };
+
     if (!questions.length) {
         return <div className="quiz-container">Loading questions...</div>;
     }
@@ -372,7 +445,7 @@ const Quiz = () => {
         <div className="quiz-container">
             <div className="quiz-main">
                 <div className="button-container">
-                    <button className="back-btn">
+                    <button className="back-btn" onClick={handleBackClick}>
                         <FaChevronLeft /> BACK
                     </button>
                 </div>
@@ -407,9 +480,9 @@ const Quiz = () => {
                         handleQuizSubmit={handleQuizSubmit}
                         isMarked={markedQuestions.has(currentQuestion._id)}
                         onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
+                        source={source}
                     />
                 )}
-
 
                 {currentQuestion?.type === "rapid" && (
                     <Rapid
@@ -423,6 +496,7 @@ const Quiz = () => {
                         handleQuizSubmit={handleQuizSubmit}
                         isMarked={markedQuestions.has(currentQuestion._id)}
                         onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
+                        source={source}
                     />
                 )}
 
@@ -438,6 +512,7 @@ const Quiz = () => {
                         handleQuizSubmit={handleQuizSubmit}
                         isMarked={markedQuestions.has(currentQuestion._id)}
                         onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
+                        source={source}
                     />
                 )}
             </div>
@@ -452,6 +527,34 @@ const Quiz = () => {
                     isQuestionAnswered={isQuestionAnswered}
                 />
             </aside>
+
+            {/* Time Up Modal */}
+            <CustomModal
+                isOpen={showTimeUpModal}
+                onRequestClose={handleTimeUpContinue}
+                title="Time's Up!"
+                width="60%"
+            >
+                <TimeUpModal
+                    show={true}
+                    onSubmit={handleTimeUpSubmit}
+                    onContinue={handleTimeUpContinue}
+                />
+            </CustomModal>
+
+            {/* Exit Confirmation Modal */}
+            <CustomModal
+                isOpen={showExitModal}
+                onRequestClose={handleExitCancel}
+                title="Exit Quiz?"
+                width="60%"
+            >
+                <ExitModal
+                    show={showExitModal}
+                    onConfirm={handleExitConfirm}
+                    onCancel={handleExitCancel}
+                />
+            </CustomModal>
         </div>
     );
 };

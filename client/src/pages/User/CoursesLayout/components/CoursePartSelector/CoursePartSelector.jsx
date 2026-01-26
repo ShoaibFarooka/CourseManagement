@@ -22,7 +22,7 @@ const CoursePartSelector = ({
             <div className="field">
                 <label>Select the Course</label>
                 <select value={selectedCourse || ""} onChange={onCourseChange}>
-                    <option value="">Select Course</option>
+                    <option value="" >Select Course</option>
                     {courses.map(course => (
                         <option key={course.id} value={course.id}>
                             {course.name}

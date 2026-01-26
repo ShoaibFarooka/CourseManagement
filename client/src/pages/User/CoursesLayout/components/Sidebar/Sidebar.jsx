@@ -31,10 +31,10 @@ const Sidebar = forwardRef((props, ref) => {
     }));
 
     const menuItems = [
-        { label: "Dashboard", path: "/courses/dashboard" },
-        { label: "Unit Exams", path: "/courses/unit-exams" },
-        { label: "Practice Exams", path: "/courses/practice-exams" },
-        { label: "Package Exams", path: "/courses/package-exams" }
+        { label: "Dashboard", path: "/dashboard" },
+        { label: "Unit Exams", path: "/unit-exams" },
+        { label: "Practice Exams", path: "/practice-exams" },
+        { label: "Package Exams", path: "/package-exams" }
     ];
 
     return (

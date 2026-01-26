@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaBookmark, FaRegBookmark } from "react-icons/fa"; // Add this import
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import "./MCQs.css";
 
 const MCQs = ({
@@ -14,6 +14,7 @@ const MCQs = ({
     handleQuizSubmit,
     isMarked = false,
     onToggleMark,
+    source,
 }) => {
     const [localSelection, setLocalSelection] = useState(selectedOption || "");
 
@@ -31,6 +32,22 @@ const MCQs = ({
     };
 
     const optionKeys = question.options ? Object.keys(question.options) : [];
+    const showExplanations = source === "unit-exam" || source === "package-exam";
+
+    const getOptionClass = (optKey) => {
+        if (!localSelection) return "";
+
+        if (localSelection === optKey) {
+            if (optKey === question.correctOption) {
+                return "selected correct";
+            } else {
+                return "selected incorrect";
+            }
+        }
+        return "";
+    };
+
+    console.log(question);
 
     return (
         <div className="question-section">
@@ -52,20 +69,28 @@ const MCQs = ({
                 {optionKeys.map((optKey) => {
                     const optObj = question.options[optKey];
                     const optText = typeof optObj === "string" ? optObj : optObj?.option || "";
+                    const explanation = typeof optObj === "object" ? optObj?.explanation : null;
 
                     return (
-                        <label
-                            key={optKey}
-                            className={`option ${localSelection === optKey ? "selected" : ""}`}
-                        >
-                            <input
-                                type="radio"
-                                name={`mcq-${question._id}`}
-                                checked={localSelection === optKey}
-                                onChange={() => handleOptionClick(optKey)}
-                            />
-                            {optText}
-                        </label>
+                        <div key={optKey} className="option-wrapper">
+                            <label
+                                className={`option ${getOptionClass(optKey)}`}
+                            >
+                                <input
+                                    type="radio"
+                                    name={`mcq-${question._id}`}
+                                    checked={localSelection === optKey}
+                                    onChange={() => handleOptionClick(optKey)}
+                                />
+                                {optText}
+                            </label>
+
+                            {showExplanations && explanation && localSelection === optKey && (
+                                <div className="option-explanation">
+                                    {explanation}
+                                </div>
+                            )}
+                        </div>
                     );
                 })}
             </div>

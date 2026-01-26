@@ -13,6 +13,7 @@ const Rapid = ({
     handleQuizSubmit,
     isMarked = false,
     onToggleMark,
+    source, // Add source prop
 }) => {
     const [activeSubIndex, setActiveSubIndex] = useState(0);
     const concept = data;
@@ -51,11 +52,26 @@ const Rapid = ({
     }, [concept._id]);
 
     const localSelection = selectedAnswers[answerKey] || "";
+    const showExplanations = source === "unit-exam" || source === "package-exam";
 
     const optionKeys = Object.keys(subquestion.options || {});
 
     const handleOptionClick = (optKey) => {
         onAnswerSelect(answerKey, optKey);
+    };
+
+    // Determine if option is correct or incorrect
+    const getOptionClass = (optKey) => {
+        if (!localSelection) return "";
+
+        if (localSelection === optKey) {
+            if (optKey === subquestion.correctOption) {
+                return "selected correct";
+            } else {
+                return "selected incorrect";
+            }
+        }
+        return "";
     };
 
     const handleNextClick = () => {
@@ -109,20 +125,28 @@ const Rapid = ({
                     {optionKeys.map((optKey) => {
                         const optionObj = subquestion.options[optKey];
                         const optionText = typeof optionObj === "string" ? optionObj : optionObj?.option || "";
+                        const explanation = typeof optionObj === "object" ? optionObj?.explanation : null;
 
                         return (
-                            <label
-                                key={optKey}
-                                className={`option ${localSelection === optKey ? "selected" : ""}`}
-                            >
-                                <input
-                                    type="radio"
-                                    name={`rapid-${answerKey}`}
-                                    checked={localSelection === optKey}
-                                    onChange={() => handleOptionClick(optKey)}
-                                />
-                                {optionText}
-                            </label>
+                            <div key={optKey} className="option-wrapper">
+                                <label
+                                    className={`option ${getOptionClass(optKey)}`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name={`rapid-${answerKey}`}
+                                        checked={localSelection === optKey}
+                                        onChange={() => handleOptionClick(optKey)}
+                                    />
+                                    {optionText}
+                                </label>
+
+                                {showExplanations && explanation && localSelection === optKey && (
+                                    <div className="option-explanation">
+                                        {explanation}
+                                    </div>
+                                )}
+                            </div>
                         );
                     })}
                 </div>

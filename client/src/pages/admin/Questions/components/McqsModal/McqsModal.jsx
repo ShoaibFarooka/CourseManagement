@@ -146,7 +146,7 @@ const McqsModal = forwardRef(({ courseId, partId, unitId, subUnitId, publisherId
             if (question?._id) {
                 await questionServices.updateQuestion(question._id, formData);
             } else {
-                await questionServices.addMcqQuestion(courseId, partId, unitId, subUnitId, publisherId, formData);
+                await questionServices.addMcqQuestion(courseId, partId, publisherId, unitId, subUnitId, formData);
             }
 
             message.success("Question submitted successfully");
@@ -201,7 +201,7 @@ const McqsModal = forwardRef(({ courseId, partId, unitId, subUnitId, publisherId
                 {errors.statement && <span className="error-text">{errors.statement}</span>}
 
                 {['a', 'b', 'c', 'd'].map(opt => (
-                    <div key={opt} className='option'>
+                    <div key={opt} className='mcq-options'>
                         <label htmlFor="" className='heading-md'>{`Option ${opt.toUpperCase()}`}</label>
                         <input
                             type="text"

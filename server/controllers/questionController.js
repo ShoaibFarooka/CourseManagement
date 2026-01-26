@@ -37,6 +37,7 @@ const getAllQuestions = async (req, res, next) => {
             languages
         });
 
+
         res.status(200).json(result);
     } catch (error) {
         next(error);

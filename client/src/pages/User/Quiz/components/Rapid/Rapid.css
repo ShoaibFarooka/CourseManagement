@@ -13,7 +13,7 @@
     margin-bottom: 20px;
 }
 
-.rapid-header {
+.rapid-container .rapid-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -21,14 +21,14 @@
     margin-bottom: 20px;
 }
 
-.core-concepts {
+.rapid-container .core-concepts {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     flex: 1;
 }
 
-.concept-btn {
+.rapid-container .concept-btn {
     padding: 10px 18px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -38,12 +38,12 @@
     transition: 0.2s;
 }
 
-.concept-btn.active {
+.rapid-container .concept-btn.active {
     background: #218C95;
     color: #fff;
 }
 
-.mark-btn {
+.rapid-container .mark-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -58,27 +58,27 @@
     flex-shrink: 0;
 }
 
-.mark-btn:hover {
+.rapid-container .mark-btn:hover {
     background: #f59e0b;
     color: white;
 }
 
-.mark-btn svg {
+.rapid-container .mark-btn svg {
     font-size: 1rem;
 }
 
-.concept-info {
+.rapid-container .concept-info {
     margin-top: 53px;
 }
 
-.concept-info .concept {
+.rapid-container .concept-info .concept {
     font-weight: 600;
     font-size: 1.375rem;
     color: var(--text-color);
     margin-bottom: 8px;
 }
 
-.concept-info p {
+.rapid-container .concept-info p {
     font-weight: 500;
     font-size: 1.125rem;
     color: var(--text-color);
@@ -91,49 +91,77 @@
     padding: 0;
 }
 
-.question-section .question {
+.rapid-container .question-section .question {
     font-weight: 700;
     font-size: 1.75rem;
     margin-bottom: 18px;
     color: var(--text-color);
 }
 
-.options {
+.rapid-container .options {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.option {
+.rapid-container .option-wrapper {
+    margin-bottom: 0;
+}
+
+.rapid-container .option {
     padding: 12px 15px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     background-color: var(--questions-option-bg);
     cursor: pointer;
     transition: 0.2s;
+    display: flex;
+    align-items: center;
 }
 
-.option:hover {
+.rapid-container .option input {
+    display: none;
+}
+
+.rapid-container .option:hover {
     background-color: #3EDB9F14;
-    border: 1.5px solid #3EDB9F;
 }
 
-.option.selected {
+.rapid-container .option.selected {
     border: 1.5px solid #3EDB9F;
     background-color: #3EDB9F14;
     color: var(--text-color);
     font-weight: 500;
 }
 
-.navigation {
+
+
+.rapid-container .option.selected.incorrect {
+    border: 1.5px solid #f44336;
+    background-color: rgba(244, 67, 54, 0.15);
+}
+
+
+.rapid-container .option-explanation {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 3px solid #2196F3;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.rapid-container .navigation {
     display: flex;
     justify-content: flex-end;
     gap: 30px;
     margin-top: 20px;
 }
 
-.nav-btn,
-.submit-btn {
+.rapid-container .nav-btn,
+.rapid-container .submit-btn {
     min-width: 52px;
     padding: 15px 48px;
     border-radius: 10px;
@@ -145,12 +173,12 @@
     transition: all 0.3s ease;
 }
 
-.nav-btn:disabled {
+.rapid-container .nav-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.navigation .submit-btn {
+.rapid-container .navigation .submit-btn {
     background-color: var(--secondary-color);
     border: none;
     color: #000;
@@ -166,59 +194,63 @@
         margin-bottom: 16px;
     }
 
-    .rapid-header {
+    .rapid-container .rapid-header {
         gap: 15px;
     }
 
-    .core-concepts {
+    .rapid-container .core-concepts {
         gap: 8px;
     }
 
-    .concept-btn {
+    .rapid-container .concept-btn {
         padding: 8px 14px;
         font-size: 0.95rem;
     }
 
-    .mark-btn {
+    .rapid-container .mark-btn {
         padding: 0.4rem 0.8rem;
         font-size: 0.9rem;
     }
 
-    .mark-btn svg {
+    .rapid-container .mark-btn svg {
         font-size: 0.9rem;
     }
 
-    .concept-info {
+    .rapid-container .concept-info {
         margin-top: 40px;
     }
 
-    .concept-info .concept {
+    .rapid-container .concept-info .concept {
         font-size: 1.25rem;
     }
 
-    .concept-info p {
+    .rapid-container .concept-info p {
         font-size: 1rem;
         line-height: 1.5;
     }
 
-    .question-section .question {
+    .rapid-container .question-section .question {
         font-size: 1.25rem;
         margin-bottom: 16px;
     }
 
-    .option {
+    .rapid-container .option {
         font-size: 1rem;
         padding: 10px 14px;
     }
 
-    .navigation {
+    .rapid-container .option-explanation {
+        font-size: 12px;
+    }
+
+    .rapid-container .navigation {
         flex-wrap: wrap;
         justify-content: center;
         gap: 20px;
     }
 
-    .nav-btn,
-    .submit-btn {
+    .rapid-container .nav-btn,
+    .rapid-container .submit-btn {
         padding: 12px 32px;
         font-size: 0.95rem;
     }
@@ -233,59 +265,64 @@
         font-size: 1.1rem;
     }
 
-    .rapid-header {
+    .rapid-container .rapid-header {
         flex-direction: column;
         gap: 12px;
     }
 
-    .core-concepts {
+    .rapid-container .core-concepts {
         flex-direction: column;
         gap: 10px;
         width: 100%;
     }
 
-    .concept-btn {
+    .rapid-container .concept-btn {
         width: 100%;
         text-align: center;
         padding: 10px;
         font-size: 0.9rem;
     }
 
-    .mark-btn {
+    .rapid-container .mark-btn {
         width: 100%;
         justify-content: center;
         padding: 0.6rem;
         font-size: 0.85rem;
     }
 
-    .concept-info .concept {
+    .rapid-container .concept-info .concept {
         font-size: 1.1rem;
     }
 
-    .concept-info p {
+    .rapid-container .concept-info p {
         font-size: 0.95rem;
         line-height: 1.4;
         text-align: justify;
     }
 
-    .question-section .question {
+    .rapid-container .question-section .question {
         font-size: 1.1rem;
         line-height: 1.4;
     }
 
-    .option {
+    .rapid-container .option {
         font-size: 0.95rem;
         padding: 10px 12px;
     }
 
-    .navigation {
+    .rapid-container .option-explanation {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+
+    .rapid-container .navigation {
         flex-direction: column;
         align-items: stretch;
         gap: 15px;
     }
 
-    .nav-btn,
-    .submit-btn {
+    .rapid-container .nav-btn,
+    .rapid-container .submit-btn {
         width: 100%;
         padding: 12px;
         font-size: 0.9rem;
