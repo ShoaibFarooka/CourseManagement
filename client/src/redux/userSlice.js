@@ -48,7 +48,6 @@ export const fetchPurchasedCourses = createAsyncThunk(
                 courseId: payment.course._id,
                 courseName: payment.course.name,
                 partId: payment.part,
-                partName: payment.part.name,
                 startDate: payment.startDate,
                 expiryDate: payment.expiryDate,
                 amount: payment.amount

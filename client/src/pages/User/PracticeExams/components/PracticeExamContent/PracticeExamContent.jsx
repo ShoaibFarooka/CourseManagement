@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PracticeExamContent.css';
 
-const PracticeExamContent = ({ courseId, partId }) => {
+const PracticeExamContent = ({ courseId, partId, timeRatio }) => {
 
     const [examType, setExamType] = useState(null);
     const navigate = useNavigate();
@@ -20,7 +20,8 @@ const PracticeExamContent = ({ courseId, partId }) => {
                 courseId,
                 partId,
                 examType,
-                limit: examType === 'full' ? 125 : 50
+                limit: examType === 'full' ? 125 : 50,
+                timeRatio,
             }
         });
     };

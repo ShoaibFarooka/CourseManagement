@@ -4,7 +4,7 @@ import PracticeExamContent from "./components/PracticeExamContent/PracticeExamCo
 import courseService from '../../../services/courseService';
 import { message } from 'antd';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const PraticeExams = () => {
     const [allCourses, setAllCourses] = useState([]);
@@ -14,6 +14,9 @@ const PraticeExams = () => {
     const [selectedPartId, setSelectedPartId] = useState("");
 
     const dispatch = useDispatch();
+    const { purchasedCourses } = useSelector(state => state.user);
+
+    const hasPurchasedCourses = purchasedCourses && purchasedCourses.length > 0;
 
     const fetchAllCourses = async () => {
         try {
@@ -27,7 +30,8 @@ const PraticeExams = () => {
                     groupedCourses[item.courseId] = {
                         id: item.courseId,
                         name: item.courseName,
-                        parts: []
+                        parts: [],
+                        timeRatio: item.time,
                     };
                 }
 
@@ -43,7 +47,26 @@ const PraticeExams = () => {
                 }
             });
 
-            setAllCourses(Object.values(groupedCourses));
+            let coursesArray = Object.values(groupedCourses);
+
+            if (hasPurchasedCourses) {
+                coursesArray = coursesArray
+                    .map(course => {
+                        const purchasedParts = purchasedCourses
+                            .filter(p => p.courseId === course.id)
+                            .map(p => p.partId);
+
+                        return {
+                            ...course,
+                            parts: course.parts.filter(part =>
+                                purchasedParts.includes(part.id)
+                            )
+                        };
+                    })
+                    .filter(course => course.parts.length > 0);
+            }
+
+            setAllCourses(coursesArray);
         } catch (error) {
             message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
@@ -53,16 +76,24 @@ const PraticeExams = () => {
 
     useEffect(() => {
         fetchAllCourses();
-    }, []);
+    }, [hasPurchasedCourses]);
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
 
     const handleNext = () => {
+        if (!hasPurchasedCourses) {
+            message.warning(
+                "You are using demo. To unlock this section, please purchase a course."
+            );
+            return;
+        }
+
         if (!selectedCourse || !selectedPart) {
             message.warning("Please select a course and part to proceed.");
             return;
         }
+
         setStep("exam");
     };
 
@@ -77,10 +108,26 @@ const PraticeExams = () => {
                 selectedPart={selectedPartId}
 
                 onCourseChange={(e) => {
+                    if (!hasPurchasedCourses) {
+                        message.warning(
+                            "You are using demo. Please purchase a course to continue."
+                        );
+                        return;
+                    }
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
                 }}
-                onPartChange={(e) => setSelectedPartId(e.target.value)}
+
+                onPartChange={(e) => {
+                    if (!hasPurchasedCourses) {
+                        message.warning(
+                            "You are using demo. Please purchase a course to continue."
+                        );
+                        return;
+                    }
+                    setSelectedPartId(e.target.value);
+                }}
+
                 onNext={handleNext}
             />
         );
@@ -90,6 +137,7 @@ const PraticeExams = () => {
         <PracticeExamContent
             courseId={selectedCourseId}
             partId={selectedPartId}
+            timeRatio={selectedCourse?.timeRatio}
         />
     );
 };

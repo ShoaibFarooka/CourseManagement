@@ -14,4 +14,16 @@ export async function getBasicDeviceInfo() {
         visitorId: result.visitorId,
         userAgent
     };
-} 
+}
+
+export const getOrCreateVisitorId = async () => {
+    let visitorId = localStorage.getItem("visitorId");
+
+    if (!visitorId) {
+        const deviceInfo = await getBasicDeviceInfo();
+        visitorId = deviceInfo.visitorId;
+        localStorage.setItem("visitorId", visitorId);
+    }
+
+    return visitorId;
+};

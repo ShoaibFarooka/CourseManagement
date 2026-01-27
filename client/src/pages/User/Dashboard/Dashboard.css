@@ -126,7 +126,7 @@
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 0.75rem;
-    background: transparent;
+    background: var(--unit-exams-bg);
     border: 1px solid var(--table-header-border);
     color: var(--text-color);
     cursor: pointer;

@@ -123,7 +123,7 @@ const UserNavbar = () => {
         <div className="user-navbar" >
 
             <div className="logo">
-                <NavLink to={"/"} className="logo-link">
+                <NavLink to={"/home"} className="logo-link">
                     <img className='image-1' src={logo1} alt="Logo" />
                     <img className='image-2' src={logo2} alt='logo' />
                 </NavLink>

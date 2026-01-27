@@ -6,7 +6,7 @@ import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import questionService from "../../../../../services/questionServices";
 import { message } from "antd";
 
-const PackageExamContent = ({ courseId, partId, part }) => {
+const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -66,7 +66,8 @@ const PackageExamContent = ({ courseId, partId, part }) => {
                 courseId,
                 partId,
                 examType: selectedExam,
-                ...(selectedExam === "mega" && { limit: Number(limit) })
+                ...(selectedExam === "mega" && { limit: Number(limit) }),
+                timeRatio,
             }
         });
     };

@@ -78,7 +78,8 @@
     border-radius: 8px;
     font-size: 0.8rem;
     text-align: center;
-    min-width: 90px;
+    max-width: 120px;
+    /*  min-width: 90px; */
 }
 
 .unit-topic-status.active {
@@ -180,10 +181,43 @@
     text-align: right;
 }
 
+.unit-exams-container .unit-next-btn-container .next {
+    width: 210px;
+    font-size: 1rem;
+    padding: 15px 48px;
+}
+
 .unit-exams-container .unit-next-btn-container .next:disabled {
     cursor: not-allowed;
     opacity: 0.8;
 }
+
+/* Locked Units (Purchase Required) */
+
+.unit-topic-row.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+
+
+.lock-icon {
+    margin-left: 6px;
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+
+
+.unit-topic-checkbox:focus,
+.unit-topic-checkbox:active {
+    outline: none;
+    box-shadow: none;
+}
+
+.unit-topic-checkbox {
+    outline: none;
+}
+
 
 @media only screen and (max-width: 1200px) {
     .unit-exams-container {
@@ -196,7 +230,6 @@
     }
 
     .unit-exams-container .unit-topic-status {
-        min-width: 80px;
         font-size: 0.8rem;
         padding: 0.28rem 0.5rem;
     }
@@ -213,7 +246,6 @@
     }
 
     .unit-exams-container .unit-topic-status {
-        min-width: 75px;
         font-size: 0.78rem;
         padding: 0.25rem 0.5rem;
     }
@@ -230,7 +262,7 @@
     }
 
     .unit-exams-container .unit-topic-status {
-        min-width: 70px;
+        max-width: 85px;
         font-size: 0.75rem;
         padding: 0.25rem 0.45rem;
     }
@@ -258,7 +290,7 @@
     }
 
     .unit-exams-container .unit-topic-status {
-        min-width: auto;
+        max-width: 70px;
         font-size: 0.7rem;
         padding: 0.25rem 0.4rem;
     }

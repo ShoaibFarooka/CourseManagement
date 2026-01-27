@@ -51,8 +51,8 @@ const routes = [
             { path: "package-exams", element: <PackageExams /> }
         ]
     },
-    { path: "/quiz", element: <Quiz />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
-    { path: "/progress-report", element: <ProgressReport />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/quiz", element: <Quiz />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/progress-report", element: <ProgressReport />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
 
 
     //common

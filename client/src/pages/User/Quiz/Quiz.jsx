@@ -442,120 +442,124 @@ const Quiz = () => {
     }
 
     return (
-        <div className="quiz-container">
-            <div className="quiz-main">
-                <div className="button-container">
-                    <button className="back-btn" onClick={handleBackClick}>
-                        <FaChevronLeft /> BACK
-                    </button>
-                </div>
-
-                <div className="quiz-header">
-                    <div className="title">RCK MSSE Computer Science (J277)</div>
-                    <div className="quiz-timer">
-                        <TiStopwatch className="timer-icon" />
-                        <span>{formatTime(time)}</span>
-                    </div>
-                </div>
-
-                <ProgressBar progress={progress} />
-
-                <QuizStatus
-                    correct={correctCount}
-                    marked={markedCount}
-                    incorrect={incorrectCount}
-                    unanswered={unansweredCount}
-                />
-
-                {currentQuestion?.type === "mcq" && (
-                    <MCQs
-                        question={currentQuestion}
-                        questionIndex={currentIndex}
-                        selectedOption={answers[`mcq:${currentQuestion._id}`]}
-                        onAnswerSelect={handleAnswerSelect}
-                        onNext={nextQuestion}
-                        onBack={prevQuestion}
-                        isFirstQuestion={isFirstQuestion}
-                        isLastQuestion={isLastQuestion}
-                        handleQuizSubmit={handleQuizSubmit}
-                        isMarked={markedQuestions.has(currentQuestion._id)}
-                        onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
-                        source={source}
-                    />
-                )}
-
-                {currentQuestion?.type === "rapid" && (
-                    <Rapid
-                        data={currentQuestion}
-                        selectedAnswers={answers}
-                        onAnswerSelect={handleAnswerSelect}
-                        onNext={nextQuestion}
-                        onBack={prevQuestion}
-                        isFirstQuestion={isFirstQuestion}
-                        isLastQuestion={isLastQuestion}
-                        handleQuizSubmit={handleQuizSubmit}
-                        isMarked={markedQuestions.has(currentQuestion._id)}
-                        onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
-                        source={source}
-                    />
-                )}
-
-                {currentQuestion?.type === "essay" && (
-                    <Essay
-                        data={currentQuestion}
-                        selectedAnswers={answers}
-                        onAnswerSelect={handleAnswerSelect}
-                        onNext={nextQuestion}
-                        onBack={prevQuestion}
-                        isFirstQuestion={isFirstQuestion}
-                        isLastQuestion={isLastQuestion}
-                        handleQuizSubmit={handleQuizSubmit}
-                        isMarked={markedQuestions.has(currentQuestion._id)}
-                        onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
-                        source={source}
-                    />
-                )}
+        <>
+            <div className="quiz">
             </div>
+            <div className="quiz-container">
+                <div className="quiz-main">
+                    <div className="button-container">
+                        <button className="back-btn" onClick={handleBackClick}>
+                            <FaChevronLeft /> BACK
+                        </button>
+                    </div>
 
-            <aside className="quiz-sidebar">
-                <ProgressCircle progress={progress} />
-                <QuestionNavigator
-                    questions={questions}
-                    totalQuestions={totalQuestions}
-                    currentIndex={currentIndex}
-                    onNavigate={goToQuestion}
-                    isQuestionAnswered={isQuestionAnswered}
-                />
-            </aside>
+                    <div className="quiz-header">
+                        <div className="title">RCK MSSE Computer Science (J277)</div>
+                        <div className="quiz-timer">
+                            <TiStopwatch className="timer-icon" />
+                            <span>{formatTime(time)}</span>
+                        </div>
+                    </div>
 
-            {/* Time Up Modal */}
-            <CustomModal
-                isOpen={showTimeUpModal}
-                onRequestClose={handleTimeUpContinue}
-                title="Time's Up!"
-                width="60%"
-            >
-                <TimeUpModal
-                    show={true}
-                    onSubmit={handleTimeUpSubmit}
-                    onContinue={handleTimeUpContinue}
-                />
-            </CustomModal>
+                    <ProgressBar progress={progress} />
 
-            {/* Exit Confirmation Modal */}
-            <CustomModal
-                isOpen={showExitModal}
-                onRequestClose={handleExitCancel}
-                title="Exit Quiz?"
-                width="60%"
-            >
-                <ExitModal
-                    show={showExitModal}
-                    onConfirm={handleExitConfirm}
-                    onCancel={handleExitCancel}
-                />
-            </CustomModal>
-        </div>
+                    <QuizStatus
+                        correct={correctCount}
+                        marked={markedCount}
+                        incorrect={incorrectCount}
+                        unanswered={unansweredCount}
+                    />
+
+                    {currentQuestion?.type === "mcq" && (
+                        <MCQs
+                            question={currentQuestion}
+                            questionIndex={currentIndex}
+                            selectedOption={answers[`mcq:${currentQuestion._id}`]}
+                            onAnswerSelect={handleAnswerSelect}
+                            onNext={nextQuestion}
+                            onBack={prevQuestion}
+                            isFirstQuestion={isFirstQuestion}
+                            isLastQuestion={isLastQuestion}
+                            handleQuizSubmit={handleQuizSubmit}
+                            isMarked={markedQuestions.has(currentQuestion._id)}
+                            onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
+                            source={source}
+                        />
+                    )}
+
+                    {currentQuestion?.type === "rapid" && (
+                        <Rapid
+                            data={currentQuestion}
+                            selectedAnswers={answers}
+                            onAnswerSelect={handleAnswerSelect}
+                            onNext={nextQuestion}
+                            onBack={prevQuestion}
+                            isFirstQuestion={isFirstQuestion}
+                            isLastQuestion={isLastQuestion}
+                            handleQuizSubmit={handleQuizSubmit}
+                            isMarked={markedQuestions.has(currentQuestion._id)}
+                            onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
+                            source={source}
+                        />
+                    )}
+
+                    {currentQuestion?.type === "essay" && (
+                        <Essay
+                            data={currentQuestion}
+                            selectedAnswers={answers}
+                            onAnswerSelect={handleAnswerSelect}
+                            onNext={nextQuestion}
+                            onBack={prevQuestion}
+                            isFirstQuestion={isFirstQuestion}
+                            isLastQuestion={isLastQuestion}
+                            handleQuizSubmit={handleQuizSubmit}
+                            isMarked={markedQuestions.has(currentQuestion._id)}
+                            onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
+                            source={source}
+                        />
+                    )}
+                </div>
+
+                <aside className="quiz-sidebar">
+                    <ProgressCircle progress={progress} />
+                    <QuestionNavigator
+                        questions={questions}
+                        totalQuestions={totalQuestions}
+                        currentIndex={currentIndex}
+                        onNavigate={goToQuestion}
+                        isQuestionAnswered={isQuestionAnswered}
+                    />
+                </aside>
+
+                {/* Time Up Modal */}
+                <CustomModal
+                    isOpen={showTimeUpModal}
+                    onRequestClose={handleTimeUpContinue}
+                    title="Time's Up!"
+                    width="60%"
+                >
+                    <TimeUpModal
+                        show={true}
+                        onSubmit={handleTimeUpSubmit}
+                        onContinue={handleTimeUpContinue}
+                    />
+                </CustomModal>
+
+                {/* Exit Confirmation Modal */}
+                <CustomModal
+                    isOpen={showExitModal}
+                    onRequestClose={handleExitCancel}
+                    title="Exit Quiz?"
+                    width="60%"
+                >
+                    <ExitModal
+                        show={showExitModal}
+                        onConfirm={handleExitConfirm}
+                        onCancel={handleExitCancel}
+                    />
+                </CustomModal>
+            </div>
+        </>
     );
 };
 

@@ -38,11 +38,13 @@ router.delete(
 
 router.get(
     "/fetch-all-courses",
+    authMiddleware.authenticateRequest,
     controller.fetchAllCoursesWithParts
 )
 
 router.post(
     '/fetch-units-and-subunits',
+    authMiddleware.authenticateRequest,
     controller.getAllUnitsWithSubunits
 )
 

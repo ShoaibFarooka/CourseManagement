@@ -1,5 +1,7 @@
 const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
+const UserAllowedDevice = require("../models/userAllowedDeviceModel");
+const Payment = require('../models/paymentModel');
 
 const authenticateRequest = (req, res, next) => {
   try {
@@ -52,7 +54,64 @@ const verifyRole = (requiredRoles) => {
   };
 };
 
+
+
+const verifyDevice = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    const visitorId = req.headers["x-device-id"];
+
+    if (!visitorId) {
+      return res.status(400).json({ message: "Device ID missing" });
+    }
+
+    const userDevices = await UserAllowedDevice.findOne({ user: userId });
+    const isAllowed = userDevices?.allowedDevices.some(
+      d => d.deviceId === visitorId
+    );
+
+    if (!isAllowed) {
+      return res.status(403).json({ message: "Device not authorized" });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const verifyPayment = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    const { courseId, partId } = req.body;
+
+    if (!courseId || !partId) {
+      return res.status(400).json({ message: "Course ID and Part ID are required" });
+    }
+
+    const payment = await Payment.findOne({
+      user: userId,
+      course: courseId,
+      part: partId,
+      expiryDate: { $gte: new Date() }
+    });
+
+    if (!payment) {
+      return res.status(403).json({ message: "Course not purchased or expired" });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
 module.exports = {
   authenticateRequest,
-  verifyRole
+  verifyRole,
+  verifyDevice,
+  verifyPayment
 };

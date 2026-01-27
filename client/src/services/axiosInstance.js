@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import userService from '../services/userServices.js';
+import { getOrCreateVisitorId } from '../utilis/deviceInfoUtils.js';
 
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL,
@@ -14,6 +15,16 @@ axiosInstance.interceptors.request.use(
                 config.headers.Authorization = `Bearer ${token}`;
             }
         }
+
+        try {
+            const visitorId = await getOrCreateVisitorId();
+            if (visitorId) {
+                config.headers['x-device-id'] = visitorId;
+            }
+        } catch (err) {
+            console.warn('Could not get visitorId', err);
+        }
+
         return config;
     },
     (error) => {
