@@ -1,14 +1,18 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './ProgressReport.css';
 import ProgressCircle from './components/ProgressCircle/ProgressCircle';
 import progress1 from '../../../assets/icons/progress1.png';
 import progress2 from '../../../assets/icons/progress2.png';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const ProgressReport = () => {
     const { state } = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const {
+        source,
         overallScore = 0,
         correctAnswers = 0,
         incorrectAnswers = 0,
@@ -17,10 +21,17 @@ const ProgressReport = () => {
         essayScore = 0
     } = state || {};
 
-    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        if (!location.state?.source) {
+            navigate("/dashboard");
+        }
+    }, [location, navigate]);
+
 
     const handleClickRetake = () => {
-        navigate('/quiz');
+        navigate(`/${source}s`);
     }
 
     return (

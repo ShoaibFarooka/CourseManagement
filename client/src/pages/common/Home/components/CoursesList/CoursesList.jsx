@@ -17,7 +17,7 @@ const CoursesList = () => {
             </div>
 
             {courseslist.map((course, index) => {
-                const parts = course.description.split("Authored by");
+                const parts = course.description.split("Developed by");
 
                 return (
                     <div
@@ -31,7 +31,7 @@ const CoursesList = () => {
                         <div className="content">
                             <div className='heading'>{course.title} Exam Prep</div>
                             <p>{parts[0]}</p>
-                            <p>{parts[1] ? "Authored by" + parts[1] : ""}</p>
+                            <p>{parts[1] ? "Developed by" + parts[1] : ""}</p>
 
                             <button
                                 className="button"

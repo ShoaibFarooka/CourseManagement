@@ -29,10 +29,10 @@ const UserFooter = () => {
 
     const accountsLinks = [
         user
-            ? { name: "Home", to: "/" }
+            ? { name: "Dashboard", to: "/dashboard" }
             : { name: "Log In", to: "/login" },
-        { name: "FAQ", to: "/faq" },
-        { name: "Support", to: "/support" },
+        { name: "Profile", to: "/profile" },
+        { name: "Home", to: "/home" },
     ];
     const half = Math.ceil(courselinks_1.length / 2);
     const firstHalf = courselinks_1.slice(0, half);
@@ -123,10 +123,10 @@ const UserFooter = () => {
             <div className="bottom">
                 <p className='copyright'>Copyright 2025 | All Rights Reserved</p>
                 <div className="social-icons">
-                    <NavLink to={'/'} className='icons'><FaFacebookF /></NavLink>
-                    <NavLink to={'/'} className='icons'><FaXTwitter /></NavLink>
-                    <NavLink to={'/'} className='icons'><FaInstagram /></NavLink>
-                    <NavLink to={'/'} className='icons'><FaWhatsapp /></NavLink>
+                    <NavLink to={'#'} className='icons'><FaFacebookF /></NavLink>
+                    <NavLink to={'#'} className='icons'><FaXTwitter /></NavLink>
+                    <NavLink to={'#'} className='icons'><FaInstagram /></NavLink>
+                    <NavLink to={'#'} className='icons'><FaWhatsapp /></NavLink>
                 </div>
             </div>
         </div>

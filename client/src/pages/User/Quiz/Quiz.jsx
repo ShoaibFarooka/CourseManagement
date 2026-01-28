@@ -24,6 +24,7 @@ const Quiz = () => {
     const { state } = useLocation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const {
         source,
@@ -148,7 +149,11 @@ const Quiz = () => {
     };
 
     useEffect(() => {
-        fetchQuestions(1);
+        if (!location.state?.source) {
+            navigate("/dashboard");
+        } else {
+            fetchQuestions(1);
+        }
     }, []);
 
     useEffect(() => {
@@ -161,7 +166,8 @@ const Quiz = () => {
     useEffect(() => {
         const handleBeforeUnload = (e) => {
             e.preventDefault();
-            e.returnValue = ``;
+            e.returnValue = 'Are you sure you want to leave? Your quiz progress will be lost.';
+            return 'Are you sure you want to leave? Your quiz progress will be lost.';
         };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -297,7 +303,6 @@ const Quiz = () => {
 
     const progress = totalSteps === 0 ? 0 : Math.round((answeredSteps / totalSteps) * 100);
 
-    /* Count answered questions (not steps) for unanswered calculation */
     const answeredQuestionsCount = useMemo(() => {
         let count = 0;
         questions.forEach(q => {
@@ -313,7 +318,6 @@ const Quiz = () => {
                     count += 1;
                 }
             } else if (q.type === "rapid") {
-                // Count rapid as 1 question if ALL subquestions are answered
                 const totalSubs = q.subquestions?.length || 0;
                 const answeredSubs = q.subquestions?.filter((_, i) =>
                     answers[`rapid:${q._id}:${i}`] !== undefined
@@ -327,7 +331,6 @@ const Quiz = () => {
         return count;
     }, [answers, questions]);
 
-    /* Correct And Incorrect - WITH WEIGHTED RAPID SCORING */
     const correctCount = useMemo(() => {
         let totalCorrect = 0;
 
@@ -397,15 +400,82 @@ const Quiz = () => {
 
     const unansweredCount = totalActualQuestions - answeredQuestionsCount;
 
+    const calculateMCQScore = () => {
+        let totalMCQ = 0;
+        let correctMCQ = 0;
+
+        questions.forEach(q => {
+            if (!q || q.type !== "mcq") return;
+
+            totalMCQ += 1;
+            const key = `mcq:${q._id}`;
+            if (answers[key] !== undefined && answers[key] === q.correctOption) {
+                correctMCQ += 1;
+            }
+        });
+
+        return totalMCQ === 0 ? 0 : Math.round((correctMCQ / totalMCQ) * 100);
+    };
+
+    const calculateRapidScore = () => {
+        let totalRapidSubs = 0;
+        let correctRapidSubs = 0;
+
+        questions.forEach(q => {
+            if (!q || q.type !== "rapid") return;
+
+            const subs = q.subquestions || [];
+            totalRapidSubs += subs.length;
+
+            subs.forEach((sub, i) => {
+                const key = `rapid:${q._id}:${i}`;
+                if (answers[key] !== undefined && answers[key] === sub.correctOption) {
+                    correctRapidSubs += 1;
+                }
+            });
+        });
+
+        return totalRapidSubs === 0 ? 0 : Math.round((correctRapidSubs / totalRapidSubs) * 100);
+    };
+
+    const calculateEssayScore = () => {
+        let totalEssay = 0;
+        let answeredEssay = 0;
+
+        questions.forEach(q => {
+            if (!q || q.type !== "essay") return;
+
+            totalEssay += 1;
+            const key = `essay:${q._id}`;
+            const essayAnswer = answers[key];
+            if (essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0) {
+                answeredEssay += 1;
+            }
+        });
+
+        return totalEssay === 0 ? 0 : Math.round((answeredEssay / totalEssay) * 100);
+    };
+
+
+
     const handleQuizSubmit = () => {
+        const mcqScore = calculateMCQScore();
+        const rapidScore = calculateRapidScore();
+        const essayScore = calculateEssayScore();
+
         navigate("/progress-report", {
             state: {
+                source,
                 overallScore: progress,
                 correctAnswers: correctCount,
                 incorrectAnswers: incorrectCount,
+                mcqScore,
+                rapidScore,
+                essayScore
             }
         });
     };
+
 
     const handleTimeUpSubmit = () => {
         setShowTimeUpModal(false);

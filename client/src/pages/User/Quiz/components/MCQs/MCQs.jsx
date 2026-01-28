@@ -47,8 +47,6 @@ const MCQs = ({
         return "";
     };
 
-    console.log(question);
-
     return (
         <div className="question-section">
             <div className="question-header">

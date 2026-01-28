@@ -30,7 +30,7 @@ const PracticeExamContent = ({ courseId, partId, timeRatio }) => {
         <div className='practice-exam'>
 
             <div className='description'>
-                Norem ipsum dolor sit amet, consectetur adipiscing elit...
+                Choose your exam format below. Full Length Exam simulates the complete test experience, while Quick Diagnostic provides a faster assessment of your knowledge.
             </div>
 
             <div className='select-exam'>
@@ -62,12 +62,12 @@ const PracticeExamContent = ({ courseId, partId, timeRatio }) => {
                 </div>
 
                 <span className='note'>
-                    Norem: ipsum dolor sit amet, consectetur
+                    Note: Both exams are timed based on the course settings and cover all topics
                 </span>
             </div>
 
             <div className='description-2'>
-                Norem ipsum dolor sit amet, consectetur adipiscing elit...
+                Your progress will be tracked and you can review your answers after submission. Make sure you have sufficient time before starting the exam.
             </div>
 
             <div className='buttons-container'>

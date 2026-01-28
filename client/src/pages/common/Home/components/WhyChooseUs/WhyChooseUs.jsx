@@ -9,8 +9,8 @@ const WhyChooseUs = () => {
                     <div className='star'></div>
                 </div>
                 <div className='content'>
-                    <span className='title'>Exceptional Coverage</span>
-                    <p>Our content is developed by passionate educators and industry experts—people who have spent their lives training and mentoring accounting professionals.</p>
+                    <span className='title'>Expert Guidance</span>
+                    <p>Our content is crafted by experienced educators and industry professionals dedicated to guiding candidates through complex topics with clarity, accuracy, and real-world insight.</p>
                 </div>
             </div>
 
@@ -19,8 +19,8 @@ const WhyChooseUs = () => {
                     <div className='star'></div>
                 </div>
                 <div className='content'>
-                    <span className='title'>Exceptional Coverage</span>
-                    <p>Our content is developed by passionate educators and industry experts—people who have spent their lives training and mentoring accounting professionals.</p>
+                    <span className='title'>Trusted Experts</span>
+                    <p>Our content is crafted by experienced educators and industry professionals dedicated to guiding candidates through complex topics with clarity, accuracy, and real-world insight.</p>
                 </div>
             </div>
 
@@ -29,8 +29,8 @@ const WhyChooseUs = () => {
                     <div className='star'></div>
                 </div>
                 <div className='content'>
-                    <span className='title'>Exceptional Coverage</span>
-                    <p>Our content is developed by passionate educators and industry experts—people who have spent their lives training and mentoring accounting professionals.</p>
+                    <span className='title'>Exam Success</span>
+                    <p>Our content is crafted by experienced educators and industry professionals dedicated to guiding candidates through complex topics with clarity, accuracy, and real-world insight.</p>
                 </div>
             </div>
         </div>

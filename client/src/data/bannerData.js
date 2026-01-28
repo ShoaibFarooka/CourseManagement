@@ -1,11 +1,11 @@
 const bannerData = {
     home: {
         titleLines: [
-            { highlight: "Educating", text: "People." },
-            { text: "Advancing Careers." },
-            { text: "Elevating Professions." }
+            { highlight: "Learn", text: "Smarter." },
+            { text: "Advance Faster." },
+            { text: "Achieve More." }
         ],
-        subtitle: "Join the millions who passed with Gleim.",
+        subtitle: "Trusted by thousands with EProExam prep.",
         buttonText: "Demo Now",
         image: "banner1.png",
     },
@@ -13,11 +13,11 @@ const bannerData = {
     courses: {
         cpa: {
             titleLines: [
-                { beforeText: "Over ", highlight: "1 Million", text: "CPA" },
-                { text: "Exams Passed and" },
-                { text: "Counting." }
+                { beforeText: "Prepare", highlight: " Smarter" },
+                { text: "Pass The CPA" },
+                { text: "Achieve More." }
             ],
-            subtitle: "Join the millions who passed with Gleim.",
+            subtitle: "Trusted by thousands with EProExam prep.",
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CPA"
@@ -25,11 +25,11 @@ const bannerData = {
 
         cma: {
             titleLines: [
-                { beforeText: "Over ", highlight: "500k", text: "CMA" },
-                { text: "Exams Passed and" },
-                { text: "Counting." }
+                { beforeText: "Prepare", highlight: " Smarter" },
+                { text: "Pass The CMA" },
+                { text: "Achieve More." }
             ],
-            subtitle: "Boost your career with CMA certification.",
+            subtitle: "Advance your management accounting career with CMA.",
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CMA"
@@ -37,11 +37,11 @@ const bannerData = {
 
         cia: {
             titleLines: [
-                { beforeText: "Over ", highlight: "300k", text: "CIA" },
-                { text: "Exams Passed and" },
-                { text: "Counting." }
+                { beforeText: "Prepare", highlight: " Smarter" },
+                { text: "Pass The CIA" },
+                { text: "Achieve More." }
             ],
-            subtitle: "Advance in internal auditing with CIA.",
+            subtitle: "Build a successful internal audit career with CIA.",
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CIA"
@@ -49,11 +49,11 @@ const bannerData = {
 
         cisa: {
             titleLines: [
-                { beforeText: "Over ", highlight: "1 Million", text: "CISA" },
-                { text: "Exams Passed and" },
-                { text: "Counting." }
+                { beforeText: "Prepare", highlight: " Smarter" },
+                { text: "Pass The CISA" },
+                { text: "Achieve More." }
             ],
-            subtitle: "Join the millions who passed with Gleim.",
+            subtitle: "Lead in information systems auditing with CISA.",
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CISA"
@@ -61,11 +61,11 @@ const bannerData = {
 
         cfe: {
             titleLines: [
-                { beforeText: "Over ", highlight: "500k", text: "CFE" },
-                { text: "Exams Passed and" },
-                { text: "Counting." }
+                { beforeText: "Prepare", highlight: " Smarter" },
+                { text: "Pass The CFE" },
+                { text: "Achieve More." }
             ],
-            subtitle: "Boost your career with CFE certification.",
+            subtitle: "Stand out in fraud prevention and investigation with CFE.",
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CFE"
@@ -73,16 +73,17 @@ const bannerData = {
 
         crma: {
             titleLines: [
-                { beforeText: "Over ", highlight: "300k", text: "CRMA" },
-                { text: "Exams Passed and" },
-                { text: "Counting." }
+                { beforeText: "Prepare", highlight: " Smarter" },
+                { text: "Pass The CRMA" },
+                { text: "Achieve More." }
             ],
-            subtitle: "Advance in internal auditing with CRMA.",
+            subtitle: "Strengthen risk management expertise with CRMA.",
             buttonText: "Demo Now",
             image: "Course-CPA.png",
             examName: "CRMA"
         }
     },
+
 };
 
 export default bannerData;

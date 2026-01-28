@@ -81,15 +81,6 @@
     gap: 20px;
 }
 
-.package-exam .buttons-container .back {
-    background-color: transparent;
-    border: 1px solid var(--text-color);
-    color: var(--text-color);
-    width: 210px;
-    font-size: 1rem;
-    padding: 15px 48px;
-}
-
 .package-exam .buttons-container .update {
     width: 210px;
     font-size: 1rem;
@@ -113,10 +104,14 @@
         gap: 12px;
     }
 
-    .package-exam .buttons-container .back,
+    .package-exam .buttons-container {
+        margin-top: 30px;
+    }
+
     .package-exam .buttons-container .update {
-        width: 100%;
+        width: 180px;
         font-size: 0.9rem;
+        padding: 12px 36px;
     }
 }
 
@@ -135,16 +130,20 @@
     }
 
     .package-exam .buttons-container {
-        margin-top: 0px;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
+        margin-top: 15px;
     }
 
-    .package-exam .buttons-container .back,
     .package-exam .buttons-container .update {
-        width: 100%;
-        font-size: 0.9rem;
-        padding: 12px 0;
+        width: 150px;
+        font-size: 0.85rem;
+        padding: 10px 24px;
+    }
+}
+
+@media only screen and (max-width: 360px) {
+    .package-exam .buttons-container .update {
+        width: 130px;
+        font-size: 0.8rem;
+        padding: 8px 20px;
     }
 }

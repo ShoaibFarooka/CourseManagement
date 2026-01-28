@@ -102,7 +102,7 @@ const ContactUs = () => {
         <>
             <div className='contact-us'>
                 <div className='title'>Contact Us</div>
-                <div className='sub-title'>Join the millions who passed with Gleim.</div>
+                <div className='sub-title'>Have questions? EProExam Prep is here to help.</div>
             </div>
 
             <div className='question-h1'> Questions/Comments?</div>
@@ -132,10 +132,10 @@ const ContactUs = () => {
                             </span>
                         </div>
                         <div className='social-icons'>
-                            <NavLink to={'/'} className='icon'><FaFacebookF width={30} /></NavLink>
-                            <NavLink to={'/'} className='icon'><FaXTwitter width={30} /></NavLink>
-                            <NavLink to={'/'} className='icon'><FaInstagram width={30} /></NavLink>
-                            <NavLink to={'/'} className='icon'><FaWhatsapp width={30} /></NavLink>
+                            <NavLink to={'#'} className='icon'><FaFacebookF width={30} /></NavLink>
+                            <NavLink to={'#'} className='icon'><FaXTwitter width={30} /></NavLink>
+                            <NavLink to={'#'} className='icon'><FaInstagram width={30} /></NavLink>
+                            <NavLink to={'#'} className='icon'><FaWhatsapp width={30} /></NavLink>
                         </div>
                     </div>
                 </div>

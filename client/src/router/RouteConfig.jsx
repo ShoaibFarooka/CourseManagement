@@ -40,7 +40,7 @@ const routes = [
         path: "/",
         element: <CoursesLayout />,
         protected: true,
-        authRedirect: true,
+        authRedirect: false,
         showHeader: true,
         showFooter: true,
         children: [
