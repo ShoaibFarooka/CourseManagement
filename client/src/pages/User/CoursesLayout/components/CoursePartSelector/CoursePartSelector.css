@@ -7,18 +7,18 @@
     font-family: var(--font-family);
 }
 
-.title {
+.select-exam-wrapper .title {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 28px;
     color: var(--text-color);
 }
 
-.field {
+.select-exam-wrapper .field {
     margin-bottom: 22px;
 }
 
-.field label {
+.select-exam-wrapper .field label {
     display: block;
     font-size: 13px;
     font-weight: 500;
@@ -26,7 +26,7 @@
     color: var(--text-color);
 }
 
-.field select {
+.select-exam-wrapper .field select {
     width: 100%;
     max-width: 400px;
     height: 42px;
@@ -39,19 +39,19 @@
     outline: none;
 }
 
-.field select:disabled {
+.select-exam-wrapper .field select:disabled {
     background-color: var(--unit-exams-bg);
     cursor: not-allowed;
 }
 
 
-.footer {
+.select-exam-wrapper .footer {
     display: flex;
     justify-content: flex-end;
     margin-top: 100px;
 }
 
-.next-btn {
+.select-exam-wrapper .footer .next-btn {
     background-color: var(--secondary-color);
     color: #000000;
     font-family: var(--font-family);
@@ -63,7 +63,44 @@
     padding: 15px 48px;
 }
 
-.next-btn:hover {
+.select-exam-wrapper .footer .next-btn:hover {
     cursor: pointer;
     opacity: 0.9;
+}
+
+@media only screen and (max-width: 835px) {
+    .select-exam-wrapper .footer {
+        margin-top: 50px;
+    }
+
+    .select-exam-wrapper .footer .next-btn {
+        width: 180px;
+        font-size: 0.9rem;
+        padding: 12px 36px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+
+    .select-exam-wrapper .footer {
+        margin-top: 30px;
+    }
+
+    .select-exam-wrapper .footer .next-btn {
+        width: 150px;
+        font-size: 0.85rem;
+        padding: 10px 24px;
+    }
+}
+
+@media only screen and (max-width: 360px) {
+    .select-exam-wrapper .footer {
+        margin-top: 20px;
+    }
+
+    .select-exam-wrapper .footer .next-btn {
+        width: 130px;
+        font-size: 0.8rem;
+        padding: 8px 20px;
+    }
 }

@@ -4,11 +4,36 @@ import "./Testimonials.css";
 import test from '../../../../../assets/images/testimonial1.jpg';
 
 const testimonials = [
-    { id: 1, name: "John Doe", text: "Aut nihil mollitia deserunt quia sed rem. Quibusdam amet veniam rerum id rerum beatae. Quas rerum iste necessitatibus. At voluptates ad magnam blanditiis excepturi expedita aut. Aut repellat inventore qui minima illum est.", role: "Ceo", image: "https://via.placeholder.com/150" },
-    { id: 2, name: "Jane Smith", text: "Amazing experience...", role: "Ceo", image: "https://via.placeholder.com/150" },
-    { id: 3, name: "Michael Johnson", text: "User-friendly...", role: "Ceo", image: "https://via.placeholder.com/150" },
-    { id: 4, name: "Emily Brown", text: "It changed the way I work...", role: "Ceo", image: "https://via.placeholder.com/150" },
+    {
+        id: 1,
+        name: "Ahmed Khan",
+        role: "CPA Candidate",
+        text: "eProExam’s structured approach made complex topics much easier to understand. The explanations helped me identify exactly where I was going wrong and improve quickly. I felt confident walking into the exam.",
+        image: "https://randomuser.me/api/portraits/men/32.jpg"
+    },
+    {
+        id: 2,
+        name: "Sarah Williams",
+        role: "CMA Candidate",
+        text: "What I liked most about eProExam was the clarity of the content. Everything was aligned with the exam syllabus, and the study flow kept me focused without feeling overwhelmed.",
+        image: "https://randomuser.me/api/portraits/women/44.jpg"
+    },
+    {
+        id: 3,
+        name: "Daniel Roberts",
+        role: "CIA Candidate",
+        text: "The course didn’t just prepare me for the exam—it helped me truly understand the concepts. The structure and explanations made a big difference in how I retained information.",
+        image: "https://randomuser.me/api/portraits/men/65.jpg"
+    },
+    {
+        id: 4,
+        name: "Ayesha Malik",
+        role: "Accounting Professional",
+        text: "eProExam stands out for its depth and organization. The learning experience felt professional, focused, and practical. It’s a platform I would confidently recommend to serious candidates.",
+        image: "https://randomuser.me/api/portraits/women/68.jpg"
+    }
 ];
+
 
 const Testimonials = () => {
     const [centerPadding, setCenterPadding] = useState("300px");

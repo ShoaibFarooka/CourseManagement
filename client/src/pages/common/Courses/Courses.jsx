@@ -1,6 +1,6 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Banner from '../Home/components/Banner/Banner.jsx';
-import bannerData from '../../../data/BannerData.js';
+import bannerData from '../../../data/bannerData.js';
 import CourseHighlights from './components/CoursesHighlights/CourseHighlights.jsx';
 import SubBanner from './components/SubBanner/SubBanner.jsx';
 import Testimonials from './components/Testimonials/Testimonials.jsx';
@@ -8,12 +8,23 @@ import Testimonials from './components/Testimonials/Testimonials.jsx';
 const UserCourses = () => {
     const { exam } = useParams();
     const examData = bannerData.courses[exam.toLowerCase()];
+    const navigate = useNavigate();
+
+    const handleClickDemoNow = () => {
+        navigate('/unit-exams');
+    }
 
     return (
         <>
-            <Banner {...examData} />
+            <Banner
+                {...examData}
+                onButtonClick={handleClickDemoNow}
+            />
             <CourseHighlights />
-            <SubBanner examName={examData?.examName} />
+            <SubBanner
+                examName={examData?.examName}
+                onButtonClick={handleClickDemoNow}
+            />
             <Testimonials />
         </>
     );

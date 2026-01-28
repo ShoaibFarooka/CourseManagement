@@ -16,7 +16,7 @@ const CourseHighlights = () => {
 
             {coursehighlights.map((highlight, index) => {
 
-                const parts = highlight.description.split("accounting professionals");
+                const parts = highlight.description.split("Developed by");
                 return (
                     <div
                         className={`box ${index % 2 === 0 ? "left" : "right"}`}
@@ -27,10 +27,10 @@ const CourseHighlights = () => {
                         </div>
 
                         <div className="content">
-                            <div className='methodology'>The Gleim Methodology</div>
+                            <div className='methodology'>The EProExam Methodology</div>
                             <div className="heading">{highlight.title}</div>
                             <p>{parts[0]}</p>
-                            <p>{parts[1] ? "Authored by" + parts[1] : ""}</p>
+                            <p>{parts[1] ? "Developed by" + parts[1] : ""}</p>
                         </div>
                     </div>
                 )

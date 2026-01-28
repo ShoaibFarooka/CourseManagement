@@ -180,6 +180,7 @@ const fetchAllUnitsWithSubunits = async (courseId, partId, publisherId) => {
                 _id: 0,
                 unitId: "$parts.publishers.units._id",
                 unitName: "$parts.publishers.units.name",
+                type: "$parts.publishers.units.type",
                 subunits: {
                     $map: {
                         input: "$parts.publishers.units.subunits",

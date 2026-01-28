@@ -1,5 +1,5 @@
 .testimonial-slider {
-    width: 100vw;
+    width: 100%;
     padding: 79px 0 97px 0;
     background-color: var(--testimonial-bg);
 }

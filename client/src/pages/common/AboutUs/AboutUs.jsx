@@ -11,15 +11,15 @@ const AboutUs = () => {
         <>
             <div className='about-us'>
                 <div className='title'>About Us</div>
-                <div className='sub-title'>Join the millions who passed with Gleim.</div>
+                <div className='sub-title'>Join successful candidates who passed with EProExam Prep.</div>
             </div>
 
             <div className='section-1'>
                 <div className='left-1'>
                     <div className='h1'>Our Mission</div>
-                    <p >When Dr. Gleim wrote the first CPA self-study book in 1974, he started the entire exam prep industry as we know it. We’ve remained at the forefront since.
+                    <p >At EProExam Prep, our mission is to help candidates prepare smarter and pass with confidence. Created by experienced educators and industry professionals, our exam-focused programs simplify learning and deliver proven results. Trusted by learners worldwide, EProExam Prep is your partner in achieving professional success.
                     </p>
-                    <p >   Authored by industry leaders and accounting educators, featured at hundreds of colleges and universities worldwide, and used to pass millions of exams, Gleim CPA Review is ready to help you pass.</p>
+                    <p >   Authored by industry experts and experienced educators, trusted by learners worldwide, and used to pass thousands of exams, EProExam Prep is ready to help you succeed.</p>
                 </div>
                 <div className='right-1'>
                     <img src={About1} alt="Image" />
@@ -32,7 +32,7 @@ const AboutUs = () => {
                 <p>Let's work together to turn your vision into reality.Our team is</p>
                 <p>ready to help you achieve extraordinary results.</p>
                 <div className='learn-btn'>
-                    <button className='button' onClick={() => navigate('/')}>
+                    <button className='button' onClick={() => navigate('/home')}>
                         Learn More
                     </button>
                 </div>
@@ -45,9 +45,9 @@ const AboutUs = () => {
                 </div>
                 <div className='right-3'>
                     <div className='h3'>Our Story</div>
-                    <p>When Dr. Gleim wrote the first CPA self-study book in 1974, he started the entire exam prep industry as we know it. We’ve remained at the forefront since.
+                    <p>EProExam Prep was created to simplify professional exam preparation and help candidates succeed with confidence. Built by industry experts and experienced educators, our programs focus on what matters most—clear concepts, effective practice, and real results.
                     </p>
-                    <p> Authored by industry leaders and accounting educators, featured at hundreds of colleges and universities worldwide, and used to pass millions of exams, Gleim CPA Review is ready to help you pass.</p>
+                    <p> Trusted by learners worldwide and used to pass thousands of exams across leading certifications, EProExam Prep continues to empower professionals to achieve their goals and advance their careers.</p>
                 </div>
             </div>
         </>

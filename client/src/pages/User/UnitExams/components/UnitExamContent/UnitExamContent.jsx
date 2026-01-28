@@ -114,9 +114,10 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
             </div>
 
             <div className="unit-table-header">
-                <span>Units <img src={arrow} alt="arrow" /></span>
-                <span>Status <img src={arrow} alt="arrow" /></span>
-                <span>Proficiency Score <img src={arrow} alt="arrow" /></span>
+                <span>Units <img src={arrow} alt="arrow" className="arrow" /></span>
+                <span>Type <img src={arrow} alt="arrow" className="arrow" /></span>
+                <span>Status <img src={arrow} alt="arrow" className="arrow" /></span>
+                <span>Proficiency Score <img src={arrow} alt="arrow" className="arrow" /></span>
             </div>
 
             <div className="unit-topic-list">
@@ -155,6 +156,10 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                         {topic.unitName}
                                         {!isUnitUnlocked && <span className="lock-icon"> 🔒</span>}
                                     </span>
+                                </div>
+
+                                <div className="unit-topic-type">
+                                    {Array.isArray(topic.type) ? topic.type.join(', ') : topic.type || 'N/A'}
                                 </div>
 
                                 <div className="unit-topic-status active">
