@@ -126,12 +126,7 @@ const getUserPayments = async (userId) => {
         throw error;
     }
 
-    const now = new Date();
-
-    return await payment.find({
-        user: userId,
-        expiryDate: { $gte: now },
-    })
+    return await payment.find({ user: userId })
         .populate("course", "name")
         .sort({ createdAt: -1 });
 };

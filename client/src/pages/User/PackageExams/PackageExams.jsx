@@ -16,7 +16,14 @@ const PackageExamsPage = () => {
     const dispatch = useDispatch();
     const { purchasedCourses } = useSelector(state => state.user);
 
-    const hasPurchasedCourses = purchasedCourses && purchasedCourses.length > 0;
+    const today = new Date();
+
+    const activePurchasedCourses = purchasedCourses?.filter(p => {
+        if (!p.expiryDate) return true;
+        return new Date(p.expiryDate) >= today;
+    }) || [];
+
+    const hasPurchasedCourses = activePurchasedCourses.length > 0;
 
     const fetchAllCourses = async () => {
         try {
@@ -53,7 +60,7 @@ const PackageExamsPage = () => {
             if (hasPurchasedCourses) {
                 coursesArray = coursesArray
                     .map(course => {
-                        const purchasedParts = purchasedCourses
+                        const purchasedParts = activePurchasedCourses
                             .filter(p => p.courseId === course.id)
                             .map(p => p.partId);
 
@@ -77,7 +84,7 @@ const PackageExamsPage = () => {
 
     useEffect(() => {
         fetchAllCourses();
-    }, [hasPurchasedCourses]);
+    }, [activePurchasedCourses.length]);
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
@@ -104,10 +111,8 @@ const PackageExamsPage = () => {
                 examType="package"
                 courses={allCourses}
                 parts={selectedCourse?.parts || []}
-
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
-
                 onCourseChange={(e) => {
                     if (!hasPurchasedCourses) {
                         message.warning(
@@ -118,7 +123,6 @@ const PackageExamsPage = () => {
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
                 }}
-
                 onPartChange={(e) => {
                     if (!hasPurchasedCourses) {
                         message.warning(
@@ -128,7 +132,6 @@ const PackageExamsPage = () => {
                     }
                     setSelectedPartId(e.target.value);
                 }}
-
                 onNext={handleNext}
             />
         );
