@@ -74,7 +74,6 @@ const Login = () => {
                     secure: true,
                     sameSite: 'Lax'
                 });
-                console.log(response);
                 const from = location.state?.from?.pathname;
                 if (response.role === 'admin') {
                     navigate('/admin/courses');
