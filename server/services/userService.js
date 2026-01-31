@@ -173,7 +173,7 @@ const resetPassword = async (token, newPassword) => {
 };
 
 const updateUser = async (userId, updateData) => {
-  const allowedFields = ["name", "email", "phone", "country"];
+  const allowedFields = ["name", "phone", "country"];
   const updates = {};
 
   allowedFields.forEach((field) => {
@@ -182,14 +182,6 @@ const updateUser = async (userId, updateData) => {
     }
   });
 
-  if (updates.email) {
-    const existingUser = await User.findOne({ email: updates.email, _id: { $ne: userId } });
-    if (existingUser) {
-      const error = new Error("A user with that email already exists!");
-      error.code = 409;
-      throw error;
-    }
-  }
   const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true });
   if (!updatedUser) {
     const error = new Error("User not found!");

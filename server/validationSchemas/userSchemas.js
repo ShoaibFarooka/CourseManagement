@@ -52,7 +52,6 @@ const contactSchema = yup.object().shape({
 
 const updateUserSchema = yup.object().shape({
   name: yup.string().trim().optional(),
-  email: yup.string().trim().email("Invalid email address").optional(),
   phone: yup
     .string()
     .trim()

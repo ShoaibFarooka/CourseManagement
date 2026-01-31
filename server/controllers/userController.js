@@ -150,7 +150,6 @@ const updateUser = async (req, res, next) => {
       data: {
         id: updatedUser._id,
         name: updatedUser.name,
-        email: updatedUser.email,
         phone: updatedUser.phone,
         country: updatedUser.country,
       },

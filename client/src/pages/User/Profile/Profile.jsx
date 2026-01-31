@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import userService from '../../../services/userServices';
 import { message } from 'antd';
+import Profileimg from '../../../assets/images/Profile.jpg';
 
 const Profile = () => {
     const dispatch = useDispatch();
@@ -12,7 +13,6 @@ const Profile = () => {
 
     const [formData, setFormData] = useState({
         name: "",
-        email: "",
         phone: "",
         country: "",
     });
@@ -29,11 +29,15 @@ const Profile = () => {
         if (user) {
             setFormData({
                 name: user.name || "",
-                email: user.email || "",
                 phone: user.phone ? user.phone.toString() : "",
                 country: user.country || "",
             });
-            setProfileImage(`${baseURL}${user?.image}`);
+
+            if (user.image && user.image.trim() !== "") {
+                setProfileImage(`${baseURL}${user.image}`);
+            } else {
+                setProfileImage(Profileimg);
+            }
         }
     }, [user]);
 
@@ -54,18 +58,11 @@ const Profile = () => {
         }
     };
 
-
     const validateForm = () => {
         const newErrors = {};
         const phoneRegex = /^[0-9]{7,15}$/;
 
         if (!formData.name.trim()) newErrors.name = "Username is required";
-        if (!formData.email.trim()) {
-            newErrors.email = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Invalid email format";
-        }
-
         if (!formData.country.trim()) newErrors.country = "Country is required";
 
         const phoneStr = formData.phone ? formData.phone.toString() : "";
@@ -79,16 +76,13 @@ const Profile = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) return;
 
-
         const hasFormChanged =
             formData.name !== user?.name ||
-            formData.email !== user?.email ||
             (formData.phone || "") !== (user?.phone ? user.phone.toString() : "") ||
             formData.country !== user?.country;
 
@@ -155,20 +149,6 @@ const Profile = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Email</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="input"
-                            />
-                            {errors.email && <span className="error-text">{errors.email}</span>}
-                        </div>
-                    </div>
-
-                    <div className="form-row">
-                        <div className="form-group">
                             <label>Country</label>
                             <CountryDropdown
                                 value={formData.country}
@@ -180,7 +160,9 @@ const Profile = () => {
                             />
                             {errors.country && <span className="error-text">{errors.country}</span>}
                         </div>
+                    </div>
 
+                    <div className="form-row">
                         <div className="form-group">
                             <label>Phone No</label>
                             <input
