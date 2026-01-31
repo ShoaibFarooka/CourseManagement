@@ -32,9 +32,9 @@ const Sidebar = forwardRef((props, ref) => {
 
     const menuItems = [
         { label: "Dashboard", path: "/dashboard" },
-        { label: "Unit Exams", path: "/unit-exams" },
-        { label: "Practice Exams", path: "/practice-exams" },
-        { label: "Package Exams", path: "/package-exams" }
+        { label: "Unit Exams", path: "/dashboard/unit-exams" },
+        { label: "Practice Exams", path: "/dashboard/practice-exams" },
+        { label: "Package Exams", path: "/dashboard/package-exams" }
     ];
 
     return (
@@ -48,7 +48,12 @@ const Sidebar = forwardRef((props, ref) => {
 
                 <div className="sidebar-menu">
                     {menuItems.map(item => {
-                        const isActive = location.pathname.startsWith(item.path);
+                        const isActive =
+                            item.label === "Dashboard"
+                                ? /^\/dashboard(\/dashboard)?$/.test(location.pathname)
+                                : location.pathname === item.path;
+
+
 
                         return (
                             <div

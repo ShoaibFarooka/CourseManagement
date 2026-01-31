@@ -22,7 +22,7 @@ const AuthenticatedRedirect = ({ children, ...rest }) => {
         if (user?.role === "user" && location.pathname !== "/") {
             return (
                 <Navigate
-                    to="/home"
+                    to="/"
                     replace
                     state={{ from: location }}
                 />

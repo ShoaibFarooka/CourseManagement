@@ -79,7 +79,7 @@ const Login = () => {
                     navigate('/admin/courses');
                     message.success("Successfully Logged In");
                 } else if (response.role === 'user') {
-                    navigate(from || '/');
+                    navigate('/dashboard');
                     message.success("Successfully Logged In");
                 } else {
                     message.error("Unknown User!");

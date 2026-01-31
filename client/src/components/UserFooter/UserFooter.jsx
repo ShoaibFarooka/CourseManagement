@@ -32,7 +32,7 @@ const UserFooter = () => {
             ? { name: "Dashboard", to: "/dashboard" }
             : { name: "Log In", to: "/login" },
         { name: "Profile", to: "/profile" },
-        { name: "Home", to: "/home" },
+        { name: "Home", to: "/" },
     ];
     const half = Math.ceil(courselinks_1.length / 2);
     const firstHalf = courselinks_1.slice(0, half);

@@ -6,7 +6,7 @@ export const menuItems = {
         { path: '/admin/payments' }
     ],
     user: [
-        { path: '/home' },
+        { path: '/' },
         { path: '/login' },
         { path: '/signup' },
         { path: '/forgot-password' },
@@ -15,11 +15,11 @@ export const menuItems = {
         { path: '/About-Us' },
         { path: '/Contact-Us' },
         { path: "/courses/:exam" },
-        { path: '/' },
         { path: '/dashboard' },
-        { path: '/unit-exams' },
-        { path: '/practice-exams' },
-        { path: '/package-exams' },
+        { path: '/dashboard/dashboard' },
+        { path: '/dashboard/unit-exams' },
+        { path: '/dashboard/practice-exams' },
+        { path: '/dashboard/package-exams' },
         { path: '/quiz' },
         { path: '/progress-report' },
     ]

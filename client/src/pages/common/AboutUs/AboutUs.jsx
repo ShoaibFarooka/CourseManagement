@@ -32,7 +32,7 @@ const AboutUs = () => {
                 <p>Let's work together to turn your vision into reality.Our team is</p>
                 <p>ready to help you achieve extraordinary results.</p>
                 <div className='learn-btn'>
-                    <button className='button' onClick={() => navigate('/home')}>
+                    <button className='button' onClick={() => navigate('/')}>
                         Learn More
                     </button>
                 </div>

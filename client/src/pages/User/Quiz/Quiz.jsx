@@ -490,11 +490,11 @@ const Quiz = () => {
     const handleExitConfirm = () => {
         setShowExitModal(false);
         if (source === 'unit-exam') {
-            navigate("/unit-exams");
+            navigate("/dashboard/unit-exams");
         } else if (source === 'practice-exam') {
-            navigate("/practice-exams");
+            navigate("/dashboard/practice-exams");
         } else if (source === 'package-exam') {
-            navigate("/package-exams");
+            navigate("/dashboard/package-exams");
         } else {
             navigate("/dashboard");
         }

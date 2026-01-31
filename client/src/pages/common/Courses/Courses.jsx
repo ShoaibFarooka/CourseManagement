@@ -11,7 +11,7 @@ const UserCourses = () => {
     const navigate = useNavigate();
 
     const handleClickDemoNow = () => {
-        navigate('/unit-exams');
+        navigate('/dashboard/unit-exams');
     }
 
     return (

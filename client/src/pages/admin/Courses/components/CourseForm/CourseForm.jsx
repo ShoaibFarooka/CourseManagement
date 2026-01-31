@@ -735,6 +735,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
         setCourseData({ ...courseData, parts: updatedParts });
         setTempUnit({ name: "", type: [] });
+        setShowAddUnitSection(false);
     };
 
 
@@ -856,7 +857,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
 
     const handleEditSubunit = (index) => {
         const { partIndex, publisherIndex, unitIndex } = selectedUnitIndexes;
-        const current = originalCourseSnapshot.parts[partIndex].publishers[publisherIndex].units[unitIndex].subunits[index];
+        const current = originalCourseSnapshot?.parts[partIndex]?.publishers[publisherIndex]?.units[unitIndex]?.subunits[index];
 
         setEditingSubunitIndex(index);
         setTempSubUnit({ name: current?.name || "" });

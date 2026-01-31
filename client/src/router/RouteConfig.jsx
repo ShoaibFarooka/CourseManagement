@@ -37,7 +37,7 @@ const routes = [
     { path: "/otp-verification", element: <OtpVerification />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     {
-        path: "/",
+        path: "/dashboard",
         element: <CoursesLayout />,
         protected: true,
         authRedirect: false,
@@ -56,7 +56,7 @@ const routes = [
 
 
     //common
-    { path: "/home", element: <Home />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/", element: <Home />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/courses/:exam", element: <UserCourses />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/About-Us", element: <AboutUs />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/Contact-Us", element: <ContactUs />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
