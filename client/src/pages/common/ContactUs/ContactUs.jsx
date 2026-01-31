@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import './ContactUs.css';
 import Contact from '../../../assets/images/Contact.png';
-import { MdOutlinePhoneInTalk } from "react-icons/md"
 import { IoMailSharp } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
-import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
+import { FaFacebookF, FaInstagram, FaWhatsapp, FaLinkedin } from "react-icons/fa";
 import { NavLink } from 'react-router-dom';
 import userService from '../../../services/userServices';
 import { message } from 'antd';
 
 const ContactUs = () => {
+    const whatsappNumber = "923254698122";
 
     const [formData, setFormData] = useState({
         name: "",
@@ -119,8 +118,8 @@ const ContactUs = () => {
                         <p className='sub-title'>Say something to start a live chat!</p>
                         <div className='contact-info'>
                             <span className='info'>
-                                <MdOutlinePhoneInTalk width={24} />
-                                <p>+1012 3456 789</p>
+                                <FaWhatsapp size={24} color="#25D366" />
+                                <p>+923254698122</p>
                             </span>
                             <span className='info'>
                                 <IoMailSharp width={24} />
@@ -132,10 +131,17 @@ const ContactUs = () => {
                             </span>
                         </div>
                         <div className='social-icons'>
-                            <NavLink to={'#'} className='icon'><FaFacebookF width={30} /></NavLink>
-                            <NavLink to={'#'} className='icon'><FaXTwitter width={30} /></NavLink>
-                            <NavLink to={'#'} className='icon'><FaInstagram width={30} /></NavLink>
-                            <NavLink to={'#'} className='icon'><FaWhatsapp width={30} /></NavLink>
+                            <NavLink to='https://www.facebook.com/share/1H4KsxAGn8/' target='blank' className='icon'><FaFacebookF size={24} color="#1877F2" /></NavLink>
+                            <NavLink to='https://www.linkedin.com/in/eproexamprep-prep-resources-5a13433a9?utm_source=share_via&utm_content=profile&utm_medium=member_android' target='blank' className='icon'><FaLinkedin size={24} color="#0077B5" /></NavLink>
+                            <NavLink to='#' className='icon'><FaInstagram size={24} color="#E4405F" /></NavLink>
+                            <NavLink
+                                to={`https://wa.me/${whatsappNumber}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="icon"
+                            >
+                                <FaWhatsapp color="#25D366" size={24} />
+                            </NavLink>
                         </div>
                     </div>
                 </div>

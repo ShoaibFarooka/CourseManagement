@@ -19,9 +19,21 @@
 
 .device-verification .contact-now {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-top: 20px;
+}
+
+.device-verification .contact-now .phone {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    text-align: center;
 }
 
 .device-verification .social-icons {

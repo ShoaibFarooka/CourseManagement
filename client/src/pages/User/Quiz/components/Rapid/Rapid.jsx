@@ -13,7 +13,7 @@ const Rapid = ({
     handleQuizSubmit,
     isMarked = false,
     onToggleMark,
-    source, // Add source prop
+    source,
 }) => {
     const [activeSubIndex, setActiveSubIndex] = useState(0);
     const concept = data;
@@ -60,12 +60,15 @@ const Rapid = ({
         onAnswerSelect(answerKey, optKey);
     };
 
-    // Determine if option is correct or incorrect
     const getOptionClass = (optKey) => {
         if (!localSelection) return "";
 
+        if (source === "practice-exam") {
+            return localSelection === optKey ? "selected" : "";
+        }
+
         if (localSelection === optKey) {
-            if (optKey === subquestion.correctOption) {
+            if (optKey === question.correctOption) {
                 return "selected correct";
             } else {
                 return "selected incorrect";

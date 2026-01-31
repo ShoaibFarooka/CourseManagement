@@ -16,7 +16,15 @@ const PraticeExams = () => {
     const dispatch = useDispatch();
     const { purchasedCourses } = useSelector(state => state.user);
 
-    const hasPurchasedCourses = purchasedCourses && purchasedCourses.length > 0;
+    /* 🔹 Filter out expired purchases */
+    const today = new Date();
+
+    const activePurchasedCourses = purchasedCourses?.filter(purchase => {
+        if (!purchase.expiryDate) return true;
+        return new Date(purchase.expiryDate) >= today;
+    }) || [];
+
+    const hasPurchasedCourses = activePurchasedCourses.length > 0;
 
     const fetchAllCourses = async () => {
         try {
@@ -49,10 +57,11 @@ const PraticeExams = () => {
 
             let coursesArray = Object.values(groupedCourses);
 
+            /* 🔹 Keep only non-expired purchased parts */
             if (hasPurchasedCourses) {
                 coursesArray = coursesArray
                     .map(course => {
-                        const purchasedParts = purchasedCourses
+                        const purchasedParts = activePurchasedCourses
                             .filter(p => p.courseId === course.id)
                             .map(p => p.partId);
 
@@ -76,7 +85,7 @@ const PraticeExams = () => {
 
     useEffect(() => {
         fetchAllCourses();
-    }, [hasPurchasedCourses]);
+    }, [activePurchasedCourses.length]);
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
@@ -103,10 +112,8 @@ const PraticeExams = () => {
                 examType="practice"
                 courses={allCourses}
                 parts={selectedCourse?.parts || []}
-
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
-
                 onCourseChange={(e) => {
                     if (!hasPurchasedCourses) {
                         message.warning(
@@ -117,7 +124,6 @@ const PraticeExams = () => {
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
                 }}
-
                 onPartChange={(e) => {
                     if (!hasPurchasedCourses) {
                         message.warning(
@@ -127,7 +133,6 @@ const PraticeExams = () => {
                     }
                     setSelectedPartId(e.target.value);
                 }}
-
                 onNext={handleNext}
             />
         );

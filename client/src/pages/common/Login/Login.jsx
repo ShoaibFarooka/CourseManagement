@@ -76,7 +76,7 @@ const Login = () => {
                 });
                 const from = location.state?.from?.pathname;
                 if (response.role === 'admin') {
-                    navigate(from || '/admin/courses');
+                    navigate('/admin/courses');
                     message.success("Successfully Logged In");
                 } else if (response.role === 'user') {
                     navigate(from || '/');

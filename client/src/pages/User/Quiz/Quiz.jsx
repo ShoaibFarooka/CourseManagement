@@ -394,11 +394,8 @@ const Quiz = () => {
     }, [questions, answers]);
 
 
-    const totalActualQuestions = useMemo(() => {
-        return questions.filter(q => q).length;
-    }, [questions]);
+    const unansweredCount = totalQuestions - answeredQuestionsCount;
 
-    const unansweredCount = totalActualQuestions - answeredQuestionsCount;
 
     const calculateMCQScore = () => {
         let totalMCQ = 0;

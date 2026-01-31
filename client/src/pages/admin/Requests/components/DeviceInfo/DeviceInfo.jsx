@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { message } from "antd";
+import { message, Popconfirm } from "antd";
 import { useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import deviceRequestService from "../../../../../services/deviceRequestService";
+import { MdSync } from "react-icons/md";
+import del from "../../../../../assets/icons/del.png";
 
 const DeviceInfo = ({
     user,
@@ -88,27 +90,34 @@ const DeviceInfo = ({
                                 </td>
                                 <td>
                                     <div
+                                        className="action-btn-wrapper"
                                         style={{
                                             display: "flex",
                                             justifyContent: "flex-end",
                                             gap: "10px",
                                         }}
                                     >
-                                        <button
-                                            className="btn"
-                                            onClick={() => handleRemoveClick(device.deviceId)}
-                                            disabled={isRefreshing}
+                                        <Popconfirm
+                                            title="Are you sure you want to Delete?"
+                                            onConfirm={() => handleRemoveClick(device.deviceId)}
+                                            okText="Yes"
+                                            cancelText="No"
                                         >
-                                            🗑 Remove
-                                        </button>
+                                            <button
+                                                className="action-btn"
+                                                disabled={isRefreshing}
+                                            >
+                                                <img src={del} alt="Delete" />
+                                            </button>
+                                        </Popconfirm>
 
                                         {overwriteMode && (
                                             <button
-                                                className="btn"
+                                                className="action-btn"
                                                 onClick={() => handleOverwriteClick(device.deviceId)}
                                                 disabled={isRefreshing}
                                             >
-                                                🔁 Overwrite
+                                                <MdSync />
                                             </button>
                                         )}
                                     </div>

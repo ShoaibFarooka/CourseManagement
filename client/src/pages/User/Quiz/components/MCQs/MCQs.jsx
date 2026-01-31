@@ -37,6 +37,10 @@ const MCQs = ({
     const getOptionClass = (optKey) => {
         if (!localSelection) return "";
 
+        if (source === "practice-exam") {
+            return localSelection === optKey ? "selected" : "";
+        }
+
         if (localSelection === optKey) {
             if (optKey === question.correctOption) {
                 return "selected correct";
@@ -46,6 +50,7 @@ const MCQs = ({
         }
         return "";
     };
+
 
     return (
         <div className="question-section">

@@ -1,7 +1,7 @@
 import './UserNavbar.css';
 import logo1 from '../../assets/icons/logo1.png'
 import logo2 from '../../assets/icons/logo2.png'
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import ThemeToggel from '../ThemeToggel/ThemeToggel';
 import { useSelector } from 'react-redux';
@@ -31,7 +31,8 @@ const UserNavbar = () => {
     const baseURL = import.meta.env.VITE_BASE_URL;
 
     const navLinks = [
-        { name: "Accounting Products", dropdown: true },
+        { name: "Courses", dropdown: true },
+        { name: "Dashboard", to: '/dashboard' },
         { name: "About Us", to: '/About-Us' },
         { name: "Contact Us", to: '/Contact-Us' },
     ];
@@ -44,6 +45,11 @@ const UserNavbar = () => {
         { name: "CFE", to: "/courses/cfe" },
         { name: "CRMA", to: "/courses/crma" },
     ];
+
+    const location = useLocation();
+    const hideCoursesOn = ["/dashboard", "/quiz", "/progress-report"];
+    const showCoursesLink = !hideCoursesOn.includes(location.pathname);
+
 
 
 
@@ -146,8 +152,10 @@ const UserNavbar = () => {
                         </button>
                     )}
 
-                    {navLinks.map((item) =>
-                        item.dropdown ? (
+                    {navLinks.map((item) => {
+                        if (item.name === "Courses" && !showCoursesLink) return null;
+
+                        return item.dropdown ? (
                             <div
                                 key={item.name}
                                 ref={dropdownRef}
@@ -184,8 +192,10 @@ const UserNavbar = () => {
                             >
                                 {item.name}
                             </NavLink>
-                        )
-                    )}
+                        );
+                    })}
+
+
 
                     <div className="mobile">
                         <ThemeToggel />
@@ -195,7 +205,7 @@ const UserNavbar = () => {
                         ) : (
                             <div className="profile-dropdown" ref={mobileProfileRef}>
                                 <img
-                                    src={`${baseURL}${user?.image}` || Profile}
+                                    src={user?.image ? `${baseURL}${user.image}` : Profile}
                                     alt="Profile"
                                     className="profile-pic"
                                     onClick={() => setOpenMobileProfileDropdown(!openMobileProfileDropdown)}
@@ -230,7 +240,7 @@ const UserNavbar = () => {
                 ) : (
                     <div className="profile-dropdown" ref={profileRef}>
                         <img
-                            src={`${baseURL}${user?.image}` || Profile}
+                            src={user?.image ? `${baseURL}${user.image}` : Profile}
                             alt="Profile"
                             className="profile-pic"
                             onClick={() => setOpenProfileDropdown(!openProfileDropdown)}

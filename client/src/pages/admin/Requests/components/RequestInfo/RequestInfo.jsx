@@ -189,11 +189,26 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
                 )}
 
                 {Array.isArray(currentUser.allowedDevices) && currentUser.allowedDevices.length > 0 && (
-                    <button className="btn" onClick={toggleViewDevices}>
-                        {showDevices ? "Hide Devices" : "View Devices"}
-                    </button>
+                    <>
+                        <button className="btn" onClick={toggleViewDevices}>
+                            {showDevices ? "Hide Devices" : "View Devices"}
+                        </button>
+
+                        {!showDevices && (
+                            <button
+                                className="btn"
+                                onClick={() => {
+                                    setShowDevices(true);
+                                    setOverwriteMode(true);
+                                }}
+                            >
+                                Overwrite Existing Device
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
+
 
             <hr />
 

@@ -34,7 +34,7 @@ const Requests = () => {
             setCurrentPage(response.currentPage || 1);
             setTotalPages(response.totalPages || 1);
 
-        } catch (err) {
+        } catch (error) {
             message.error(error?.response?.data?.message || "Something went wrong");
         } finally {
             dispatch(HideLoading());

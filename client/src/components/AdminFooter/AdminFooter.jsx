@@ -1,7 +1,9 @@
 import './AdminFooter.css';
 import { NavLink } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa';
-import del from '../../assets/icons/del.png';
+import logo1 from '../../assets/icons/logo1.png';
+import logo2 from '../../assets/icons/logo2.png';
+
 const AdminFooter = () => {
 
     const navLinks = [
@@ -15,9 +17,8 @@ const AdminFooter = () => {
     return (
         <div className='admin-footer'>
             <div className='footer-logo'>
-                <NavLink to='/admin/Courses' className='logo-link'>
-                    <img src={del} alt="Logo" />
-                </NavLink>
+                <NavLink className='image-1'><img src={logo1} alt="Logo" /></NavLink>
+                <NavLink className='image-2'><img src={logo2} alt="Logo" /></NavLink>
             </div>
             <div className='container'>
 
@@ -44,8 +45,9 @@ const AdminFooter = () => {
                     </div>
 
                     <div className='text-sm copyright'>
-                        &copy; copyright 2025. by Name.
+                        &copy; copyright {new Date().getFullYear()}. by Name.
                     </div>
+
                 </div>
 
 
