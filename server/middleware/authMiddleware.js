@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
 const UserAllowedDevice = require("../models/userAllowedDeviceModel");
 const Payment = require('../models/paymentModel');
+const Course = require('../models/courseModel');
 
 const authenticateRequest = (req, res, next) => {
   try {
@@ -56,7 +57,8 @@ const verifyRole = (requiredRoles) => {
 
 
 
-const verifyDevice = async (req, res, next) => {
+// mode = "strict" | "preview"
+const verifyDevice = (mode = "strict") => async (req, res, next) => {
   try {
     const userId = req.user?.id;
     const visitorId = req.headers["x-device-id"];
@@ -65,13 +67,25 @@ const verifyDevice = async (req, res, next) => {
       return res.status(400).json({ message: "Device ID missing" });
     }
 
-    const userDevices = await UserAllowedDevice.findOne({ user: userId });
-    const isAllowed = userDevices?.allowedDevices.some(
+    const userDevices = await UserAllowedDevice.findOne({ user: userId }).lean();
+    const isAllowed = userDevices?.allowedDevices?.some(
       d => d.deviceId === visitorId
     );
 
-    if (!isAllowed) {
-      return res.status(403).json({ message: "Device not authorized" });
+    req.access = req.access || {};
+    req.access.deviceVerified = !!isAllowed;
+
+    if (mode === "strict") {
+      // ✅ strict mode: device must always be verified
+      if (!isAllowed) {
+        return res.status(403).json({ message: "Device not authorized" });
+      }
+    } else if (mode === "preview") {
+      // 🔓 preview mode: device must be verified if paid
+      // but allow unverified device for unpaid user
+      if (req.access.isPaid && !isAllowed) {
+        return res.status(403).json({ message: "Device not authorized" });
+      }
     }
 
     next();
@@ -79,6 +93,7 @@ const verifyDevice = async (req, res, next) => {
     next(error);
   }
 };
+
 
 
 const verifyPayment = async (req, res, next) => {
@@ -95,10 +110,46 @@ const verifyPayment = async (req, res, next) => {
       course: courseId,
       part: partId,
       expiryDate: { $gte: new Date() }
-    });
+    }).lean();
 
-    if (!payment) {
-      return res.status(403).json({ message: "Course not purchased or expired" });
+    req.access = {
+      isPaid: !!payment,
+      isPreview: !payment
+    };
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+const verifyFreePreviewUnitAccess = async (req, res, next) => {
+  try {
+    if (!req.access?.isPreview) {
+      return next(); // paid user → skip preview check
+    }
+
+    const { courseId, selectedUnits } = req.body;
+
+    if (!selectedUnits || selectedUnits.length !== 1) {
+      return res.status(403).json({ message: "Preview allows only the first unit" });
+    }
+
+    const course = await Course.findById(courseId).lean();
+
+    const firstUnit =
+      course?.parts?.[0]
+        ?.publishers?.[0]
+        ?.units?.[0];
+
+    if (!firstUnit) {
+      return res.status(403).json({ message: "No preview unit available" });
+    }
+
+    if (firstUnit._id.toString() !== selectedUnits[0].toString()) {
+      return res.status(403).json({ message: "Please purchase the course to access this unit" });
     }
 
     next();
@@ -109,9 +160,12 @@ const verifyPayment = async (req, res, next) => {
 
 
 
+
+
 module.exports = {
   authenticateRequest,
   verifyRole,
   verifyDevice,
-  verifyPayment
+  verifyPayment,
+  verifyFreePreviewUnitAccess,
 };

@@ -204,6 +204,8 @@ const questionService = {
     },
 
     fetchQuestionsWithFilters: async ({
+        courseId,
+        partId,
         publisherId,
         selectedUnits = [],
         selectedSubunits = {},
@@ -214,6 +216,8 @@ const questionService = {
             const response = await axiosInstance.post(
                 `${BASE_URL}/fetch-unit-exam-questions`,
                 {
+                    courseId,
+                    partId,
                     publisherId,
                     selectedUnits,
                     selectedSubunits,

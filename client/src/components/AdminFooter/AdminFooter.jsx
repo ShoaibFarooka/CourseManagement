@@ -17,8 +17,8 @@ const AdminFooter = () => {
     return (
         <div className='admin-footer'>
             <div className='footer-logo'>
-                <NavLink className='image-1'><img src={logo1} alt="Logo" /></NavLink>
-                <NavLink className='image-2'><img src={logo2} alt="Logo" /></NavLink>
+                <NavLink to="/admin/courses" className='image-1'><img src={logo1} alt="Logo" /></NavLink>
+                <NavLink to="/admin/courses" className='image-2'><img src={logo2} alt="Logo" /></NavLink>
             </div>
             <div className='container'>
 

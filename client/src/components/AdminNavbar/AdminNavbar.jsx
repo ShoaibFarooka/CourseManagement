@@ -70,7 +70,7 @@ const AdminNavbar = () => {
         <div className='admin-navbar'>
             <div className='container'>
                 <div className='left'>
-                    <NavLink to={"/admin/courses"} className="logo">
+                    <NavLink to="/admin/courses" className="logo">
                         <img className='image-1' src={logo1} alt="Logo" />
                         <img className='image-2' src={logo2} alt='logo' />
                     </NavLink>

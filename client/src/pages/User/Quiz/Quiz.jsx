@@ -91,6 +91,8 @@ const Quiz = () => {
                 }
             } else {
                 res = await questionService.fetchQuestionsWithFilters({
+                    courseId,
+                    partId,
                     publisherId,
                     selectedUnits,
                     selectedSubunits,
@@ -508,6 +510,11 @@ const Quiz = () => {
         return <div className="quiz-container">Loading questions...</div>;
     }
 
+    const toUpperCase = (string) => {
+        return string
+            .replace(/-/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+    };
     return (
         <>
             <div className="quiz">
@@ -521,7 +528,7 @@ const Quiz = () => {
                     </div>
 
                     <div className="quiz-header">
-                        <div className="title">RCK MSSE Computer Science (J277)</div>
+                        <div className="title">{toUpperCase(source)}</div>
                         <div className="quiz-timer">
                             <TiStopwatch className="timer-icon" />
                             <span>{formatTime(time)}</span>

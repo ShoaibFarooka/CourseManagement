@@ -113,39 +113,42 @@ router.post(
 router.post(
     "/fetch-unit-exam-questions",
     authMiddleware.authenticateRequest,
-    authMiddleware.verifyDevice,
+    authMiddleware.verifyPayment,
+    authMiddleware.verifyDevice("preview"),
+    authMiddleware.verifyFreePreviewUnitAccess,
     controller.fetchQuestionsWithFilters
-)
+);
+
 
 router.post(
     "/fetch-practice-exam-questions",
     authMiddleware.authenticateRequest,
-    authMiddleware.verifyDevice,
     authMiddleware.verifyPayment,
+    authMiddleware.verifyDevice("strict"),
     controller.FetchPracticeExamQuestions
 )
-
 router.post(
     "/fetch-standard-package-questions",
     authMiddleware.authenticateRequest,
-    authMiddleware.verifyDevice,
     authMiddleware.verifyPayment,
+    authMiddleware.verifyDevice("strict"),
     controller.FetchStandardReviewPackageQuestions
 );
 
 router.post(
     "/fetch-mega-package-questions",
     authMiddleware.authenticateRequest,
-    authMiddleware.verifyDevice,
     authMiddleware.verifyPayment,
+    authMiddleware.verifyDevice("strict"),
     controller.FetchMegaReviewPackageQuestions
 );
+
 
 router.post(
     '/get-total-question-in-part',
     authMiddleware.authenticateRequest,
-    authMiddleware.verifyDevice,
     authMiddleware.verifyPayment,
+    authMiddleware.verifyDevice("strict"),
     controller.CountQuestionsInPart
 )
 

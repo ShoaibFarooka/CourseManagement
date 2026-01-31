@@ -98,6 +98,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         navigate("/quiz", {
             state: {
                 source: "unit-exam",
+                courseId,
+                partId,
                 publisherId,
                 selectedUnits,
                 selectedSubunits,
