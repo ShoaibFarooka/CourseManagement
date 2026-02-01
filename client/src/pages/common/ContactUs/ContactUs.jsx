@@ -123,17 +123,17 @@ const ContactUs = () => {
                             </span>
                             <span className='info'>
                                 <IoMailSharp width={24} />
-                                <p> demo@gmail.com</p>
+                                <p> eproexamprep@gmail.com</p>
                             </span>
                             <span className='info'>
                                 <FaLocationDot width={24} />
-                                <p>  132 Dartmouth Street Boston, <br />Massachusetts 02156 United States</p>
+                                <p>UAE</p>
                             </span>
                         </div>
                         <div className='social-icons'>
                             <NavLink to='https://www.facebook.com/share/1H4KsxAGn8/' target='blank' className='icon'><FaFacebookF size={24} color="#1877F2" /></NavLink>
                             <NavLink to='https://www.linkedin.com/in/eproexamprep-prep-resources-5a13433a9?utm_source=share_via&utm_content=profile&utm_medium=member_android' target='blank' className='icon'><FaLinkedin size={24} color="#0077B5" /></NavLink>
-                            <NavLink to='#' className='icon'><FaInstagram size={24} color="#E4405F" /></NavLink>
+                            <NavLink to='https://www.instagram.com/eproexamprep?igsh=MXdmNmxscXZ6OHlmaQ==' className='icon' target='blank'><FaInstagram size={24} color="#E4405F" /></NavLink>
                             <NavLink
                                 to={`https://wa.me/${whatsappNumber}`}
                                 target="_blank"
