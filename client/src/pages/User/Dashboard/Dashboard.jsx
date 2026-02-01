@@ -15,11 +15,10 @@ import { getBasicDeviceInfo } from "../../../utilis/deviceInfoUtils";
 const Dashboard = () => {
     const dispatch = useDispatch();
 
-    const { currentDeviceStatus, purchasedCourses } = useSelector(
+    const { currentDeviceStatus, purchasedCourses, user } = useSelector(
         state => state.user
     );
-
-
+    const baseURL = import.meta.env.VITE_BASE_URL;
     const [allCourses, setAllCourses] = useState([]);
     const [selectedParts, setSelectedParts] = useState({});
     const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
@@ -180,7 +179,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container">
             <div className="profile-circle">
-                <img src={profile} alt="User" className="profile-image" />
+                <img src={user?.image ? `${baseURL}${user.image}` : profile} alt="User" className="profile-image" />
             </div>
 
             <div className="device-request">
