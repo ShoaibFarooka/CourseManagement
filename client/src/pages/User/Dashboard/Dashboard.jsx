@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import arrow from "../../../assets/icons/arrow.png";
-import profile from "../../../assets/images/profile.jpg";
+import profile from "../../../assets/images/Profile.jpg";
 import CustomModal from "../../../components/CustomModal/CustomModal";
 import DeviceVerification from "./components/DeviceVerification/DeviceVerification";
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
