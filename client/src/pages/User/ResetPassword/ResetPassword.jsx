@@ -1,4 +1,4 @@
-import './resetPassword.css';
+import './ResetPassword.css';
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, NavLink } from "react-router-dom";
 import { message } from "antd";
