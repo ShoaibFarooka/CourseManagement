@@ -1,6 +1,6 @@
 import React from 'react';
 import './SubunitTable.css';
-import edit from '../../../../../assets/icons/Edit.png';
+import edit from '../../../../../assets/icons/edit.png';
 import del from '../../../../../assets/icons/del.png';
 import { Popconfirm } from 'antd';
 
