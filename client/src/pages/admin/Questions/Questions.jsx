@@ -4,7 +4,7 @@ import SelectDropDown from '../../../components/Select/SelectDropDown';
 import courseService from '../../../services/courseService';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
-import QuestionsTable from '../Questions/Components/QuestionsTable/QuestionsTable';
+import QuestionsTable from './components/QuestionsTable/QuestionsTable';
 import CustomModal from '../../../components/CustomModal/CustomModal';
 import questionServices from '../../../services/questionServices';
 import { message, Modal } from 'antd';
