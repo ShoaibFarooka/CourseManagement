@@ -12,7 +12,7 @@ import UserCourses from "../pages/common/Courses/Courses";
 import PrivacyPolicy from "../pages/common/PrivacyPolicy/PrivacyPolicy";
 import Requests from "../pages/admin/Requests/Requests";
 import Profile from "../pages/User/Profile/Profile";
-import OtpVerification from "../pages/User/otpverification/otpVerification";
+import OtpVerification from "../pages/User/OtpVerification/OtpVerification";
 import InvalidLink from "../pages/common/InvalidLink/InvalidLink";
 import CoursesLayout from "../pages/User/CoursesLayout/CoursesLayout";
 import Dashboard from "../pages/User/Dashboard/Dashboard";
