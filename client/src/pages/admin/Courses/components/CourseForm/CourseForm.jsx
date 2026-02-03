@@ -3,7 +3,7 @@ import PublisherTable from '../PublisherTable/PublisherTable';
 import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import PartsTable from '../PartsTable/PartsTable';
 import UnitsTable from '../UnitsTable/UnitsTable';
-import SubunitTable from '../SubUnitTable/SubunitTable';
+import SubUnitTable from '../SubUnitTable/SubUnitTable';
 import { message } from 'antd';
 import courseService from '../../../../../services/courseService';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
@@ -1309,7 +1309,7 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
                             </div>
                         )}
 
-                        <SubunitTable
+                        <SubUnitTable
                             subunitData={
                                 courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].subunits || []
                             }
