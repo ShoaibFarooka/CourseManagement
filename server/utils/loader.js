@@ -24,8 +24,11 @@ const stopLoader = async ({ finalMessage = 'Done!', color = 'green' }) => {
     }
 
     clearInterval(interval);
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
+
+    if (process.stdout.isTTY && typeof process.stdout.clearLine === 'function') {
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
+    }
 
     const styledMessage = chalk[color] ? chalk[color](finalMessage) : finalMessage;
     console.log(styledMessage);
