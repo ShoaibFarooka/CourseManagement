@@ -8,6 +8,13 @@
     min-height: 128px;
 }
 
+.question-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
 .quiz-container {
     display: flex;
     justify-content: center;

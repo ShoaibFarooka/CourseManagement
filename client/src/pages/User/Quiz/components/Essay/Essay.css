@@ -116,6 +116,17 @@
     animation: fadeIn 0.4s ease-in;
 }
 
+.essay-container .essay-correct-answer .rating-section {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.essay-container .essay-correct-answer .rating-section .rating-label {
+    color: #3EDB9F;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -14,26 +14,48 @@ const Essay = ({
     handleQuizSubmit,
     isMarked = false,
     onToggleMark,
-    source,
 }) => {
     const subquestions = data?.subquestions || [];
     const [activeSubIndex, setActiveSubIndex] = useState(0);
+    const [showExplanation, setShowExplanation] = useState(false);
 
     const currentSub = subquestions[activeSubIndex];
-    const answerKey = `essay:${data._id}:${activeSubIndex}`;
+    const answerKey = `essay:${data._id}:${activeSubIndex}:answer`;
+    const ratingKey = `essay:${data._id}:${activeSubIndex}:rating`;
 
     useEffect(() => {
         setActiveSubIndex(0);
+        setShowExplanation(false);
     }, [data._id]);
 
+    useEffect(() => {
+        // Check if current subquestion already has answer and rating
+        const hasAnswer = selectedAnswers[answerKey] && selectedAnswers[answerKey].trim().length > 0;
+        const hasRating = selectedAnswers[ratingKey] !== undefined;
+
+        if (hasAnswer && hasRating) {
+            setShowExplanation(true);
+        } else {
+            setShowExplanation(false);
+        }
+    }, [activeSubIndex, selectedAnswers, answerKey, ratingKey]);
+
     const localAnswer = selectedAnswers[answerKey] || "";
-    const showExplanations = source === "unit-exam" || source === "package-exam";
+    const localRating = selectedAnswers[ratingKey] || "";
 
     const wordCount = localAnswer.trim().split(/\s+/).filter(Boolean).length;
 
     const handleChange = (e) => {
         const value = e.target.value;
         onAnswerSelect(answerKey, value);
+    };
+
+    const handleRatingChange = (e) => {
+        const value = e.target.value;
+        // Only allow numbers 1-5
+        if (value === "" || (parseInt(value) >= 1 && parseInt(value) <= 5)) {
+            onAnswerSelect(ratingKey, value === "" ? "" : parseInt(value));
+        }
     };
 
     const validateAnswer = () => {
@@ -44,8 +66,22 @@ const Essay = ({
         return true;
     };
 
+    const validateRating = () => {
+        if (showExplanation && (localRating === "" || localRating === undefined)) {
+            message.warning("Please rate your answer before continuing.");
+            return false;
+        }
+        return true;
+    };
+
+    const handleShowAnswer = () => {
+        if (!validateAnswer()) return;
+        setShowExplanation(true);
+    };
+
     const handleNextClick = () => {
         if (!validateAnswer()) return;
+        if (!validateRating()) return;
 
         if (activeSubIndex < subquestions.length - 1) {
             setActiveSubIndex(prev => prev + 1);
@@ -65,6 +101,7 @@ const Essay = ({
 
     const handleSubmitClick = () => {
         if (!validateAnswer()) return;
+        if (!validateRating()) return;
         handleQuizSubmit();
     };
 
@@ -104,10 +141,34 @@ const Essay = ({
                     onChange={handleChange}
                 />
 
-                {showExplanations && wordCount >= 5 && currentSub.explanation && (
+
+                {!showExplanation && wordCount >= 5 && (
+                    <button className="nav-btn" onClick={handleShowAnswer}>
+                        Show Answer
+                    </button>
+                )}
+
+                {showExplanation && currentSub.explanation && (
                     <div className="essay-correct-answer fade-in">
                         <div className="answer-heading">Correct Answer</div>
                         <p className="answer-text">{currentSub.explanation}</p>
+
+
+                        <div className="rating-section">
+                            <label htmlFor="rating-input" className="rating-label">
+                                Rate your answer (1-5): How closely does your answer match the explanation?
+                            </label>
+                            <input
+                                id="rating-input"
+                                type="number"
+                                min="1"
+                                max="5"
+                                className="input"
+                                placeholder="Enter rating (1-5)"
+                                value={localRating}
+                                onChange={handleRatingChange}
+                            />
+                        </div>
                     </div>
                 )}
 

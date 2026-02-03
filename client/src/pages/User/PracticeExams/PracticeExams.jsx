@@ -16,7 +16,6 @@ const PraticeExams = () => {
     const dispatch = useDispatch();
     const { purchasedCourses } = useSelector(state => state.user);
 
-    /* 🔹 Filter out expired purchases */
     const today = new Date();
 
     const activePurchasedCourses = purchasedCourses?.filter(purchase => {
@@ -24,7 +23,6 @@ const PraticeExams = () => {
         return new Date(purchase.expiryDate) >= today;
     }) || [];
 
-    const hasPurchasedCourses = activePurchasedCourses.length > 0;
 
     const fetchAllCourses = async () => {
         try {
@@ -43,11 +41,7 @@ const PraticeExams = () => {
                     };
                 }
 
-                const existingPart = groupedCourses[item.courseId].parts.find(
-                    part => part.id === item.partId
-                );
-
-                if (!existingPart) {
+                if (!groupedCourses[item.courseId].parts.find(p => p.id === item.partId)) {
                     groupedCourses[item.courseId].parts.push({
                         id: item.partId,
                         name: item.partName
@@ -57,23 +51,20 @@ const PraticeExams = () => {
 
             let coursesArray = Object.values(groupedCourses);
 
-            /* 🔹 Keep only non-expired purchased parts */
-            if (hasPurchasedCourses) {
-                coursesArray = coursesArray
-                    .map(course => {
-                        const purchasedParts = activePurchasedCourses
-                            .filter(p => p.courseId === course.id)
-                            .map(p => p.partId);
+            coursesArray = coursesArray
+                .map(course => {
+                    const purchasedParts = activePurchasedCourses
+                        .filter(p => p.courseId === course.id)
+                        .map(p => p.partId);
 
-                        return {
-                            ...course,
-                            parts: course.parts.filter(part =>
-                                purchasedParts.includes(part.id)
-                            )
-                        };
-                    })
-                    .filter(course => course.parts.length > 0);
-            }
+                    return {
+                        ...course,
+                        parts: course.parts.filter(part =>
+                            purchasedParts.includes(part.id)
+                        )
+                    };
+                })
+                .filter(course => course.parts.length > 0);
 
             setAllCourses(coursesArray);
         } catch (error) {
@@ -88,17 +79,9 @@ const PraticeExams = () => {
     }, [activePurchasedCourses.length]);
 
     const selectedCourse = allCourses.find(c => c.id === selectedCourseId);
-    const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
 
     const handleNext = () => {
-        if (!hasPurchasedCourses) {
-            message.warning(
-                "You are using demo. To unlock this section, please purchase a course."
-            );
-            return;
-        }
-
-        if (!selectedCourse || !selectedPart) {
+        if (!selectedCourse || !selectedPartId) {
             message.warning("Please select a course and part to proceed.");
             return;
         }
@@ -114,23 +97,13 @@ const PraticeExams = () => {
                 parts={selectedCourse?.parts || []}
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
+
+
                 onCourseChange={(e) => {
-                    if (!hasPurchasedCourses) {
-                        message.warning(
-                            "You are using demo. Please purchase a course to continue."
-                        );
-                        return;
-                    }
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
                 }}
                 onPartChange={(e) => {
-                    if (!hasPurchasedCourses) {
-                        message.warning(
-                            "You are using demo. Please purchase a course to continue."
-                        );
-                        return;
-                    }
                     setSelectedPartId(e.target.value);
                 }}
                 onNext={handleNext}

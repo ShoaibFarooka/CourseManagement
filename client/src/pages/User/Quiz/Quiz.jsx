@@ -229,8 +229,18 @@ const Quiz = () => {
         }
 
         if (question.type === "essay") {
-            const essayAnswer = answers[`essay:${question._id}`];
-            return essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0;
+            const totalSubs = question.subquestions?.length || 0;
+            if (totalSubs === 0) return false;
+
+            const answeredSubs = question.subquestions.filter((_, i) => {
+                const answerKey = `essay:${question._id}:${i}:answer`;
+                const ratingKey = `essay:${question._id}:${i}:rating`;
+                const essayAnswer = answers[answerKey];
+                const rating = answers[ratingKey];
+                return essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0 && rating !== undefined;
+            }).length;
+
+            return answeredSubs === totalSubs;
         }
 
         if (question.type === "rapid") {
@@ -265,7 +275,7 @@ const Quiz = () => {
         return questions.reduce((acc, q) => {
             if (!q) return acc;
             if (q.type === "mcq") return acc + 1;
-            if (q.type === "essay") return acc + 1;
+            if (q.type === "essay") return acc + (q.subquestions?.length || 0);
             if (q.type === "rapid") return acc + (q.subquestions?.length || 0);
             return acc;
         }, 0);
@@ -289,10 +299,14 @@ const Quiz = () => {
                     count += 1;
                 }
             } else if (q.type === "essay") {
-                const essayAnswer = answers[`essay:${q._id}`];
-                if (essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0) {
-                    count += 1;
-                }
+                const answeredSubCount = q.subquestions?.filter((_, i) => {
+                    const answerKey = `essay:${q._id}:${i}:answer`;
+                    const ratingKey = `essay:${q._id}:${i}:rating`;
+                    const essayAnswer = answers[answerKey];
+                    const rating = answers[ratingKey];
+                    return essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0 && rating !== undefined;
+                }).length || 0;
+                count += answeredSubCount;
             } else if (q.type === "rapid") {
                 const answeredSubCount = q.subquestions?.filter((_, i) =>
                     answers[`rapid:${q._id}:${i}`] !== undefined
@@ -315,8 +329,16 @@ const Quiz = () => {
                     count += 1;
                 }
             } else if (q.type === "essay") {
-                const essayAnswer = answers[`essay:${q._id}`];
-                if (essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0) {
+                const totalSubs = q.subquestions?.length || 0;
+                const answeredSubs = q.subquestions?.filter((_, i) => {
+                    const answerKey = `essay:${q._id}:${i}:answer`;
+                    const ratingKey = `essay:${q._id}:${i}:rating`;
+                    const essayAnswer = answers[answerKey];
+                    const rating = answers[ratingKey];
+                    return essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0 && rating !== undefined;
+                }).length || 0;
+
+                if (totalSubs > 0 && answeredSubs === totalSubs) {
                     count += 1;
                 }
             } else if (q.type === "rapid") {
@@ -359,6 +381,22 @@ const Quiz = () => {
                     }
                 });
             }
+
+            if (q.type === "essay") {
+                const totalSubs = q.subquestions?.length || 0;
+                if (totalSubs === 0) return;
+
+                const weightPerSub = 1 / totalSubs;
+
+                q.subquestions?.forEach((_, i) => {
+                    const ratingKey = `essay:${q._id}:${i}:rating`;
+                    const rating = answers[ratingKey];
+                    if (rating !== undefined) {
+                        // Rating is out of 5, so we calculate the percentage and multiply by weight
+                        totalCorrect += (rating / 5) * weightPerSub;
+                    }
+                });
+            }
         });
 
         return Math.round(totalCorrect * 100) / 100;
@@ -387,6 +425,22 @@ const Quiz = () => {
                     const key = `rapid:${q._id}:${i}`;
                     if (answers[key] !== undefined && answers[key] !== sub.correctOption) {
                         totalIncorrect += weightPerSub;
+                    }
+                });
+            }
+
+            if (q.type === "essay") {
+                const totalSubs = q.subquestions?.length || 0;
+                if (totalSubs === 0) return;
+
+                const weightPerSub = 1 / totalSubs;
+
+                q.subquestions?.forEach((_, i) => {
+                    const ratingKey = `essay:${q._id}:${i}:rating`;
+                    const rating = answers[ratingKey];
+                    if (rating !== undefined) {
+                        // Incorrect portion is (5 - rating) / 5 * weight
+                        totalIncorrect += ((5 - rating) / 5) * weightPerSub;
                     }
                 });
             }
@@ -438,21 +492,26 @@ const Quiz = () => {
     };
 
     const calculateEssayScore = () => {
-        let totalEssay = 0;
-        let answeredEssay = 0;
+        let totalEssaySubs = 0;
+        let totalRatingScore = 0;
 
         questions.forEach(q => {
             if (!q || q.type !== "essay") return;
 
-            totalEssay += 1;
-            const key = `essay:${q._id}`;
-            const essayAnswer = answers[key];
-            if (essayAnswer !== undefined && essayAnswer !== null && essayAnswer.trim().length > 0) {
-                answeredEssay += 1;
-            }
+            const subs = q.subquestions || [];
+            totalEssaySubs += subs.length;
+
+            subs.forEach((_, i) => {
+                const ratingKey = `essay:${q._id}:${i}:rating`;
+                const rating = answers[ratingKey];
+                if (rating !== undefined) {
+                    // Convert rating (0-5) to percentage
+                    totalRatingScore += (rating / 5) * 100;
+                }
+            });
         });
 
-        return totalEssay === 0 ? 0 : Math.round((answeredEssay / totalEssay) * 100);
+        return totalEssaySubs === 0 ? 0 : Math.round(totalRatingScore / totalEssaySubs);
     };
 
 
@@ -507,7 +566,9 @@ const Quiz = () => {
     };
 
     if (!questions.length) {
-        return <div className="quiz-container">Loading questions...</div>;
+        return <div className="quiz-container">
+            <span className="question-loading">Quesions Loading......</span>
+        </div>;
     }
 
     const toUpperCase = (string) => {

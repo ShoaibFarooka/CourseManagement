@@ -1,5 +1,6 @@
 import React from "react";
 import "./CoursePartSelector.css";
+import { message } from "antd";
 
 const CoursePartSelector = ({
     examType,
@@ -21,7 +22,7 @@ const CoursePartSelector = ({
 
             <div className="field">
                 <label>Select the Course</label>
-                <select value={selectedCourse || ""} onChange={onCourseChange}>
+                <select value={selectedCourse || ""} onChange={onCourseChange} disabled={courses.length === 0}>
                     <option value="" >Select Course</option>
                     {courses.map(course => (
                         <option key={course.id} value={course.id}>

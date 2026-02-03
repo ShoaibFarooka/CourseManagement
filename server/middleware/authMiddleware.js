@@ -57,45 +57,6 @@ const verifyRole = (requiredRoles) => {
 
 
 
-// mode = "strict" | "preview"
-const verifyDevice = (mode = "strict") => async (req, res, next) => {
-  try {
-    const userId = req.user?.id;
-    const visitorId = req.headers["x-device-id"];
-
-    if (!visitorId) {
-      return res.status(400).json({ message: "Device ID missing" });
-    }
-
-    const userDevices = await UserAllowedDevice.findOne({ user: userId }).lean();
-    const isAllowed = userDevices?.allowedDevices?.some(
-      d => d.deviceId === visitorId
-    );
-
-    req.access = req.access || {};
-    req.access.deviceVerified = !!isAllowed;
-
-    if (mode === "strict") {
-      // ✅ strict mode: device must always be verified
-      if (!isAllowed) {
-        return res.status(403).json({ message: "Device not authorized" });
-      }
-    } else if (mode === "preview") {
-      // 🔓 preview mode: device must be verified if paid
-      // but allow unverified device for unpaid user
-      if (req.access.isPaid && !isAllowed) {
-        return res.status(403).json({ message: "Device not authorized" });
-      }
-    }
-
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-
 const verifyPayment = async (req, res, next) => {
   try {
     const userId = req.user?.id;
@@ -105,16 +66,26 @@ const verifyPayment = async (req, res, next) => {
       return res.status(400).json({ message: "Course ID and Part ID are required" });
     }
 
-    const payment = await Payment.findOne({
+    // Find active payment (not expired)
+    const activePayment = await Payment.findOne({
       user: userId,
       course: courseId,
       part: partId,
       expiryDate: { $gte: new Date() }
     }).lean();
 
+    // Check if user had a payment that expired
+    const expiredPayment = await Payment.findOne({
+      user: userId,
+      course: courseId,
+      part: partId,
+      expiryDate: { $lt: new Date() }
+    }).lean();
+
     req.access = {
-      isPaid: !!payment,
-      isPreview: !payment
+      isPaid: !!activePayment,
+      isPreview: !activePayment,
+      hadExpiredPayment: !!expiredPayment
     };
 
     next();
@@ -124,32 +95,91 @@ const verifyPayment = async (req, res, next) => {
 };
 
 
+const verifyDevice = (mode = "strict") => async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+
+    // PREVIEW + UNPAID → skip device check completely
+    if (mode === "preview" && !req.access?.isPaid) {
+      req.access.deviceVerified = false;
+      return next();
+    }
+
+    const visitorId = req.headers["x-device-id"];
+    if (!visitorId) {
+      return res.status(400).json({ message: "Device ID missing" });
+    }
+
+    const userDevices = await UserAllowedDevice.findOne({ user: userId }).lean();
+    const isDeviceVerified = userDevices?.allowedDevices?.some(
+      d => d.deviceId === visitorId
+    );
+
+    req.access.deviceVerified = !!isDeviceVerified;
+
+    if (!isDeviceVerified) {
+      return res.status(403).json({
+        message: "Device not authorized. Please verify your device."
+      });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 const verifyFreePreviewUnitAccess = async (req, res, next) => {
   try {
-    if (!req.access?.isPreview) {
-      return next(); // paid user → skip preview check
+    // Paid users bypass preview rules
+    if (req.access?.isPaid) {
+      return next();
     }
 
-    const { courseId, selectedUnits } = req.body;
+    const { courseId, partId, publisherId, selectedUnits } = req.body;
 
-    if (!selectedUnits || selectedUnits.length !== 1) {
-      return res.status(403).json({ message: "Preview allows only the first unit" });
+    // Preview → exactly one unit
+    if (!Array.isArray(selectedUnits) || selectedUnits.length !== 1) {
+      return res.status(403).json({
+        message: req.access?.hadExpiredPayment
+          ? "Your subscription has expired. Preview mode allows access to only one unit."
+          : "Preview mode allows access to only one unit."
+      });
     }
 
     const course = await Course.findById(courseId).lean();
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
-    const firstUnit =
-      course?.parts?.[0]
-        ?.publishers?.[0]
-        ?.units?.[0];
 
+    const part = course.parts?.find(p => p._id.toString() === partId);
+    if (!part) {
+      return res.status(403).json({ message: "Invalid course part" });
+    }
+
+
+    const publisher = part.publishers?.find(
+      pub => pub._id.toString() === publisherId
+    );
+    if (!publisher) {
+      return res.status(403).json({ message: "Invalid publisher" });
+    }
+
+
+    const firstUnit = publisher.units?.[0];
     if (!firstUnit) {
       return res.status(403).json({ message: "No preview unit available" });
     }
 
+
     if (firstUnit._id.toString() !== selectedUnits[0].toString()) {
-      return res.status(403).json({ message: "Please purchase the course to access this unit" });
+      return res.status(403).json({
+        message: req.access?.hadExpiredPayment
+          ? "Your subscription has expired. Only the first unit of this section is available in preview."
+          : "Only the first unit of this section is available in preview."
+      });
     }
 
     next();
@@ -160,6 +190,20 @@ const verifyFreePreviewUnitAccess = async (req, res, next) => {
 
 
 
+const requirePayment = async (req, res, next) => {
+  try {
+    if (!req.access?.isPaid) {
+      const message = req.access?.hadExpiredPayment
+        ? "Your subscription has expired. Please renew your subscription to access this content."
+        : "This content requires an active subscription. Please purchase the course to continue.";
+
+      return res.status(403).json({ message });
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 
 module.exports = {
@@ -168,4 +212,5 @@ module.exports = {
   verifyDevice,
   verifyPayment,
   verifyFreePreviewUnitAccess,
+  requirePayment,
 };

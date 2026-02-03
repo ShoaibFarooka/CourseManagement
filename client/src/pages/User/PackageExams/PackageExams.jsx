@@ -23,7 +23,6 @@ const PackageExamsPage = () => {
         return new Date(p.expiryDate) >= today;
     }) || [];
 
-    const hasPurchasedCourses = activePurchasedCourses.length > 0;
 
     const fetchAllCourses = async () => {
         try {
@@ -57,22 +56,21 @@ const PackageExamsPage = () => {
 
             let coursesArray = Object.values(groupedCourses);
 
-            if (hasPurchasedCourses) {
-                coursesArray = coursesArray
-                    .map(course => {
-                        const purchasedParts = activePurchasedCourses
-                            .filter(p => p.courseId === course.id)
-                            .map(p => p.partId);
 
-                        return {
-                            ...course,
-                            parts: course.parts.filter(part =>
-                                purchasedParts.includes(part.id)
-                            )
-                        };
-                    })
-                    .filter(course => course.parts.length > 0);
-            }
+            coursesArray = coursesArray
+                .map(course => {
+                    const purchasedParts = activePurchasedCourses
+                        .filter(p => p.courseId === course.id)
+                        .map(p => p.partId);
+
+                    return {
+                        ...course,
+                        parts: course.parts.filter(part =>
+                            purchasedParts.includes(part.id)
+                        )
+                    };
+                })
+                .filter(course => course.parts.length > 0);
 
             setAllCourses(coursesArray);
         } catch (error) {
@@ -90,13 +88,6 @@ const PackageExamsPage = () => {
     const selectedPart = selectedCourse?.parts?.find(p => p.id === selectedPartId);
 
     const handleNext = () => {
-        if (!hasPurchasedCourses) {
-            message.warning(
-                "You are using demo. To unlock this section, please purchase a course."
-            );
-            return;
-        }
-
         if (!selectedCourse || !selectedPart) {
             message.warning("Please select course and part to proceed.");
             return;
@@ -114,22 +105,10 @@ const PackageExamsPage = () => {
                 selectedCourse={selectedCourseId}
                 selectedPart={selectedPartId}
                 onCourseChange={(e) => {
-                    if (!hasPurchasedCourses) {
-                        message.warning(
-                            "You are using demo. Please purchase a course to continue."
-                        );
-                        return;
-                    }
                     setSelectedCourseId(e.target.value);
                     setSelectedPartId("");
                 }}
                 onPartChange={(e) => {
-                    if (!hasPurchasedCourses) {
-                        message.warning(
-                            "You are using demo. Please purchase a course to continue."
-                        );
-                        return;
-                    }
                     setSelectedPartId(e.target.value);
                 }}
                 onNext={handleNext}
