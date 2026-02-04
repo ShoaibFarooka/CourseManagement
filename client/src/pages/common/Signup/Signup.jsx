@@ -108,7 +108,7 @@ const Signup = () => {
                     sameSite: 'Lax'
                 });
                 const from = location.state?.from?.pathname;
-                navigate(from || '/');
+                navigate(from || '/dashboard');
                 message.success("Successfully Logged In");
             } else {
                 message.error(response.error || "Login Failed");
