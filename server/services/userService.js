@@ -20,6 +20,16 @@ const createUser = async (userData, role) => {
     error.code = 409;
     throw error;
   }
+
+  let existingUser2 = await User.findOne({ phone });
+  if (existingUser2) {
+    const error = new Error(
+      "A user with that phone number has already been registered!"
+    );
+    error.code = 409;
+    throw error;
+  }
+
   let passwordDigest = await authUtils.hashPassword(password);
   const user = await User.create({
     name,
