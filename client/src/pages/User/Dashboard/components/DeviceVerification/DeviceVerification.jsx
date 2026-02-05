@@ -12,10 +12,10 @@ const DeviceVerification = () => {
     return (
         <div className='device-verification'>
             <div className='title'>
-                Device Verification
+                Request Sent
             </div>
             <div className='sub-title'>
-                Device Verification Request of device verification has been sent to admin
+                Please contact admin for the instant access.
             </div>
             <div className='contact-now'>
                 <button className='button' onClick={handleClickContactNow}>

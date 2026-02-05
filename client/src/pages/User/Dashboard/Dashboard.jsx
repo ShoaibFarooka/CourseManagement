@@ -173,6 +173,7 @@ const Dashboard = () => {
             }
         } finally {
             dispatch(HideLoading());
+            setIsOpenDeviceRequestModal(true);
         }
     };
 
