@@ -151,6 +151,7 @@ router.post(
 
 router.post(
     '/get-total-question-in-part',
+    authMiddleware.authenticateRequest,
     authMiddleware.verifyPayment,
     authMiddleware.requirePayment,
     authMiddleware.verifyDevice("strict"),
