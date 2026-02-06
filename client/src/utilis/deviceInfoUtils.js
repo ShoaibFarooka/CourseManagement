@@ -23,6 +23,7 @@ export const getOrCreateVisitorId = async () => {
     const deviceInfo = await getBasicDeviceInfo();
     visitorId = deviceInfo.visitorId;
     //localStorage.setItem("visitorId", visitorId);
+    console.log("sending visiotr Id", visitorId);
 
     return visitorId;
 };
