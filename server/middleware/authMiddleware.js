@@ -118,8 +118,6 @@ const verifyDevice = (mode = "strict") => async (req, res, next) => {
     req.access.deviceVerified = !!isDeviceVerified;
 
     if (!isDeviceVerified) {
-      console.log("Visitor Id: ", visitorId);
-      console.log("Device not verified...");
       return res.status(403).json({
         message: "Device not authorized. Please verify your device."
       });

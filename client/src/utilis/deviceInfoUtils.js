@@ -17,13 +17,7 @@ export async function getBasicDeviceInfo() {
 }
 
 export const getOrCreateVisitorId = async () => {
-    //let visitorId = localStorage.getItem("visitorId");
-
-
     const deviceInfo = await getBasicDeviceInfo();
-    visitorId = deviceInfo.visitorId;
-    //localStorage.setItem("visitorId", visitorId);
-    console.log("sending visiotr Id", visitorId);
-
+    let visitorId = deviceInfo.visitorId;
     return visitorId;
 };
