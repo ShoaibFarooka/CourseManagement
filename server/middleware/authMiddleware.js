@@ -118,6 +118,8 @@ const verifyDevice = (mode = "strict") => async (req, res, next) => {
     req.access.deviceVerified = !!isDeviceVerified;
 
     if (!isDeviceVerified) {
+      console.log("Visitor Id: ", visitorId);
+      console.log("Device not verified...");
       return res.status(403).json({
         message: "Device not authorized. Please verify your device."
       });
@@ -141,6 +143,7 @@ const verifyFreePreviewUnitAccess = async (req, res, next) => {
 
     // Preview → exactly one unit
     if (!Array.isArray(selectedUnits) || selectedUnits.length !== 1) {
+      console.log("Sub Exp");
       return res.status(403).json({
         message: req.access?.hadExpiredPayment
           ? "Your subscription has expired. Preview mode allows access to only one unit."
@@ -156,6 +159,7 @@ const verifyFreePreviewUnitAccess = async (req, res, next) => {
 
     const part = course.parts?.find(p => p._id.toString() === partId);
     if (!part) {
+      console.log("Invalid Part");
       return res.status(403).json({ message: "Invalid course part" });
     }
 
@@ -164,6 +168,7 @@ const verifyFreePreviewUnitAccess = async (req, res, next) => {
       pub => pub._id.toString() === publisherId
     );
     if (!publisher) {
+      console.log("Invalid Pub");
       return res.status(403).json({ message: "Invalid publisher" });
     }
 
@@ -175,6 +180,7 @@ const verifyFreePreviewUnitAccess = async (req, res, next) => {
 
 
     if (firstUnit._id.toString() !== selectedUnits[0].toString()) {
+      console.log("Preview");
       return res.status(403).json({
         message: req.access?.hadExpiredPayment
           ? "Your subscription has expired. Only the first unit of this section is available in preview."
@@ -187,7 +193,6 @@ const verifyFreePreviewUnitAccess = async (req, res, next) => {
     next(error);
   }
 };
-
 
 
 const requirePayment = async (req, res, next) => {
