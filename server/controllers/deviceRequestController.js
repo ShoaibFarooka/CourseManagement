@@ -5,8 +5,6 @@ const RequestDeviceAccess = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         const { visitorId, userAgent } = req.body;
-        const visitorId2 = req.headers["x-device-id"];
-        console.log("visitorId2: ", visitorId2);
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
