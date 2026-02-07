@@ -101,7 +101,6 @@ const getAllDevicesRequests = async (page, limit, filter) => {
     const skip = (page - 1) * limit;
 
     const query = {};
-
     if (filter === "blocked") {
         query["user.isBlocked"] = true;
     } else if (filter !== "all") {
@@ -110,19 +109,31 @@ const getAllDevicesRequests = async (page, limit, filter) => {
 
     const [requests, totalCount] = await Promise.all([
         Request.find(query)
-            .populate("user", "name email isBlocked allowedDevices")
+            .populate("user", "name email isBlocked")
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 }),
-
         Request.countDocuments(query)
     ]);
 
+    const userIds = requests.map(req => req.user?._id).filter(Boolean);
+    const devices = await UserAllowedDevice.find({ user: { $in: userIds } }).lean();
+
+    const userDevicesMap = {};
+    devices.forEach(d => {
+        userDevicesMap[d.user.toString()] = d.allowedDevices || [];
+    });
+
     const mappedRequests = requests.map(req => {
         const reqObj = req.toObject();
+        const userIdStr = reqObj.user?._id.toString();
+
+        reqObj.user.allowedDevices = userDevicesMap[userIdStr] || [];
+
         if (reqObj.user?.isBlocked) {
             reqObj.status = "blocked";
         }
+
         return reqObj;
     });
 
@@ -133,6 +144,7 @@ const getAllDevicesRequests = async (page, limit, filter) => {
         totalCount
     };
 };
+
 
 
 const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
@@ -175,10 +187,6 @@ const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
 
     return { request };
 };
-
-
-
-
 
 const blockUser = async (userId) => {
     const user = await User.findById(userId);

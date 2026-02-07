@@ -12,33 +12,44 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
 
     const [selectedExam, setSelectedExam] = useState(null);
     const [limit, setLimit] = useState("");
-    const [totalQuestions, setTotalQuestions] = useState(0);
+    const [standardTotal, setStandardTotal] = useState(0);
+    const [megaTotal, setMegaTotal] = useState(0);
 
     const isStandardAvailable = Boolean(part?.standard);
     const isMegaAvailable = Boolean(part?.mega?.length);
 
-
-    const fetchTotalQuestions = async () => {
+    const fetchStandardQuestions = async () => {
         try {
             dispatch(ShowLoading());
-            const res = await questionService.CountQuestionsInPart({ courseId, partId });
-            setTotalQuestions(res.totalQuestions || 0);
+            const res = await questionService.CountStandardReviewQuestions({ courseId, partId });
+            setStandardTotal(res.totalQuestions || 0);
         } catch (error) {
-            message.error(error?.response?.data?.error || "Failed to fetch question count");
+            message.error(error?.response?.data?.error || "Failed to fetch Standard review question count");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
+    const fetchMegaQuestions = async () => {
+        try {
+            dispatch(ShowLoading());
+            const res = await questionService.CountMegaReviewQuestions({ courseId, partId });
+            setMegaTotal(res.totalQuestions || 0);
+        } catch (error) {
+            message.error(error?.response?.data?.error || "Failed to fetch Mega review question count");
         } finally {
             dispatch(HideLoading());
         }
     };
 
     useEffect(() => {
-        if (isMegaAvailable) {
-            fetchTotalQuestions();
-        }
-    }, [courseId, partId, dispatch, isMegaAvailable]);
+        if (isStandardAvailable) fetchStandardQuestions();
+        if (isMegaAvailable) fetchMegaQuestions();
+    }, [courseId, partId, isStandardAvailable, isMegaAvailable]);
 
     const handleExamSelect = (examType) => {
         setSelectedExam(examType);
-        if (examType === "standard") setLimit("");
+        setLimit("");
     };
 
     const handleUpdate = () => {
@@ -47,17 +58,17 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
             return;
         }
 
-        if (selectedExam === "mega") {
-            const numericLimit = Number(limit);
-            if (!numericLimit || numericLimit <= 0) {
-                message.warning("Please enter a valid number of questions for Mega Review");
-                return;
-            }
+        const maxQuestions = selectedExam === "standard" ? standardTotal : megaTotal;
+        const numericLimit = Number(limit);
 
-            if (numericLimit > totalQuestions) {
-                message.warning(`You can select a maximum of ${totalQuestions} questions for this part`);
-                return;
-            }
+        if (!numericLimit || numericLimit <= 0) {
+            message.warning(`Please enter a valid number of questions for ${selectedExam === "standard" ? "Standard" : "Mega"} Review`);
+            return;
+        }
+
+        if (numericLimit > maxQuestions) {
+            message.warning(`You can select a maximum of ${maxQuestions} questions for this part`);
+            return;
         }
 
         navigate("/quiz", {
@@ -66,7 +77,7 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
                 courseId,
                 partId,
                 examType: selectedExam,
-                ...(selectedExam === "mega" && { limit: Number(limit) }),
+                limit: numericLimit,
                 timeRatio,
             }
         });
@@ -89,10 +100,25 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
                 </span>
                 <span className="pkg-title">Standard Review Package</span>
             </div>
+
+            {selectedExam === "standard" && isStandardAvailable && (
+                <div className="limit-input">
+                    <label className="label">Number of Questions (Max {standardTotal})</label>
+                    <input
+                        type="number"
+                        min="1"
+                        max={standardTotal}
+                        value={limit}
+                        onChange={(e) => setLimit(e.target.value)}
+                        placeholder="Enter question limit"
+                        className="input"
+                    />
+                </div>
+            )}
+
             <div className="description">
                 Standard review uses a predefined set of questions from the assigned publisher.
             </div>
-
 
             <div
                 className={`package ${selectedExam === "mega" ? "selected" : ""} ${!isMegaAvailable ? "disabled" : ""}`}
@@ -111,11 +137,11 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
 
             {selectedExam === "mega" && (
                 <div className="limit-input">
-                    <label className="label">Number of Questions (Max {totalQuestions})</label>
+                    <label className="label">Number of Questions (Max {megaTotal})</label>
                     <input
                         type="number"
                         min="1"
-                        max={totalQuestions}
+                        max={megaTotal}
                         value={limit}
                         onChange={(e) => setLimit(e.target.value)}
                         placeholder="Enter question limit"
@@ -128,15 +154,13 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
                 Mega review randomly mixes questions from multiple publishers.
             </div>
 
-
-
             <div className="buttons-container">
                 <button
                     className="button update"
                     onClick={handleUpdate}
                     disabled={
                         (selectedExam === "standard" && !isStandardAvailable) ||
-                        (selectedExam === "mega" && (!isMegaAvailable || totalQuestions === 0))
+                        (selectedExam === "mega" && (!isMegaAvailable || megaTotal === 0))
                     }
                 >
                     Start Exam

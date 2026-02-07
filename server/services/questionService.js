@@ -881,7 +881,7 @@ const FetchPracticeExamQuestions = async ({
 };
 
 
-const FetchStandardReviewQuestions = async ({ courseId, partId, page = 1 }) => {
+const FetchStandardReviewQuestions = async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20 }) => {
     try {
         const course = await Course.findOne(
             { _id: courseId, "parts._id": partId },
@@ -903,16 +903,17 @@ const FetchStandardReviewQuestions = async ({ courseId, partId, page = 1 }) => {
 
         const allQuestions = await Question.find(matchQuery).lean();
 
-        const pageSize = 20;
-        const totalPages = Math.ceil(allQuestions.length / pageSize);
-        const paginatedQuestions = allQuestions.slice((page - 1) * pageSize, page * pageSize);
+        const limitedQuestions = allQuestions.slice(0, userLimit);
+
+        const totalPages = Math.ceil(limitedQuestions.length / pageSize);
+        const paginatedQuestions = limitedQuestions.slice((page - 1) * pageSize, page * pageSize);
 
         return {
             success: true,
             packageType: "standard",
             data: paginatedQuestions,
             pagination: {
-                total: allQuestions.length,
+                total: limitedQuestions.length,
                 limit: pageSize,
                 totalPages,
                 page
@@ -1053,27 +1054,68 @@ const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1,
     }
 };
 
-
-const CountQuestionsInPart = async ({ courseId, partId }) => {
+const CountStandardReviewQuestions = async ({ courseId, partId }) => {
     try {
         const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
         const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
 
+        const course = await Course.findOne(
+            { _id: courseObjId, "parts._id": partObjId },
+            { "parts.$": 1 }
+        ).lean();
+
+        if (!course || !course.parts.length) throw new Error("Part not found");
+
+        const part = course.parts[0];
+        const standardPublisher = part.publishers.find(p => p.name === part.standard);
+
+        if (!standardPublisher) throw new Error("Standard publisher not found in this part");
 
         const totalQuestions = await Question.countDocuments({
             course: courseObjId,
-            part: partObjId
+            part: partObjId,
+            publisher: standardPublisher._id
         });
 
-        return {
-            success: true,
-            totalQuestions,
-        };
-
+        return { success: true, totalQuestions };
     } catch (error) {
         throw error;
     }
 };
+
+const CountMegaReviewQuestions = async ({ courseId, partId }) => {
+    try {
+        const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
+        const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
+
+        const course = await Course.findOne(
+            { _id: courseObjId, "parts._id": partObjId },
+            { "parts.$": 1 }
+        ).lean();
+
+        if (!course || !course.parts.length) throw new Error("Part not found");
+
+        const part = course.parts[0];
+        if (!part.mega || !part.mega.length) throw new Error("Mega publishers not configured for this part");
+
+        const megaPublisherIds = part.mega
+            .map(name => part.publishers.find(p => p.name === name)?._id)
+            .filter(Boolean);
+
+        if (!megaPublisherIds.length) throw new Error("No valid mega publishers found");
+
+        const totalQuestions = await Question.countDocuments({
+            course: courseObjId,
+            part: partObjId,
+            publisher: { $in: megaPublisherIds }
+        });
+
+        return { success: true, totalQuestions };
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 
 
@@ -1094,5 +1136,6 @@ module.exports = {
     FetchPracticeExamQuestions,
     FetchStandardReviewQuestions,
     FetchMegaReviewQuestions,
-    CountQuestionsInPart,
+    CountStandardReviewQuestions,
+    CountMegaReviewQuestions
 };

@@ -44,6 +44,7 @@ const Quiz = () => {
     const [totalQuestions, setTotalQuestions] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
+    const [firstAnswers, setFirstAnswers] = useState({});
     const [time, setTime] = useState(QUIZ_TIME);
     const [showTimeUpModal, setShowTimeUpModal] = useState(false);
     const [showExitModal, setShowExitModal] = useState(false);
@@ -53,7 +54,6 @@ const Quiz = () => {
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
             if (loadedPages.has(pageToFetch)) {
-                console.log(`Page ${pageToFetch} already loaded, skipping`);
                 return;
             }
 
@@ -75,6 +75,7 @@ const Quiz = () => {
                     res = await questionService.fetchStandardReviewQuestions({
                         courseId,
                         partId,
+                        userLimit: limit,
                         page: pageToFetch,
                         limit: PAGE_SIZE
                     });
@@ -207,6 +208,13 @@ const Quiz = () => {
     };
 
     const handleAnswerSelect = (key, value) => {
+        if ((source === 'unit-exam' || source === 'package-exam') && !firstAnswers[key]) {
+            setFirstAnswers(prev => ({
+                ...prev,
+                [key]: value,
+            }));
+        }
+
         setAnswers(prev => ({
             ...prev,
             [key]: value,
@@ -358,12 +366,15 @@ const Quiz = () => {
     const correctCount = useMemo(() => {
         let totalCorrect = 0;
 
+        // Use firstAnswers for unit-exam and package-exam, otherwise use answers
+        const scoreAnswers = (source === 'unit-exam' || source === 'package-exam') ? firstAnswers : answers;
+
         questions.forEach(q => {
             if (!q) return;
 
             if (q.type === "mcq") {
                 const key = `mcq:${q._id}`;
-                if (answers[key] !== undefined && answers[key] === q.correctOption) {
+                if (scoreAnswers[key] !== undefined && scoreAnswers[key] === q.correctOption) {
                     totalCorrect += 1;
                 }
             }
@@ -376,12 +387,13 @@ const Quiz = () => {
 
                 q.subquestions?.forEach((sub, i) => {
                     const key = `rapid:${q._id}:${i}`;
-                    if (answers[key] !== undefined && answers[key] === sub.correctOption) {
+                    if (scoreAnswers[key] !== undefined && scoreAnswers[key] === sub.correctOption) {
                         totalCorrect += weightPerSub;
                     }
                 });
             }
 
+            // Essay questions remain the same as they use ratings
             if (q.type === "essay") {
                 const totalSubs = q.subquestions?.length || 0;
                 if (totalSubs === 0) return;
@@ -392,7 +404,6 @@ const Quiz = () => {
                     const ratingKey = `essay:${q._id}:${i}:rating`;
                     const rating = answers[ratingKey];
                     if (rating !== undefined) {
-                        // Rating is out of 5, so we calculate the percentage and multiply by weight
                         totalCorrect += (rating / 5) * weightPerSub;
                     }
                 });
@@ -400,17 +411,18 @@ const Quiz = () => {
         });
 
         return Math.round(totalCorrect * 100) / 100;
-    }, [questions, answers]);
+    }, [questions, answers, firstAnswers, source]);
 
     const incorrectCount = useMemo(() => {
         let totalIncorrect = 0;
+        const scoreAnswers = (source === 'unit-exam' || source === 'package-exam') ? firstAnswers : answers;
 
         questions.forEach(q => {
             if (!q) return;
 
             if (q.type === "mcq") {
                 const key = `mcq:${q._id}`;
-                if (answers[key] !== undefined && answers[key] !== q.correctOption) {
+                if (scoreAnswers[key] !== undefined && scoreAnswers[key] !== q.correctOption) {
                     totalIncorrect += 1;
                 }
             }
@@ -423,7 +435,7 @@ const Quiz = () => {
 
                 q.subquestions?.forEach((sub, i) => {
                     const key = `rapid:${q._id}:${i}`;
-                    if (answers[key] !== undefined && answers[key] !== sub.correctOption) {
+                    if (scoreAnswers[key] !== undefined && scoreAnswers[key] !== sub.correctOption) {
                         totalIncorrect += weightPerSub;
                     }
                 });
@@ -439,7 +451,6 @@ const Quiz = () => {
                     const ratingKey = `essay:${q._id}:${i}:rating`;
                     const rating = answers[ratingKey];
                     if (rating !== undefined) {
-                        // Incorrect portion is (5 - rating) / 5 * weight
                         totalIncorrect += ((5 - rating) / 5) * weightPerSub;
                     }
                 });
@@ -447,8 +458,7 @@ const Quiz = () => {
         });
 
         return Math.round(totalIncorrect * 100) / 100;
-    }, [questions, answers]);
-
+    }, [questions, answers, firstAnswers, source]);
 
     const unansweredCount = totalQuestions - answeredQuestionsCount;
 
@@ -610,6 +620,7 @@ const Quiz = () => {
                             question={currentQuestion}
                             questionIndex={currentIndex}
                             selectedOption={answers[`mcq:${currentQuestion._id}`]}
+                            firstSelectedAnswer={firstAnswers[`mcq:${currentQuestion._id}`]}
                             onAnswerSelect={handleAnswerSelect}
                             onNext={nextQuestion}
                             onBack={prevQuestion}
@@ -626,6 +637,7 @@ const Quiz = () => {
                         <Rapid
                             data={currentQuestion}
                             selectedAnswers={answers}
+                            firstSelectedAnswers={firstAnswers}
                             onAnswerSelect={handleAnswerSelect}
                             onNext={nextQuestion}
                             onBack={prevQuestion}

@@ -150,12 +150,22 @@ router.post(
 );
 
 router.post(
-    '/get-total-question-in-part',
+    "/get-total-standard-review-questions",
     authMiddleware.authenticateRequest,
     authMiddleware.verifyPayment,
     authMiddleware.requirePayment,
     authMiddleware.verifyDevice("strict"),
-    controller.CountQuestionsInPart
-)
+    controller.CountStandardReviewQuestions
+);
+
+router.post(
+    "/get-total-mega-review-questions",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyPayment,
+    authMiddleware.requirePayment,
+    authMiddleware.verifyDevice("strict"),
+    controller.CountMegaReviewQuestions
+);
+
 
 module.exports = router;

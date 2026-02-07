@@ -257,15 +257,16 @@ const questionService = {
         }
     },
 
-    fetchStandardReviewQuestions: async ({ courseId, partId, limit = 20, page = 1 }) => {
+    fetchStandardReviewQuestions: async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20 }) => {
         try {
             const response = await axiosInstance.post(
                 `${BASE_URL}/fetch-standard-package-questions`,
                 {
                     courseId,
                     partId,
-                    limit,
-                    page
+                    userLimit,
+                    page,
+                    pageSize
                 }
             );
             return response.data;
@@ -292,10 +293,25 @@ const questionService = {
         }
     },
 
-    CountQuestionsInPart: async ({ courseId, partId }) => {
+    CountStandardReviewQuestions: async ({ courseId, partId }) => {
         try {
             const response = await axiosInstance.post(
-                `${BASE_URL}/get-total-question-in-part`,
+                `${BASE_URL}/get-total-standard-review-questions`,
+                {
+                    courseId,
+                    partId,
+                }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    CountMegaReviewQuestions: async ({ courseId, partId }) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/get-total-mega-review-questions`,
                 {
                     courseId,
                     partId,

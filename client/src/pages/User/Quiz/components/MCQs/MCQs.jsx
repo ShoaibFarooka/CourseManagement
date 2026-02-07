@@ -15,12 +15,21 @@ const MCQs = ({
     isMarked = false,
     onToggleMark,
     source,
+    firstSelectedAnswer,
 }) => {
     const [localSelection, setLocalSelection] = useState(selectedOption || "");
 
     useEffect(() => {
         setLocalSelection(selectedOption || "");
     }, [selectedOption]);
+
+
+    useEffect(() => {
+        const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
+        if (isUnitOrPackageExam && firstSelectedAnswer) {
+            setLocalSelection(firstSelectedAnswer);
+        }
+    }, [question._id, firstSelectedAnswer, source]);
 
     const handleOptionClick = (optKey) => {
         setLocalSelection(optKey);
@@ -33,24 +42,27 @@ const MCQs = ({
 
     const optionKeys = question.options ? Object.keys(question.options) : [];
     const showExplanations = source === "unit-exam" || source === "package-exam";
+    const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
 
     const getOptionClass = (optKey) => {
-        if (!localSelection) return "";
+        if (isUnitOrPackageExam) {
+            const isFirstSelected = firstSelectedAnswer === optKey;
+            const isCurrentlySelected = localSelection === optKey;
 
-        if (source === "practice-exam") {
-            return localSelection === optKey ? "selected" : "";
-        }
-
-        if (localSelection === optKey) {
-            if (optKey === question.correctOption) {
-                return "selected correct";
-            } else {
-                return "selected incorrect";
+            if (isFirstSelected || isCurrentlySelected) {
+                if (optKey === question.correctOption) {
+                    return "selected";
+                } else {
+                    return "selected incorrect";
+                }
             }
-        }
-        return "";
-    };
 
+            return "";
+        }
+
+        if (!localSelection) return "";
+        return localSelection === optKey ? "selected" : "";
+    };
 
     return (
         <div className="question-section">

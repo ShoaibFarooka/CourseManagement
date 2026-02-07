@@ -320,7 +320,7 @@ const FetchPracticeExamQuestions = async (req, res, next) => {
 
 const FetchStandardReviewPackageQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId, limit, page } = req.body;
+        const { courseId, partId, userLimit, page, pageSize } = req.body;
 
         if (!courseId || !partId) {
             return res.status(400).json({
@@ -329,11 +329,19 @@ const FetchStandardReviewPackageQuestions = async (req, res, next) => {
             });
         }
 
+        if (!userLimit || userLimit <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "userLimit is required for mega review package"
+            });
+        }
+
         const result = await questionService.FetchStandardReviewQuestions({
             courseId,
             partId,
+            userLimit,
             page: page || 1,
-            limit: limit || 20,
+            pageSize: pageSize || 20
         });
 
         return res.status(200).json({
@@ -371,8 +379,8 @@ const FetchMegaReviewPackageQuestions = async (req, res, next) => {
             courseId,
             partId,
             userLimit,
-            page,
-            pageSize
+            page: page || 1,
+            pageSize: pageSize || 20,
         });
 
         return res.status(200).json({
@@ -387,10 +395,9 @@ const FetchMegaReviewPackageQuestions = async (req, res, next) => {
     }
 };
 
-const CountQuestionsInPart = async (req, res, next) => {
+const CountStandardReviewQuestions = async (req, res, next) => {
     try {
         const { courseId, partId } = req.body;
-
         if (!courseId || !partId) {
             return res.status(400).json({
                 success: false,
@@ -398,18 +405,29 @@ const CountQuestionsInPart = async (req, res, next) => {
             });
         }
 
-        const result = await questionService.CountQuestionsInPart({
-            courseId,
-            partId
-        });
-
+        const result = await questionService.CountStandardReviewQuestions({ courseId, partId });
         res.status(200).json(result);
-
     } catch (error) {
         next(error);
     }
 };
 
+const CountMegaReviewQuestions = async (req, res, next) => {
+    try {
+        const { courseId, partId } = req.body;
+        if (!courseId || !partId) {
+            return res.status(400).json({
+                success: false,
+                message: "courseId and partId are required"
+            });
+        }
+
+        const result = await questionService.CountMegaReviewQuestions({ courseId, partId });
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
 
 
 
@@ -431,5 +449,6 @@ module.exports = {
     FetchPracticeExamQuestions,
     FetchStandardReviewPackageQuestions,
     FetchMegaReviewPackageQuestions,
-    CountQuestionsInPart,
+    CountStandardReviewQuestions,
+    CountMegaReviewQuestions,
 };

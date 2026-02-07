@@ -40,7 +40,9 @@ const UnitExams = () => {
                     groupedCourses[item.courseId].parts.push({
                         id: item.partId,
                         name: item.partName,
-                        publishers: item.publishers || []
+                        publishers: (item.publishers || []).filter(
+                            (publisher) => publisher.name !== item.standard
+                        )
                     });
                 }
             });

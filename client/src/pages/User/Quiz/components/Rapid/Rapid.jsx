@@ -14,8 +14,11 @@ const Rapid = ({
     isMarked = false,
     onToggleMark,
     source,
+    firstSelectedAnswers = {},
 }) => {
     const [activeSubIndex, setActiveSubIndex] = useState(0);
+    const [localSelections, setLocalSelections] = useState({});
+
     const concept = data;
     const subquestions = concept?.subquestions || [];
 
@@ -51,30 +54,61 @@ const Rapid = ({
         setActiveSubIndex(targetIndex);
     }, [concept._id]);
 
-    const localSelection = selectedAnswers[answerKey] || "";
+    // Initialize local selections from selected answers
+    useEffect(() => {
+        const newLocalSelections = {};
+        subquestions.forEach((_, i) => {
+            const key = `rapid:${concept._id}:${i}`;
+            newLocalSelections[key] = selectedAnswers[key] || "";
+        });
+        setLocalSelections(newLocalSelections);
+    }, [concept._id, selectedAnswers]);
+
+    // Reset localSelection to firstSelectedAnswer when activeSubIndex changes (for unit/package exams)
+    useEffect(() => {
+        const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
+        if (isUnitOrPackageExam && firstSelectedAnswers[answerKey]) {
+            setLocalSelections(prev => ({
+                ...prev,
+                [answerKey]: firstSelectedAnswers[answerKey]
+            }));
+        }
+    }, [activeSubIndex, answerKey, firstSelectedAnswers, source]);
+
+    const localSelection = localSelections[answerKey] || "";
+    const firstSelection = firstSelectedAnswers[answerKey];
     const showExplanations = source === "unit-exam" || source === "package-exam";
+    const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
 
     const optionKeys = Object.keys(subquestion.options || {});
 
     const handleOptionClick = (optKey) => {
+        setLocalSelections(prev => ({
+            ...prev,
+            [answerKey]: optKey
+        }));
         onAnswerSelect(answerKey, optKey);
     };
 
     const getOptionClass = (optKey) => {
-        if (!localSelection) return "";
+        if (isUnitOrPackageExam) {
+            const isFirstSelected = firstSelection === optKey;
+            const isCurrentlySelected = localSelection === optKey;
 
-        if (source === "practice-exam") {
-            return localSelection === optKey ? "selected" : "";
-        }
-
-        if (localSelection === optKey) {
-            if (optKey === question.correctOption) {
-                return "selected correct";
-            } else {
-                return "selected incorrect";
+            if (isFirstSelected || isCurrentlySelected) {
+                if (optKey === subquestion.correctOption) {
+                    return "selected";
+                } else {
+                    return "selected incorrect";
+                }
             }
+
+            return "";
         }
-        return "";
+
+        // Practice exam behavior (original)
+        if (!localSelection) return "";
+        return localSelection === optKey ? "selected" : "";
     };
 
     const handleNextClick = () => {
