@@ -99,6 +99,20 @@
     }
 }
 
+@media only screen and (max-width:835px) {
+    .admin-footer .footer-logo .image-1 img {
+        width: 40px;
+    }
+
+    .admin-footer .footer-logo .image-2 img {
+        width: 60px;
+    }
+}
+
+
+
+
+
 @media only screen and (max-width:400px) {
     .admin-footer .container .footer-links {
         padding-left: 0px;

@@ -687,9 +687,9 @@ textarea:focus {
 
 @media only screen and (max-width: 835px) {
   .login-button {
-    font-size: 0.9rem;
-    padding: 7px 20px;
-    border-radius: 24px;
+    font-size: 0.8rem;
+    padding: 5px 15px;
+    border-radius: 15px;
   }
 }
 
@@ -697,8 +697,6 @@ textarea:focus {
 @media only screen and (max-width: 575px) {
   .login-button {
     font-size: 0.8rem;
-    padding: 6px 17px;
-    border-radius: 20px;
   }
 }
 

@@ -123,6 +123,7 @@ const fetchUser = async (userId) => {
     isBlocked: 1,
     role: 1,
     image: 1,
+    language: 1,
   };
   const user = await User.findById(userId, userProjection);
   if (!user) {
@@ -130,6 +131,7 @@ const fetchUser = async (userId) => {
     error.code = 404;
     throw error;
   }
+  user.language = user.language || 'eng';
   return user;
 };
 
@@ -183,7 +185,7 @@ const resetPassword = async (token, newPassword) => {
 };
 
 const updateUser = async (userId, updateData) => {
-  const allowedFields = ["name", "phone", "country"];
+  const allowedFields = ["name", "phone", "country", "language"];
   const updates = {};
 
   allowedFields.forEach((field) => {

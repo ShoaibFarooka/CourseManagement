@@ -149,13 +149,13 @@ const Rapid = ({
             </div>
 
             <div className="concept-info">
-                <div className="concept">{concept.concept}</div>
-                <p>{concept.definition}</p>
+                <div className="concept">{concept?.concept}</div>
+                <p>{concept?.definition}</p>
             </div>
 
             <div className="question-section">
                 <div className="question">
-                    {subquestion.question} ({activeSubIndex + 1}/{subquestions.length})
+                    {subquestion?.statement} ({activeSubIndex + 1}/{subquestions.length})
                 </div>
 
                 <div className="options">

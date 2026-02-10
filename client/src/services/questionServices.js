@@ -211,6 +211,7 @@ const questionService = {
         selectedSubunits = {},
         page = 1,
         limit = 20,
+        language = 'eng',
     }) => {
         try {
             const response = await axiosInstance.post(
@@ -222,7 +223,8 @@ const questionService = {
                     selectedUnits,
                     selectedSubunits,
                     page,
-                    limit
+                    limit,
+                    language,
                 }
             );
 
@@ -237,7 +239,8 @@ const questionService = {
         partId,
         examType,
         page,
-        limit
+        limit,
+        language = "eng",
     }) => {
         try {
             const response = await axiosInstance.post(
@@ -248,6 +251,7 @@ const questionService = {
                     examType,
                     page,
                     pageSize: limit,
+                    language,
                 }
             );
 
@@ -257,7 +261,7 @@ const questionService = {
         }
     },
 
-    fetchStandardReviewQuestions: async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20 }) => {
+    fetchStandardReviewQuestions: async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20, language = "eng" }) => {
         try {
             const response = await axiosInstance.post(
                 `${BASE_URL}/fetch-standard-package-questions`,
@@ -266,7 +270,8 @@ const questionService = {
                     partId,
                     userLimit,
                     page,
-                    pageSize
+                    pageSize,
+                    language,
                 }
             );
             return response.data;
@@ -275,7 +280,7 @@ const questionService = {
         }
     },
 
-    fetchMegaReviewQuestions: async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20 }) => {
+    fetchMegaReviewQuestions: async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20, language = "eng" }) => {
         try {
             const response = await axiosInstance.post(
                 `${BASE_URL}/fetch-mega-package-questions`,
@@ -284,7 +289,8 @@ const questionService = {
                     partId,
                     userLimit,
                     page,
-                    pageSize
+                    pageSize,
+                    language,
                 }
             );
             return response.data;
@@ -293,13 +299,14 @@ const questionService = {
         }
     },
 
-    CountStandardReviewQuestions: async ({ courseId, partId }) => {
+    CountStandardReviewQuestions: async ({ courseId, partId, language = "eng" }) => {
         try {
             const response = await axiosInstance.post(
                 `${BASE_URL}/get-total-standard-review-questions`,
                 {
                     courseId,
                     partId,
+                    language,
                 }
             );
             return response.data;
@@ -308,13 +315,14 @@ const questionService = {
         }
     },
 
-    CountMegaReviewQuestions: async ({ courseId, partId }) => {
+    CountMegaReviewQuestions: async ({ courseId, partId, language = "eng" }) => {
         try {
             const response = await axiosInstance.post(
                 `${BASE_URL}/get-total-mega-review-questions`,
                 {
                     courseId,
                     partId,
+                    language,
                 }
             );
             return response.data;

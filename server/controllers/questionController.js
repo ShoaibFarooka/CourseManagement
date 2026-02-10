@@ -259,7 +259,8 @@ const fetchQuestionsWithFilters = async (req, res, next) => {
             selectedUnits,
             selectedSubunits,
             page,
-            limit
+            limit,
+            language = 'eng',
         } = req.body;
 
         if (!publisherId || !selectedUnits || selectedUnits.length === 0) {
@@ -274,7 +275,8 @@ const fetchQuestionsWithFilters = async (req, res, next) => {
             selectedUnits,
             selectedSubunits,
             page,
-            limit
+            limit,
+            language,
         });
 
         res.status(200).json({
@@ -289,7 +291,7 @@ const fetchQuestionsWithFilters = async (req, res, next) => {
 
 const FetchPracticeExamQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId, examType, page, pageSize } = req.body;
+        const { courseId, partId, examType, page, pageSize, language = "eng" } = req.body;
 
         if (!courseId || !partId || !examType) {
             return res.status(400).json({
@@ -303,7 +305,8 @@ const FetchPracticeExamQuestions = async (req, res, next) => {
             partId,
             examType,
             page: page || 1,
-            pageSize: pageSize || 20
+            pageSize: pageSize || 20,
+            language: language || "eng"
         });
 
         res.status(200).json({
@@ -320,7 +323,7 @@ const FetchPracticeExamQuestions = async (req, res, next) => {
 
 const FetchStandardReviewPackageQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId, userLimit, page, pageSize } = req.body;
+        const { courseId, partId, userLimit, page, pageSize, language = "eng" } = req.body;
 
         if (!courseId || !partId) {
             return res.status(400).json({
@@ -341,7 +344,8 @@ const FetchStandardReviewPackageQuestions = async (req, res, next) => {
             partId,
             userLimit,
             page: page || 1,
-            pageSize: pageSize || 20
+            pageSize: pageSize || 20,
+            language,
         });
 
         return res.status(200).json({
@@ -359,7 +363,7 @@ const FetchStandardReviewPackageQuestions = async (req, res, next) => {
 
 const FetchMegaReviewPackageQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId, userLimit, page = 1, pageSize = 20 } = req.body;
+        const { courseId, partId, userLimit, page = 1, pageSize = 20, language = "eng" } = req.body;
 
         if (!courseId || !partId) {
             return res.status(400).json({
@@ -381,6 +385,7 @@ const FetchMegaReviewPackageQuestions = async (req, res, next) => {
             userLimit,
             page: page || 1,
             pageSize: pageSize || 20,
+            language,
         });
 
         return res.status(200).json({
@@ -397,7 +402,7 @@ const FetchMegaReviewPackageQuestions = async (req, res, next) => {
 
 const CountStandardReviewQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId } = req.body;
+        const { courseId, partId, language = "eng" } = req.body;
         if (!courseId || !partId) {
             return res.status(400).json({
                 success: false,
@@ -405,7 +410,7 @@ const CountStandardReviewQuestions = async (req, res, next) => {
             });
         }
 
-        const result = await questionService.CountStandardReviewQuestions({ courseId, partId });
+        const result = await questionService.CountStandardReviewQuestions({ courseId, partId, language });
         res.status(200).json(result);
     } catch (error) {
         next(error);
@@ -414,7 +419,7 @@ const CountStandardReviewQuestions = async (req, res, next) => {
 
 const CountMegaReviewQuestions = async (req, res, next) => {
     try {
-        const { courseId, partId } = req.body;
+        const { courseId, partId, language = "eng" } = req.body;
         if (!courseId || !partId) {
             return res.status(400).json({
                 success: false,
@@ -422,7 +427,7 @@ const CountMegaReviewQuestions = async (req, res, next) => {
             });
         }
 
-        const result = await questionService.CountMegaReviewQuestions({ courseId, partId });
+        const result = await questionService.CountMegaReviewQuestions({ courseId, partId, language });
         res.status(200).json(result);
     } catch (error) {
         next(error);

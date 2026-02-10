@@ -129,7 +129,10 @@ const userSlice = createSlice({
                 state.errors.user = null;
             })
             .addCase(fetchUserInfo.fulfilled, (state, action) => {
-                state.user = action.payload;
+                state.user = {
+                    ...action.payload,
+                    language: action.payload?.language || "eng"
+                };
                 state.loading.user = false;
             })
             .addCase(fetchUserInfo.rejected, (state, action) => {

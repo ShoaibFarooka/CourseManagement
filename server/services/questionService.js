@@ -723,12 +723,27 @@ const validateEssayQuestionsFile = async (filePath) => {
     };
 };
 
+const buildLanguageFilter = (language = "eng") => {
+    if (language === "eng") {
+        return {
+            $or: [
+                { language: "eng" },
+                { language: { $exists: false } },
+                { language: null }
+            ]
+        };
+    }
+    return { language };
+};
+
+
 const FetchQuestionsWithFilters = async ({
     publisherId,
     selectedUnits = [],
     selectedSubunits = {},
     page = 1,
     limit = 20,
+    language = "eng",
 }) => {
     const skip = (page - 1) * limit;
     const orConditions = [];
@@ -764,7 +779,8 @@ const FetchQuestionsWithFilters = async ({
 
     const query = {
         publisher: publisherObjectId,
-        $or: orConditions
+        $or: orConditions,
+        ...buildLanguageFilter(language)
     };
 
     const [questions, total] = await Promise.all([
@@ -791,7 +807,8 @@ const FetchPracticeExamQuestions = async ({
     partId,
     examType,
     page = 1,
-    pageSize = 20
+    pageSize = 20,
+    language = "eng",
 }) => {
     const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
     const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
@@ -831,7 +848,8 @@ const FetchPracticeExamQuestions = async ({
         const availableCount = await Question.countDocuments({
             course: courseObjId,
             part: partObjId,
-            publisher: pubId
+            publisher: pubId,
+            ...buildLanguageFilter(language)
         });
 
         if (availableCount === 0) continue;
@@ -852,7 +870,8 @@ const FetchPracticeExamQuestions = async ({
                 $match: {
                     course: courseObjId,
                     part: partObjId,
-                    publisher: pubId
+                    publisher: pubId,
+                    ...buildLanguageFilter(language)
                 }
             },
             { $sample: { size: allocation } }
@@ -881,7 +900,7 @@ const FetchPracticeExamQuestions = async ({
 };
 
 
-const FetchStandardReviewQuestions = async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20 }) => {
+const FetchStandardReviewQuestions = async ({ courseId, partId, userLimit = 20, page = 1, pageSize = 20, language = "eng" }) => {
     try {
         const course = await Course.findOne(
             { _id: courseId, "parts._id": partId },
@@ -899,6 +918,7 @@ const FetchStandardReviewQuestions = async ({ courseId, partId, userLimit = 20, 
             course: mongoose.Types.ObjectId.createFromHexString(courseId),
             part: mongoose.Types.ObjectId.createFromHexString(partId),
             publisher: standardPublisher._id,
+            ...buildLanguageFilter(language)
         };
 
         const allQuestions = await Question.find(matchQuery).lean();
@@ -927,7 +947,7 @@ const FetchStandardReviewQuestions = async ({ courseId, partId, userLimit = 20, 
 
 
 
-const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1, pageSize = 20 }) => {
+const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1, pageSize = 20, language = "eng" }) => {
     try {
         if (!userLimit || userLimit <= 0) throw new Error("Valid userLimit is required");
 
@@ -976,7 +996,8 @@ const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1,
                 const count = await Question.countDocuments({
                     course: courseObjId,
                     part: partObjId,
-                    publisher: pubId
+                    publisher: pubId,
+                    ...buildLanguageFilter(language)
                 });
                 return { pubId, count };
             })
@@ -1005,8 +1026,15 @@ const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1,
             if (toFetch <= 0) continue;
 
             const questions = await Question.aggregate([
-                { $match: { course: courseObjId, part: partObjId, publisher: pubId } },
-                { $sample: { size: toFetch } }
+                {
+                    $match: {
+                        course: courseObjId,
+                        part: partObjId,
+                        publisher: pubId,
+                        ...buildLanguageFilter(language)
+                    }
+                },
+                { $sample: { size: toFetch } },
             ]);
 
             allQuestions.push(...questions);
@@ -1020,8 +1048,15 @@ const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1,
 
                 const additionalNeeded = questionsNeeded - questionsFetched;
                 const questions = await Question.aggregate([
-                    { $match: { course: courseObjId, part: partObjId, publisher: pubId } },
-                    { $sample: { size: Math.min(additionalNeeded, count) } }
+                    {
+                        $match: {
+                            course: courseObjId,
+                            part: partObjId,
+                            publisher: pubId,
+                            ...buildLanguageFilter(language)
+                        }
+                    },
+                    { $sample: { size: Math.min(additionalNeeded, count) } },
                 ]);
 
                 const newQuestions = questions.filter(q =>
@@ -1054,7 +1089,7 @@ const FetchMegaReviewQuestions = async ({ courseId, partId, userLimit, page = 1,
     }
 };
 
-const CountStandardReviewQuestions = async ({ courseId, partId }) => {
+const CountStandardReviewQuestions = async ({ courseId, partId, language = "eng" }) => {
     try {
         const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
         const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
@@ -1074,7 +1109,8 @@ const CountStandardReviewQuestions = async ({ courseId, partId }) => {
         const totalQuestions = await Question.countDocuments({
             course: courseObjId,
             part: partObjId,
-            publisher: standardPublisher._id
+            publisher: standardPublisher._id,
+            ...buildLanguageFilter(language)
         });
 
         return { success: true, totalQuestions };
@@ -1083,7 +1119,7 @@ const CountStandardReviewQuestions = async ({ courseId, partId }) => {
     }
 };
 
-const CountMegaReviewQuestions = async ({ courseId, partId }) => {
+const CountMegaReviewQuestions = async ({ courseId, partId, language = "eng" }) => {
     try {
         const courseObjId = mongoose.Types.ObjectId.createFromHexString(courseId);
         const partObjId = mongoose.Types.ObjectId.createFromHexString(partId);
@@ -1107,7 +1143,8 @@ const CountMegaReviewQuestions = async ({ courseId, partId }) => {
         const totalQuestions = await Question.countDocuments({
             course: courseObjId,
             part: partObjId,
-            publisher: { $in: megaPublisherIds }
+            publisher: { $in: megaPublisherIds },
+            ...buildLanguageFilter(language)
         });
 
         return { success: true, totalQuestions };
