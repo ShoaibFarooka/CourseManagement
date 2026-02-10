@@ -85,6 +85,15 @@
 }
 
 @media only screen and (max-width: 835px) {
+
+    .admin-navbar .container .left .logo .image-1 {
+        width: 40px;
+    }
+
+    .admin-navbar .container .left .logo .image-2 {
+        width: 60px;
+    }
+
     .hamburger {
         display: block;
     }

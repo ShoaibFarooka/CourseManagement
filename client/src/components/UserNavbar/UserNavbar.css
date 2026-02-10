@@ -131,7 +131,7 @@
 
 .user-navbar .left .nav-list .link.active {
     text-decoration: underline;
-    text-decoration-thickness: 3px;
+    text-decoration-thickness: 1px;
     text-underline-offset: 6px;
 }
 
@@ -245,7 +245,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 20px;
     }
 
     .user-navbar .hamburger {
@@ -271,7 +271,7 @@
         right: -100%;
         height: 100vh;
         width: 70%;
-        max-width: 280px;
+        max-width: 180px;
         background-color: var(--primary-color);
         padding: 2rem 1.5rem;
         gap: 1.2rem;
@@ -373,12 +373,6 @@
 
     .user-navbar .logo .logo-link .image-2 {
         width: 60px;
-    }
-
-    .user-navbar .left .nav-list {
-        width: 80%;
-        max-width: 240px;
-        gap: 1rem;
     }
 
     .user-navbar .left .nav-list .link {

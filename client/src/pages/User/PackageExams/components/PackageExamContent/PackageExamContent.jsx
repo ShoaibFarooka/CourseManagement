@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PackageExamContent.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import questionService from "../../../../../services/questionServices";
 import { message } from "antd";
@@ -17,11 +17,12 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
 
     const isStandardAvailable = Boolean(part?.standard);
     const isMegaAvailable = Boolean(part?.mega?.length);
+    const language = useSelector(state => state.user?.user.language);
 
     const fetchStandardQuestions = async () => {
         try {
             dispatch(ShowLoading());
-            const res = await questionService.CountStandardReviewQuestions({ courseId, partId });
+            const res = await questionService.CountStandardReviewQuestions({ courseId, partId, language: language });
             setStandardTotal(res.totalQuestions || 0);
         } catch (error) {
             message.error(error?.response?.data?.error || "Failed to fetch Standard review question count");
@@ -33,7 +34,7 @@ const PackageExamContent = ({ courseId, partId, part, timeRatio }) => {
     const fetchMegaQuestions = async () => {
         try {
             dispatch(ShowLoading());
-            const res = await questionService.CountMegaReviewQuestions({ courseId, partId });
+            const res = await questionService.CountMegaReviewQuestions({ courseId, partId, language: language });
             setMegaTotal(res.totalQuestions || 0);
         } catch (error) {
             message.error(error?.response?.data?.error || "Failed to fetch Mega review question count");

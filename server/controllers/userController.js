@@ -152,6 +152,7 @@ const updateUser = async (req, res, next) => {
         name: updatedUser.name,
         phone: updatedUser.phone,
         country: updatedUser.country,
+        language: updateUser.language,
       },
     });
   } catch (error) {

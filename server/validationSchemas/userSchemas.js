@@ -58,6 +58,7 @@ const updateUserSchema = yup.object().shape({
     .matches(/^\+?\d{7,15}$/, "Invalid phone number")
     .optional(),
   country: yup.string().trim().optional(),
+  language: yup.string().trim().optional(),
 });
 
 module.exports = {

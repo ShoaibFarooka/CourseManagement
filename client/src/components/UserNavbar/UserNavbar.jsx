@@ -203,25 +203,29 @@ const UserNavbar = () => {
                             <button className="login-button"
                                 onClick={() => navigate('/login')}>Login</button>
                         ) : (
-                            <div className="profile-dropdown" ref={mobileProfileRef}>
-                                <img
-                                    src={user?.image ? `${baseURL}${user.image}` : Profile}
-                                    alt="Profile"
-                                    className="profile-pic"
-                                    onClick={() => setOpenMobileProfileDropdown(!openMobileProfileDropdown)}
-                                />
-                                <div className={`dropdown-menu ${openMobileProfileDropdown ? "open" : ""}`}>
-                                    <button
-                                        className='dropdown-item'
-                                        onClick={handleMobileProfileDropDown}>
-                                        Profile
-                                    </button>
-                                    <button
-                                        className="dropdown-item"
-                                        onClick={handleLogout}
-                                    >Logout</button>
+                            <>
+                                <button
+                                    className="login-button"
+                                    onClick={handleLogout}
+                                >Logout
+                                </button>
+                                <div className="profile-dropdown" ref={mobileProfileRef}>
+                                    <img
+                                        src={user?.image ? `${baseURL}${user.image}` : Profile}
+                                        alt="Profile"
+                                        className="profile-pic"
+                                        onClick={() => setOpenMobileProfileDropdown(!openMobileProfileDropdown)}
+                                    />
+                                    <div className={`dropdown-menu ${openMobileProfileDropdown ? "open" : ""}`}>
+                                        <button
+                                            className='dropdown-item'
+                                            onClick={handleMobileProfileDropDown}>
+                                            Profile
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            </>
+
                         )}
                     </div>
                 </div>
@@ -255,7 +259,8 @@ const UserNavbar = () => {
                             <button
                                 className="dropdown-item"
                                 onClick={handleLogout}
-                            >Logout</button>
+                            >Logout
+                            </button>
                         </div>
                     </div>
                 )}

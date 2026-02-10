@@ -94,9 +94,21 @@
 }
 
 .profile-container .profile-form .form-row .form-group label {
+    padding-left: 10px;
     margin-bottom: 5px;
     font-weight: bold;
     color: var(--text-color);
+}
+
+
+.profile-container .profile-form .form-row .form-group .select-language {
+    outline: none;
+    color: var(--text-color);
+    background-color: var(--unit-exams-bg);
+}
+
+.profile-container .profile-form .form-row .form-group .select-language:focus {
+    box-shadow: none;
 }
 
 .profile-container .profile-form .save-btn {

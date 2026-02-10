@@ -15,6 +15,7 @@ const Profile = () => {
         name: "",
         phone: "",
         country: "",
+        language: "eng",
     });
 
     const [profileImage, setProfileImage] = useState(null);
@@ -31,6 +32,7 @@ const Profile = () => {
                 name: user.name || "",
                 phone: user.phone ? user.phone.toString() : "",
                 country: user.country || "",
+                language: user.language || "eng",
             });
 
             if (user.image && user.image.trim() !== "") {
@@ -61,9 +63,14 @@ const Profile = () => {
     const validateForm = () => {
         const newErrors = {};
         const phoneRegex = /^[0-9]{7,15}$/;
+        const allowedLanguages = ["eng", "fr", "ar"];
 
         if (!formData.name.trim()) newErrors.name = "Username is required";
         if (!formData.country.trim()) newErrors.country = "Country is required";
+
+        if (!allowedLanguages.includes(formData.language)) {
+            newErrors.language = "Please select a valid language";
+        }
 
         const phoneStr = formData.phone ? formData.phone.toString() : "";
         if (!phoneStr.trim()) {
@@ -84,7 +91,8 @@ const Profile = () => {
         const hasFormChanged =
             formData.name !== user?.name ||
             (formData.phone || "") !== (user?.phone ? user.phone.toString() : "") ||
-            formData.country !== user?.country;
+            formData.country !== user?.country ||
+            formData.language !== (user?.language || "eng");
 
         const hasImageChanged = !!imageFile;
 
@@ -108,7 +116,6 @@ const Profile = () => {
 
             message.success("Profile updated successfully!");
         } catch (error) {
-            console.log(error);
             message.error(error.response?.data.message || "Something went wrong!");
         } finally {
             dispatch(HideLoading());
@@ -173,6 +180,22 @@ const Profile = () => {
                                 className="input"
                             />
                             {errors.phone && <span className="error-text">{errors.phone}</span>}
+                        </div>
+                        <div className="form-group">
+                            <label>Language</label>
+                            <select
+                                name="language"
+                                value={formData.language}
+                                onChange={handleChange}
+                                className="input select-language"
+                            >
+                                <option className="language-option" value="eng">English</option>
+                                <option className="language-option" value="fr">French</option>
+                                <option className="language-option" value="ar">Arabic</option>
+                            </select>
+                            {errors.language && (
+                                <span className="error-text">{errors.language}</span>
+                            )}
                         </div>
                     </div>
 

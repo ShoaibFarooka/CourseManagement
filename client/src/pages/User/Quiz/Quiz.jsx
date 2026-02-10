@@ -16,7 +16,7 @@ import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { message } from "antd";
 import questionService from "../../../services/questionServices";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const QUIZ_TIME = 300;
 
@@ -37,6 +37,8 @@ const Quiz = () => {
         limit,
         timeRatio,
     } = state || {};
+
+    const language = useSelector(state => state.user?.user.language);
 
     const [questions, setQuestions] = useState([]);
     const [loadedPages, setLoadedPages] = useState(new Set());
@@ -68,7 +70,8 @@ const Quiz = () => {
                     partId,
                     examType,
                     page: pageToFetch,
-                    limit: PAGE_SIZE
+                    limit: PAGE_SIZE,
+                    language: language,
                 });
             } else if (source === 'package-exam') {
                 if (examType === 'standard') {
@@ -77,7 +80,8 @@ const Quiz = () => {
                         partId,
                         userLimit: limit,
                         page: pageToFetch,
-                        limit: PAGE_SIZE
+                        limit: PAGE_SIZE,
+                        language: language,
                     });
                 } else if (examType === 'mega') {
                     res = await questionService.fetchMegaReviewQuestions({
@@ -85,7 +89,8 @@ const Quiz = () => {
                         partId,
                         userLimit: limit,
                         page: pageToFetch,
-                        pageSize: PAGE_SIZE
+                        pageSize: PAGE_SIZE,
+                        language: language,
                     });
                 } else {
                     throw new Error("Invalid package exam type");
@@ -99,6 +104,7 @@ const Quiz = () => {
                     selectedSubunits,
                     page: pageToFetch,
                     limit: PAGE_SIZE,
+                    language: language,
                 });
             }
 
@@ -613,6 +619,7 @@ const Quiz = () => {
                         marked={markedCount}
                         incorrect={incorrectCount}
                         unanswered={unansweredCount}
+                        source={source}
                     />
 
                     {currentQuestion?.type === "mcq" && (
