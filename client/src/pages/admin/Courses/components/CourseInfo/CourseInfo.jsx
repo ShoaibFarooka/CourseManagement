@@ -26,9 +26,9 @@ const CourseInfo = ({ courses = [], fetchAllCourses, onEdit }) => {
             <table className="table table-striped">
                 <thead>
                     <tr>
-                        <th><div className="heading-md">#</div></th>
-                        <th><div className="heading-md">Course Name</div></th>
-                        <th><div className="heading-md">Actions</div></th>
+                        <th><div className="heading-md table-h1">#</div></th>
+                        <th><div className="heading-md table-h1">Course Name</div></th>
+                        <th><div className="heading-md table-h2">Actions</div></th>
                     </tr>
                 </thead>
                 <tbody>

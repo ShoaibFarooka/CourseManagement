@@ -13,28 +13,6 @@
 }
 
 
-
-/* Add this NEW class for table-heavy modals */
-.modal.modal-with-tables {
-    transform: translate3d(-50%, -50%, 0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-/* Fix specifically for tables in these modals */
-.modal-with-tables .table-container {
-    overflow-x: auto;
-    overflow-y: visible;
-    border-radius: var(--radius);
-
-    isolation: isolate;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-}
-
-
 .overlay {
     background: rgba(155, 155, 173, 0.5);
     position: fixed;

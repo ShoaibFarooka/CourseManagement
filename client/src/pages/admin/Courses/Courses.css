@@ -10,3 +10,9 @@
     padding-bottom: 20px;
     margin-top: 50px;
 }
+
+@media only screen and (max-width:500px) {
+    .courses {
+        padding: 0 20px;
+    }
+}

@@ -59,6 +59,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         } finally {
             dispatch(HideLoading());
             setShowDevices(false);
+            setOverwriteMode(false);
         }
     };
 
@@ -74,6 +75,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         } finally {
             dispatch(HideLoading());
             setShowDevices(false);
+            setOverwriteMode(false);
         }
     };
 
@@ -100,6 +102,8 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             dispatch(ShowLoading());
             await deviceRequestService.overwriteDeviceRequest(currentRequest._id, { targetDeviceId });
             message.success("Device overwritten successfully");
+            setCurrentRequest(prev => ({ ...prev, status: "approved" }));
+
             await refreshRequestState();
         } catch (err) {
             console.log(err);
@@ -107,6 +111,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         } finally {
             dispatch(HideLoading());
             setShowDevices(false);
+            setOverwriteMode(false);
         }
     };
 
@@ -121,6 +126,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
         } finally {
             dispatch(HideLoading());
             setShowDevices(false);
+            setOverwriteMode(false);
         }
     };
 

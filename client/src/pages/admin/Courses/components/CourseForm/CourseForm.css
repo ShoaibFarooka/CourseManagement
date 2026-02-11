@@ -208,6 +208,7 @@
 @media only screen and (max-width:500px) {
     .add-course {
         padding: 50px 20px;
+        margin-left: 20px;
     }
 }
 
