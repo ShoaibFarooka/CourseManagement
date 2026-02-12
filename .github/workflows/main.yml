@@ -88,4 +88,4 @@ jobs:
         working-directory: /var/www/CourseManagement/server
 
       - name: Restart server
-        run: pm2 restart "course_server"
+        run: pm2 restart "course_server" --update-env
