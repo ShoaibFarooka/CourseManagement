@@ -88,5 +88,4 @@ jobs:
         working-directory: /var/www/CourseManagement/server
 
       - name: Restart server with PM2
-        run: |
-          sudo -u ubuntu bash -c "export HOME=/home/ubuntu; export PM2_HOME=\$HOME/.pm2; pm2 restart course_server --update-env"
+        run: export HOME=/root; export PM2_HOME=$HOME/.pm2; export PATH=$PATH:/usr/local/bin; pm2 restart course_server --update-env
