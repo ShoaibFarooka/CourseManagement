@@ -87,5 +87,6 @@ jobs:
         run: npm ci
         working-directory: /var/www/CourseManagement/server
 
-      - name: Restart server
-        run: pm2 restart "course_server" --update-env
+      - name: Restart server with PM2
+        run: |
+          sudo -u ubuntu bash -c "export HOME=/home/ubuntu; export PM2_HOME=\$HOME/.pm2; pm2 restart course_server --update-env"
