@@ -1,0 +1,91 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          # Replace with actual test command, e.g., npm test
+
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [22]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Sync project to /var/www/CourseManagement
+        run: |
+          rsync -av --delete --exclude-from='.rsyncignore' ./ /var/www/CourseManagement/
+          chown -R $USER:$USER /var/www/CourseManagement
+          echo "Code synced to /var/www/CourseManagement"
+
+      - name: Cache client dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/www/CourseManagement/client/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-client-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-client-
+
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: /var/www/CourseManagement/client
+
+      - name: Build client in temp directory
+        run: npm run build
+        working-directory: /var/www/CourseManagement/client
+
+      - name: Move built client files from temp_build to dist
+        run: |
+          rsync -av /var/www/CourseManagement/client/temp_build/ /var/www/CourseManagement/client/dist/
+          rm -rf /var/www/CourseManagement/client/temp_build
+        working-directory: /var/www/CourseManagement/client
+
+      - name: Cache server dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/www/CourseManagement/server/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-server-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-server-
+
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: /var/www/CourseManagement/server
+
+      - name: Restart server with PM2
+        run: export HOME=/root; export PM2_HOME=$HOME/.pm2; export PATH=$PATH:/usr/local/bin; pm2 restart course_server --update-env
