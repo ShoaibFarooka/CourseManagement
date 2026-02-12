@@ -1,0 +1,22 @@
+# Client-side ignores
+client/.env
+client/node_modules/
+client/dist/
+
+# Server-side ignores
+server/node_modules/
+server/configs/.env
+
+# Common to all environments
+*.log
+*.tmp
+*.swp
+.env
+.DS_Store
+Thumbs.db
+
+# Optional: exclude build artifacts and OS-specific junk
+build/
+dist/
+.cache/
+coverage/
