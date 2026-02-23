@@ -66,6 +66,8 @@
     font-size: 2rem;
     text-align: center;
     letter-spacing: 1px;
+    color: var(--text-color);
+    font-weight: 700;
 }
 
 .profile-container .profile-form .form-row {
