@@ -11,9 +11,11 @@ import deviceRequestService from "../../../services/deviceRequestService";
 import paymentRequestService from "../../../services/paymentRequestService";
 import courseService from "../../../services/courseService";
 import { getBasicDeviceInfo } from "../../../utilis/deviceInfoUtils";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const { currentDeviceStatus, purchasedCourses, user } = useSelector(
         state => state.user
@@ -177,11 +179,26 @@ const Dashboard = () => {
         }
     };
 
+    const handleClickProfileImage = () => {
+        navigate('/profile');
+    }
+
     return (
         <div className="dashboard-container">
-            <div className="profile-circle">
+            <div
+                className="profile-circle"
+                onClick={handleClickProfileImage}
+            >
                 <img src={user?.image ? `${baseURL}${user.image}` : profile} alt="User" className="profile-image" />
             </div>
+
+            <div
+                className="user-name"
+                onClick={handleClickProfileImage}
+            >
+                {user?.name}
+            </div>
+
 
             <div className="device-request">
                 {currentDeviceStatus ? (

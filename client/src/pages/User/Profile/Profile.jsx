@@ -6,6 +6,7 @@ import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import userService from '../../../services/userServices';
 import { message } from 'antd';
 import Profileimg from '../../../assets/images/Profile.jpg';
+import { fetchUserInfo, checkCurrentDeviceStatus } from '../../../redux/userSlice';
 
 const Profile = () => {
     const dispatch = useDispatch();
@@ -119,6 +120,8 @@ const Profile = () => {
             message.error(error.response?.data.message || "Something went wrong!");
         } finally {
             dispatch(HideLoading());
+            dispatch(fetchUserInfo());
+            dispatch(checkCurrentDeviceStatus());
         }
     };
 
@@ -182,7 +185,7 @@ const Profile = () => {
                             {errors.phone && <span className="error-text">{errors.phone}</span>}
                         </div>
                         <div className="form-group">
-                            <label>Language</label>
+                            <label>Course Language</label>
                             <select
                                 name="language"
                                 value={formData.language}

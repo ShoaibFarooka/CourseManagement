@@ -45,6 +45,15 @@
     color: var(--text-color);
 }
 
+.menu-item.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.menu-item.locked:hover {
+    opacity: 0.5;
+}
+
 .arrow-icon {
     margin-left: 8px;
     color: var(--text-color);
