@@ -31,7 +31,7 @@ const ProgressReport = () => {
 
 
     const handleClickRetake = () => {
-        navigate(`/${source}s`);
+        navigate(`/dashboard/${source}s`);
     }
 
     return (

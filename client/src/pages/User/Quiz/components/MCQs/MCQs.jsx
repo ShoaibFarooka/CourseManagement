@@ -115,11 +115,10 @@ const MCQs = ({
                     Back
                 </button>
 
-                {isLastQuestion && (
-                    <button className="submit-btn" onClick={handleSubmitClick}>
-                        Submit
-                    </button>
-                )}
+
+                <button className="submit-btn" onClick={handleSubmitClick}>
+                    Submit
+                </button>
 
                 <button
                     onClick={onNext}

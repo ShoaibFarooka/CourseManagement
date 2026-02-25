@@ -181,11 +181,11 @@ const Essay = ({
                         Back
                     </button>
 
-                    {isLastQuestion && activeSubIndex === subquestions.length - 1 && (
-                        <button className="submit-btn" onClick={handleSubmitClick}>
-                            Submit
-                        </button>
-                    )}
+
+                    <button className="submit-btn" onClick={handleSubmitClick}>
+                        Submit
+                    </button>
+
 
                     <button
                         className="nav-btn"
