@@ -59,7 +59,28 @@ const getAllQuestions = async ({
     };
 };
 
+const deleteAllQuestionsBySubunit = async ({
+    course,
+    part,
+    publisher,
+    unit,
+    subunit
+}) => {
 
+    const filter = {
+        course: mongoose.Types.ObjectId.createFromHexString(course),
+        part: mongoose.Types.ObjectId.createFromHexString(part),
+        publisher: mongoose.Types.ObjectId.createFromHexString(publisher),
+        unit: mongoose.Types.ObjectId.createFromHexString(unit),
+        subunit: mongoose.Types.ObjectId.createFromHexString(subunit),
+    };
+
+    const result = await Question.deleteMany(filter);
+
+    return {
+        deletedCount: result.deletedCount
+    };
+};
 
 const addQuestion = async (data) => {
     try {
@@ -1250,5 +1271,6 @@ module.exports = {
     FetchStandardReviewQuestions,
     FetchMegaReviewQuestions,
     CountStandardReviewQuestions,
-    CountMegaReviewQuestions
+    CountMegaReviewQuestions,
+    deleteAllQuestionsBySubunit,
 };

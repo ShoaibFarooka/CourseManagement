@@ -149,6 +149,19 @@ const userService = {
             throw (error);
         }
     },
+
+    getAllUsers: async () => {
+        try {
+            const response = await axiosInstance.get(`${BASE_URL}/fetch-all-users`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
 };
+
+
+
+
 
 export default userService;

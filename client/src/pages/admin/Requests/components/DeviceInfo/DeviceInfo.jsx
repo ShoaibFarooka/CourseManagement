@@ -5,6 +5,7 @@ import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import deviceRequestService from "../../../../../services/deviceRequestService";
 import { MdSync } from "react-icons/md";
 import del from "../../../../../assets/icons/del.png";
+import './DeviceInfo.css';
 
 const DeviceInfo = ({
     user,
@@ -54,7 +55,7 @@ const DeviceInfo = ({
     }, [user]);
 
     if (!devices.length) {
-        return <p style={{ marginTop: "10px" }}>No registered devices found.</p>;
+        return <p className="no-data" style={{ marginTop: "10px", }}>No registered devices found.</p>;
     }
 
     return (

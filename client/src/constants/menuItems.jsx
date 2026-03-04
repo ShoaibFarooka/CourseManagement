@@ -3,7 +3,8 @@ export const menuItems = {
         { path: '/admin/courses' },
         { path: '/admin/questions' },
         { path: '/admin/requests' },
-        { path: '/admin/payments' }
+        { path: '/admin/payments' },
+        { path: '/admin/users' }
     ],
     user: [
         { path: '/' },

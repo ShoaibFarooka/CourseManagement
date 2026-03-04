@@ -13,6 +13,14 @@ router.get(
     controller.getAllQuestions
 );
 
+router.delete(
+    "/delete-all-questions/:courseId/:partId/:publisherId/:unitId/:subunitId",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    validationMiddleware.validateParams(questionSchemas.getAllQuestionsSchema),
+    controller.deleteAllQuestionsBySubunit
+);
+
 router.post(
     "/add/essay/:courseId/:partId/:publisherId/:unitId/:subunitId",
     authMiddleware.authenticateRequest,

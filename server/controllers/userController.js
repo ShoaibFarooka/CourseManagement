@@ -189,6 +189,22 @@ const updateProfileImage = async (req, res, next) => {
   }
 };
 
+
+const GetAllUsers = async (req, res, next) => {
+  try {
+    const users = await userService.getAllUsers();
+
+    res.status(200).json({
+      success: true,
+      total: users.length,
+      users
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   RegisterUser,
   Login,
@@ -201,4 +217,5 @@ module.exports = {
   Contact,
   updateUser,
   updateProfileImage,
+  GetAllUsers
 };

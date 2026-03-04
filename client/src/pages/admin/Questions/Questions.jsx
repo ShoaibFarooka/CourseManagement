@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import QuestionsTable from './components/QuestionsTable/QuestionsTable';
 import CustomModal from '../../../components/CustomModal/CustomModal';
 import questionServices from '../../../services/questionServices';
-import { message, Modal } from 'antd';
+import { message, Modal, Popconfirm } from 'antd';
 import QuestionForm from './components/QuestionForm/QuestionForm';
 import SummaryModal from './components/SummaryModal/SummaryModal';
 import { FaFileUpload } from "react-icons/fa";
@@ -338,44 +338,6 @@ const Questions = () => {
             handleOpenSummaryModal();
         }
     };
-    /* 
-        const handleUpload = async () => {
-        if (!mcqFile && !essayFile && !rapidFile) {
-            message.warning("Please select at least one file before uploading");
-            return;
-        }
-    
-        dispatch(ShowLoading());
-    
-        try {
-            if (mcqFile) {
-                await questionServices.uploadMcqExcel(mcqFile);
-                setMcqFile(null);
-                if (mcqFileRef.current) mcqFileRef.current.value = "";
-            }
-    
-            if (rapidFile) {
-                await questionServices.uploadRapidExcel(rapidFile);
-                setRapidFile(null);
-                if (rapidFileRef.current) rapidFileRef.current.value = "";
-            }
-    
-            if (essayFile) {
-                await questionServices.uploadEssayExcel(essayFile);
-                setEssayFile(null);
-                if (essayFileRef.current) essayFileRef.current.value = "";
-            }
-    
-            message.success("Files uploaded successfully");
-    
-        } catch (err) {
-            console.error("Upload failed:", err);
-            message.error("An unexpected error occurred during file upload.");
-        } finally {
-            dispatch(HideLoading());
-        }
-    }; */
-
 
     const handleOpenSummaryModal = () => {
         setIsOpenSummary(true);
@@ -450,6 +412,43 @@ const Questions = () => {
         }
     };
 
+    const handleDeleteAllQuestions = async () => {
+        if (!selectedCourse || !selectedPart || !selectedPublisher || !selectedUnit || !selectedSubunit) {
+            message.warning("Please select a valid subunit!");
+            return;
+        }
+        try {
+            dispatch(ShowLoading());
+
+            const res = await questionServices.deleteAllQuestions(
+                selectedCourse._id,
+                selectedPart._id,
+                selectedPublisher._id,
+                selectedUnit._id,
+                selectedSubunit._id
+            );
+
+            message.success(`${res.deletedCount} questions deleted successfully`);
+
+            setQuestions([]);
+            setCurrentPage(1);
+
+            fetchQuestions(
+                selectedCourse._id,
+                selectedPart._id,
+                selectedPublisher._id,
+                selectedUnit._id,
+                selectedSubunit._id,
+                1
+            );
+
+        } catch (error) {
+            message.error("Failed to delete questions");
+        } finally {
+            dispatch(HideLoading());
+        }
+    }
+
 
 
     return (
@@ -488,16 +487,22 @@ const Questions = () => {
                 </div>
 
                 <div className='upload-btn'>
-                    <GrValidate
-                        size={24}
-                        className='file-btn'
-                        onClick={handleCheckFile}
-                    />
-                    <FaFileUpload
-                        size={24}
-                        className='file-btn'
-                        onClick={handleUpload}
-                    />
+                    <div className='buttons'>
+                        <GrValidate
+                            size={24}
+                            className='file-btn'
+                            onClick={handleCheckFile}
+                        />
+                        <span>Check</span>
+                    </div>
+                    <div className='buttons'>
+                        <FaFileUpload
+                            size={24}
+                            className='file-btn'
+                            onClick={handleUpload}
+                        />
+                        <span>Upload</span>
+                    </div>
                 </div>
 
             </div>
@@ -675,9 +680,22 @@ const Questions = () => {
                 selectedSubunit && (
                     <>
                         <div className='add-question-btn'>
-                            <button className='btn' onClick={handleOpenModal}>
+                            <button
+                                className='btn'
+                                onClick={handleOpenModal}
+                            >
                                 Add Question
                             </button>
+                            <Popconfirm
+                                title="Are you sure you want to delete this question?"
+                                onConfirm={handleDeleteAllQuestions}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <button className="btn">
+                                    Delete All Questioons
+                                </button>
+                            </Popconfirm>
                         </div>
 
                         <QuestionsTable
