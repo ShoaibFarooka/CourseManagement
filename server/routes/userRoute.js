@@ -70,5 +70,12 @@ router.patch(
   controller.updateProfileImage
 );
 
+router.get(
+  "/fetch-all-users",
+  authMiddleware.authenticateRequest,
+  authMiddleware.verifyRole(["admin"]),
+  controller.GetAllUsers
+);
+
 
 module.exports = router;

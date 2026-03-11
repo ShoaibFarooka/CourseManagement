@@ -1,0 +1,9 @@
+.table-container .no-data {
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    color: var(--btn-text);
+    font-size: 1.5rem;
+}

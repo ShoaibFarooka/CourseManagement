@@ -17,6 +17,7 @@ const logger = require('./utils/logger');
 
 //Express Server Setup
 const app = express();
+app.set("trust proxy", true);
 const port = process.env.PORT || 5222;
 const env = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const origins = allowedOrigins[env];

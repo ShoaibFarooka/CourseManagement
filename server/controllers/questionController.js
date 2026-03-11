@@ -19,10 +19,10 @@ const getAllQuestions = async (req, res, next) => {
                 : req.query.types.split(',')
             : [];
 
-        const languages = req.query.languages
-            ? Array.isArray(req.query.languages)
-                ? req.query.languages
-                : req.query.languages.split(',')
+        const languages = req.query.language
+            ? Array.isArray(req.query.language)
+                ? req.query.language
+                : req.query.language.split(',')
             : [];
 
         const result = await questionService.getAllQuestions({
@@ -39,6 +39,28 @@ const getAllQuestions = async (req, res, next) => {
 
 
         res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteAllQuestionsBySubunit = async (req, res, next) => {
+    try {
+        const { courseId, partId, publisherId, unitId, subunitId } = req.params;
+
+        const result = await questionService.deleteAllQuestionsBySubunit({
+            course: courseId,
+            part: partId,
+            publisher: publisherId,
+            unit: unitId,
+            subunit: subunitId,
+        });
+
+        res.status(200).json({
+            message: "All questions deleted successfully",
+            deletedCount: result.deletedCount
+        });
+
     } catch (error) {
         next(error);
     }
@@ -456,4 +478,5 @@ module.exports = {
     FetchMegaReviewPackageQuestions,
     CountStandardReviewQuestions,
     CountMegaReviewQuestions,
+    deleteAllQuestionsBySubunit
 };

@@ -31,6 +31,17 @@ const questionService = {
         }
     },
 
+    deleteAllQuestions: async (courseId, partId, publisherId, unitId, subunitId) => {
+        try {
+            const response = await axiosInstance.delete(
+                `${BASE_URL}/delete-all-questions/${courseId}/${partId}/${publisherId}/${unitId}/${subunitId}`
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
 
     addEssayQuestion: async (courseId, partId, publisherId, unitId, subunitId, payload) => {
         try {

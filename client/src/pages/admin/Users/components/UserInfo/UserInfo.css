@@ -1,0 +1,79 @@
+.user-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 50px;
+}
+
+.user-info-wrapper .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--btn-text);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* ===== Header Section ===== */
+.user-info-wrapper .user-info-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.user-info-wrapper .user-info-header .user-info-row {
+    display: flex;
+    align-items: center;
+    color: var(--btn-text);
+    text-wrap: nowrap;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .label {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .value {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* ===== Status Badge ===== */
+.user-info-wrapper .user-info-header .user-info-row .status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .status.active {
+    background-color: #e6f7ee;
+    color: #1f8f4c;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .status.blocked {
+    background-color: #fdeaea;
+    color: #c53030;
+}
+
+/* ===== Sections ===== */
+.user-info-wrapper .section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: var(--btn-text);
+}
+
+.user-info-wrapper .section-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+@media only screen and (max-width:600px) {
+    .user-info-wrapper {
+        padding: 20px;
+    }
+
+}

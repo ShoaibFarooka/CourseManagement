@@ -219,6 +219,140 @@ const updateProfileImage = async (userId, imagePath) => {
 };
 
 
+const getAllUsers = async () => {
+  const users = await User.aggregate([
+    // Lookup payments
+    {
+      $lookup: {
+        from: "payments",
+        localField: "_id",
+        foreignField: "user",
+        as: "payments",
+      },
+    },
+    // Lookup allowed devices
+    {
+      $lookup: {
+        from: "user_allowed_devices",
+        localField: "_id",
+        foreignField: "user",
+        as: "allowedDevicesData",
+      },
+    },
+    // Unwind allowedDevicesData (if exists)
+    {
+      $addFields: {
+        allowedDevices: {
+          $cond: {
+            if: { $gt: [{ $size: "$allowedDevicesData" }, 0] },
+            then: { $arrayElemAt: ["$allowedDevicesData.allowedDevices", 0] },
+            else: [],
+          },
+        },
+      },
+    },
+    // Remove temp field
+    { $project: { allowedDevicesData: 0 } },
+    // Lookup course and resolve part name for each payment
+    {
+      $lookup: {
+        from: "courses",
+        localField: "payments.course",
+        foreignField: "_id",
+        as: "coursesData",
+      },
+    },
+    {
+      $addFields: {
+        payments: {
+          $map: {
+            input: "$payments",
+            as: "p",
+            in: {
+              _id: "$$p._id",
+              amount: "$$p.amount",
+              startDate: "$$p.startDate",
+              expiryDate: "$$p.expiryDate",
+              comment: "$$p.comment",
+              course: {
+                $let: {
+                  vars: {
+                    courseObj: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$coursesData",
+                            as: "c",
+                            cond: { $eq: ["$$c._id", "$$p.course"] },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                  in: { _id: "$$courseObj._id", name: "$$courseObj.name" },
+                },
+              },
+              part: {
+                $let: {
+                  vars: {
+                    partObj: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: {
+                              $let: {
+                                vars: {
+                                  courseObj: {
+                                    $arrayElemAt: [
+                                      {
+                                        $filter: {
+                                          input: "$coursesData",
+                                          as: "c",
+                                          cond: { $eq: ["$$c._id", "$$p.course"] },
+                                        },
+                                      },
+                                      0,
+                                    ],
+                                  },
+                                },
+                                in: "$$courseObj.parts",
+                              },
+                            },
+                            as: "part",
+                            cond: { $eq: ["$$part._id", "$$p.part"] },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                  in: { _id: "$$partObj._id", name: { $ifNull: ["$$partObj.name", "Unknown Part"] } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    // Final projection
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        country: 1,
+        isBlocked: 1,
+        payments: 1,
+        allowedDevices: 1,
+      },
+    },
+  ]);
+
+  return users;
+};
+
+
+
 
 
 module.exports = {
@@ -232,4 +366,5 @@ module.exports = {
   resetPassword,
   updateUser,
   updateProfileImage,
+  getAllUsers,
 };

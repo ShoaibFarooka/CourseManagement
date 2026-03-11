@@ -1,0 +1,8 @@
+.no-data {
+    color: var(--btn-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+}

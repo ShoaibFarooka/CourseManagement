@@ -19,12 +19,22 @@
     gap: 10px;
 }
 
-.questions .container .upload-btn .file-btn {
+.questions .container .upload-btn .buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    color: var(--btn-text);
+    font-size: 1rem;
+}
+
+.questions .container .upload-btn .buttons .file-btn {
     color: var(--btn-text);
     transition: background-color 0.3s ease, transform 0.2s ease-in-out;
 }
 
-.questions .container .upload-btn .file-btn:hover {
+.questions .container .upload-btn .buttons .file-btn:hover {
     transform: scale(1.05);
     cursor: pointer;
 }
@@ -37,6 +47,8 @@
     display: flex;
     justify-content: flex-end;
     padding-right: 10px;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .pagination-controls {
@@ -119,9 +131,10 @@
     }
 
     .questions .container .upload-btn {
+        max-width: 400px;
         padding-top: 0;
         margin-top: 10px;
-        justify-content: flex-start;
+        justify-content: flex-end;
         padding-left: 150px;
     }
 }

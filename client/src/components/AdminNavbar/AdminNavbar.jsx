@@ -23,7 +23,8 @@ const AdminNavbar = () => {
         { name: "Courses", to: "/admin/courses" },
         { name: "Questions", to: "/admin/questions" },
         { name: "Requests", to: "/admin/requests" },
-        { name: "Payment", to: "/admin/payments" }
+        { name: "Payment", to: "/admin/payments" },
+        { name: "Users", to: "/admin/users" }
     ];
 
     const handleLogout = async () => {

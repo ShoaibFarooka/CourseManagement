@@ -16,10 +16,12 @@ const RequestDeviceAccess = async (req, res, next) => {
             });
         }
 
-        const ip =
-            req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-            req.ip ||
-            req.socket?.remoteAddress;
+        let ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip || req.socket?.remoteAddress;
+
+        // Remove IPv6 prefix if present (::ffff:192.168.1.1)
+        if (ip && ip.startsWith("::ffff:")) {
+            ip = ip.split("::ffff:")[1];
+        }
 
         const geo = (await getCountryFromIP(ip)) || {};
 
