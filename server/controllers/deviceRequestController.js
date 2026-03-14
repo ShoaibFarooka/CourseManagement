@@ -23,7 +23,13 @@ const RequestDeviceAccess = async (req, res, next) => {
             ip = ip.split("::ffff:")[1];
         }
 
+        console.log("x-forwarded-for:", req.headers["x-forwarded-for"]);
+        console.log("req.ip:", req.ip);
+        console.log("remoteAddress:", req.socket?.remoteAddress);
+
         const geo = (await getCountryFromIP(ip)) || {};
+
+
 
         const location = {
             country: geo.country || "Unknown",
