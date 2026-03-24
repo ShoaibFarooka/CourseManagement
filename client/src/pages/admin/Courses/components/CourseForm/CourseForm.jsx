@@ -8,6 +8,7 @@ import { message } from 'antd';
 import courseService from '../../../../../services/courseService';
 import { ShowLoading, HideLoading } from '../../../../../redux/loaderSlice';
 import { useDispatch } from 'react-redux';
+import { DragDropContext } from '@hello-pangea/dnd';
 
 
 const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseData }, ref) => {
@@ -917,6 +918,46 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         }));
         setUnsavedChanges(prev => ({ ...prev, subunit: true }));
     };
+    // Drag and Drop
+    const handleDragEnd = (result) => {
+        const { source, destination, type } = result;
+
+        if (!destination) return;
+        if (
+            source.index === destination.index &&
+            source.droppableId === destination.droppableId
+        ) return;
+
+        if (type === 'UNIT') {
+            const [, partIndex, publisherIndex] = source.droppableId.split('-').map(Number);
+
+            const updatedParts = [...courseData.parts];
+            const units = [...updatedParts[partIndex].publishers[publisherIndex].units];
+
+            const [moved] = units.splice(source.index, 1);
+            units.splice(destination.index, 0, moved);
+
+            updatedParts[partIndex].publishers[publisherIndex].units = units;
+            setCourseData(prev => ({ ...prev, parts: updatedParts }));
+            setUnsavedChanges(prev => ({ ...prev, unit: true }));
+        }
+
+        if (type === 'SUBUNIT') {
+            const [, partIndex, publisherIndex, unitIndex] = source.droppableId.split('-').map(Number);
+
+            const updatedParts = [...courseData.parts];
+            const subunits = [
+                ...updatedParts[partIndex].publishers[publisherIndex].units[unitIndex].subunits
+            ];
+
+            const [moved] = subunits.splice(source.index, 1);
+            subunits.splice(destination.index, 0, moved);
+
+            updatedParts[partIndex].publishers[publisherIndex].units[unitIndex].subunits = subunits;
+            setCourseData(prev => ({ ...prev, parts: updatedParts }));
+            setUnsavedChanges(prev => ({ ...prev, subunit: true }));
+        }
+    };
 
     // VALIDATION OF DATA
     const validateCourseData = (courseData) => {
@@ -1055,276 +1096,281 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
     };
 
     return (
-        <div className='add-course'>
-            <div className='heading-lg title'>
-                {initialCourseData ? `Update ${courseData.name} Course` : 'Add New Course'}
-            </div>
-
-            <div className='course-form'>
-                <label htmlFor="name" className='heading-md name'>Course Name</label>
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Course Name"
-                    value={courseData.name}
-                    onChange={handleCourseInputchange}
-                />
-
-                <label htmlFor="timeRatio" className='heading-md name'>Time Ratio</label>
-                <input
-                    type="number"
-                    name="timeRatio"
-                    placeholder="Time Ratio (e.g. 1.5)"
-                    value={courseData.timeRatio}
-                    onChange={handleTimeRatioInputChange}
-                />
-            </div>
-
-            <div className='add-part-btn'>
-                <div className='heading-md'>Parts</div>
-                <button className='btn' onClick={handleClickAddPart}>Add Part</button>
-            </div>
-
-            {showAddPart && (
-                <div className='add-part'>
-                    <div className='add-part-form'>
-                        <label htmlFor="parts" className='heading-sm part-name'>Part Name</label>
-                        <input
-                            ref={partInputRef}
-                            type="text"
-                            name='parts'
-                            placeholder="Part"
-                            value={editingPartIndex !== null ? editingPartValue : tempPart.name}
-                            onChange={handlePartInputChange}
-                        />
-                        {errors.part && <span className='error-text'>{errors.part}</span>}
-                    </div>
-
-                    <div className='add-part-btns'>
-                        <button
-                            className="btn"
-                            onClick={editingPartIndex !== null ? handleSaveEditPart : handleClickSavePart}
-                        >
-                            {editingPartIndex !== null ? "Save" : "Add"}
-                        </button>
-                        <button className='btn' onClick={handleCloseEditPart}>Cancel</button>
-                    </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+            <div className='add-course'>
+                <div className='heading-lg title'>
+                    {initialCourseData ? `Update ${courseData.name} Course` : 'Add New Course'}
                 </div>
-            )}
 
-            <PartsTable
-                courseData={courseData}
-                onEdit={handleEditPart}
-                onManagePublishers={handleManagePublishers}
-                onDelete={handleDeletePart}
-                managedPartIndex={managedPartIndex}
-            />
+                <div className='course-form'>
+                    <label htmlFor="name" className='heading-md name'>Course Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Course Name"
+                        value={courseData.name}
+                        onChange={handleCourseInputchange}
+                    />
 
-            {courseData.parts.map((part, partIndex) => (
-                <div className='publisher' key={partIndex}>
-                    {managedPartIndex === partIndex && courseData.parts[managedPartIndex] && (
-                        <>
-                            <div className='add-publisher-btn' ref={publisherSectionRef}>
-                                <div className='heading-md publisher-h1'>{`${part.name}/Publishers`}</div>
-                                <button className='btn' onClick={() => handleClickAddPublisher(partIndex)}>
-                                    Add Publisher
-                                </button>
-                            </div>
+                    <label htmlFor="timeRatio" className='heading-md name'>Time Ratio</label>
+                    <input
+                        type="number"
+                        name="timeRatio"
+                        placeholder="Time Ratio (e.g. 1.5)"
+                        value={courseData.timeRatio}
+                        onChange={handleTimeRatioInputChange}
+                    />
+                </div>
 
-                            {showAddPublisher && selectedPartIndexForPublisher === partIndex && (
-                                <div className='add-publisher'>
-                                    <div className='add-publisher-form'>
-                                        <label htmlFor="publishers" className='heading-sm publisher-name'>
-                                            Publisher Name
-                                        </label>
-                                        <input
-                                            ref={publisherInputRef}
-                                            type="text"
-                                            placeholder="Publisher Name"
-                                            name='publishers'
-                                            value={editingPublisherIndex !== null ? editingPublisherValue : tempPublisher.name}
-                                            onChange={handlePublisherInputChange}
-                                        />
-                                        {errors.publisher && <span className='error-text'>{errors.publisher}</span>}
-                                    </div>
-                                    <div className='add-publisher-btns'>
-                                        <button
-                                            className="btn"
-                                            onClick={editingPublisherIndex !== null ? handleSaveEditPublisher : handleClickSavePublisher}
-                                        >
-                                            {editingPublisherIndex !== null ? "Save" : "Add"}
-                                        </button>
-                                        <button className='btn' onClick={handleCloseEditPublisher}>Cancel</button>
-                                    </div>
-                                </div>
-                            )}
+                <div className='add-part-btn'>
+                    <div className='heading-md'>Parts</div>
+                    <button className='btn' onClick={handleClickAddPart}>Add Part</button>
+                </div>
 
-                            <PublisherTable
-                                publishers={courseData.parts[partIndex].publishers}
-                                partIndex={partIndex}
-                                onEdit={(publisherIndex) => handleEditPublisher(partIndex, publisherIndex)}
-                                onManageUnits={(publisherIndex) => handleManageUnits(partIndex, publisherIndex)}
-                                onDelete={(publisherIndex) => handleDeletePublisher(partIndex, publisherIndex)}
-                                selectedPublisherIndexes={selectedPublisherIndexes}
-                                standard={courseData.parts[partIndex].standard}
-                                mega={courseData.parts[partIndex].mega}
-                                onStandardChange={handleStandardChange}
-                                onMegaChange={handleMegaChange}
-
+                {showAddPart && (
+                    <div className='add-part'>
+                        <div className='add-part-form'>
+                            <label htmlFor="parts" className='heading-sm part-name'>Part Name</label>
+                            <input
+                                ref={partInputRef}
+                                type="text"
+                                name='parts'
+                                placeholder="Part"
+                                value={editingPartIndex !== null ? editingPartValue : tempPart.name}
+                                onChange={handlePartInputChange}
                             />
-                        </>
-                    )}
-                </div>
-            ))}
-
-            {managedPartIndex !== null &&
-                courseData.parts[managedPartIndex] &&
-                courseData.parts[managedPartIndex].publishers.map((publisher, publisherIndex) => (
-                    <div className='unit' key={publisherIndex}>
-                        {selectedPublisherIndexes.partIndex === managedPartIndex &&
-                            selectedPublisherIndexes.publisherIndex === publisherIndex && (
-                                <>
-                                    <div className='add-unit-btn' ref={unitSectionRef}>
-                                        <div className='heading-md'>{`${courseData.parts[managedPartIndex].name}/${publisher.name}/Units`}</div>
-                                        <button
-                                            type='button'
-                                            className='btn'
-                                            onClick={() => handleClickAddUnit(managedPartIndex, publisherIndex)}
-                                        >
-                                            Add Unit
-                                        </button>
-                                    </div>
-
-                                    {showAddUnitSection &&
-                                        (
-                                            <div className='add-unit'>
-                                                <div className='unit-form'>
-                                                    <label htmlFor="name" className='heading-sm unit-name'>
-                                                        Unit Name
-                                                    </label>
-                                                    <input
-                                                        ref={unitInputRef}
-                                                        type="text"
-                                                        name="name"
-                                                        placeholder="Unit Name"
-                                                        value={tempUnit.name}
-                                                        onChange={handleInputChangeUnit}
-                                                    />
-                                                    {errors.unitName && <span className='error-text'>{errors.unitName}</span>}
-
-                                                    <label className='heading-sm question-type'>Question Type</label>
-                                                    <div className="unit-type-checkboxes">
-                                                        {["rapid", "mcq", "essay"].map((typeOption) => (
-                                                            <div key={typeOption} className="checkbox-label">
-                                                                <span className="label-text heading-sm">
-                                                                    {typeOption.charAt(0).toUpperCase() + typeOption.slice(1)}
-                                                                </span>
-                                                                <input
-                                                                    type="checkbox"
-                                                                    value={typeOption}
-                                                                    checked={tempUnit.type.includes(typeOption)}
-                                                                    onChange={(e) => handleUnitTypeChange(e, typeOption)}
-                                                                />
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                    {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
-                                                </div>
-                                                <div className='btns'>
-                                                    <button className='btn' onClick={editingUnitIndex !== null ? handleSaveEditedUnit : handleClickSaveUnit}>
-                                                        {editingUnitIndex !== null ? "Save" : "Add"}
-                                                    </button>
-                                                    <button className='btn' onClick={resetUnitForm}>Cancel</button>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                    <UnitsTable
-                                        unitData={publisher.units}
-                                        onEdit={(unitIndex) => handleEditUnit(managedPartIndex, publisherIndex, unitIndex)}
-                                        onManageSubunits={(unitIndex) => handleManageSubunits(managedPartIndex, publisherIndex, unitIndex)}
-                                        onDelete={(unitIndex) => handleDeleteUnit(managedPartIndex, publisherIndex, unitIndex)}
-                                        partIndex={managedPartIndex}
-                                        publisherIndex={publisherIndex}
-                                        selectedUnitIndexes={selectedUnitIndexes}
-                                    />
-                                </>
-                            )}
-                    </div>
-                ))}
-
-            {managedPartIndex !== null &&
-                selectedPublisherIndexes.partIndex !== null &&
-                selectedPublisherIndexes.publisherIndex !== null &&
-                selectedUnitIndexes.partIndex === managedPartIndex &&
-                selectedUnitIndexes.publisherIndex === selectedPublisherIndexes.publisherIndex &&
-                selectedUnitIndexes.unitIndex !== null &&
-                courseData.parts[managedPartIndex]?.publishers[selectedPublisherIndexes.publisherIndex]?.units[selectedUnitIndexes.unitIndex] && (
-                    <div className="subunit-container">
-                        <div className="add-subunit-btn" ref={subUnitSectionRef}>
-                            <div className='heading-md'>
-                                {`${courseData.parts[managedPartIndex].name}/${courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].name}/${courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].name}/Subunits`}
-                            </div>
-                            <button
-                                className="btn"
-                                onClick={() =>
-                                    handleClickAddSubUnit(
-                                        selectedUnitIndexes.partIndex,
-                                        selectedUnitIndexes.publisherIndex,
-                                        selectedUnitIndexes.unitIndex
-                                    )
-                                }
-                            >
-                                Add Subunit
-                            </button>
+                            {errors.part && <span className='error-text'>{errors.part}</span>}
                         </div>
 
-                        {showSubunitInput && (
-                            <div className="add-subunit">
-                                <div className='subunit-form'>
-                                    <label htmlFor="subunit" className='heading-sm subunit-name'>Subunit</label>
-                                    <input
-                                        ref={subUnitInputRef}
-                                        type="text"
-                                        name="subunit"
-                                        placeholder="Subunit Name"
-                                        value={tempSubUnit.name}
-                                        onChange={handleChangeSubUnit}
-                                    />
-                                    {errors.subunit && <span className='error-text'>{errors.subunit}</span>}
-                                </div>
-                                <div className='subunit-btns'>
-                                    <button
-                                        className="btn"
-                                        onClick={
-                                            editingSubunitIndex !== null
-                                                ? handleSaveSubunit
-                                                : handleClickSaveSubUnit
-                                        }
-                                    >
-                                        {editingSubunitIndex !== null ? "Save" : "Add"}
-                                    </button>
-                                    <button className='btn' onClick={handleCloseEditSubunit}>Cancel</button>
-                                </div>
-                            </div>
-                        )}
-
-                        <SubUnitTable
-                            subunitData={
-                                courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].subunits || []
-                            }
-                            onEdit={handleEditSubunit}
-                            onDelete={handleDeleteSubunit}
-                        />
+                        <div className='add-part-btns'>
+                            <button
+                                className="btn"
+                                onClick={editingPartIndex !== null ? handleSaveEditPart : handleClickSavePart}
+                            >
+                                {editingPartIndex !== null ? "Save" : "Add"}
+                            </button>
+                            <button className='btn' onClick={handleCloseEditPart}>Cancel</button>
+                        </div>
                     </div>
                 )}
 
-            <div className='submit'>
-                <button className='btn' onClick={handleSubmitCourse}>
-                    {submitBtnToggel ? "Add New Course" : "Update Course"}
-                </button>
+                <PartsTable
+                    courseData={courseData}
+                    onEdit={handleEditPart}
+                    onManagePublishers={handleManagePublishers}
+                    onDelete={handleDeletePart}
+                    managedPartIndex={managedPartIndex}
+                />
+
+                {courseData.parts.map((part, partIndex) => (
+                    <div className='publisher' key={partIndex}>
+                        {managedPartIndex === partIndex && courseData.parts[managedPartIndex] && (
+                            <>
+                                <div className='add-publisher-btn' ref={publisherSectionRef}>
+                                    <div className='heading-md publisher-h1'>{`${part.name}/Publishers`}</div>
+                                    <button className='btn' onClick={() => handleClickAddPublisher(partIndex)}>
+                                        Add Publisher
+                                    </button>
+                                </div>
+
+                                {showAddPublisher && selectedPartIndexForPublisher === partIndex && (
+                                    <div className='add-publisher'>
+                                        <div className='add-publisher-form'>
+                                            <label htmlFor="publishers" className='heading-sm publisher-name'>
+                                                Publisher Name
+                                            </label>
+                                            <input
+                                                ref={publisherInputRef}
+                                                type="text"
+                                                placeholder="Publisher Name"
+                                                name='publishers'
+                                                value={editingPublisherIndex !== null ? editingPublisherValue : tempPublisher.name}
+                                                onChange={handlePublisherInputChange}
+                                            />
+                                            {errors.publisher && <span className='error-text'>{errors.publisher}</span>}
+                                        </div>
+                                        <div className='add-publisher-btns'>
+                                            <button
+                                                className="btn"
+                                                onClick={editingPublisherIndex !== null ? handleSaveEditPublisher : handleClickSavePublisher}
+                                            >
+                                                {editingPublisherIndex !== null ? "Save" : "Add"}
+                                            </button>
+                                            <button className='btn' onClick={handleCloseEditPublisher}>Cancel</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <PublisherTable
+                                    publishers={courseData.parts[partIndex].publishers}
+                                    partIndex={partIndex}
+                                    onEdit={(publisherIndex) => handleEditPublisher(partIndex, publisherIndex)}
+                                    onManageUnits={(publisherIndex) => handleManageUnits(partIndex, publisherIndex)}
+                                    onDelete={(publisherIndex) => handleDeletePublisher(partIndex, publisherIndex)}
+                                    selectedPublisherIndexes={selectedPublisherIndexes}
+                                    standard={courseData.parts[partIndex].standard}
+                                    mega={courseData.parts[partIndex].mega}
+                                    onStandardChange={handleStandardChange}
+                                    onMegaChange={handleMegaChange}
+
+                                />
+                            </>
+                        )}
+                    </div>
+                ))}
+
+                {managedPartIndex !== null &&
+                    courseData.parts[managedPartIndex] &&
+                    courseData.parts[managedPartIndex].publishers.map((publisher, publisherIndex) => (
+                        <div className='unit' key={publisherIndex}>
+                            {selectedPublisherIndexes.partIndex === managedPartIndex &&
+                                selectedPublisherIndexes.publisherIndex === publisherIndex && (
+                                    <>
+                                        <div className='add-unit-btn' ref={unitSectionRef}>
+                                            <div className='heading-md'>{`${courseData.parts[managedPartIndex].name}/${publisher.name}/Units`}</div>
+                                            <button
+                                                type='button'
+                                                className='btn'
+                                                onClick={() => handleClickAddUnit(managedPartIndex, publisherIndex)}
+                                            >
+                                                Add Unit
+                                            </button>
+                                        </div>
+
+                                        {showAddUnitSection &&
+                                            (
+                                                <div className='add-unit'>
+                                                    <div className='unit-form'>
+                                                        <label htmlFor="name" className='heading-sm unit-name'>
+                                                            Unit Name
+                                                        </label>
+                                                        <input
+                                                            ref={unitInputRef}
+                                                            type="text"
+                                                            name="name"
+                                                            placeholder="Unit Name"
+                                                            value={tempUnit.name}
+                                                            onChange={handleInputChangeUnit}
+                                                        />
+                                                        {errors.unitName && <span className='error-text'>{errors.unitName}</span>}
+
+                                                        <label className='heading-sm question-type'>Question Type</label>
+                                                        <div className="unit-type-checkboxes">
+                                                            {["rapid", "mcq", "essay"].map((typeOption) => (
+                                                                <div key={typeOption} className="checkbox-label">
+                                                                    <span className="label-text heading-sm">
+                                                                        {typeOption.charAt(0).toUpperCase() + typeOption.slice(1)}
+                                                                    </span>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value={typeOption}
+                                                                        checked={tempUnit.type.includes(typeOption)}
+                                                                        onChange={(e) => handleUnitTypeChange(e, typeOption)}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        {errors.unitType && <span className='error-text'>{errors.unitType}</span>}
+                                                    </div>
+                                                    <div className='btns'>
+                                                        <button className='btn' onClick={editingUnitIndex !== null ? handleSaveEditedUnit : handleClickSaveUnit}>
+                                                            {editingUnitIndex !== null ? "Save" : "Add"}
+                                                        </button>
+                                                        <button className='btn' onClick={resetUnitForm}>Cancel</button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        <UnitsTable
+                                            unitData={publisher.units}
+                                            onEdit={(unitIndex) => handleEditUnit(managedPartIndex, publisherIndex, unitIndex)}
+                                            onManageSubunits={(unitIndex) => handleManageSubunits(managedPartIndex, publisherIndex, unitIndex)}
+                                            onDelete={(unitIndex) => handleDeleteUnit(managedPartIndex, publisherIndex, unitIndex)}
+                                            partIndex={managedPartIndex}
+                                            publisherIndex={publisherIndex}
+                                            selectedUnitIndexes={selectedUnitIndexes}
+                                        />
+                                    </>
+                                )}
+                        </div>
+                    ))}
+
+                {managedPartIndex !== null &&
+                    selectedPublisherIndexes.partIndex !== null &&
+                    selectedPublisherIndexes.publisherIndex !== null &&
+                    selectedUnitIndexes.partIndex === managedPartIndex &&
+                    selectedUnitIndexes.publisherIndex === selectedPublisherIndexes.publisherIndex &&
+                    selectedUnitIndexes.unitIndex !== null &&
+                    courseData.parts[managedPartIndex]?.publishers[selectedPublisherIndexes.publisherIndex]?.units[selectedUnitIndexes.unitIndex] && (
+                        <div className="subunit-container">
+                            <div className="add-subunit-btn" ref={subUnitSectionRef}>
+                                <div className='heading-md'>
+                                    {`${courseData.parts[managedPartIndex].name}/${courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].name}/${courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].name}/Subunits`}
+                                </div>
+                                <button
+                                    className="btn"
+                                    onClick={() =>
+                                        handleClickAddSubUnit(
+                                            selectedUnitIndexes.partIndex,
+                                            selectedUnitIndexes.publisherIndex,
+                                            selectedUnitIndexes.unitIndex
+                                        )
+                                    }
+                                >
+                                    Add Subunit
+                                </button>
+                            </div>
+
+                            {showSubunitInput && (
+                                <div className="add-subunit">
+                                    <div className='subunit-form'>
+                                        <label htmlFor="subunit" className='heading-sm subunit-name'>Subunit</label>
+                                        <input
+                                            ref={subUnitInputRef}
+                                            type="text"
+                                            name="subunit"
+                                            placeholder="Subunit Name"
+                                            value={tempSubUnit.name}
+                                            onChange={handleChangeSubUnit}
+                                        />
+                                        {errors.subunit && <span className='error-text'>{errors.subunit}</span>}
+                                    </div>
+                                    <div className='subunit-btns'>
+                                        <button
+                                            className="btn"
+                                            onClick={
+                                                editingSubunitIndex !== null
+                                                    ? handleSaveSubunit
+                                                    : handleClickSaveSubUnit
+                                            }
+                                        >
+                                            {editingSubunitIndex !== null ? "Save" : "Add"}
+                                        </button>
+                                        <button className='btn' onClick={handleCloseEditSubunit}>Cancel</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <SubUnitTable
+                                subunitData={
+                                    courseData.parts[managedPartIndex].publishers[selectedPublisherIndexes.publisherIndex].units[selectedUnitIndexes.unitIndex].subunits || []
+                                }
+                                onEdit={handleEditSubunit}
+                                onDelete={handleDeleteSubunit}
+                                partIndex={selectedUnitIndexes.partIndex}
+                                publisherIndex={selectedUnitIndexes.publisherIndex}
+                                unitIndex={selectedUnitIndexes.unitIndex}
+                            />
+                        </div>
+                    )}
+
+                <div className='submit'>
+                    <button className='btn' onClick={handleSubmitCourse}>
+                        {submitBtnToggel ? "Add New Course" : "Update Course"}
+                    </button>
+                </div>
             </div>
-        </div>
+        </DragDropContext>
     );
 });
 

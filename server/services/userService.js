@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
 const crypto = require("crypto");
+const emailService = require("./emailService");
 
 const createUser = async (userData, role) => {
   const {
@@ -31,6 +32,10 @@ const createUser = async (userData, role) => {
   }
 
   let passwordDigest = await authUtils.hashPassword(password);
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
   const user = await User.create({
     name,
     phone,
@@ -39,9 +44,79 @@ const createUser = async (userData, role) => {
     password: passwordDigest,
     role,
     image,
+    emailVerificationOTP: otp,
+    otpExpiry,
+    isEmailVerified: false,
   });
 
+
+  await emailService.sendOTPEmail(email, otp);
+
   return user;
+};
+
+
+const verifyEmailOTP = async (email, otp) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.code = 404;
+    throw error;
+  }
+
+  if (user.isEmailVerified) {
+    const error = new Error("Email already verified");
+    error.code = 400;
+    throw error;
+  }
+
+  if (user.emailVerificationOTP !== otp) {
+    const error = new Error("Invalid OTP");
+    error.code = 400;
+    throw error;
+  }
+
+  if (user.otpExpiry < new Date()) {
+    const error = new Error("OTP expired");
+    error.code = 400;
+    throw error;
+  }
+
+
+  user.isEmailVerified = true;
+  user.emailVerificationOTP = null;
+  user.otpExpiry = null;
+  await user.save();
+
+
+
+  return { message: "Email verified successfully" };
+};
+
+const resendOTP = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    const error = new Error("User not found");
+    error.code = 404;
+    throw error;
+  }
+
+  if (user.isEmailVerified) {
+    const error = new Error("Email already verified");
+    error.code = 400;
+    throw error;
+  }
+
+  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  user.emailVerificationOTP = newOtp;
+  user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
+  await user.save();
+
+  await emailService.sendOTPEmail(email, newOtp);
+
+  return { success: true, message: "OTP resent successfully" };
 };
 
 const loginUser = async (loginData) => {
@@ -357,6 +432,8 @@ const getAllUsers = async () => {
 
 module.exports = {
   createUser,
+  verifyEmailOTP,
+  resendOTP,
   loginUser,
   refreshToken,
   logoutUser,

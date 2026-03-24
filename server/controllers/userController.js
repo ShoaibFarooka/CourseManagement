@@ -14,6 +14,38 @@ const RegisterUser = async (req, res, next) => {
   }
 };
 
+const VerifyEmailOTP = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
+
+    const result = await userService.verifyEmailOTP(email, otp);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const ResendOTP = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const result = await userService.resendOTP(email);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 const Login = async (req, res, next) => {
   try {
@@ -207,6 +239,8 @@ const GetAllUsers = async (req, res, next) => {
 
 module.exports = {
   RegisterUser,
+  VerifyEmailOTP,
+  ResendOTP,
   Login,
   RefreshToken,
   Logout,

@@ -4,7 +4,7 @@ import del from '../../../../../assets/icons/del.png';
 import { Popconfirm, Tooltip } from 'antd';
 
 
-const QuestionsTable = ({ questions, onEdit, onDelete }) => {
+const QuestionsTable = ({ questions, currentPage, PAGE_LIMIT, onEdit, onDelete }) => {
     return (
         <div className="table-container">
             <table className="table table-striped questions-table">
@@ -28,7 +28,7 @@ const QuestionsTable = ({ questions, onEdit, onDelete }) => {
                 <tbody>
                     {questions.map((question, index) => (
                         <tr key={question._id || index}>
-                            <td>{index + 1}</td>
+                            <td>{(currentPage - 1) * PAGE_LIMIT + index + 1}</td>
                             <td>
                                 <Tooltip
                                     title={question.statement || question.content || question.concept}

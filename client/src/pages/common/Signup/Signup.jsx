@@ -6,12 +6,11 @@ import userService from '../../../services/userServices';
 import { useDispatch } from 'react-redux';
 import Cookies from 'js-cookie';
 import { message } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
 
     const navigate = useNavigate();
-    const location = useLocation();
     const dispatch = useDispatch();
 
     const [formData, setFormData] = useState({
@@ -91,30 +90,23 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateData()) {
-            return;
-        }
+        if (!validateData()) return;
+
         try {
             dispatch(ShowLoading());
+
             await userService.registerUser(formData, "user");
-            const loginUser = {
-                email: formData.email,
-                password: formData.password
-            }
-            const response = await userService.loginUser(loginUser);
-            if (response.token) {
-                Cookies.set('course-managment-jwt-token', response.token, {
-                    secure: true,
-                    sameSite: 'Lax'
-                });
-                const from = location.state?.from?.pathname;
-                navigate(from || '/dashboard');
-                message.success("Successfully Logged In");
-            } else {
-                message.error(response.error || "Login Failed");
-            }
+
+            navigate("/otp-verification", {
+                state: {
+                    email: formData.email,
+                    password: formData.password
+                }
+            });
+
+            message.success("Registration successful! Check your email for OTP.");
         } catch (error) {
-            message.error(error?.response?.data?.error || "Login/Registration Failed!");
+            message.error(error?.response?.data?.error || "Registration Failed!");
         } finally {
             dispatch(HideLoading());
         }

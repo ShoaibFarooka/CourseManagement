@@ -35,6 +35,7 @@ const Questions = () => {
     const [isOpenSummary, setIsOpenSummary] = useState(false);
     const [uploadWarnings, setUploadWarnings] = useState([]);
     const [uploadSuccess, setUploadSuccess] = useState([]);
+    const PAGE_LIMIT = 5;
 
 
     const languageOptions = [
@@ -701,7 +702,9 @@ const Questions = () => {
                         <QuestionsTable
                             questions={questions}
                             onEdit={onEdit}
-                            onDelete={handleDeleteQuestion} />
+                            onDelete={handleDeleteQuestion}
+                            currentPage={currentPage}
+                            PAGE_LIMIT={PAGE_LIMIT} />
 
                         {totalPages > 1 && (
                             <div className="pagination-controls">
