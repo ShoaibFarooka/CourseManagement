@@ -68,6 +68,19 @@
     text-align: center;
 }
 
+.otp-container .error {
+    margin-top: 10px;
+    font-weight: 700;
+}
+
+.otp-container .success-text {
+    color: #D1FE67;
+    font-size: 1rem;
+    margin-top: 10px;
+    font-weight: 700;
+    padding-left: 10px;
+}
+
 .otp-container .form {
     display: flex;
     flex-direction: column;
@@ -179,7 +192,7 @@
     }
 }
 
-@media only screen and(max-width: 768px) {
+@media only screen and (max-width: 768px) {
 
     .otp-container .h1 {
         font-size: 1.75rem;
@@ -196,8 +209,8 @@
     }
 
     .form .otp-inputs input {
-        width: 65px;
-        height: 65px;
+        width: 45px;
+        height: 45px;
         font-size: 16px;
     }
 
@@ -209,7 +222,7 @@
 
 @media only screen and (max-width: 480px) {
     .otp .title {
-        padding: 80px 10px 60px;
+        padding: 80px 10px 60px 10px;
         font-size: 1.75rem;
     }
 
@@ -222,18 +235,20 @@
     }
 
     .otp-container .form {
-        padding: 0 20px;
+        padding: 0px;
     }
 
     .form .otp-inputs {
-        gap: 5px;
+        padding: 0 10px;
         margin-top: 30px;
     }
 
     .form .otp-inputs input {
-        width: 50px;
-        height: 50px;
+        width: 30px;
+        height: 30px;
         font-size: 14px;
+        border-radius: 5px;
+        padding: 0;
     }
 
     .form .verify-btn {

@@ -108,15 +108,20 @@ const rejectPaymentRequest = async (requestId, status) => {
 
 
 const deletePaymentRequest = async (requestId) => {
-    const request = await PaymentRequest.findByIdAndDelete(requestId);
+    const request = await PaymentRequest.findById(requestId);
     if (!request) {
         const error = new Error("Payment request not found");
         error.code = 404;
         throw error;
     }
 
-    return request;
+    await payment.findOneAndDelete({ paymentRequest: request._id });
+
+    await PaymentRequest.findByIdAndDelete(requestId);
+
+    return { message: "Payment request and related payments deleted successfully" };
 };
+
 
 const getUserPayments = async (userId) => {
     const user = await User.findById(userId);

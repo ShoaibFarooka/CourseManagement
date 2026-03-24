@@ -29,7 +29,14 @@ const userService = {
             throw error;
         }
     },
-
+    verifyEmailOTP: async (email, otp) => {
+        const response = await axiosInstance.post(`${BASE_URL}/verify-email`, { email, otp });
+        return response.data;
+    },
+    resendEmailOTP: async (email) => {
+        const response = await axiosInstance.post(`${BASE_URL}/resend-otp`, { email });
+        return response.data;
+    },
 
     forgotPassword: async (payload) => {
         try {

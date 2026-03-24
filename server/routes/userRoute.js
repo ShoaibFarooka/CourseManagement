@@ -10,6 +10,8 @@ router.post(
   validationMiddleware.validateBody(userSchemas.registerSchema),
   controller.RegisterUser
 );
+router.post('/verify-email', controller.VerifyEmailOTP);
+router.post('/resend-otp', controller.ResendOTP);
 
 router.post(
   "/login",

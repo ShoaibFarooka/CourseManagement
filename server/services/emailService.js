@@ -50,6 +50,18 @@ ${question}
     return { success: true };
 };
 
+const sendOTPEmail = async (email, otp) => {
+    const subject = "Your Email Verification OTP";
+    const text = `Your OTP code is: ${otp}. It will expire in 5 minutes.`;
+    const html = `
+        <h2>Email Verification</h2>
+        <p>Your OTP code is: <strong>${otp}</strong></p>
+        <p>This OTP will expire in 5 minutes.</p>
+    `;
+
+    await sendEmail(email, subject, text, html);
+};
 
 
-module.exports = { sendEmail, saveMessage };
+
+module.exports = { sendEmail, saveMessage, sendOTPEmail };

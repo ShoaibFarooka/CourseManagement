@@ -6,7 +6,7 @@ const registerSchema = yup.object().shape({
   email: yup.string().trim().email('Invalid email address').required('Email is required'),
   password: yup.string().trim().required('Password is required'),
   country: yup.string().trim().optional(),
-  phone: yup.number(),
+  phone: yup.string().trim().optional(),
 });
 
 const loginSchema = yup.object().shape({
