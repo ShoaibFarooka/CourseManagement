@@ -44,7 +44,7 @@ const ProgressReport = () => {
 
                 <div className='row-1'>
                     <div className='overall-score'>
-                        <div className='heading'>Overall Score</div>
+                        <div className='heading'>Attempt Status</div>
                         <ProgressCircle strokeColor="#3cd89e" progress={overallScore} />
                         <div className='sub-heading'>Your percentage is {overallScore}%</div>
                     </div>
