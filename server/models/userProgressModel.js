@@ -1,19 +1,11 @@
 const mongoose = require("mongoose");
 
-const unitStatSchema = new mongoose.Schema(
+const subunitStatSchema = new mongoose.Schema(
     {
-        totalQuestions: {
-            type: Number, default: 0
-        },
-        attempted: {
-            type: Number, default: 0
-        },
-        correct: {
-            type: Number, default: 0
-        },
-        wrong: {
-            type: Number, default: 0
-        },
+        totalQuestions: { type: Number, default: 0 },
+        attempted: { type: Number, default: 0 },
+        correct: { type: Number, default: 0 },
+        wrong: { type: Number, default: 0 },
         lastAttemptedQ: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "question",
@@ -31,6 +23,34 @@ const unitStatSchema = new mongoose.Schema(
     { _id: false }
 );
 
+const unitStatSchema = new mongoose.Schema(
+    {
+        totalQuestions: { type: Number, default: 0 },
+        attempted: { type: Number, default: 0 },
+        correct: { type: Number, default: 0 },
+        wrong: { type: Number, default: 0 },
+        lastAttemptedQ: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "question",
+            default: null
+        },
+        attemptedIds: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "question"
+        }],
+        wrongIds: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "question"
+        }],
+        subunits: {
+            type: Map,
+            of: subunitStatSchema,
+            default: {}
+        }
+    },
+    { _id: false }
+);
+
 const userProgressSchema = new mongoose.Schema(
     {
         user: {
@@ -43,7 +63,11 @@ const userProgressSchema = new mongoose.Schema(
             ref: "course",
             required: true
         },
-        unit: {
+        part: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        publisher: {
             type: mongoose.Schema.Types.ObjectId,
             required: true
         },
@@ -56,7 +80,10 @@ const userProgressSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-userProgressSchema.index({ user: 1, course: 1 }, { unique: true });
+userProgressSchema.index(
+    { user: 1, course: 1, part: 1, publisher: 1 },
+    { unique: true }
+);
 
 const UserProgress = mongoose.model("userProgress", userProgressSchema);
 

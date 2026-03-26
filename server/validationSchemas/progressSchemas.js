@@ -1,18 +1,31 @@
 const yup = require("yup");
 
 const recordAnswerSchema = yup.object().shape({
-    courseId: yup.string().trim().required("Course ID is required"),
-    unitId: yup.string().trim().required("Unit ID is required"),
-    questionId: yup.string().trim().required("Question ID is required"),
-    isCorrect: yup.boolean().required("isCorrect is required"),
+    courseId: yup.string().required(),
+    partId: yup.string().required(),
+    publisherId: yup.string().required(),
+    unitId: yup.string().required(),
+    questionId: yup.string().required(),
+    isCorrect: yup.boolean().required(),
 });
 
 const unitSessionSchema = yup.object().shape({
-    courseId: yup.string().trim().required("Course ID is required"),
-    unitId: yup.string().trim().required("Unit ID is required"),
+    courseId: yup.string().required(),
+    partId: yup.string().required(),
+    publisherId: yup.string().required(),
+    unitId: yup.string().required(),
+});
+
+const recordAnswerBatchSchema = yup.object().shape({
+    answers: yup
+        .array()
+        .of(recordAnswerSchema)
+        .min(1, "answers must contain at least one item")
+        .required(),
 });
 
 module.exports = {
     recordAnswerSchema,
+    recordAnswerBatchSchema,
     unitSessionSchema,
 };

@@ -3,24 +3,17 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/progress";
 
 const progressService = {
-    recordAnswer: async ({ courseId, unitId, questionId, isCorrect }) => {
-        try {
-            const response = await axiosInstance.post(`${BASE_URL}/record-answer`, {
-                courseId,
-                unitId,
-                questionId,
-                isCorrect,
-            });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+    recordAnswerBatch: async (answers) => {
+        const response = await axiosInstance.post(`${BASE_URL}/record-answer`, {
+            answers,
+        });
+        return response.data;
     },
 
-    getUnitProgress: async ({ courseId, unitId }) => {
+    getAllUnitsProgress: async ({ courseId, partId, publisherId }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/unit-progress`, {
-                params: { courseId, unitId },
+                params: { courseId, partId, publisherId },
             });
             return response.data;
         } catch (error) {
@@ -28,10 +21,21 @@ const progressService = {
         }
     },
 
-    getContinueSession: async ({ courseId, unitId }) => {
+    getAllSubunitsProgress: async ({ courseId, partId, publisherId, unitId }) => {
+        try {
+            const response = await axiosInstance.get(`${BASE_URL}/subunit-progress`, {
+                params: { courseId, partId, publisherId, unitId },
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    getContinueSession: async ({ courseId, partId, publisherId, unitId }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/session/continue`, {
-                params: { courseId, unitId },
+                params: { courseId, partId, publisherId, unitId },
             });
             return response.data;
         } catch (error) {
@@ -39,10 +43,12 @@ const progressService = {
         }
     },
 
-    getStartOverSession: async ({ courseId, unitId }) => {
+    getStartOverSession: async ({ courseId, partId, publisherId, unitId }) => {
         try {
             const response = await axiosInstance.post(`${BASE_URL}/session/start-over`, {
                 courseId,
+                partId,
+                publisherId,
                 unitId,
             });
             return response.data;
@@ -54,7 +60,7 @@ const progressService = {
     getWrongOnlySession: async ({ courseId, unitId }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/session/wrong-only`, {
-                params: { courseId, unitId },
+                params: { courseId, partId, publisherId, unitId },
             });
             return response.data;
         } catch (error) {

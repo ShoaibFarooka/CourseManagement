@@ -8,7 +8,7 @@ const progressSchemas = require("../validationSchemas/progressSchemas");
 router.post(
     "/record-answer",
     authMiddleware.authenticateRequest,
-    validationMiddleware.validateBody(progressSchemas.recordAnswerSchema),
+    validationMiddleware.validateBody(progressSchemas.recordAnswerBatchSchema),
     controller.RecordAnswer
 );
 
@@ -16,8 +16,17 @@ router.post(
 router.get(
     "/unit-progress",
     authMiddleware.authenticateRequest,
-    controller.GetUnitProgress
+    controller.GetAllUnitsProgress
 );
+
+// Get unit progress stats
+router.get(
+    "/subunit-progress",
+    authMiddleware.authenticateRequest,
+    controller.GetAllSubunitsProgress
+);
+
+
 
 // Session: continue from where you left off
 router.get(

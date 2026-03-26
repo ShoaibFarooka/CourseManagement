@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaChevronLeft } from "react-icons/fa";
 import { TiStopwatch } from "react-icons/ti";
 import "./Quiz.css";
@@ -53,8 +53,9 @@ const Quiz = () => {
     const [time, setTime] = useState(QUIZ_TIME);
     const [showTimeUpModal, setShowTimeUpModal] = useState(false);
     const [showExitModal, setShowExitModal] = useState(false);
-
     const PAGE_SIZE = 20;
+
+    const pendingProgressRef = useRef([]);
 
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
@@ -172,7 +173,7 @@ const Quiz = () => {
         if (isPrefetched) {
             setQuestions(prefetchedQuestions);
             setTotalQuestions(prefetchedQuestions.length);
-            return;  // ← never calls fetchQuestions
+            return;
         }
 
         fetchQuestions(1);
@@ -246,7 +247,6 @@ const Quiz = () => {
 
 
     const handleAnswerSelect = (key, value) => {
-
         if ((source === "unit-exam" || source === "package-exam") && !firstAnswers[key]) {
             setFirstAnswers((prev) => ({ ...prev, [key]: value }));
         }
@@ -256,25 +256,42 @@ const Quiz = () => {
 
         const question = currentQuestion;
         if (!question) return;
-
         if (firstAnswers[key] !== undefined) return;
 
         const isCorrect = getIsCorrect(question, key, value);
-
         if (isCorrect === null) return;
 
 
-        progressService
-            .recordAnswer({
-                courseId,
-                unitId: question.unit,
-                questionId: question._id,
-                isCorrect,
-            })
-            .catch((err) => {
-                console.error("Progress sync failed:", err);
-            });
+        pendingProgressRef.current.push({
+            courseId,
+            partId,
+            publisherId,
+            unitId: question.unit,
+            questionId: question._id,
+            isCorrect,
+        });
     };
+
+    useEffect(() => {
+        if (source !== "unit-exam") return;
+
+        const flushProgress = async () => {
+            if (pendingProgressRef.current.length === 0) return;
+
+            const batch = [...pendingProgressRef.current];
+            pendingProgressRef.current = [];
+
+            try {
+                await progressService.recordAnswerBatch(batch);
+            } catch (err) {
+                pendingProgressRef.current = [...batch, ...pendingProgressRef.current];
+                console.error("Batch progress sync failed:", err);
+            }
+        };
+
+        const interval = setInterval(flushProgress, 30000);
+        return () => clearInterval(interval);
+    }, [source]);
 
     const prevQuestion = () => {
         setCurrentIndex(prev => Math.max(prev - 1, 0));
@@ -581,7 +598,17 @@ const Quiz = () => {
 
 
 
-    const handleQuizSubmit = () => {
+    const handleQuizSubmit = async () => {
+        if (source === "unit-exam" && pendingProgressRef.current.length > 0) {
+            const batch = [...pendingProgressRef.current];
+            pendingProgressRef.current = [];
+            try {
+                await progressService.recordAnswerBatch(batch);
+            } catch (err) {
+                console.error("Final batch sync failed:", err);
+            }
+        }
+
         const mcqScore = calculateMCQScore();
         const rapidScore = calculateRapidScore();
         const essayScore = calculateEssayScore();
@@ -594,8 +621,8 @@ const Quiz = () => {
                 incorrectAnswers: incorrectCount,
                 mcqScore,
                 rapidScore,
-                essayScore
-            }
+                essayScore,
+            },
         });
     };
 

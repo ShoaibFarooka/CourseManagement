@@ -38,7 +38,12 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
             message.warning("Please purchase this course part to unlock all units");
             return;
         }
+
         toggleAccordion(unitId);
+
+        if (expandedUnit !== unitId) {
+            fetchSubunitProgress(unitId);
+        }
     };
 
     const fetchUnitsandSubunits = async () => {
@@ -119,7 +124,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         try {
             setSessionLoading(true);
             const unitId = selectedUnits[0];
-            const res = await progressService.getUnitProgress({ courseId, unitId });
+            const res = await progressService.getUnitProgress({ courseId, partId, publisherId, unitId });
             setUnitProgress(res.progress);
             setShowSessionModal(true);
         } catch (error) {
@@ -141,13 +146,28 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
             let prefetchedQuestions = null;
 
             if (mode === "continue") {
-                const res = await progressService.getContinueSession({ courseId, unitId });
+                const res = await progressService.getContinueSession({
+                    courseId,
+                    partId,
+                    publisherId,
+                    unitId
+                });
                 prefetchedQuestions = res.questions;
             } else if (mode === "wrong-only") {
-                const res = await progressService.getWrongOnlySession({ courseId, unitId });
+                const res = await progressService.getWrongOnlySession({
+                    courseId,
+                    partId,
+                    publisherId,
+                    unitId
+                });
                 prefetchedQuestions = res.questions;
             } else if (mode === "start-over") {
-                await progressService.getStartOverSession({ courseId, unitId });
+                await progressService.getStartOverSession({
+                    courseId,
+                    partId,
+                    publisherId,
+                    unitId
+                });
             }
 
             setShowSessionModal(false);
@@ -173,21 +193,13 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
 
     const fetchAllUnitsProgress = async () => {
         try {
-            const progressMap = {};
-            await Promise.all(
-                units.map(async (topic) => {
-                    try {
-                        const res = await progressService.getUnitProgress({
-                            courseId,
-                            unitId: topic.unitId,
-                        });
-                        progressMap[topic.unitId] = res.progress;
-                    } catch (error) {
-                        progressMap[topic.unitId] = null;
-                    }
-                })
-            );
-            setAllUnitsProgress(progressMap);
+            const res = await progressService.getAllUnitsProgress({
+                courseId,
+                partId,
+                publisherId,
+            });
+
+            setAllUnitsProgress(res.progress || {});
         } catch (error) {
             console.error("Failed to fetch units progress", error);
         }
@@ -199,6 +211,30 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
             fetchAllUnitsProgress();
         }
     }, [units]);
+
+
+    const fetchSubunitProgress = async (unitId) => {
+        try {
+            const res = await progressService.getAllSubunitsProgress({
+                courseId,
+                partId,
+                publisherId,
+                unitId
+            });
+
+            const subunitProgress = res.progress || {};
+
+            setAllUnitsProgress(prev => ({
+                ...prev,
+                [unitId]: {
+                    ...prev[unitId],
+                    subunits: subunitProgress
+                }
+            }));
+        } catch (error) {
+            console.error(`Failed to fetch subunit progress for unit ${unitId}`, error);
+        }
+    };
 
     const getAttemptedColor = (attempted, total) => {
         if (!attempted || !total || attempted === 0) return "inactive";
@@ -214,6 +250,23 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     };
 
     const getProficiencyColor = (score) => {
+        if (score === 0) return "inactive";
+        if (score >= 70) return "active";
+        if (score >= 40) return "warning";
+        return "error";
+    };
+
+
+    const getSubunitAttemptedColor = (attempted, total) => {
+        if (!attempted || !total || attempted === 0) return "inactive";
+        const ratio = attempted / total;
+        if (ratio >= 0.7) return "active";
+        if (ratio >= 0.3) return "warning";
+        return "error";
+    };
+
+
+    const getSubunitProficiencyColor = (score) => {
         if (score === 0) return "inactive";
         if (score >= 70) return "active";
         if (score >= 40) return "warning";
@@ -303,8 +356,19 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                     {topic.subunits.map(sub => {
                                         const otherUnitSelected = selectedUnits.some(id => id !== topic.unitId);
                                         const disabled = otherUnitSelected && !selectedUnits.includes(topic.unitId);
+
+                                        // fetch subunit progress
+                                        const subProgress = allUnitsProgress[topic.unitId]?.subunits?.[sub._id] || {};
+                                        const attemptedSub = subProgress.attempted ?? 0;
+                                        const totalSub = subProgress.totalQuestions ?? 0;
+                                        const proficiencySub = getProficiencyScore(subProgress);
+                                        const attemptedColorSub = getSubunitAttemptedColor(attemptedSub, totalSub);
+                                        const proficiencyColorSub = getSubunitProficiencyColor(proficiencySub);
+
                                         return (
                                             <div key={sub._id} className="unit-subunit-row">
+
+                                                {/* Column 1 */}
                                                 <div className="unit-subunit-info">
                                                     <input
                                                         type="checkbox"
@@ -315,6 +379,26 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                                     />
                                                     <span className="unit-subunit-name">{sub.name}</span>
                                                 </div>
+
+                                                {/* Column 2 (Type empty to align) */}
+                                                <div></div>
+
+                                                {/* Column 3 (Status) */}
+                                                <div className={`unit-topic-status ${attemptedColorSub} subunit-topic-status`}>
+                                                    {attemptedSub}/{totalSub}
+                                                </div>
+
+                                                {/* Column 4 (Progress) */}
+                                                <div className="unit-topic-progress">
+                                                    <div className="unit-progress-bar">
+                                                        <div
+                                                            className={`unit-progress-fill ${proficiencyColorSub}`}
+                                                            style={{ width: `${proficiencySub}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="unit-progress-text">{proficiencySub}%</span>
+                                                </div>
+
                                             </div>
                                         );
                                     })}
