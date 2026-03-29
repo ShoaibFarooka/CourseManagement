@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaChevronLeft } from "react-icons/fa";
 import { TiStopwatch } from "react-icons/ti";
 import "./Quiz.css";
@@ -17,6 +17,7 @@ import { message } from "antd";
 import questionService from "../../../services/questionServices";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import progressService from '../../../services/progressService';
 
 const QUIZ_TIME = 300;
 
@@ -36,8 +37,10 @@ const Quiz = () => {
         examType,
         limit,
         timeRatio,
+        prefetchedQuestions,
     } = state || {};
 
+    const isPrefetched = prefetchedQuestions && prefetchedQuestions.length > 0;
     const language = useSelector(state => state.user?.user.language);
 
     const [questions, setQuestions] = useState([]);
@@ -50,8 +53,9 @@ const Quiz = () => {
     const [time, setTime] = useState(QUIZ_TIME);
     const [showTimeUpModal, setShowTimeUpModal] = useState(false);
     const [showExitModal, setShowExitModal] = useState(false);
-
     const PAGE_SIZE = 20;
+
+    const pendingProgressRef = useRef([]);
 
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
@@ -134,23 +138,26 @@ const Quiz = () => {
     };
 
     const goToQuestion = async (index) => {
-        const pageNeeded = Math.floor(index / PAGE_SIZE) + 1;
-
-        if (!loadedPages.has(pageNeeded)) {
-            await fetchQuestions(pageNeeded);
+        if (!isPrefetched) {
+            const pageNeeded = Math.floor(index / PAGE_SIZE) + 1;
+            if (!loadedPages.has(pageNeeded)) {
+                await fetchQuestions(pageNeeded);
+            }
         }
 
         setCurrentIndex(index);
     };
 
+
     const nextQuestion = async () => {
         const nextIndex = currentIndex + 1;
 
         if (nextIndex < totalQuestions) {
-            const pageNeeded = Math.floor(nextIndex / PAGE_SIZE) + 1;
-
-            if (!loadedPages.has(pageNeeded)) {
-                await fetchQuestions(pageNeeded);
+            if (!isPrefetched) {
+                const pageNeeded = Math.floor(nextIndex / PAGE_SIZE) + 1;
+                if (!loadedPages.has(pageNeeded)) {
+                    await fetchQuestions(pageNeeded);
+                }
             }
 
             setCurrentIndex(nextIndex);
@@ -160,9 +167,16 @@ const Quiz = () => {
     useEffect(() => {
         if (!location.state?.source) {
             navigate("/dashboard");
-        } else {
-            fetchQuestions(1);
+            return;
         }
+
+        if (isPrefetched) {
+            setQuestions(prefetchedQuestions);
+            setTotalQuestions(prefetchedQuestions.length);
+            return;
+        }
+
+        fetchQuestions(1);
     }, []);
 
     useEffect(() => {
@@ -213,19 +227,71 @@ const Quiz = () => {
         return `${mins}:${secs < 10 ? "0" + secs : secs}`;
     };
 
-    const handleAnswerSelect = (key, value) => {
-        if ((source === 'unit-exam' || source === 'package-exam') && !firstAnswers[key]) {
-            setFirstAnswers(prev => ({
-                ...prev,
-                [key]: value,
-            }));
+    const getIsCorrect = (question, key, value) => {
+        if (question.type === "mcq") {
+            return value === question.correctOption;
         }
-
-        setAnswers(prev => ({
-            ...prev,
-            [key]: value,
-        }));
+        if (question.type === "rapid") {
+            const subIndex = parseInt(key.split(":")[2]);
+            const sub = question.subquestions?.[subIndex];
+            return value === sub?.correctOption;
+        }
+        if (question.type === "essay") {
+            if (key.endsWith(":rating")) {
+                return parseInt(value) >= 3;
+            }
+            return null;
+        }
+        return null;
     };
+
+
+    const handleAnswerSelect = (key, value) => {
+        if ((source === "unit-exam" || source === "package-exam") && !firstAnswers[key]) {
+            setFirstAnswers((prev) => ({ ...prev, [key]: value }));
+        }
+        setAnswers((prev) => ({ ...prev, [key]: value }));
+
+        if (source !== "unit-exam") return;
+
+        const question = currentQuestion;
+        if (!question) return;
+        if (firstAnswers[key] !== undefined) return;
+
+        const isCorrect = getIsCorrect(question, key, value);
+        if (isCorrect === null) return;
+
+
+        pendingProgressRef.current.push({
+            courseId,
+            partId,
+            publisherId,
+            unitId: question.unit,
+            questionId: question._id,
+            isCorrect,
+        });
+    };
+
+    useEffect(() => {
+        if (source !== "unit-exam") return;
+
+        const flushProgress = async () => {
+            if (pendingProgressRef.current.length === 0) return;
+
+            const batch = [...pendingProgressRef.current];
+            pendingProgressRef.current = [];
+
+            try {
+                await progressService.recordAnswerBatch(batch);
+            } catch (err) {
+                pendingProgressRef.current = [...batch, ...pendingProgressRef.current];
+                console.error("Batch progress sync failed:", err);
+            }
+        };
+
+        const interval = setInterval(flushProgress, 30000);
+        return () => clearInterval(interval);
+    }, [source]);
 
     const prevQuestion = () => {
         setCurrentIndex(prev => Math.max(prev - 1, 0));
@@ -532,7 +598,17 @@ const Quiz = () => {
 
 
 
-    const handleQuizSubmit = () => {
+    const handleQuizSubmit = async () => {
+        if (source === "unit-exam" && pendingProgressRef.current.length > 0) {
+            const batch = [...pendingProgressRef.current];
+            pendingProgressRef.current = [];
+            try {
+                await progressService.recordAnswerBatch(batch);
+            } catch (err) {
+                console.error("Final batch sync failed:", err);
+            }
+        }
+
         const mcqScore = calculateMCQScore();
         const rapidScore = calculateRapidScore();
         const essayScore = calculateEssayScore();
@@ -545,8 +621,8 @@ const Quiz = () => {
                 incorrectAnswers: incorrectCount,
                 mcqScore,
                 rapidScore,
-                essayScore
-            }
+                essayScore,
+            },
         });
     };
 

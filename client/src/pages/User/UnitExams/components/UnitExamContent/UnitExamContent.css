@@ -100,6 +100,7 @@
     max-width: 120px;
 }
 
+
 .unit-topic-status.active {
     background: #4DC4CE2B;
     color: #19a974;
@@ -178,9 +179,10 @@
 }
 
 .unit-exams-container .unit-subunit-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 0.2fr 0.3fr 0.4fr;
     align-items: center;
-    padding: 10px 0;
+    padding: 5px;
 }
 
 .unit-exams-container .unit-subunit-info {
@@ -189,9 +191,14 @@
     gap: 12px;
 }
 
+
 .unit-exams-container .unit-subunit-name {
     font-size: 0.875rem;
     color: var(--text-color);
+}
+
+.unit-exams-container .subunit-topic-status {
+    max-width: 60px;
 }
 
 /* Footer */
@@ -286,6 +293,17 @@
         padding: 0.25rem 0.45rem;
     }
 
+    .unit-exams-container .subunit-topic-status {
+        max-width: 40px;
+        padding: 0.25rem 0.45rem;
+    }
+
+    .unit-exams-container .unit-subunit-row {
+        grid-template-columns: 1.2fr 0.6fr 0.4fr 0.7fr;
+        padding: 0.5rem 0.4rem;
+        gap: 5px;
+    }
+
     .unit-exams-container .unit-next-btn-container .next {
         width: 180px;
         font-size: 0.9rem;
@@ -293,7 +311,7 @@
     }
 }
 
-@media screen and (max-width: 576px) {
+@media only screen and (max-width: 576px) {
     .unit-exams-container {
         padding: 100px 10px 100px 10px;
     }
@@ -337,6 +355,22 @@
         width: 150px;
         font-size: 0.85rem;
         padding: 10px 24px;
+    }
+
+    .unit-exams-container .unit-subunit-row {
+        grid-template-columns: 1.2fr 0.6fr 0.5fr 0.7fr;
+        padding: 0.5rem 0.4rem;
+        gap: 5px;
+    }
+
+    .unit-exams-container .unit-subunit-name {
+        font-size: 0.65rem;
+    }
+
+    .unit-exams-container .subunit-topic-status {
+        max-width: 35px;
+        font-size: 0.65rem;
+        padding: 0.25rem 0.3rem;
     }
 }
 
@@ -406,5 +440,26 @@
         width: 130px;
         font-size: 0.8rem;
         padding: 8px 20px;
+    }
+
+    .unit-exams-container .unit-subunit-row {
+        grid-template-columns: 1.2fr 0.6fr 0.7fr 0.8fr;
+        padding: 0.4rem 0.3rem;
+        gap: 3px;
+    }
+
+    .unit-exams-container .unit-subunit-name {
+        font-size: 0.6rem;
+    }
+
+    .unit-exams-container .unit-subunit-info {
+        gap: 4px;
+    }
+
+    .unit-exams-container .subunit-topic-status {
+        max-width: 35px;
+        font-size: 0.6rem;
+        padding: 0.2rem 0.25rem;
+        border-radius: 5px;
     }
 }
