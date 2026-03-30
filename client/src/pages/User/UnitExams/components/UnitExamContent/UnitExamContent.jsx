@@ -64,7 +64,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
 
     useEffect(() => {
         fetchUnitsandSubunits();
-    }, []);
+    }, [courseId, partId, publisherId]);
 
     const handleUnitCheck = (unitId, unitSubunits) => {
         const isSelected = selectedUnits.includes(unitId);
@@ -88,8 +88,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     };
 
     const handleSubunitCheck = (unitId, subunitId) => {
-        const otherUnitsSelected = selectedUnits.filter(id => id !== unitId).length > 0;
-        if (otherUnitsSelected && !selectedUnits.includes(unitId)) return;
+        const otherUnitSelected = selectedUnits.some(id => id !== unitId);
+        if (otherUnitSelected) return;
 
         setSelectedUnits(prev =>
             prev.includes(unitId) ? prev : [...prev, unitId]
@@ -185,6 +185,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                 }
             });
         } catch (error) {
+            console.log(error);
             message.error(error?.response?.data?.message || "Something went wrong!");
         } finally {
             setSessionLoading(false);
@@ -199,19 +200,26 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                 publisherId,
             });
 
-            setAllUnitsProgress(res.progress || {});
+            setAllUnitsProgress(prev => {
+                const merged = { ...prev };
+                Object.entries(res.progress || {}).forEach(([unitId, data]) => {
+                    merged[unitId] = {
+                        subunits: prev[unitId]?.subunits,
+                        ...data,
+                    };
+                });
+                return merged;
+            });
         } catch (error) {
             console.error("Failed to fetch units progress", error);
         }
     };
 
-
     useEffect(() => {
         if (units.length > 0) {
             fetchAllUnitsProgress();
         }
-    }, [units]);
-
+    }, [units, courseId, partId, publisherId]);
 
     const fetchSubunitProgress = async (unitId) => {
         try {
@@ -245,8 +253,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     };
 
     const getProficiencyScore = (progress) => {
-        if (!progress || progress.attempted === 0) return 0;
-        return Math.round((progress.correct / progress.attempted) * 100);
+        if (!progress || !progress.attempted || progress.attempted === 0) return 0;
+        return Math.round(((progress.correct ?? 0) / progress.attempted) * 100);
     };
 
     const getProficiencyColor = (score) => {
@@ -256,7 +264,6 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         return "error";
     };
 
-
     const getSubunitAttemptedColor = (attempted, total) => {
         if (!attempted || !total || attempted === 0) return "inactive";
         const ratio = attempted / total;
@@ -264,7 +271,6 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         if (ratio >= 0.3) return "warning";
         return "error";
     };
-
 
     const getSubunitProficiencyColor = (score) => {
         if (score === 0) return "inactive";
@@ -332,12 +338,10 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                     {Array.isArray(topic.type) ? topic.type.join(', ') : topic.type || 'N/A'}
                                 </div>
 
-                                {/* ── Status: attempted / total ── */}
                                 <div className={`unit-topic-status ${attemptedColor}`}>
                                     {attempted}/{total}
                                 </div>
 
-                                {/* ── Proficiency Score ── */}
                                 <div className="unit-topic-progress">
                                     <div className="unit-progress-bar">
                                         <div
@@ -349,7 +353,6 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                 </div>
                             </div>
 
-                            {/* subunits accordion — unchanged */}
                             {expandedUnit === topic.unitId && isUnitUnlocked && (
                                 <div className="unit-subunit-wrapper">
                                     <div className="unit-subunit-label">Subunits</div>
@@ -357,7 +360,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                         const otherUnitSelected = selectedUnits.some(id => id !== topic.unitId);
                                         const disabled = otherUnitSelected && !selectedUnits.includes(topic.unitId);
 
-                                        // fetch subunit progress
+                                        // FIX 1: Safe defaults so getProficiencyScore never receives undefined fields
                                         const subProgress = allUnitsProgress[topic.unitId]?.subunits?.[sub._id] || {};
                                         const attemptedSub = subProgress.attempted ?? 0;
                                         const totalSub = subProgress.totalQuestions ?? 0;
@@ -368,7 +371,6 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                         return (
                                             <div key={sub._id} className="unit-subunit-row">
 
-                                                {/* Column 1 */}
                                                 <div className="unit-subunit-info">
                                                     <input
                                                         type="checkbox"
@@ -380,15 +382,12 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                                     <span className="unit-subunit-name">{sub.name}</span>
                                                 </div>
 
-                                                {/* Column 2 (Type empty to align) */}
                                                 <div></div>
 
-                                                {/* Column 3 (Status) */}
                                                 <div className={`unit-topic-status ${attemptedColorSub} subunit-topic-status`}>
                                                     {attemptedSub}/{totalSub}
                                                 </div>
 
-                                                {/* Column 4 (Progress) */}
                                                 <div className="unit-topic-progress">
                                                     <div className="unit-progress-bar">
                                                         <div

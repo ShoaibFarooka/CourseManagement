@@ -10,6 +10,18 @@ const progressService = {
         return response.data;
     },
 
+    getUnitProgress: async ({ courseId, partId, publisherId, unitId }) => {
+        try {
+            const response = await axiosInstance.get(`${BASE_URL}/single-unit-progress`, {
+                params: { courseId, partId, publisherId, unitId },
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+
     getAllUnitsProgress: async ({ courseId, partId, publisherId }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/unit-progress`, {
