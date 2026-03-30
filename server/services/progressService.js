@@ -273,6 +273,32 @@ const processBatchGroup = async (userId, answers) => {
     }
 };
 
+const getUnitProgress = async (userId, courseId, partId, publisherId, unitId) => {
+    const progressDoc = await UserProgress.findOne({
+        user: userId,
+        course: courseId,
+        part: partId,
+        publisher: publisherId
+    });
+
+    if (!progressDoc) return null;
+
+    const unitStat = progressDoc.progress.get(unitId);
+    if (!unitStat) return null;
+
+    const statObj = unitStat.toObject ? unitStat.toObject() : unitStat;
+
+    return {
+        unitId,
+        totalQuestions: statObj.totalQuestions,
+        attempted: statObj.attempted,
+        unattempted: statObj.totalQuestions - statObj.attempted,
+        correct: statObj.correct,
+        wrong: statObj.wrong,
+        lastAttemptedQ: statObj.lastAttemptedQ,
+    };
+};
+
 
 const getAllUnitsProgress = async (userId, courseId, partId, publisherId) => {
     const progressDoc = await UserProgress.findOne({
@@ -399,6 +425,7 @@ const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId
 module.exports = {
     recordAnswer,
     getAllUnitsProgress,
+    getUnitProgress,
     getAllSubunitsProgress,
     getContinueSession,
     getStartOverSession,

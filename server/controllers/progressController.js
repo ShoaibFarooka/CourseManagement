@@ -16,6 +16,27 @@ const RecordAnswer = async (req, res) => {
     }
 };
 
+const GetUnitProgress = async (req, res, next) => {
+    try {
+        const { courseId, partId, publisherId, unitId } = req.query;
+        const userId = req.user.id;
+
+        if (!unitId) return res.status(400).json({ message: "unitId is required" });
+
+        const progress = await progressService.getUnitProgress(
+            userId, courseId, partId, publisherId, unitId
+        );
+
+        if (!progress) {
+            return res.status(404).json({ message: "No progress found for this unit" });
+        }
+
+        res.status(200).json({ progress });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const GetAllUnitsProgress = async (req, res, next) => {
     try {
         const { courseId, partId, publisherId, unitId } = req.query;
@@ -101,6 +122,7 @@ const GetWrongOnlySession = async (req, res, next) => {
 module.exports = {
     RecordAnswer,
     GetAllUnitsProgress,
+    GetUnitProgress,
     GetAllSubunitsProgress,
     GetContinueSession,
     GetStartOverSession,

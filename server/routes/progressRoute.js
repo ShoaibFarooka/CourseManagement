@@ -12,14 +12,19 @@ router.post(
     controller.RecordAnswer
 );
 
-// Get unit progress stats
 router.get(
     "/unit-progress",
     authMiddleware.authenticateRequest,
     controller.GetAllUnitsProgress
 );
 
-// Get unit progress stats
+router.get(
+    "/single-unit-progress",
+    authMiddleware.authenticateRequest,
+    controller.GetUnitProgress
+);
+
+
 router.get(
     "/subunit-progress",
     authMiddleware.authenticateRequest,
