@@ -386,25 +386,40 @@ const getContinueSession = async (userId, courseId, partId, publisherId, unitId)
 const getStartOverSession = async (userId, courseId, partId, publisherId, unitId) => {
     const unitKey = `progress.${unitId}`;
 
+    const doc = await UserProgress.findOne({
+        user: userId,
+        course: courseId,
+        part: partId,
+        publisher: publisherId
+    });
+
+    if (!doc) return;
+
+    const updates = {
+        [`${unitKey}.attempted`]: 0,
+        [`${unitKey}.correct`]: 0,
+        [`${unitKey}.wrong`]: 0,
+        [`${unitKey}.attemptedIds`]: [],
+        [`${unitKey}.wrongIds`]: [],
+        [`${unitKey}.lastAttemptedQ`]: null,
+    };
+
+    const unit = doc.progress?.get(unitId);
+    const subunits = unit?.subunits || {};
+
+    for (const subId of Object.keys(subunits)) {
+        updates[`${unitKey}.subunits.${subId}.attempted`] = 0;
+        updates[`${unitKey}.subunits.${subId}.correct`] = 0;
+        updates[`${unitKey}.subunits.${subId}.wrong`] = 0;
+        updates[`${unitKey}.subunits.${subId}.attemptedIds`] = [];
+        updates[`${unitKey}.subunits.${subId}.wrongIds`] = [];
+        updates[`${unitKey}.subunits.${subId}.lastAttemptedQ`] = null;
+    }
+
     await UserProgress.updateOne(
         { user: userId, course: courseId, part: partId, publisher: publisherId },
-        {
-            $set: {
-                [`${unitKey}.attempted`]: 0,
-                [`${unitKey}.correct`]: 0,
-                [`${unitKey}.wrong`]: 0,
-                [`${unitKey}.attemptedIds`]: [],
-                [`${unitKey}.wrongIds`]: [],
-                [`${unitKey}.lastAttemptedQ`]: null,
-            },
-        }
+        { $set: updates }
     );
-
-    const questions = await Question.find({ unit: unitId });
-
-    if (!questions.length) throw Object.assign(new Error("No questions found!"), { code: 404 });
-
-    return questions;
 };
 
 const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId) => {
