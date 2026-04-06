@@ -79,6 +79,13 @@ const progressService = {
             throw error;
         }
     },
+
+    getUnitPerformance: async ({ courseId, partId, publisherId, unitId }) => {
+        const response = await axiosInstance.get(`${BASE_URL}/unit-performance`, {
+            params: { courseId, partId, publisherId, unitId },
+        });
+        return response.data;
+    },
 };
 
 export default progressService;

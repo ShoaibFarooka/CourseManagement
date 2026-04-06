@@ -19,6 +19,7 @@ import Dashboard from "../pages/User/Dashboard/Dashboard";
 import UnitExams from "../pages/User/UnitExams/UnitExams";
 import PracticeExams from "../pages/User/PracticeExams/PracticeExams";
 import PackageExams from '../pages/User/PackageExams/PackageExams';
+import Performance from '../pages/User/Performance/Performance';
 import Quiz from "../pages/User/Quiz/Quiz";
 import ProgressReport from "../pages/User/ProgressReport/ProgressReport";
 import Payment from '../pages/admin/Payment/Payment';
@@ -50,7 +51,8 @@ const routes = [
             { path: "dashboard", element: <Dashboard /> },
             { path: "unit-exams", element: <UnitExams /> },
             { path: "practice-exams", element: <PracticeExams /> },
-            { path: "package-exams", element: <PackageExams /> }
+            { path: "package-exams", element: <PackageExams /> },
+            { path: "performance", element: <Performance /> },
         ]
     },
     { path: "/quiz", element: <Quiz />, protected: true, authRedirect: false, showHeader: true, showFooter: true },

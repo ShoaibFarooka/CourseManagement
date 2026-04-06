@@ -1,0 +1,211 @@
+.pm-container {
+    padding: 20px 20px;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    width: 100%;
+    min-width: 340px;
+    background-color: var(--unit-exams-bg);
+}
+
+/* Section */
+.pm-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pm-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    margin-top: 20px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--text-color);
+    text-align: center;
+}
+
+/* Stat Cards */
+.pm-stat-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.pm-stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--text-color);
+}
+
+.pm-stat-card.correct {
+    background: #4DC4CE2B;
+    border-color: #19a97433;
+}
+
+.pm-stat-card.wrong {
+    background: #d4262631;
+    border-color: #f6262633;
+}
+
+.pm-stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-color);
+    line-height: 1;
+}
+
+.pm-stat-card.correct .pm-stat-value {
+    color: #19a974;
+}
+
+.pm-stat-card.wrong .pm-stat-value {
+    color: #d32f2f;
+}
+
+.pm-stat-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Proficiency Bar */
+.pm-proficiency-row {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pm-proficiency-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 76px;
+}
+
+.pm-proficiency-bar {
+    flex: 1;
+    height: 10px;
+    background: #218D9521;
+    border-radius: 29px;
+    overflow: hidden;
+}
+
+.pm-proficiency-fill {
+    height: 100%;
+    border-radius: 29px;
+    background: #218C95;
+    transition: width 0.4s ease;
+}
+
+.pm-proficiency-fill.warning {
+    background: #FAC053;
+}
+
+.pm-proficiency-fill.error {
+    background: #FA5353;
+}
+
+.pm-proficiency-fill.inactive {
+    background: var(--text-muted, #888);
+}
+
+.pm-proficiency-pct {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 34px;
+    text-align: right;
+}
+
+.pm-subunit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.pm-subunit-item {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--text-color);
+}
+
+.pm-subunit-header {
+    display: flex;
+    align-items: center;
+}
+
+.pm-subunit-id {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.pm-subunit-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pm-subunit-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pm-subunit-stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.pm-subunit-stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.pm-subunit-stat .correct-value {
+    color: #04734a;
+}
+
+.pm-subunit-stat.wrong .pm-subunit-stat-value {
+    color: #d32f2f;
+}
+
+/* Loading / Empty */
+.pm-loading,
+.pm-empty {
+    font-size: 0.85rem;
+    color: var(--text-muted, #888);
+    padding: 12px 0;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .pm-container {
+        min-width: unset;
+    }
+
+    .pm-stat-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pm-subunit-stats {
+        gap: 10px;
+    }
+}

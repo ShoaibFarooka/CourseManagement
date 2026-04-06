@@ -24,8 +24,16 @@ const recordAnswerBatchSchema = yup.object().shape({
         .required(),
 });
 
+const getUnitPerformanceSchema = yup.object().shape({
+    courseId: yup.string().required(),
+    partId: yup.string().required(),
+    publisherId: yup.string().required(),
+    unitId: yup.string().required(),
+});
+
 module.exports = {
     recordAnswerSchema,
     recordAnswerBatchSchema,
     unitSessionSchema,
+    getUnitPerformanceSchema,
 };

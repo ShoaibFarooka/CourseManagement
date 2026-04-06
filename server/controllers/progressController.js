@@ -119,10 +119,30 @@ const GetWrongOnlySession = async (req, res, next) => {
     }
 };
 
+const GetUnitPerformance = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { courseId, partId, publisherId, unitId } = req.query;
+
+        const performance = await progressService.getUnitPerformance(
+            userId,
+            courseId,
+            partId,
+            publisherId,
+            unitId
+        );
+
+        res.json({ success: true, performance });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 module.exports = {
     RecordAnswer,
     GetAllUnitsProgress,
     GetUnitProgress,
+    GetUnitPerformance,
     GetAllSubunitsProgress,
     GetContinueSession,
     GetStartOverSession,

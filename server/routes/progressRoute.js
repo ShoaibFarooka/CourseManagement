@@ -55,4 +55,12 @@ router.get(
     controller.GetWrongOnlySession
 );
 
+router.get(
+    "/unit-performance",
+    authMiddleware.authenticateRequest,
+    validationMiddleware.validateQuery(progressSchemas.getUnitPerformanceSchema),
+    controller.GetUnitPerformance
+);
+
+
 module.exports = router;
