@@ -1,6 +1,7 @@
 const UserProgress = require("../models/userProgressModel");
 const Question = require('../models/questionModel');
 const mongoose = require("mongoose");
+const { GetUnitPerformance } = require("../controllers/progressController");
 const { Types } = mongoose;
 
 const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId) => {
@@ -457,6 +458,65 @@ const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId
     return await Question.find({ _id: { $in: wrongIds } });
 };
 
+
+
+const buildStatSummary = (stat) => {
+    const attempted = stat.attempted ?? 0;
+    const correct = stat.correct ?? 0;
+    const wrong = stat.wrong ?? 0;
+    const total = stat.totalQuestions ?? 0;
+
+    return {
+        totalQuestions: total,
+        attempted,
+        correct,
+        wrong,
+        proficiency: attempted > 0 ? Math.round((correct / attempted) * 100) : 0,
+    };
+};
+
+const buildEmptyUnitPerformance = () => ({
+    totalQuestions: 0,
+    attempted: 0,
+    correct: 0,
+    wrong: 0,
+    proficiency: 0,
+    subunits: {},
+});
+
+const getUnitPerformance = async (userId, courseId, partId, publisherId, unitId) => {
+    const record = await UserProgress.findOne({
+        user: userId,
+        course: courseId,
+        part: partId,
+        publisher: publisherId,
+    }).lean();
+
+    if (!record || !record.progress) {
+        return buildEmptyUnitPerformance();
+    }
+
+    const progressMap = record.progress;
+    const unitStat = progressMap[unitId];
+
+    if (!unitStat) {
+        return buildEmptyUnitPerformance();
+    }
+
+    const unit = buildStatSummary(unitStat);
+
+    const subunits = {};
+    const subunitMap = unitStat.subunits || {};
+
+    Object.entries(subunitMap).forEach(([subunitId, subStat]) => {
+        subunits[subunitId] = buildStatSummary(subStat);
+    });
+
+    return { ...unit, subunits };
+};
+
+
+
 module.exports = {
     recordAnswer,
     getAllUnitsProgress,
@@ -465,4 +525,5 @@ module.exports = {
     getContinueSession,
     getStartOverSession,
     getWrongOnlySession,
+    getUnitPerformance,
 };

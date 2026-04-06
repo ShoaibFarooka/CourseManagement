@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 import userService from '../../../services/userServices';
 import { useDispatch } from 'react-redux';
-import Cookies from 'js-cookie';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 const Signup = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -168,7 +170,19 @@ const Signup = () => {
                     <div className='row-3'>
                         <div className='password'>
                             <label htmlFor="password" className='heading-sm'>Password</label>
-                            <input className='input' type="password" name='password' placeholder='Password' value={formData.password} onChange={handleInputChange} />
+                            <div className="signup-password-wrapper">
+                                <input
+                                    className='input'
+                                    type={showPassword ? 'text' : 'password'}
+                                    name='password'
+                                    placeholder='Password'
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                />
+                                <span className="signup-eye-icon" onClick={() => setShowPassword(prev => !prev)}>
+                                    {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                </span>
+                            </div>
                             {error.password && <span className='error-text'>{error.password}</span>}
                         </div>
                         <div className='empty'></div>

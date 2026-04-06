@@ -38,13 +38,13 @@ const Sidebar = forwardRef((props, ref) => {
         { label: "Dashboard", path: "/dashboard" },
         { label: "Unit Exams", path: "/dashboard/unit-exams" },
         { label: "Practice Exams", path: "/dashboard/practice-exams" },
-        { label: "Package Exams", path: "/dashboard/package-exams" }
+        { label: "Package Exams", path: "/dashboard/package-exams" },
+        { label: "Performance", path: "/dashboard/performance" }
     ];
 
     const hasAccess =
-        purchasedCourses &&
-        purchasedCourses.length > 0 &&
-        deviceStatus === true;
+        deviceStatus === true &&
+        purchasedCourses?.some(p => new Date(p.expiryDate) > new Date());
 
     return (
         <div className="sidebar-wrapper" ref={sidebarRef}>
@@ -63,7 +63,8 @@ const Sidebar = forwardRef((props, ref) => {
                                 : location.pathname === item.path;
                         const isLocked =
                             (item.label === "Practice Exams" ||
-                                item.label === "Package Exams") &&
+                                item.label === "Package Exams" ||
+                                item.label === "Performance") &&
                             !hasAccess;
 
                         return (
@@ -74,6 +75,8 @@ const Sidebar = forwardRef((props, ref) => {
                                     if (isLocked) {
                                         if (!purchasedCourses || purchasedCourses.length === 0) {
                                             message.warning("Please purchase a course first.");
+                                        } else if (!purchasedCourses.some(p => new Date(p.expiryDate) > new Date())) {
+                                            message.warning("Your course subscription has expired.");
                                         } else if (deviceStatus !== true) {
                                             message.warning("Please verify your device first.");
                                         }

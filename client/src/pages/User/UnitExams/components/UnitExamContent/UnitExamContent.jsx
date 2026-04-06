@@ -31,6 +31,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
 
     const isPurchased = purchasedCourses?.some(
         p => p.courseId === courseId && p.partId === partId
+            && new Date(p.expiryDate) > new Date()
     );
 
     const handleToggleUnit = (unitId, unlocked) => {
