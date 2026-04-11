@@ -70,13 +70,6 @@ const PerformanceModal = ({
 }) => {
 
 
-
-
-
-
-
-
-
     const [performance, setPerformance] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -103,7 +96,6 @@ const PerformanceModal = ({
         }
     }, [courseId, partId, publisherId, unitId]);
 
-    // When viewing a subunit, pull its stats from the nested subunits map
     const subunitData = isSubunit && subunitId && performance?.subunits
         ? performance.subunits[subunitId] || null
         : null;

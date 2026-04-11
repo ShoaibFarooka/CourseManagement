@@ -69,7 +69,7 @@ const progressService = {
         }
     },
 
-    getWrongOnlySession: async ({ courseId, unitId }) => {
+    getWrongOnlySession: async ({ courseId, partId, publisherId, unitId }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/session/wrong-only`, {
                 params: { courseId, partId, publisherId, unitId },
