@@ -3,9 +3,10 @@ import axiosInstance from "./axiosInstance";
 const BASE_URL = "/api/progress";
 
 const progressService = {
-    recordAnswerBatch: async (answers) => {
+    recordAnswerBatch: async (answers, language) => {
         const response = await axiosInstance.post(`${BASE_URL}/record-answer`, {
             answers,
+            language
         });
         return response.data;
     },
@@ -44,10 +45,10 @@ const progressService = {
         }
     },
 
-    getContinueSession: async ({ courseId, partId, publisherId, unitId }) => {
+    getContinueSession: async ({ courseId, partId, publisherId, unitId, language }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/session/continue`, {
-                params: { courseId, partId, publisherId, unitId },
+                params: { courseId, partId, publisherId, unitId, language },
             });
             return response.data;
         } catch (error) {
@@ -55,13 +56,14 @@ const progressService = {
         }
     },
 
-    getStartOverSession: async ({ courseId, partId, publisherId, unitId }) => {
+    getStartOverSession: async ({ courseId, partId, publisherId, unitId, language }) => {
         try {
             const response = await axiosInstance.post(`${BASE_URL}/session/start-over`, {
                 courseId,
                 partId,
                 publisherId,
                 unitId,
+                language
             });
             return response.data;
         } catch (error) {
@@ -69,10 +71,10 @@ const progressService = {
         }
     },
 
-    getWrongOnlySession: async ({ courseId, partId, publisherId, unitId }) => {
+    getWrongOnlySession: async ({ courseId, partId, publisherId, unitId, language }) => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/session/wrong-only`, {
-                params: { courseId, partId, publisherId, unitId },
+                params: { courseId, partId, publisherId, unitId, language },
             });
             return response.data;
         } catch (error) {

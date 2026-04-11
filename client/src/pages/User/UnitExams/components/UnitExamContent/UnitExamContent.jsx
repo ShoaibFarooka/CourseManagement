@@ -22,6 +22,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     const [sessionLoading, setSessionLoading] = useState(false);
     const [unitProgress, setUnitProgress] = useState(null);
     const [allUnitsProgress, setAllUnitsProgress] = useState({});
+    const language = useSelector(state => state.user?.user.language);
 
     const toggleAccordion = (id) => {
         setExpandedUnit(prev => (prev === id ? null : id));
@@ -151,7 +152,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                     courseId,
                     partId,
                     publisherId,
-                    unitId
+                    unitId,
+                    language
                 });
                 prefetchedQuestions = res.questions;
             } else if (mode === "wrong-only") {
@@ -159,7 +161,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                     courseId,
                     partId,
                     publisherId,
-                    unitId
+                    unitId,
+                    language
                 });
                 prefetchedQuestions = res.questions;
             } else if (mode === "start-over") {
@@ -167,7 +170,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                     courseId,
                     partId,
                     publisherId,
-                    unitId
+                    unitId,
+                    language
                 });
             }
 

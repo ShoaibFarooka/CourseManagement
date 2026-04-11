@@ -3,13 +3,13 @@ const progressService = require("../services/progressService");
 const RecordAnswer = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { answers } = req.body;
+        const { answers, language } = req.body;
 
         if (!Array.isArray(answers) || answers.length === 0) {
             return res.status(400).json({ error: "answers must be a non-empty array" });
         }
 
-        await progressService.recordAnswer(userId, answers);
+        await progressService.recordAnswer(userId, answers, language);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -76,11 +76,11 @@ const GetAllSubunitsProgress = async (req, res, next) => {
 
 const GetContinueSession = async (req, res, next) => {
     try {
-        const { courseId, partId, publisherId, unitId } = req.query;
+        const { courseId, partId, publisherId, unitId, language } = req.query;
         const userId = req.user.id;
 
         const questions = await progressService.getContinueSession(
-            userId, courseId, partId, publisherId, unitId
+            userId, courseId, partId, publisherId, unitId, language
         );
 
         res.status(200).json({ questions });
@@ -91,13 +91,12 @@ const GetContinueSession = async (req, res, next) => {
 
 const GetStartOverSession = async (req, res, next) => {
     try {
-        const { courseId, partId, publisherId, unitId } = req.body;
+        const { courseId, partId, publisherId, unitId, language } = req.body;
         const userId = req.user.id;
 
         const questions = await progressService.getStartOverSession(
-            userId, courseId, partId, publisherId, unitId
+            userId, courseId, partId, publisherId, unitId, language
         );
-
         res.status(200).json({ questions });
     } catch (error) {
         next(error);
@@ -106,11 +105,11 @@ const GetStartOverSession = async (req, res, next) => {
 
 const GetWrongOnlySession = async (req, res, next) => {
     try {
-        const { courseId, partId, publisherId, unitId } = req.query;
+        const { courseId, partId, publisherId, unitId, language } = req.query;
         const userId = req.user.id;
 
         const questions = await progressService.getWrongOnlySession(
-            userId, courseId, partId, publisherId, unitId
+            userId, courseId, partId, publisherId, unitId, language
         );
 
         res.status(200).json({ questions });
