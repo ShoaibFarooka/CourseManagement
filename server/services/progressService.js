@@ -4,8 +4,24 @@ const mongoose = require("mongoose");
 const { GetUnitPerformance } = require("../controllers/progressController");
 const { Types } = mongoose;
 
-const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId) => {
-    const totalQuestions = await Question.countDocuments({ unit: unitId });
+const buildLanguageFilter = (language = "eng") => {
+    if (language === "eng") {
+        return {
+            $or: [
+                { language: "eng" },
+                { language: { $exists: false } },
+                { language: null }
+            ]
+        };
+    }
+    return { language };
+};
+
+const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
+    const totalQuestions = await Question.countDocuments({
+        unit: unitId,
+        ...buildLanguageFilter(language)
+    });
 
     await UserProgress.findOneAndUpdate(
         { user: userId, course: courseId, part: partId, publisher: publisherId },
@@ -46,7 +62,7 @@ const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId)
     );
 };
 
-const recordAnswer = async (userId, answers) => {
+const recordAnswer = async (userId, answers, language = "eng") => {
     const groupMap = new Map();
     for (const ans of answers) {
         const key = `${ans.courseId}|${ans.partId}|${ans.publisherId}`;
@@ -56,12 +72,12 @@ const recordAnswer = async (userId, answers) => {
 
     await Promise.all(
         [...groupMap.entries()].map(([key, groupAnswers]) =>
-            processBatchGroup(userId, groupAnswers)
+            processBatchGroup(userId, groupAnswers, language)
         )
     );
 };
 
-const processBatchGroup = async (userId, answers) => {
+const processBatchGroup = async (userId, answers, language = "eng") => {
     const { courseId, partId, publisherId } = answers[0];
 
     const questionIds = [...new Set(answers.map(a => a.questionId))];
@@ -99,13 +115,25 @@ const processBatchGroup = async (userId, answers) => {
             .map(id => new Types.ObjectId(id))
     )];
 
+    const languageFilter = buildLanguageFilter(language);
+
     const [unitCounts, subunitCounts] = await Promise.all([
         Question.aggregate([
-            { $match: { unit: { $in: unitIds } } },
+            {
+                $match: {
+                    unit: { $in: unitIds },
+                    ...languageFilter
+                }
+            },
             { $group: { _id: "$unit", total: { $sum: 1 } } }
         ]),
         Question.aggregate([
-            { $match: { subunit: { $in: subunitIds } } },
+            {
+                $match: {
+                    subunit: { $in: subunitIds },
+                    ...languageFilter
+                }
+            },
             { $group: { _id: "$subunit", total: { $sum: 1 } } }
         ])
     ]);
@@ -364,7 +392,7 @@ const getAllSubunitsProgress = async (userId, courseId, partId, publisherId, uni
     return result;
 };
 
-const getContinueSession = async (userId, courseId, partId, publisherId, unitId) => {
+const getContinueSession = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
@@ -377,14 +405,14 @@ const getContinueSession = async (userId, courseId, partId, publisherId, unitId)
     const questions = await Question.find({
         unit: unitId,
         _id: { $nin: excludeIds },
+        ...buildLanguageFilter(language)
     });
-
     if (!questions.length) throw Object.assign(new Error("No remaining questions found!"), { code: 404 });
 
     return questions;
 };
 
-const getStartOverSession = async (userId, courseId, partId, publisherId, unitId) => {
+const getStartOverSession = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
     const doc = await UserProgress.findOne({
         user: userId,
         course: courseId,
@@ -433,7 +461,10 @@ const getStartOverSession = async (userId, courseId, partId, publisherId, unitId
     );
 
 
-    const questions = await Question.find({ unit: unitId });
+    const questions = await Question.find({
+        unit: unitId,
+        ...buildLanguageFilter(language)
+    });
 
     if (!questions.length) {
         throw Object.assign(new Error("No questions found!"), { code: 404 });
@@ -443,7 +474,7 @@ const getStartOverSession = async (userId, courseId, partId, publisherId, unitId
 };
 
 
-const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId) => {
+const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
@@ -455,7 +486,10 @@ const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId
 
     if (!wrongIds.length) throw Object.assign(new Error("No wrong answers found!"), { code: 404 });
 
-    return await Question.find({ _id: { $in: wrongIds } });
+    return await Question.find({
+        _id: { $in: wrongIds },
+        ...buildLanguageFilter(language)
+    });
 };
 
 

@@ -282,7 +282,7 @@ const Quiz = () => {
             pendingProgressRef.current = [];
 
             try {
-                await progressService.recordAnswerBatch(batch);
+                await progressService.recordAnswerBatch(batch, language);
             } catch (err) {
                 pendingProgressRef.current = [...batch, ...pendingProgressRef.current];
                 console.error("Batch progress sync failed:", err);

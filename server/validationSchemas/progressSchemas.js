@@ -7,6 +7,7 @@ const recordAnswerSchema = yup.object().shape({
     unitId: yup.string().required(),
     questionId: yup.string().required(),
     isCorrect: yup.boolean().required(),
+    language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
 });
 
 const unitSessionSchema = yup.object().shape({
@@ -14,6 +15,7 @@ const unitSessionSchema = yup.object().shape({
     partId: yup.string().required(),
     publisherId: yup.string().required(),
     unitId: yup.string().required(),
+    language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
 });
 
 const recordAnswerBatchSchema = yup.object().shape({
@@ -22,6 +24,7 @@ const recordAnswerBatchSchema = yup.object().shape({
         .of(recordAnswerSchema)
         .min(1, "answers must contain at least one item")
         .required(),
+    language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
 });
 
 const getUnitPerformanceSchema = yup.object().shape({
@@ -29,6 +32,7 @@ const getUnitPerformanceSchema = yup.object().shape({
     partId: yup.string().required(),
     publisherId: yup.string().required(),
     unitId: yup.string().required(),
+    language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
 });
 
 module.exports = {
