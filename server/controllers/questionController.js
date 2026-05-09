@@ -276,36 +276,19 @@ const validateEssayQuestions = async (req, res, next) => {
 
 const fetchQuestionsWithFilters = async (req, res, next) => {
     try {
-        const {
-            publisherId,
-            selectedUnits,
-            selectedSubunits,
-            page,
-            limit,
-            language = 'eng',
-        } = req.body;
+        const { publisherId, selectedUnits, selectedSubunits, page, limit, language, questionLimit } = req.body;
 
-        if (!publisherId || !selectedUnits || selectedUnits.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Publisher and at least one unit are required"
-            });
+        if (!publisherId || !selectedUnits?.length) {
+            return res.status(400).json({ success: false, message: "Publisher and at least one unit are required" });
         }
 
         const result = await questionService.FetchQuestionsWithFilters({
-            publisherId,
-            selectedUnits,
-            selectedSubunits,
-            page,
-            limit,
-            language,
+            publisherId, selectedUnits, selectedSubunits,
+            page, limit, language,
+            questionLimit: questionLimit ? Number(questionLimit) : null,
         });
 
-        res.status(200).json({
-            data: result.questions,
-            pagination: result.pagination
-        });
-
+        res.status(200).json({ data: result.questions, pagination: result.pagination });
     } catch (error) {
         next(error);
     }

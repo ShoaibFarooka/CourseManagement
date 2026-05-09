@@ -215,36 +215,15 @@ const questionService = {
     },
 
     fetchQuestionsWithFilters: async ({
-        courseId,
-        partId,
-        publisherId,
-        selectedUnits = [],
-        selectedSubunits = {},
-        page = 1,
-        limit = 20,
-        language = 'eng',
-    }) => {
-        try {
-            const response = await axiosInstance.post(
-                `${BASE_URL}/fetch-unit-exam-questions`,
-                {
-                    courseId,
-                    partId,
-                    publisherId,
-                    selectedUnits,
-                    selectedSubunits,
-                    page,
-                    limit,
-                    language,
-                }
-            );
-
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        courseId, partId, publisherId, selectedUnits, selectedSubunits, page, limit, language, questionLimit }) => {
+        const response = await axiosInstance.post(`${BASE_URL}/fetch-unit-exam-questions`, {
+            courseId, partId, publisherId,
+            selectedUnits, selectedSubunits,
+            page, limit, language,
+            questionLimit: questionLimit || undefined,
+        });
+        return response.data;
     },
-
     fetchPracticeExamQuestions: async ({
         courseId,
         partId,

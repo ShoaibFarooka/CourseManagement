@@ -44,6 +44,38 @@
     letter-spacing: 0.05em;
 }
 
+.session-modal .session-limit-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-color);
+}
+
+.session-modal .session-limit-section .session-question-input {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
+
+.session-modal .session-limit-section .session-question-input label {
+    padding-left: 5px;
+}
+
+.session-modal .session-limit-section .session-question-input input {
+    background-color: var(--unit-exams-bg);
+    border: 1px solid var(--table-header-border);
+}
+
+
+.session-modal .session-limit-section .session-btn {
+    width: 100%;
+    max-width: 210px;
+    font-size: 1rem;
+    padding: 15px 48px;
+}
+
 .session-modal .session-modal-buttons {
     display: flex;
     flex-direction: column;
@@ -111,6 +143,27 @@
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 20px;
+}
+
+@media only screen and (max-width: 600px) {
+
+    .session-modal .session-limit-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .session-modal .session-limit-section .session-question-input {
+        width: 100%;
+        padding-left: 0;
+    }
+
+    .session-modal .session-limit-section .session-btn {
+        width: 100%;
+        max-width: 100%;
+        padding: 14px 20px;
+    }
 }
 
 @media only screen and (max-width:400px) {

@@ -48,6 +48,13 @@ router.post(
     controller.GetStartOverSession
 );
 
+router.post(
+    "/session/limited",
+    authMiddleware.authenticateRequest,
+    validationMiddleware.validateBody(progressSchemas.unitSessionSchema),
+    controller.limitedSession
+);
+
 // Session: wrong answers only
 router.get(
     "/session/wrong-only",
