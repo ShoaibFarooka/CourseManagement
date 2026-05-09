@@ -14,7 +14,21 @@ const unitSessionSchema = yup.object().shape({
     courseId: yup.string().required(),
     partId: yup.string().required(),
     publisherId: yup.string().required(),
-    unitId: yup.string().required(),
+
+    selectedUnits: yup
+        .array()
+        .of(yup.string())
+        .optional(),
+
+    selectedSubunits: yup
+        .object()
+        .optional(),
+
+    questionLimit: yup
+        .number()
+        .nullable()
+        .optional(),
+
     language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
 });
 
@@ -34,6 +48,8 @@ const getUnitPerformanceSchema = yup.object().shape({
     unitId: yup.string().required(),
     language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
 });
+
+
 
 module.exports = {
     recordAnswerSchema,

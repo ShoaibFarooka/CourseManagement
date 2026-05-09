@@ -1,7 +1,6 @@
 const UserProgress = require("../models/userProgressModel");
 const Question = require('../models/questionModel');
 const mongoose = require("mongoose");
-const { GetUnitPerformance } = require("../controllers/progressController");
 const { Types } = mongoose;
 
 const buildLanguageFilter = (language = "eng") => {
@@ -24,13 +23,20 @@ const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId,
     });
 
     await UserProgress.findOneAndUpdate(
-        { user: userId, course: courseId, part: partId, publisher: publisherId },
+        {
+            user: userId,
+            course: courseId,
+            part: partId,
+            publisher: publisherId,
+            language
+        },
         {
             $setOnInsert: {
                 user: userId,
                 course: courseId,
                 part: partId,
                 publisher: publisherId,
+                language,
                 progress: {},
             },
         },
@@ -43,6 +49,7 @@ const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId,
             course: courseId,
             part: partId,
             publisher: publisherId,
+            language,
             [`progress.${unitId}`]: { $exists: false },
         },
         {
@@ -88,15 +95,21 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
     ).lean();
 
     const questionMap = new Map(questions.map(q => [q._id.toString(), q]));
-
     let progressDoc = await UserProgress.findOneAndUpdate(
-        { user: userId, course: courseId, part: partId, publisher: publisherId },
+        {
+            user: userId,
+            course: courseId,
+            part: partId,
+            publisher: publisherId,
+            language
+        },
         {
             $setOnInsert: {
                 user: userId,
                 course: courseId,
                 part: partId,
                 publisher: publisherId,
+                language,
                 progress: {},
             },
         },
@@ -291,7 +304,7 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
 
         bulkOps.push({
             updateOne: {
-                filter: { user: userId, course: courseId, part: partId, publisher: publisherId },
+                filter: { user: userId, course: courseId, part: partId, publisher: publisherId, language },
                 update,
             },
         });
@@ -302,39 +315,64 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
     }
 };
 
-const getUnitProgress = async (userId, courseId, partId, publisherId, unitId) => {
+const getUnitProgress = async (
+    userId,
+    courseId,
+    partId,
+    publisherId,
+    unitId,
+    language = 'eng'
+) => {
+
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        publisher: publisherId
+        publisher: publisherId,
+        language,
     });
 
-    if (!progressDoc) return null;
+    const unitStat = progressDoc?.progress?.get(unitId);
 
-    const unitStat = progressDoc.progress.get(unitId);
-    if (!unitStat) return null;
+    const fallback = {
+        unitId,
+        totalQuestions: await Question.countDocuments({
+            unit: unitId,
+            ...buildLanguageFilter(language)
+        }),
+        attempted: 0,
+        correct: 0,
+        wrong: 0,
+        lastAttemptedQ: null,
+    };
+
+    if (!unitStat) {
+        return fallback;
+    }
 
     const statObj = unitStat.toObject ? unitStat.toObject() : unitStat;
 
     return {
         unitId,
-        totalQuestions: statObj.totalQuestions,
-        attempted: statObj.attempted,
-        unattempted: statObj.totalQuestions - statObj.attempted,
-        correct: statObj.correct,
-        wrong: statObj.wrong,
-        lastAttemptedQ: statObj.lastAttemptedQ,
+        totalQuestions: statObj.totalQuestions || fallback.totalQuestions,
+        attempted: statObj.attempted || 0,
+        unattempted:
+            (statObj.totalQuestions || fallback.totalQuestions) -
+            (statObj.attempted || 0),
+        correct: statObj.correct || 0,
+        wrong: statObj.wrong || 0,
+        lastAttemptedQ: statObj.lastAttemptedQ || null,
     };
 };
 
 
-const getAllUnitsProgress = async (userId, courseId, partId, publisherId) => {
+const getAllUnitsProgress = async (userId, courseId, partId, publisherId, language = "eng") => {
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        publisher: publisherId
+        publisher: publisherId,
+        language,
     });
 
     if (!progressDoc) return {};
@@ -359,12 +397,13 @@ const getAllUnitsProgress = async (userId, courseId, partId, publisherId) => {
 };
 
 // service function to get all subunit progress of a specific unit
-const getAllSubunitsProgress = async (userId, courseId, partId, publisherId, unitId) => {
+const getAllSubunitsProgress = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        publisher: publisherId
+        publisher: publisherId,
+        language,
     });
 
     if (!progressDoc) return {};
@@ -392,106 +431,495 @@ const getAllSubunitsProgress = async (userId, courseId, partId, publisherId, uni
     return result;
 };
 
-const getContinueSession = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
+
+const buildUnitConditions = (selectedUnits = [], selectedSubunits = {}) => {
+    return selectedUnits.map((unitId) => {
+        const unitObjectId = mongoose.Types.ObjectId.createFromHexString(unitId);
+        const subs = selectedSubunits?.[unitId];
+
+        if (!subs || subs.length === 0) {
+            return { unit: unitObjectId };
+        }
+
+        const subObjectIds = subs.map((id) =>
+            mongoose.Types.ObjectId.createFromHexString(id)
+        );
+
+        return {
+            unit: unitObjectId,
+            $or: [
+                { subunit: { $in: subObjectIds } },
+                { subunit: { $exists: false } },
+                { subunit: null },
+            ],
+        };
+    });
+};
+
+
+const distributeLimit = (unitCounts, totalLimit) => {
+    const total = Object.values(unitCounts).reduce((a, b) => a + b, 0);
+    if (total === 0) return {};
+
+    const allocated = {};
+    let remaining = totalLimit;
+    const unitIds = Object.keys(unitCounts);
+
+    unitIds.forEach((unitId, i) => {
+        if (i === unitIds.length - 1) {
+            // give remainder to last unit to avoid rounding loss
+            allocated[unitId] = remaining;
+        } else {
+            const share = Math.round((unitCounts[unitId] / total) * totalLimit);
+            allocated[unitId] = share;
+            remaining -= share;
+        }
+    });
+
+    return allocated;
+};
+
+const getContinueSession = async ({
+    userId,
+    courseId,
+    partId,
+    publisherId,
+    selectedUnits = [],
+    selectedSubunits = {},
+    language = "eng",
+    questionLimit = null,
+}) => {
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        publisher: publisherId
+        publisher: publisherId,
+        language,
     });
 
-    const excludeIds = progressDoc?.progress?.get(unitId)?.attemptedIds ?? [];
+    // collect attempted IDs per unit from progress
+    const attemptedByUnit = {};
+    for (const unitId of selectedUnits) {
+        const unit = progressDoc?.progress?.get(unitId);
+        attemptedByUnit[unitId] = unit?.attemptedIds?.map(String) || [];
+    }
 
-    const questions = await Question.find({
-        unit: unitId,
-        _id: { $nin: excludeIds },
-        ...buildLanguageFilter(language)
-    });
-    if (!questions.length) throw Object.assign(new Error("No remaining questions found!"), { code: 404 });
+    const unitConditions = buildUnitConditions(selectedUnits, selectedSubunits);
+    const langFilter = buildLanguageFilter(language);
 
-    return questions;
+    if (!questionLimit) {
+        // no limit — fetch all unattempted across all units in one query
+        const allAttempted = Object.values(attemptedByUnit).flat();
+        const excludeObjectIds = allAttempted.map((id) =>
+            mongoose.Types.ObjectId.createFromHexString(id)
+        );
+
+        const questions = await Question.find({
+            $and: [
+                { $or: unitConditions },
+                { _id: { $nin: excludeObjectIds } },
+                langFilter,
+            ],
+        }).lean();
+
+        if (!questions.length) {
+            throw Object.assign(new Error("No remaining questions found!"), { code: 404 });
+        }
+
+        return questions;
+    }
+
+    // with limit — fetch proportionally per unit
+    // first count available (unattempted) questions per unit
+    const unitCounts = {};
+    for (const unitId of selectedUnits) {
+        const subs = selectedSubunits?.[unitId];
+        const unitObjId = mongoose.Types.ObjectId.createFromHexString(unitId);
+        const excludeObjectIds = attemptedByUnit[unitId].map((id) =>
+            mongoose.Types.ObjectId.createFromHexString(id)
+        );
+
+        const unitQuery = subs?.length
+            ? {
+                unit: unitObjId,
+                $or: [
+                    { subunit: { $in: subs.map((id) => mongoose.Types.ObjectId.createFromHexString(id)) } },
+                    { subunit: { $exists: false } },
+                    { subunit: null },
+                ],
+                _id: { $nin: excludeObjectIds },
+                ...langFilter,
+            }
+            : { unit: unitObjId, _id: { $nin: excludeObjectIds }, ...langFilter };
+
+        unitCounts[unitId] = await Question.countDocuments(unitQuery);
+    }
+
+    const allocation = distributeLimit(unitCounts, questionLimit);
+
+    const allQuestions = [];
+    for (const unitId of selectedUnits) {
+        const cap = allocation[unitId];
+        if (!cap || cap <= 0) continue;
+
+        const subs = selectedSubunits?.[unitId];
+        const unitObjId = mongoose.Types.ObjectId.createFromHexString(unitId);
+        const excludeObjectIds = attemptedByUnit[unitId].map((id) =>
+            mongoose.Types.ObjectId.createFromHexString(id)
+        );
+
+        const unitQuery = subs?.length
+            ? {
+                unit: unitObjId,
+                $or: [
+                    { subunit: { $in: subs.map((id) => mongoose.Types.ObjectId.createFromHexString(id)) } },
+                    { subunit: { $exists: false } },
+                    { subunit: null },
+                ],
+                _id: { $nin: excludeObjectIds },
+                ...langFilter,
+            }
+            : { unit: unitObjId, _id: { $nin: excludeObjectIds }, ...langFilter };
+
+        const qs = await Question.find(unitQuery).limit(cap).lean();
+        allQuestions.push(...qs);
+    }
+
+    if (!allQuestions.length) {
+        throw Object.assign(new Error("No remaining questions found!"), { code: 404 });
+    }
+
+    return allQuestions;
 };
 
-const getStartOverSession = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
+
+const getStartOverSession = async ({
+    userId,
+    courseId,
+    partId,
+    publisherId,
+    selectedUnits = [],
+    selectedSubunits = {},
+    language = "eng",
+    questionLimit = null,
+}) => {
     const doc = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        publisher: publisherId
+        publisher: publisherId,
+        language,
     });
 
-    if (!doc) return;
+    if (doc) {
+        const updateQuery = {};
 
+        for (const unitId of selectedUnits) {
+            const unit = doc.progress?.get(unitId);
+            if (!unit) continue;
 
-    const unit = doc.progress?.get(unitId);
-    if (!unit) return;
+            updateQuery[`progress.${unitId}.attempted`] = 0;
+            updateQuery[`progress.${unitId}.correct`] = 0;
+            updateQuery[`progress.${unitId}.wrong`] = 0;
+            updateQuery[`progress.${unitId}.attemptedIds`] = [];
+            updateQuery[`progress.${unitId}.wrongIds`] = [];
+            updateQuery[`progress.${unitId}.lastAttemptedQ`] = null;
 
+            const selectedSubs = selectedSubunits?.[unitId] || [];
+            if (unit.subunits?.size > 0) {
+                for (const [subId] of unit.subunits.entries()) {
+                    const key = subId.toString();
+                    if (selectedSubs.length === 0 || selectedSubs.includes(key)) {
+                        updateQuery[`progress.${unitId}.subunits.${key}.attempted`] = 0;
+                        updateQuery[`progress.${unitId}.subunits.${key}.correct`] = 0;
+                        updateQuery[`progress.${unitId}.subunits.${key}.wrong`] = 0;
+                        updateQuery[`progress.${unitId}.subunits.${key}.attemptedIds`] = [];
+                        updateQuery[`progress.${unitId}.subunits.${key}.wrongIds`] = [];
+                        updateQuery[`progress.${unitId}.subunits.${key}.lastAttemptedQ`] = null;
+                    }
+                }
+            }
+        }
 
-    const updateQuery = {
-        [`progress.${unitId}.attempted`]: 0,
-        [`progress.${unitId}.correct`]: 0,
-        [`progress.${unitId}.wrong`]: 0,
-        [`progress.${unitId}.attemptedIds`]: [],
-        [`progress.${unitId}.wrongIds`]: [],
-        [`progress.${unitId}.lastAttemptedQ`]: null,
-    };
-
-
-    if (unit.subunits && unit.subunits.size > 0) {
-        for (const [subId, subunit] of unit.subunits.entries()) {
-            const key = subId.toString();
-
-            updateQuery[`progress.${unitId}.subunits.${key}.attempted`] = 0;
-            updateQuery[`progress.${unitId}.subunits.${key}.correct`] = 0;
-            updateQuery[`progress.${unitId}.subunits.${key}.wrong`] = 0;
-            updateQuery[`progress.${unitId}.subunits.${key}.attemptedIds`] = [];
-            updateQuery[`progress.${unitId}.subunits.${key}.wrongIds`] = [];
-            updateQuery[`progress.${unitId}.subunits.${key}.lastAttemptedQ`] = null;
-
-
-            updateQuery[`progress.${unitId}.subunits.${key}.totalQuestions`] =
-                subunit.totalQuestions || 0;
+        if (Object.keys(updateQuery).length) {
+            await UserProgress.updateOne(
+                { user: userId, course: courseId, part: partId, publisher: publisherId, language },
+                { $set: updateQuery }
+            );
         }
     }
 
+    const langFilter = buildLanguageFilter(language);
+    const unitConditions = buildUnitConditions(selectedUnits, selectedSubunits);
 
-    await UserProgress.updateOne(
-        { user: userId, course: courseId, part: partId, publisher: publisherId },
-        { $set: updateQuery }
-    );
+    if (!questionLimit) {
+        const questions = await Question.find({
+            $and: [{ $or: unitConditions }, langFilter],
+        }).lean();
 
+        if (!questions.length) {
+            throw Object.assign(new Error("No questions found!"), { code: 404 });
+        }
 
-    const questions = await Question.find({
-        unit: unitId,
-        ...buildLanguageFilter(language)
-    });
+        return questions;
+    }
+
+    // proportional fetch per unit
+    const unitCounts = {};
+    for (const unitId of selectedUnits) {
+        const subs = selectedSubunits?.[unitId];
+        const unitObjId = mongoose.Types.ObjectId.createFromHexString(unitId);
+
+        const unitQuery = subs?.length
+            ? {
+                unit: unitObjId,
+                $or: [
+                    { subunit: { $in: subs.map((id) => mongoose.Types.ObjectId.createFromHexString(id)) } },
+                    { subunit: { $exists: false } },
+                    { subunit: null },
+                ],
+                ...langFilter,
+            }
+            : { unit: unitObjId, ...langFilter };
+
+        unitCounts[unitId] = await Question.countDocuments(unitQuery);
+    }
+
+    const allocation = distributeLimit(unitCounts, questionLimit);
+    const allQuestions = [];
+
+    for (const unitId of selectedUnits) {
+        const cap = allocation[unitId];
+        if (!cap || cap <= 0) continue;
+
+        const subs = selectedSubunits?.[unitId];
+        const unitObjId = mongoose.Types.ObjectId.createFromHexString(unitId);
+
+        const unitQuery = subs?.length
+            ? {
+                unit: unitObjId,
+                $or: [
+                    { subunit: { $in: subs.map((id) => mongoose.Types.ObjectId.createFromHexString(id)) } },
+                    { subunit: { $exists: false } },
+                    { subunit: null },
+                ],
+                ...langFilter,
+            }
+            : { unit: unitObjId, ...langFilter };
+
+        const qs = await Question.find(unitQuery).limit(cap).lean();
+        allQuestions.push(...qs);
+    }
+
+    if (!allQuestions.length) {
+        throw Object.assign(new Error("No questions found!"), { code: 404 });
+    }
+
+    return allQuestions;
+};
+
+const getLimitedSession = async ({
+    userId,
+    courseId,
+    partId,
+    publisherId,
+    selectedUnits = [],
+    selectedSubunits = {},
+    language = "eng",
+    questionLimit = null,
+}) => {
+
+    if (!questionLimit || questionLimit <= 0) {
+        throw Object.assign(
+            new Error("Question limit is required"),
+            { code: 400 }
+        );
+    }
+
+    const langFilter = buildLanguageFilter(language);
+
+    // STEP 1: count available questions per unit
+    const unitCounts = {};
+
+    for (const unitId of selectedUnits) {
+
+        const unitObjId =
+            mongoose.Types.ObjectId.createFromHexString(unitId);
+
+        const subs = selectedSubunits?.[unitId];
+
+        const query = {
+            unit: unitObjId,
+
+            ...(subs?.length
+                ? {
+                    $or: [
+                        {
+                            subunit: {
+                                $in: subs.map(id =>
+                                    mongoose.Types.ObjectId.createFromHexString(id)
+                                )
+                            }
+                        },
+                        { subunit: { $exists: false } },
+                        { subunit: null },
+                    ],
+                }
+                : {}),
+
+            ...langFilter,
+        };
+
+        unitCounts[unitId] = await Question.countDocuments(query);
+    }
+
+    // STEP 2: distribute limit proportionally
+    const allocation = distributeLimit(unitCounts, questionLimit);
+
+    const questions = [];
+
+    // STEP 3: fetch RANDOM questions proportionally per unit
+    for (const unitId of selectedUnits) {
+
+        const cap = allocation[unitId];
+
+        if (!cap || cap <= 0) continue;
+
+        const unitObjId =
+            mongoose.Types.ObjectId.createFromHexString(unitId);
+
+        const subs = selectedSubunits?.[unitId];
+
+        const matchQuery = {
+            unit: unitObjId,
+
+            ...(subs?.length
+                ? {
+                    $or: [
+                        {
+                            subunit: {
+                                $in: subs.map(id =>
+                                    mongoose.Types.ObjectId.createFromHexString(id)
+                                )
+                            }
+                        },
+                        { subunit: { $exists: false } },
+                        { subunit: null },
+                    ],
+                }
+                : {}),
+
+            ...langFilter,
+        };
+
+        const qs = await Question.aggregate([
+            { $match: matchQuery },
+            { $sample: { size: cap } }
+        ]);
+
+        questions.push(...qs);
+    }
+
+    // STEP 4: final shuffle so units are mixed together
+    questions.sort(() => Math.random() - 0.5);
 
     if (!questions.length) {
-        throw Object.assign(new Error("No questions found!"), { code: 404 });
+        throw Object.assign(
+            new Error("No questions found for limited session"),
+            { code: 404 }
+        );
     }
 
     return questions;
 };
 
 
-const getWrongOnlySession = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
+const getWrongOnlySession = async ({
+    userId,
+    courseId,
+    partId,
+    publisherId,
+    selectedUnits = [],
+    selectedSubunits = {},
+    language = "eng",
+    questionLimit = null,
+}) => {
+
     const progressDoc = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        publisher: publisherId
+        publisher: publisherId,
+        language,
     });
 
-    const wrongIds = progressDoc?.progress?.get(unitId)?.wrongIds ?? [];
+    if (!progressDoc) {
+        throw Object.assign(new Error("No wrong answers found!"), { code: 404 });
+    }
 
-    if (!wrongIds.length) throw Object.assign(new Error("No wrong answers found!"), { code: 404 });
+    const wrongByUnit = {};
 
-    return await Question.find({
-        _id: { $in: wrongIds },
-        ...buildLanguageFilter(language)
-    });
+    // STEP 1: collect wrong IDs per unit
+    for (const unitId of selectedUnits) {
+        const unit = progressDoc.progress?.get(unitId);
+
+        if (!unit?.wrongIds?.length) {
+            wrongByUnit[unitId] = [];
+            continue;
+        }
+
+        const selectedSubs = selectedSubunits?.[unitId] || [];
+
+        if (!selectedSubs.length) {
+            wrongByUnit[unitId] = unit.wrongIds.map(String);
+        } else {
+            const subWrongIds = [];
+
+            for (const subId of selectedSubs) {
+                const sub = unit.subunits?.get(subId);
+
+                if (sub?.wrongIds?.length) {
+                    subWrongIds.push(...sub.wrongIds.map(String));
+                }
+            }
+
+            wrongByUnit[unitId] = subWrongIds;
+        }
+    }
+
+    // STEP 2: flatten all wrong IDs
+    const allWrongIds = Object.values(wrongByUnit).flat();
+
+    if (!allWrongIds.length) {
+        throw Object.assign(new Error("No wrong answers found!"), { code: 404 });
+    }
+
+    // STEP 3: remove duplicates (IMPORTANT FIX)
+    const uniqueWrongIds = [...new Set(allWrongIds)];
+
+    // STEP 4: apply limit globally (not per unit)
+    const finalWrongIds = questionLimit
+        ? uniqueWrongIds.slice(0, questionLimit)
+        : uniqueWrongIds;
+
+    const langFilter = buildLanguageFilter(language);
+
+    // STEP 5: fetch questions in one query
+    const questions = await Question.find({
+        _id: {
+            $in: finalWrongIds.map((id) =>
+                mongoose.Types.ObjectId.createFromHexString(id)
+            )
+        },
+        ...langFilter,
+    }).lean();
+
+    if (!questions.length) {
+        throw Object.assign(new Error("No wrong answers found!"), { code: 404 });
+    }
+
+    return questions;
 };
-
 
 
 const buildStatSummary = (stat) => {
@@ -518,12 +946,13 @@ const buildEmptyUnitPerformance = () => ({
     subunits: {},
 });
 
-const getUnitPerformance = async (userId, courseId, partId, publisherId, unitId) => {
+const getUnitPerformance = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
     const record = await UserProgress.findOne({
         user: userId,
         course: courseId,
         part: partId,
         publisher: publisherId,
+        language,
     }).lean();
 
     if (!record || !record.progress) {
@@ -559,5 +988,6 @@ module.exports = {
     getContinueSession,
     getStartOverSession,
     getWrongOnlySession,
+    getLimitedSession,
     getUnitPerformance,
 };

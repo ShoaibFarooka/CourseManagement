@@ -108,71 +108,107 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     };
 
     const handleClickNext = async () => {
-        if (selectedUnits.length !== 1) {
-            navigate("/quiz", {
-                state: {
-                    source: "unit-exam",
-                    courseId,
-                    partId,
-                    publisherId,
-                    selectedUnits,
-                    selectedSubunits,
-                    timeRatio,
-                }
-            });
+
+        if (selectedUnits.length === 0) {
+            message.warning("Please select at least one unit");
             return;
         }
 
         try {
             setSessionLoading(true);
-            const unitId = selectedUnits[0];
-            const res = await progressService.getUnitProgress({ courseId, partId, publisherId, unitId });
-            setUnitProgress(res.progress);
-            setShowSessionModal(true);
-        } catch (error) {
-            if (error?.response?.status === 404) {
-                navigateToQuiz("start-over");
+
+            const payload = {
+                courseId,
+                partId,
+                publisherId,
+                language,
+                selectedUnits,
+                selectedSubunits
+            };
+
+            let res;
+
+            if (selectedUnits.length === 1) {
+                const unitId = selectedUnits[0];
+
+                res = await progressService.getUnitProgress({
+                    ...payload,
+                    unitId
+                });
+
+                setUnitProgress(res.progress);
             } else {
-                message.error("Something went wrong!");
+                res = await progressService.getAllUnitsProgress(payload);
+
+                const progressMap = res?.progress || {};
+
+                let total = 0;
+                let wrong = 0;
+                let attempted = 0;
+                let correct = 0;
+
+                selectedUnits.forEach(id => {
+                    const u = progressMap?.[id];
+
+                    total += u?.totalQuestions || 0;
+                    wrong += u?.wrong || 0;
+                    attempted += u?.attempted || 0;
+                    correct += u?.correct || 0;
+                });
+
+                setUnitProgress({
+                    unitId: "multi",
+                    totalQuestions: total,
+                    attempted,
+                    correct,
+                    wrong,
+                    unattempted: total - attempted
+                });
             }
+
+            setShowSessionModal(true);
+
+        } catch (error) {
+            message.error("Failed to load session data");
         } finally {
             setSessionLoading(false);
         }
     };
 
-    const navigateToQuiz = async (mode) => {
-        const unitId = selectedUnits[0];
-
+    const navigateToQuiz = async (mode, questionLimit = null) => {
         try {
             setSessionLoading(true);
+
             let prefetchedQuestions = null;
 
+            const payload = {
+                courseId,
+                partId,
+                publisherId,
+                selectedUnits,
+                selectedSubunits,
+                language,
+                questionLimit
+            };
+
             if (mode === "continue") {
-                const res = await progressService.getContinueSession({
-                    courseId,
-                    partId,
-                    publisherId,
-                    unitId,
-                    language
-                });
+                const res = await progressService.getContinueSession(payload);
                 prefetchedQuestions = res.questions;
-            } else if (mode === "wrong-only") {
-                const res = await progressService.getWrongOnlySession({
-                    courseId,
-                    partId,
-                    publisherId,
-                    unitId,
-                    language
-                });
+            }
+
+            else if (mode === "wrong-only") {
+                const res = await progressService.getWrongOnlySession(payload);
                 prefetchedQuestions = res.questions;
-            } else if (mode === "start-over") {
-                await progressService.getStartOverSession({
-                    courseId,
-                    partId,
-                    publisherId,
-                    unitId,
-                    language
-                });
+            }
+
+            else if (mode === "start-over") {
+                const res = await progressService.getStartOverSession(payload);
+                prefetchedQuestions = res.questions;
+            }
+
+            else if (mode === "limited") {
+                const res = await progressService.getLimitedSession(payload);
+                prefetchedQuestions = res.questions;
             }
 
             setShowSessionModal(false);
@@ -187,8 +223,11 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                     selectedSubunits,
                     timeRatio,
                     prefetchedQuestions,
+                    questionLimit,
+                    mode
                 }
             });
+
         } catch (error) {
             console.log(error);
             message.error(error?.response?.data?.message || "Something went wrong!");
@@ -203,6 +242,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                 courseId,
                 partId,
                 publisherId,
+                language,
             });
 
             setAllUnitsProgress(prev => {
@@ -232,7 +272,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                 courseId,
                 partId,
                 publisherId,
-                unitId
+                unitId,
+                language,
             });
 
             const subunitProgress = res.progress || {};

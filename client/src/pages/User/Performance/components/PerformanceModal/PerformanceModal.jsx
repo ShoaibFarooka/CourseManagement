@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./PerformanceModal.css";
 import progressService from "../../../../../services/progressService";
+import { useSelector } from "react-redux";
 
 const StatCard = ({ label, value, colorClass }) => (
     <div className={`pm-stat-card ${colorClass || ""}`}>
@@ -72,6 +73,7 @@ const PerformanceModal = ({
 
     const [performance, setPerformance] = useState(null);
     const [loading, setLoading] = useState(false);
+    const language = useSelector(state => state.user?.user.language);
 
     useEffect(() => {
         const fetchPerformance = async () => {
@@ -82,6 +84,7 @@ const PerformanceModal = ({
                     partId,
                     publisherId,
                     unitId,
+                    language
                 });
                 setPerformance(res.performance);
             } catch (error) {
