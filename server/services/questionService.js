@@ -744,6 +744,54 @@ const validateEssayQuestionsFile = async (filePath) => {
     };
 };
 
+
+const buildUnitConditions = (selectedUnits = [], selectedSubunits = {}) => {
+    return selectedUnits.map((unitId) => {
+        const unitObjectId = mongoose.Types.ObjectId.createFromHexString(unitId);
+        const subs = selectedSubunits?.[unitId];
+
+        if (!subs || subs.length === 0) {
+            return { unit: unitObjectId };
+        }
+
+        const subObjectIds = subs.map((id) =>
+            mongoose.Types.ObjectId.createFromHexString(id)
+        );
+
+        return {
+            unit: unitObjectId,
+            $or: [
+                { subunit: { $in: subObjectIds } },
+                { subunit: { $exists: false } },
+                { subunit: null },
+            ],
+        };
+    });
+};
+
+
+const distributeLimit = (unitCounts, totalLimit) => {
+    const total = Object.values(unitCounts).reduce((a, b) => a + b, 0);
+    if (total === 0) return {};
+
+    const allocated = {};
+    let remaining = totalLimit;
+    const unitIds = Object.keys(unitCounts);
+
+    unitIds.forEach((unitId, i) => {
+        if (i === unitIds.length - 1) {
+            // give remainder to last unit to avoid rounding loss
+            allocated[unitId] = remaining;
+        } else {
+            const share = Math.round((unitCounts[unitId] / total) * totalLimit);
+            allocated[unitId] = share;
+            remaining -= share;
+        }
+    });
+
+    return allocated;
+};
+
 const buildLanguageFilter = (language = "eng") => {
     if (language === "eng") {
         return {
@@ -764,64 +812,99 @@ const FetchQuestionsWithFilters = async ({
     page = 1,
     limit = 20,
     language = "eng",
+    questionLimit = null,   // ← user-defined cap on total questions
 }) => {
-    if (!publisherId) {
-        throw new Error("Publisher ID is required");
-    }
+    if (!publisherId) throw new Error("Publisher ID is required");
+    if (!selectedUnits.length) throw new Error("At least one unit must be selected");
 
-    if (!selectedUnits.length) {
-        throw new Error("At least one unit must be selected");
-    }
-
-    const skip = (page - 1) * limit;
+    const langFilter = buildLanguageFilter(language);
     const publisherObjectId = mongoose.Types.ObjectId.createFromHexString(publisherId);
 
-    const unitConditions = [];
-    selectedUnits.forEach((unitId) => {
-        const unitObjectId = mongoose.Types.ObjectId.createFromHexString(unitId);
-        const subunits = selectedSubunits[unitId];
+    // if no questionLimit, original pagination logic is fine
+    if (!questionLimit) {
+        const skip = (page - 1) * limit;
+        const unitConditions = buildUnitConditions(selectedUnits, selectedSubunits);
 
-        if (!subunits || subunits.length === 0) {
-            unitConditions.push({ unit: unitObjectId });
-        } else {
-            const subunitObjectIds = subunits.map((id) =>
-                mongoose.Types.ObjectId.createFromHexString(id)
-            );
-            unitConditions.push({
-                unit: unitObjectId,
-                $or: [
-                    { subunit: { $in: subunitObjectIds } },
-                    { subunit: { $exists: false } },
-                    { subunit: null }
-                ]
-            });
-        }
-    });
+        const query = {
+            $and: [
+                { publisher: publisherObjectId },
+                { $or: unitConditions },
+                langFilter,
+            ],
+        };
 
-    const query = {
-        $and: [
-            { publisher: publisherObjectId },
-            { $or: unitConditions },
-            buildLanguageFilter(language)
-        ]
-    };
+        const [questions, total] = await Promise.all([
+            Question.find(query).skip(skip).limit(limit).lean(),
+            Question.countDocuments(query),
+        ]);
 
-    const [questions, total] = await Promise.all([
-        Question.find(query)
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-        Question.countDocuments(query)
-    ]);
+        return {
+            questions,
+            pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+        };
+    }
+
+    // with questionLimit — fetch proportionally per unit then paginate the merged set
+    const unitCounts = {};
+    for (const unitId of selectedUnits) {
+        const subs = selectedSubunits?.[unitId];
+        const unitObjId = mongoose.Types.ObjectId.createFromHexString(unitId);
+
+        const unitQuery = {
+            publisher: publisherObjectId,
+            ...(subs?.length
+                ? {
+                    unit: unitObjId,
+                    $or: [
+                        { subunit: { $in: subs.map((id) => mongoose.Types.ObjectId.createFromHexString(id)) } },
+                        { subunit: { $exists: false } },
+                        { subunit: null },
+                    ],
+                }
+                : { unit: unitObjId }),
+            ...langFilter,
+        };
+
+        unitCounts[unitId] = await Question.countDocuments(unitQuery);
+    }
+
+    const allocation = distributeLimit(unitCounts, questionLimit);
+
+    // collect all question IDs up to the limit (for stable pagination)
+    const allQuestions = [];
+    for (const unitId of selectedUnits) {
+        const cap = allocation[unitId];
+        if (!cap || cap <= 0) continue;
+
+        const subs = selectedSubunits?.[unitId];
+        const unitObjId = mongoose.Types.ObjectId.createFromHexString(unitId);
+
+        const unitQuery = {
+            publisher: publisherObjectId,
+            ...(subs?.length
+                ? {
+                    unit: unitObjId,
+                    $or: [
+                        { subunit: { $in: subs.map((id) => mongoose.Types.ObjectId.createFromHexString(id)) } },
+                        { subunit: { $exists: false } },
+                        { subunit: null },
+                    ],
+                }
+                : { unit: unitObjId }),
+            ...langFilter,
+        };
+
+        const qs = await Question.find(unitQuery).limit(cap).lean();
+        allQuestions.push(...qs);
+    }
+
+    const total = allQuestions.length;
+    const skip = (page - 1) * limit;
+    const pageSlice = allQuestions.slice(skip, skip + limit);
 
     return {
-        questions,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        }
+        questions: pageSlice,
+        pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
 };
 

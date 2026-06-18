@@ -1,21 +1,20 @@
 import React from 'react'
 import './DeviceVerification.css';
 import { FaFacebookF, FaInstagram, FaWhatsapp, FaLinkedin } from "react-icons/fa";
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const DeviceVerification = () => {
     const whatsappNumber = "923254698122";
-    const navigate = useNavigate();
     const handleClickContactNow = () => {
-        navigate('/Contact-Us')
-    }
+        window.open(`https://wa.me/${whatsappNumber}`, "_blank");
+    };
     return (
         <div className='device-verification'>
             <div className='title'>
                 Request Sent
             </div>
             <div className='sub-title'>
-                Please contact admin for the instant access.
+                Please Click on the button below for instant Access.
             </div>
             <div className='contact-now'>
                 <button className='button' onClick={handleClickContactNow}>

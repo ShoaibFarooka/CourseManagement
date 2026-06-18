@@ -71,6 +71,11 @@ const userProgressSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true
         },
+        language: {
+            type: String,
+            enum: ["eng", "ar", "fr"],
+            required: true
+        },
         progress: {
             type: Map,
             of: unitStatSchema,
@@ -81,7 +86,7 @@ const userProgressSchema = new mongoose.Schema(
 );
 
 userProgressSchema.index(
-    { user: 1, course: 1, part: 1, publisher: 1 },
+    { user: 1, course: 1, part: 1, publisher: 1, language: 1 },
     { unique: true }
 );
 

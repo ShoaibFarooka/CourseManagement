@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import "./Testimonials.css";
-import test from '../../../../../assets/images/testimonial1.jpg';
+import img2 from '../../../../../assets/images/img2.jpeg';
+import img3 from '../../../../../assets/images/img3.jpeg';
+import img4 from '../../../../../assets/images/img4.jpeg';
+import img5 from '../../../../../assets/images/img5.jpeg';
+import img6 from '../../../../../assets/images/img6.jpeg';
+import img7 from '../../../../../assets/images/img7.jpeg';
 
 const testimonials = [
     {
@@ -10,15 +15,15 @@ const testimonials = [
         role: "CPA Candidate",
         course: "CPA",
         text: "The CPA course on eProExam gave me practical clarity. The structured modules and detailed practice tests helped me gain confidence and truly understand complex topics.",
-        image: "https://testingbot.com/free-online-tools/random-avatar/300?u=AhmedKhan_CPA"
+        image: img2,
     },
     {
         id: 2,
-        name: "Sarah Williams",
+        name: "James Wilson",
         role: "CMA Candidate",
         course: "CMA",
-        text: "The CMA content was well‑organized and concept‑focused. I could track my progress and pinpoint areas to improve. It made my study sessions truly effective.",
-        image: "https://testingbot.com/free-online-tools/random-avatar/300?u=SarahWilliams_CMA"
+        text: "The CMA content was well-organized and concept-focused. I could track my progress and pinpoint areas to improve. It made my study sessions truly effective.",
+        image: img3
     },
     {
         id: 3,
@@ -26,7 +31,7 @@ const testimonials = [
         role: "CIA Candidate",
         course: "CIA",
         text: "The CIA course helped break down complex auditing concepts into manageable lessons. Practice questions boosted my confidence before the real exam.",
-        image: "https://testingbot.com/free-online-tools/random-avatar/300?u=DanielRoberts_CIA"
+        image: img5
     },
     {
         id: 4,
@@ -34,23 +39,23 @@ const testimonials = [
         role: "CFE Candidate",
         course: "CFE",
         text: "The CFE course was detailed and practical. Real case examples and organized lessons helped me retain information and prepare confidently for the exam.",
-        image: "https://testingbot.com/free-online-tools/random-avatar/300?u=AyeshaMalik_CFE"
+        image: img4
     },
     {
         id: 5,
         name: "Michael Lee",
         role: "CISA Candidate",
         course: "CISA",
-        text: "For CISA, the practice questions and structured lessons were game‑changers. It made studying much more efficient and helped me perform well under exam conditions.",
-        image: "https://testingbot.com/free-online-tools/random-avatar/300?u=MichaelLee_CISA"
+        text: "For CISA, the practice questions and structured lessons were game-changers. It made studying much more efficient and helped me perform well under exam conditions.",
+        image: img6
     },
     {
         id: 6,
-        name: "Fatima Zahra",
+        name: "David Anderson",
         role: "CRMA Candidate",
         course: "CRMA",
         text: "The CRMA course explained internal audit concepts clearly and practically. I could go through each topic step by step, and the practice sets boosted my confidence.",
-        image: "https://testingbot.com/free-online-tools/random-avatar/300?u=FatimaZahra_CRMA"
+        image: img7
     }
 ];
 

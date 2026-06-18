@@ -38,6 +38,7 @@ const Quiz = () => {
         limit,
         timeRatio,
         prefetchedQuestions,
+        questionLimit,
     } = state || {};
 
     const isPrefetched = prefetchedQuestions && prefetchedQuestions.length > 0;
@@ -59,9 +60,7 @@ const Quiz = () => {
 
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
-            if (loadedPages.has(pageToFetch)) {
-                return;
-            }
+            if (loadedPages.has(pageToFetch)) return;
 
             setLoadedPages(prev => new Set([...prev, pageToFetch]));
             dispatch(ShowLoading());
@@ -75,7 +74,7 @@ const Quiz = () => {
                     examType,
                     page: pageToFetch,
                     limit: PAGE_SIZE,
-                    language: language,
+                    language,
                 });
             } else if (source === 'package-exam') {
                 if (examType === 'standard') {
@@ -85,7 +84,7 @@ const Quiz = () => {
                         userLimit: limit,
                         page: pageToFetch,
                         limit: PAGE_SIZE,
-                        language: language,
+                        language,
                     });
                 } else if (examType === 'mega') {
                     res = await questionService.fetchMegaReviewQuestions({
@@ -94,7 +93,7 @@ const Quiz = () => {
                         userLimit: limit,
                         page: pageToFetch,
                         pageSize: PAGE_SIZE,
-                        language: language,
+                        language,
                     });
                 } else {
                     throw new Error("Invalid package exam type");
@@ -108,22 +107,21 @@ const Quiz = () => {
                     selectedSubunits,
                     page: pageToFetch,
                     limit: PAGE_SIZE,
-                    language: language,
+                    language,
+                    questionLimit: questionLimit || null,
                 });
             }
 
             setQuestions(prev => {
                 const newQuestions = [...prev];
                 const startIndex = (pageToFetch - 1) * PAGE_SIZE;
-
                 (res.data || []).forEach((q, idx) => {
                     newQuestions[startIndex + idx] = q;
                 });
-
                 return newQuestions;
             });
 
-            setTotalQuestions(res.pagination?.total || (res?.data?.length || 0));
+            setTotalQuestions(res.pagination?.total || res?.data?.length || 0);
 
         } catch (error) {
             setLoadedPages(prev => {
@@ -164,11 +162,13 @@ const Quiz = () => {
         }
     };
 
+
     useEffect(() => {
         if (!location.state?.source) {
             navigate("/dashboard");
             return;
         }
+
 
         if (isPrefetched) {
             setQuestions(prefetchedQuestions);
@@ -603,7 +603,7 @@ const Quiz = () => {
             const batch = [...pendingProgressRef.current];
             pendingProgressRef.current = [];
             try {
-                await progressService.recordAnswerBatch(batch);
+                await progressService.recordAnswerBatch(batch, language);
             } catch (err) {
                 console.error("Final batch sync failed:", err);
             }
