@@ -69,7 +69,7 @@ const SessionModal = ({ unitProgress, sessionLoading, navigateToQuiz }) => {
 
                 <button
                     className="session-btn resume"
-                    disabled={sessionLoading || !unitProgress?.unattempted}
+                    disabled={sessionLoading || !unitProgress?.attempted || !unitProgress?.unattempted}
                     onClick={() => navigateToQuiz("continue")}
                 >
                     Continue

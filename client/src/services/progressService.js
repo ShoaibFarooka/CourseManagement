@@ -18,9 +18,9 @@ const progressService = {
         partId,
         publisherId,
         unitId,
+        selectedSubunits,
         language
     }) => {
-
         try {
             const response = await axiosInstance.get(
                 `${BASE_URL}/single-unit-progress`,
@@ -30,13 +30,23 @@ const progressService = {
                         partId,
                         publisherId,
                         unitId,
+                        selectedSubunits,
                         language
                     },
+                    paramsSerializer: (params) => {
+                        const searchParams = new URLSearchParams();
+                        Object.entries(params).forEach(([key, value]) => {
+                            if (Array.isArray(value)) {
+                                value.forEach(v => searchParams.append(key, v));
+                            } else if (value !== undefined && value !== null) {
+                                searchParams.append(key, value);
+                            }
+                        });
+                        return searchParams.toString();
+                    }
                 }
             );
-
             return response.data;
-
         } catch (error) {
             throw error;
         }

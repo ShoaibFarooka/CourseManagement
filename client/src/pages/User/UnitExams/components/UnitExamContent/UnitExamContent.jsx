@@ -107,8 +107,8 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         });
     };
 
-    const handleClickNext = async () => {
 
+    const handleClickNext = async () => {
         if (selectedUnits.length === 0) {
             message.warning("Please select at least one unit");
             return;
@@ -117,39 +117,36 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         try {
             setSessionLoading(true);
 
-            const payload = {
-                courseId,
-                partId,
-                publisherId,
-                language,
-                selectedUnits,
-                selectedSubunits
-            };
-
-            let res;
-
             if (selectedUnits.length === 1) {
                 const unitId = selectedUnits[0];
+                const unit = units.find(u => u.unitId === unitId);
+                const allSubIds = unit?.subunits.map(s => s._id) ?? [];
+                const chosen = selectedSubunits[unitId] ?? allSubIds;
 
-                res = await progressService.getUnitProgress({
-                    ...payload,
-                    unitId
+
+                const selectedSubs =
+                    chosen.length > 0 && chosen.length < allSubIds.length
+                        ? chosen
+                        : null;
+
+                const res = await progressService.getUnitProgress({
+                    courseId,
+                    partId,
+                    publisherId,
+                    unitId,
+                    selectedSubunits: selectedSubs,
+                    language
                 });
 
                 setUnitProgress(res.progress);
             } else {
-                res = await progressService.getAllUnitsProgress(payload);
-
+                const payload = { courseId, partId, publisherId, language, selectedUnits, selectedSubunits };
+                const res = await progressService.getAllUnitsProgress(payload);
                 const progressMap = res?.progress || {};
 
-                let total = 0;
-                let wrong = 0;
-                let attempted = 0;
-                let correct = 0;
-
+                let total = 0, wrong = 0, attempted = 0, correct = 0;
                 selectedUnits.forEach(id => {
                     const u = progressMap?.[id];
-
                     total += u?.totalQuestions || 0;
                     wrong += u?.wrong || 0;
                     attempted += u?.attempted || 0;
@@ -167,7 +164,6 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
             }
 
             setShowSessionModal(true);
-
         } catch (error) {
             message.error("Failed to load session data");
         } finally {

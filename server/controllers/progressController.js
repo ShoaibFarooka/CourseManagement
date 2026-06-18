@@ -17,7 +17,7 @@ const RecordAnswer = async (req, res) => {
 
 const GetUnitProgress = async (req, res, next) => {
     try {
-        const { courseId, partId, publisherId, unitId, language } = req.query;
+        const { courseId, partId, publisherId, unitId, language, selectedSubunits = [] } = req.query;
         const userId = req.user.id;
 
         if (!unitId) return res.status(400).json({ message: "unitId is required" });
@@ -28,6 +28,9 @@ const GetUnitProgress = async (req, res, next) => {
             partId,
             publisherId,
             unitId,
+            Array.isArray(selectedSubunits)
+                ? selectedSubunits
+                : [selectedSubunits].filter(Boolean),
             language
         );
 
@@ -36,6 +39,8 @@ const GetUnitProgress = async (req, res, next) => {
         next(error);
     }
 };
+
+
 
 const GetAllUnitsProgress = async (req, res, next) => {
     try {

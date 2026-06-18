@@ -321,6 +321,7 @@ const getUnitProgress = async (
     partId,
     publisherId,
     unitId,
+    selectedSubunits = [],
     language = 'eng'
 ) => {
 
@@ -334,36 +335,87 @@ const getUnitProgress = async (
 
     const unitStat = progressDoc?.progress?.get(unitId);
 
-    const fallback = {
-        unitId,
-        totalQuestions: await Question.countDocuments({
+    const hasSubunitFilter =
+        Array.isArray(selectedSubunits) &&
+        selectedSubunits.length > 0;
+
+    if (hasSubunitFilter) {
+
+        const query = {
             unit: unitId,
-            ...buildLanguageFilter(language)
-        }),
-        attempted: 0,
-        correct: 0,
-        wrong: 0,
-        lastAttemptedQ: null,
-    };
+            ...buildLanguageFilter(language),
+            subunit: { $in: selectedSubunits }
+        };
+
+        const totalQuestions = await Question.countDocuments(query);
+
+        let attempted = 0;
+        let correct = 0;
+        let wrong = 0;
+        let lastAttemptedQ = null;
+
+        if (unitStat?.subunits) {
+
+            selectedSubunits.forEach((subunitId) => {
+
+                const subStat = unitStat.subunits.get(subunitId);
+
+                if (!subStat) return;
+
+                attempted += subStat.attempted || 0;
+                correct += subStat.correct || 0;
+                wrong += subStat.wrong || 0;
+
+                if (subStat.lastAttemptedQ) {
+                    lastAttemptedQ = subStat.lastAttemptedQ;
+                }
+            });
+        }
+
+        return {
+            unitId,
+            totalQuestions,
+            attempted,
+            correct,
+            wrong,
+            unattempted: totalQuestions - attempted,
+            lastAttemptedQ
+        };
+    }
+
+
+    const fallbackTotal = await Question.countDocuments({
+        unit: unitId,
+        ...buildLanguageFilter(language)
+    });
 
     if (!unitStat) {
-        return fallback;
+        return {
+            unitId,
+            totalQuestions: fallbackTotal,
+            attempted: 0,
+            correct: 0,
+            wrong: 0,
+            unattempted: fallbackTotal,
+            lastAttemptedQ: null,
+        };
     }
 
     const statObj = unitStat.toObject ? unitStat.toObject() : unitStat;
 
     return {
         unitId,
-        totalQuestions: statObj.totalQuestions || fallback.totalQuestions,
+        totalQuestions: statObj.totalQuestions || fallbackTotal,
         attempted: statObj.attempted || 0,
-        unattempted:
-            (statObj.totalQuestions || fallback.totalQuestions) -
-            (statObj.attempted || 0),
         correct: statObj.correct || 0,
         wrong: statObj.wrong || 0,
+        unattempted:
+            (statObj.totalQuestions || fallbackTotal) -
+            (statObj.attempted || 0),
         lastAttemptedQ: statObj.lastAttemptedQ || null,
     };
 };
+
 
 
 const getAllUnitsProgress = async (userId, courseId, partId, publisherId, language = "eng") => {
