@@ -89,6 +89,17 @@ const Login = () => {
                 message.error(response.error || "Login Failed");
             }
         } catch (error) {
+            const errorMessage = error?.response?.data?.error;
+            const status = error?.response?.status;
+            if (status === 403 && errorMessage?.includes("Email not verified")) {
+                navigate("/otp-verification", {
+                    state: {
+                        email: formData.email,
+                        password: formData.password
+                    }
+                });
+                return;
+            }
             message.error(error?.response?.data?.error || "Something went wrong");
         } finally {
             dispatch(HideLoading());

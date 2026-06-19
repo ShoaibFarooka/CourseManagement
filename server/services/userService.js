@@ -127,6 +127,17 @@ const loginUser = async (loginData) => {
     error.code = 404;
     throw error;
   }
+  if (!user.isEmailVerified) {
+    await emailService.sendOTPEmail(
+      user.email,
+      user.emailVerificationOTP
+    );
+    const error = new Error(
+      "Email not verified. A new OTP has been sent."
+    );
+    error.code = 403;
+    throw error;
+  }
   let passwordMatched = await authUtils.comparePassword(
     user.password,
     password

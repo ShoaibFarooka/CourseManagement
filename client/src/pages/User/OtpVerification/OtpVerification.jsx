@@ -49,6 +49,7 @@ const OtpVerification = () => {
         setError("");
 
         const otpCode = otp.join("");
+
         if (!email || !password) {
             setError("Email or password not found. Please go back to signup.");
             setLoading(false);
@@ -78,6 +79,8 @@ const OtpVerification = () => {
             }
         } catch (err) {
             setError(err.response?.data?.message || "Expired or Invalid OTP");
+            setOtp(["", "", "", "", "", ""]);
+            document.getElementById("otp-input-0")?.focus();
         } finally {
             dispatch(HideLoading());
         }
