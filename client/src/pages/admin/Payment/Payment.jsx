@@ -16,6 +16,8 @@ const Payment = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [search, setSearch] = useState("");
+    const [searchInput, setSearchInput] = useState("");
     const PAGE_LIMIT = 5;
 
     const dispatch = useDispatch();
@@ -27,7 +29,8 @@ const Payment = () => {
             const response = await paymentRequestService.getAllPaymentRequests(
                 page,
                 PAGE_LIMIT,
-                filter
+                filter,
+                search
             );
 
             setRequests(response.requests || []);
@@ -47,7 +50,16 @@ const Payment = () => {
 
     useEffect(() => {
         fetchPaymentRequests(currentPage);
-    }, [currentPage, filter]);
+    }, [currentPage, filter, search]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearch(searchInput);
+            setCurrentPage(1);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchInput]);
 
     const handleOpenModal = (req) => {
         setIsOpenModal(true);
@@ -87,6 +99,16 @@ const Payment = () => {
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                     </button>
                 ))}
+            </div>
+
+            <div className="search-container">
+                <input
+                    type="text"
+                    placeholder="Search by name or email"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className=".input"
+                />
             </div>
 
             <div className="table-container">

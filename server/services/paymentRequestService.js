@@ -24,41 +24,61 @@ const createPaymentRequest = async (userId, courseId, partId) => {
 
 
 
-const getAllPaymentRequests = async (page = 1, limit = 5, statusFilter = "all") => {
-    const skip = (page - 1) * limit;
-
+const getAllPaymentRequests = async (
+    page = 1,
+    limit = 5,
+    statusFilter = "all",
+    search = ""
+) => {
     const query = {};
+
     if (statusFilter !== "all") {
         query.status = statusFilter;
     }
 
-    const totalCount = await PaymentRequest.countDocuments(query);
-
-    const requests = await PaymentRequest.find(query)
+    let requests = await PaymentRequest.find(query)
         .populate("user", "name email isBlocked paymentStatus allowedDevices")
         .populate("course", "name parts")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
+        .sort({ createdAt: -1 });
 
-    const mappedRequests = requests.map(req => {
+    if (search.trim()) {
+        const searchText = search.toLowerCase().trim();
+
+        requests = requests.filter(req => {
+            const name = req.user?.name?.toLowerCase() || "";
+            const email = req.user?.email?.toLowerCase() || "";
+
+            return (
+                name.includes(searchText) ||
+                email.includes(searchText)
+            );
+        });
+    }
+
+    const totalCount = requests.length;
+
+    const paginatedRequests = requests.slice(
+        (page - 1) * limit,
+        page * limit
+    );
+
+    const mappedRequests = paginatedRequests.map(req => {
         const obj = req.toObject();
+
         if (obj.user?.isBlocked) {
             obj.status = "blocked";
         }
+
         return obj;
     });
-
-    const totalPages = Math.ceil(totalCount / limit);
 
     return {
         requests: mappedRequests,
         currentPage: page,
-        totalPages,
+        totalPages: Math.ceil(totalCount / limit),
         totalCount
     };
 };
-
 
 const approvePaymentRequest = async (requestId, userId, courseId, partId, amount, startDate, expiryDate, comment, status) => {
 

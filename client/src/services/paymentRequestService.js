@@ -19,10 +19,10 @@ const paymentRequestService = {
         }
     },
 
-    getAllPaymentRequests: async (page = 1, limit = 5, status = "all") => {
+    getAllPaymentRequests: async (page = 1, limit = 5, status = "all", search = "") => {
         try {
             const response = await axiosInstance.get(`${BASE_URL}/fetch-all-requests`, {
-                params: { page, limit, status },
+                params: { page, limit, status, search },
                 withCredentials: true
             });
             return response.data;

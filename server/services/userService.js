@@ -127,7 +127,7 @@ const loginUser = async (loginData) => {
     error.code = 404;
     throw error;
   }
-  if (!user.isEmailVerified) {
+  if (!user.isEmailVerified && user.role !== "admin") {
     await emailService.sendOTPEmail(
       user.email,
       user.emailVerificationOTP
@@ -305,8 +305,38 @@ const updateProfileImage = async (userId, imagePath) => {
 };
 
 
-const getAllUsers = async () => {
+const getAllUsers = async (
+  page = 1,
+  limit = 10,
+  search = ""
+) => {
+
+  page = Number(page);
+  limit = Number(limit);
+
+  const matchStage = {};
+
+  if (search.trim()) {
+    matchStage.$or = [
+      {
+        name: {
+          $regex: search,
+          $options: "i"
+        }
+      },
+      {
+        email: {
+          $regex: search,
+          $options: "i"
+        }
+      }
+    ];
+  }
   const users = await User.aggregate([
+
+    {
+      $match: matchStage
+    },
     // Lookup payments
     {
       $lookup: {
@@ -432,9 +462,22 @@ const getAllUsers = async () => {
         allowedDevices: 1,
       },
     },
+    {
+      $skip: (page - 1) * limit
+    },
+    {
+      $limit: limit
+    }
   ]);
 
-  return users;
+  const totalCount = await User.countDocuments(matchStage);
+
+  return {
+    users,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit),
+    totalCount
+  };
 };
 
 

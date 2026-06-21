@@ -17,6 +17,8 @@ const Requests = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [search, setSearch] = useState("");
+    const [searchInput, setSearchInput] = useState("");
     const PAGE_LIMIT = 5;
 
     const dispatch = useDispatch();
@@ -28,7 +30,8 @@ const Requests = () => {
             const response = await deviceRequestService.getAllDevicesRequests(
                 page,
                 PAGE_LIMIT,
-                filter
+                filter,
+                search
             );
             setRequests(response.requests || []);
             setCurrentPage(response.currentPage || 1);
@@ -47,7 +50,16 @@ const Requests = () => {
 
     useEffect(() => {
         fetchRequests(currentPage);
-    }, [currentPage, filter]);
+    }, [currentPage, filter, search]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearch(searchInput);
+            setCurrentPage(1);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchInput]);
 
     const handleOpenModal = (req) => {
         setIsOpenModal(true);
@@ -112,6 +124,17 @@ const Requests = () => {
                     Blocked
                 </button>
             </div>
+
+            <div className="search-container">
+                <input
+                    type="text"
+                    placeholder="Search by name or email"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className=".input"
+                />
+            </div>
+
 
             <div className="table-container">
                 <table className="table">

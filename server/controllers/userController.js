@@ -224,14 +224,17 @@ const updateProfileImage = async (req, res, next) => {
 
 const GetAllUsers = async (req, res, next) => {
   try {
-    const users = await userService.getAllUsers();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
 
-    res.status(200).json({
-      success: true,
-      total: users.length,
-      users
-    });
+    const result = await userService.getAllUsers(
+      page,
+      limit,
+      search
+    );
 
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
