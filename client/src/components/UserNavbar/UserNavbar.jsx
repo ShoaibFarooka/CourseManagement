@@ -35,6 +35,7 @@ const UserNavbar = () => {
         { name: "Dashboard", to: '/dashboard' },
         { name: "About Us", to: '/About-Us' },
         { name: "Contact Us", to: '/Contact-Us' },
+        { name: "Guide", to: '/guide' }
     ];
 
     const accountingDropdownItems = [

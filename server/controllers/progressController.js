@@ -61,6 +61,47 @@ const GetAllUnitsProgress = async (req, res, next) => {
     }
 };
 
+const GetSelectedUnitsProgress = async (req, res, next) => {
+    try {
+
+        const {
+            courseId,
+            partId,
+            publisherId,
+            selectedUnits = [],
+            selectedSubunits = {},
+            language
+        } = req.body;
+
+        const userId = req.user.id;
+
+        if (!selectedUnits.length) {
+            return res.status(400).json({
+                message: "At least one unit must be selected"
+            });
+        }
+
+        const progress =
+            await progressService.getSelectedUnitsProgress(
+                userId,
+                courseId,
+                partId,
+                publisherId,
+                selectedUnits,
+                selectedSubunits,
+                language
+            );
+
+        res.status(200).json({
+            success: true,
+            progress
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 const GetAllSubunitsProgress = async (req, res, next) => {
     try {
         const { courseId, partId, publisherId, unitId, language } = req.query;
@@ -82,6 +123,8 @@ const GetAllSubunitsProgress = async (req, res, next) => {
         next(error);
     }
 };
+
+
 const GetContinueSession = async (req, res, next) => {
     try {
         const { courseId, partId, publisherId, selectedUnits, selectedSubunits, language, questionLimit } = req.query;
@@ -210,6 +253,7 @@ module.exports = {
     RecordAnswer,
     GetAllUnitsProgress,
     GetUnitProgress,
+    GetSelectedUnitsProgress,
     GetUnitPerformance,
     GetAllSubunitsProgress,
     GetContinueSession,

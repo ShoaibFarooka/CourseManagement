@@ -24,6 +24,7 @@ import Quiz from "../pages/User/Quiz/Quiz";
 import ProgressReport from "../pages/User/ProgressReport/ProgressReport";
 import Payment from '../pages/admin/Payment/Payment';
 import Users from '../pages/admin/Users/Users';
+import Guide from "../pages/common/Guide/Guide";
 import { Navigate } from "react-router-dom";
 
 const routes = [
@@ -67,6 +68,7 @@ const routes = [
     { path: "/Privacy-Policy", element: <PrivacyPolicy />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/login", element: <Login />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/signup", element: <Signup />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
+    { path: "/guide", element: <Guide />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
     { path: "/invalid-link", element: <InvalidLink />, protected: false, showHeader: true, showFooter: true },
     { path: "*", element: <NotFound />, protected: false, authRedirect: false, showHeader: false, showFooter: false },
 ];

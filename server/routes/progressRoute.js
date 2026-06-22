@@ -24,6 +24,11 @@ router.get(
     controller.GetUnitProgress
 );
 
+router.post(
+    "/selected-units-progress",
+    authMiddleware.authenticateRequest,
+    controller.GetSelectedUnitsProgress
+);
 
 router.get(
     "/subunit-progress",

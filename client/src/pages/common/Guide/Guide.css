@@ -1,0 +1,147 @@
+/* Hero Section */
+.guide-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        var(--banner-2-bg),
+        url(../../../assets/images/login.jpg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.guide-container .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 187px;
+
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 600;
+    font-size: 3rem;
+    text-align: center;
+}
+
+.guide-container .sub-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 142px;
+
+    font-family: var(--font-family);
+    color: var(--nav-footer-link-color);
+    font-weight: 400;
+    font-size: 1.75rem;
+    text-align: center;
+    max-width: 800px;
+}
+
+/* Content Sections */
+.guide-section {
+    background-color: var(--Contactus-bg);
+    padding: 80px 20px;
+}
+
+.guide-heading {
+    text-align: center;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 50px;
+}
+
+/* Steps */
+.steps-container {
+    max-width: 900px;
+    margin: 0 auto 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    padding: 18px 24px;
+    border-radius: 12px;
+
+    background: var(--input-bg-color);
+    color: var(--text-color);
+
+    font-family: var(--font-family);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.step span {
+    min-width: 40px;
+    min-height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+
+    color: #000;
+    font-weight: 700;
+}
+
+/* Video */
+.video-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.video-wrapper iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+    border-radius: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .guide-container .title {
+        font-size: 2rem;
+        padding-top: 100px;
+    }
+
+    .guide-container .sub-title {
+        font-size: 1.25rem;
+        padding-bottom: 80px;
+        padding-inline: 20px;
+    }
+
+    .guide-heading {
+        font-size: 1.75rem;
+    }
+
+    .step {
+        font-size: 1rem;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .guide-container .title {
+        font-size: 1.75rem;
+    }
+
+    .guide-container .sub-title {
+        font-size: 1rem;
+    }
+
+    .guide-heading {
+        font-size: 1.5rem;
+    }
+}

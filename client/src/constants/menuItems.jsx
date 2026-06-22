@@ -24,5 +24,6 @@ export const menuItems = {
         { path: '/dashboard/performance' },
         { path: '/quiz' },
         { path: '/progress-report' },
+        { path: '/guide' }
     ]
 };

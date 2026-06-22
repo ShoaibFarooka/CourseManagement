@@ -448,7 +448,81 @@ const getAllUnitsProgress = async (userId, courseId, partId, publisherId, langua
     return result;
 };
 
-// service function to get all subunit progress of a specific unit
+
+const getSelectedUnitsProgress = async (
+    userId,
+    courseId,
+    partId,
+    publisherId,
+    selectedUnits,
+    selectedSubunits,
+    language = "eng"
+) => {
+
+    const progressDoc = await UserProgress.findOne({
+        user: userId,
+        course: courseId,
+        part: partId,
+        publisher: publisherId,
+        language,
+    });
+
+    let totalQuestions = 0;
+    let attempted = 0;
+    let correct = 0;
+    let wrong = 0;
+
+    for (const unitId of selectedUnits) {
+
+        const chosenSubunits =
+            selectedSubunits?.[unitId] || [];
+
+        const query = {
+            unit: unitId,
+            ...buildLanguageFilter(language)
+        };
+
+        if (chosenSubunits.length > 0) {
+            query.subunit = { $in: chosenSubunits };
+        }
+
+        totalQuestions += await Question.countDocuments(query);
+
+        const unitStat = progressDoc?.progress?.get(unitId);
+
+        if (!unitStat) continue;
+
+        if (chosenSubunits.length > 0) {
+
+            chosenSubunits.forEach(subId => {
+
+                const subStat =
+                    unitStat.subunits?.get(subId);
+
+                if (!subStat) return;
+
+                attempted += subStat.attempted || 0;
+                correct += subStat.correct || 0;
+                wrong += subStat.wrong || 0;
+            });
+
+        } else {
+
+            attempted += unitStat.attempted || 0;
+            correct += unitStat.correct || 0;
+            wrong += unitStat.wrong || 0;
+        }
+    }
+
+    return {
+        totalQuestions,
+        attempted,
+        correct,
+        wrong,
+        unattempted: totalQuestions - attempted
+    };
+};
+
 const getAllSubunitsProgress = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
     const progressDoc = await UserProgress.findOne({
         user: userId,
@@ -1036,6 +1110,7 @@ module.exports = {
     recordAnswer,
     getAllUnitsProgress,
     getUnitProgress,
+    getSelectedUnitsProgress,
     getAllSubunitsProgress,
     getContinueSession,
     getStartOverSession,

@@ -157,9 +157,23 @@ const userService = {
         }
     },
 
-    getAllUsers: async () => {
+    getAllUsers: async (
+        page = 1,
+        limit = 10,
+        search = ""
+    ) => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/fetch-all-users`);
+            const response = await axiosInstance.get(
+                `${BASE_URL}/fetch-all-users`,
+                {
+                    params: {
+                        page,
+                        limit,
+                        search
+                    }
+                }
+            );
+
             return response.data;
         } catch (error) {
             throw error;

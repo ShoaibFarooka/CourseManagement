@@ -97,38 +97,68 @@ const rejectDeviceRequest = async (requestId) => {
 };
 
 
-const getAllDevicesRequests = async (page, limit, filter) => {
-    const skip = (page - 1) * limit;
-
+const getAllDevicesRequests = async (
+    page,
+    limit,
+    filter,
+    search = ""
+) => {
     const query = {};
-    if (filter === "blocked") {
-        query["user.isBlocked"] = true;
-    } else if (filter !== "all") {
+
+    if (filter !== "all" && filter !== "blocked") {
         query.status = filter;
     }
 
-    const [requests, totalCount] = await Promise.all([
-        Request.find(query)
-            .populate("user", "name email isBlocked")
-            .skip(skip)
-            .limit(limit)
-            .sort({ createdAt: -1 }),
-        Request.countDocuments(query)
-    ]);
+    let requests = await Request.find(query)
+        .populate("user", "name email isBlocked")
+        .sort({ createdAt: -1 });
 
-    const userIds = requests.map(req => req.user?._id).filter(Boolean);
-    const devices = await UserAllowedDevice.find({ user: { $in: userIds } }).lean();
+    if (filter === "blocked") {
+        requests = requests.filter(req => req.user?.isBlocked);
+    }
+
+    if (search.trim()) {
+        const searchText = search.toLowerCase().trim();
+
+        requests = requests.filter(req => {
+            const name = req.user?.name?.toLowerCase() || "";
+            const email = req.user?.email?.toLowerCase() || "";
+
+            return (
+                name.includes(searchText) ||
+                email.includes(searchText)
+            );
+        });
+    }
+
+    const totalCount = requests.length;
+
+    const paginatedRequests = requests.slice(
+        (page - 1) * limit,
+        page * limit
+    );
+
+    const userIds = paginatedRequests
+        .map(req => req.user?._id)
+        .filter(Boolean);
+
+    const devices = await UserAllowedDevice.find({
+        user: { $in: userIds }
+    }).lean();
 
     const userDevicesMap = {};
+
     devices.forEach(d => {
-        userDevicesMap[d.user.toString()] = d.allowedDevices || [];
+        userDevicesMap[d.user.toString()] =
+            d.allowedDevices || [];
     });
 
-    const mappedRequests = requests.map(req => {
+    const mappedRequests = paginatedRequests.map(req => {
         const reqObj = req.toObject();
-        const userIdStr = reqObj.user?._id.toString();
+        const userIdStr = reqObj.user?._id?.toString();
 
-        reqObj.user.allowedDevices = userDevicesMap[userIdStr] || [];
+        reqObj.user.allowedDevices =
+            userDevicesMap[userIdStr] || [];
 
         if (reqObj.user?.isBlocked) {
             reqObj.status = "blocked";
@@ -144,7 +174,6 @@ const getAllDevicesRequests = async (page, limit, filter) => {
         totalCount
     };
 };
-
 
 
 const overwriteDeviceRequest = async (requestId, targetDeviceId) => {

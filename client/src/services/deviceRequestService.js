@@ -16,12 +16,13 @@ const deviceRequestService = {
         }
     },
 
-    getAllDevicesRequests: async (page = 1, limit = 5, filter = "all") => {
+    getAllDevicesRequests: async (page = 1, limit = 5, filter = "all", search = "") => {
         try {
             const params = new URLSearchParams();
             params.append("page", page);
             params.append("limit", limit);
             params.append("filter", filter);
+            params.append("search", search);
 
             const response = await axiosInstance.get(
                 `${BASE_URL}/fetch-all-requests?${params.toString()}`,

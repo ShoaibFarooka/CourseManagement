@@ -17,12 +17,12 @@ const CreatePaymentRequest = async (req, res, next) => {
             user: userId,
             course: courseId,
             part: partId,
-            status: { $in: ["pending", "rejected"] }
+            status: "pending"
         });
 
         if (existingRequest) {
             return res.status(409).json({
-                message: "You already have a pending or rejected request for this course and part."
+                message: "You already have a pending request for this course and part."
             });
         }
 
@@ -44,7 +44,7 @@ const CreatePaymentRequest = async (req, res, next) => {
 
 const GetAllPaymentRequests = async (req, res, next) => {
     try {
-        const { page = 1, limit = 5, status = "all" } = req.query;
+        const { page = 1, limit = 5, status = "all", search = "" } = req.query;
 
         const parsedPage = parseInt(page, 10) || 1;
         const parsedLimit = parseInt(limit, 10) || 5;
@@ -52,7 +52,8 @@ const GetAllPaymentRequests = async (req, res, next) => {
         const response = await paymentRequestService.getAllPaymentRequests(
             parsedPage,
             parsedLimit,
-            status
+            status,
+            search
         );
 
         res.status(200).json(response);
