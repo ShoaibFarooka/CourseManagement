@@ -17,12 +17,12 @@ const CreatePaymentRequest = async (req, res, next) => {
             user: userId,
             course: courseId,
             part: partId,
-            status: { $in: ["pending", "rejected"] }
+            status: "pending"
         });
 
         if (existingRequest) {
             return res.status(409).json({
-                message: "You already have a pending or rejected request for this course and part."
+                message: "You already have a pending request for this course and part."
             });
         }
 

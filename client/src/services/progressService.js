@@ -79,6 +79,36 @@ const progressService = {
         }
     },
 
+    getSelectedUnitsProgress: async ({
+        courseId,
+        partId,
+        publisherId,
+        selectedUnits,
+        selectedSubunits,
+        language
+    }) => {
+
+        try {
+
+            const response = await axiosInstance.post(
+                `${BASE_URL}/selected-units-progress`,
+                {
+                    courseId,
+                    partId,
+                    publisherId,
+                    selectedUnits,
+                    selectedSubunits,
+                    language
+                }
+            );
+
+            return response.data;
+
+        } catch (error) {
+            throw error;
+        }
+    },
+
     getAllSubunitsProgress: async ({
         courseId,
         partId,

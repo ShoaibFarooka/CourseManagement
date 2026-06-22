@@ -53,7 +53,6 @@ const PerformanceContent = ({ courseId, partId, publisherId }) => {
 
     const handleOpenUnitModal = (e, topic) => {
         e.stopPropagation();
-        // Build a map of subunitId -> subunitName for the modal to render names
         const subunitsMap = Object.fromEntries(
             topic.subunits.map(s => [s._id, s.name])
         );
@@ -72,7 +71,7 @@ const PerformanceContent = ({ courseId, partId, publisherId }) => {
     const handleOpenSubunitModal = (e, topic, sub) => {
         e.stopPropagation();
         setModalConfig({
-            unitId: topic.unitId,   // parent unit id — needed for the API call
+            unitId: topic.unitId,
             unitName: topic.unitName,
             subunitId: sub._id,
             subunitName: sub.name,

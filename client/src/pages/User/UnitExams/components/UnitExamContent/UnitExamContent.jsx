@@ -140,29 +140,17 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
 
                 setUnitProgress(res.progress);
             } else {
-                const payload = { courseId, partId, publisherId, language, selectedUnits, selectedSubunits };
-                const res = await progressService.getAllUnitsProgress(payload);
-                const progressMap = res?.progress || {};
-
-                let total = 0, wrong = 0, attempted = 0, correct = 0;
-                selectedUnits.forEach(id => {
-                    const u = progressMap?.[id];
-                    total += u?.totalQuestions || 0;
-                    wrong += u?.wrong || 0;
-                    attempted += u?.attempted || 0;
-                    correct += u?.correct || 0;
-                });
-
-                setUnitProgress({
-                    unitId: "multi",
-                    totalQuestions: total,
-                    attempted,
-                    correct,
-                    wrong,
-                    unattempted: total - attempted
-                });
+                const res =
+                    await progressService.getSelectedUnitsProgress({
+                        courseId,
+                        partId,
+                        publisherId,
+                        selectedUnits,
+                        selectedSubunits,
+                        language
+                    });
+                setUnitProgress(res.progress);
             }
-
             setShowSessionModal(true);
         } catch (error) {
             message.error("Failed to load session data");
