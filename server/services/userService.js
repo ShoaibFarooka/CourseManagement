@@ -127,6 +127,15 @@ const loginUser = async (loginData) => {
     error.code = 404;
     throw error;
   }
+  let passwordMatched = await authUtils.comparePassword(
+    user.password,
+    password
+  );
+  if (!passwordMatched) {
+    const error = new Error("Invalid credentials!");
+    error.code = 400;
+    throw error;
+  }
   if (!user.isEmailVerified && user.role !== "admin") {
     await emailService.sendOTPEmail(
       user.email,
@@ -136,15 +145,6 @@ const loginUser = async (loginData) => {
       "Email not verified. A new OTP has been sent."
     );
     error.code = 403;
-    throw error;
-  }
-  let passwordMatched = await authUtils.comparePassword(
-    user.password,
-    password
-  );
-  if (!passwordMatched) {
-    const error = new Error("Invalid credentials!");
-    error.code = 400;
     throw error;
   }
   let payload = {
