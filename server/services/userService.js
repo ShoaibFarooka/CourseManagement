@@ -137,10 +137,20 @@ const loginUser = async (loginData) => {
     throw error;
   }
   if (!user.isEmailVerified && user.role !== "admin") {
-    await emailService.sendOTPEmail(
-      user.email,
-      user.emailVerificationOTP
-    );
+    if (!user.emailVerificationOTP && user.otpExpiry && user.otpExpiry < new Date()) {
+      await emailService.sendOTPEmail(
+        user.email,
+        user.emailVerificationOTP
+      );
+    } else {
+      const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.emailVerificationOTP = newOtp;
+      user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+      await emailService.sendOTPEmail(
+        user.email,
+        newOtp
+      )
+    }
     const error = new Error(
       "Email not verified. A new OTP has been sent."
     );
