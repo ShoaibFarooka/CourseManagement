@@ -77,11 +77,17 @@ const recordAnswer = async (userId, answers, language = "eng") => {
         groupMap.get(key).push(ans);
     }
 
-    await Promise.all(
+    const results = await Promise.allSettled(
         [...groupMap.entries()].map(([key, groupAnswers]) =>
             processBatchGroup(userId, groupAnswers, language)
         )
     );
+
+    const failed = results.filter(r => r.status === "rejected");
+    if (failed.length > 0) {
+        failed.forEach(f => console.error("processBatchGroup failed:", f.reason));
+        throw new Error("One or more progress groups failed to save");
+    }
 };
 
 const processBatchGroup = async (userId, answers, language = "eng") => {
@@ -95,6 +101,22 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
     ).lean();
 
     const questionMap = new Map(questions.map(q => [q._id.toString(), q]));
+
+
+    const unitToSubunitIds = new Map();
+    for (const ans of answers) {
+        const question = questionMap.get(ans.questionId.toString());
+        if (!question || !question.subunit) continue;
+
+        const unitKeyStr = ans.unitId.toString();
+        const subunitKeyStr = question.subunit.toString();
+
+        if (!unitToSubunitIds.has(unitKeyStr)) {
+            unitToSubunitIds.set(unitKeyStr, new Set());
+        }
+        unitToSubunitIds.get(unitKeyStr).add(subunitKeyStr);
+    }
+
     let progressDoc = await UserProgress.findOneAndUpdate(
         {
             user: userId,
@@ -116,7 +138,6 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
         { upsert: true, new: true }
     );
 
-
     const unitIds = [...new Set(
         answers.map(a => new Types.ObjectId(a.unitId))
     )];
@@ -132,32 +153,17 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
 
     const [unitCounts, subunitCounts] = await Promise.all([
         Question.aggregate([
-            {
-                $match: {
-                    unit: { $in: unitIds },
-                    ...languageFilter
-                }
-            },
+            { $match: { unit: { $in: unitIds }, ...languageFilter } },
             { $group: { _id: "$unit", total: { $sum: 1 } } }
         ]),
         Question.aggregate([
-            {
-                $match: {
-                    subunit: { $in: subunitIds },
-                    ...languageFilter
-                }
-            },
+            { $match: { subunit: { $in: subunitIds }, ...languageFilter } },
             { $group: { _id: "$subunit", total: { $sum: 1 } } }
         ])
     ]);
 
-    const unitTotalMap = new Map(
-        unitCounts.map(u => [u._id.toString(), u.total])
-    );
-
-    const subunitTotalMap = new Map(
-        subunitCounts.map(s => [s._id.toString(), s.total])
-    );
+    const unitTotalMap = new Map(unitCounts.map(u => [u._id.toString(), u.total]));
+    const subunitTotalMap = new Map(subunitCounts.map(s => [s._id.toString(), s.total]));
 
     let needsSave = false;
 
@@ -180,9 +186,9 @@ const processBatchGroup = async (userId, answers, language = "eng") => {
 
         const stat = progressDoc.progress.get(unitKeyStr);
 
-        for (const subunitId of subunitIds) {
-            const subunitKeyStr = subunitId.toString();
+        const relevantSubunitIds = unitToSubunitIds.get(unitKeyStr) || new Set();
 
+        for (const subunitKeyStr of relevantSubunitIds) {
             if (!stat.subunits.has(subunitKeyStr)) {
                 stat.subunits.set(subunitKeyStr, {
                     totalQuestions: subunitTotalMap.get(subunitKeyStr) || 0,

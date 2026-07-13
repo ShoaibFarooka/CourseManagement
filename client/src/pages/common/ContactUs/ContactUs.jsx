@@ -9,7 +9,7 @@ import userService from '../../../services/userServices';
 import { message } from 'antd';
 
 const ContactUs = () => {
-    const whatsappNumber = "923034830439";
+    const whatsappNumber = "923254698122";
 
     const [formData, setFormData] = useState({
         name: "",
@@ -114,19 +114,16 @@ const ContactUs = () => {
                     </div>
 
                     <div className='content'>
-                        <div className='title'>Owner : Muhammad Bilal</div>
-                        <p className='sub-title'>This Website is owned and operated by Muhammad Bilal.
-                            <br />
-                            If you have any questions, comments, or concerns regarding our services,<br /> please feel free to reach out to us using the contact information provided below.<br />
-                        </p>
+                        <div className='title'>Contact Information</div>
+                        <p className='sub-title'>Say something to start a live chat!</p>
                         <div className='contact-info'>
                             <span className='info'>
                                 <FaWhatsapp size={24} color="#25D366" />
-                                <p>+923034830439</p>
+                                <p>+923254698122</p>
                             </span>
                             <span className='info'>
                                 <IoMailSharp width={24} />
-                                <p>bilaliman5555@gmail.com</p>
+                                <p>eproexamprep@gmail.com</p>
                             </span>
                             <span className='info'>
                                 <FaLocationDot width={24} />
