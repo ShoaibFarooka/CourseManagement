@@ -102,26 +102,37 @@ const Users = () => {
                         Previous
                     </button>
 
-                    {Array.from(
-                        { length: totalPages },
-                        (_, i) => i + 1
-                    ).map(page => (
-                        <button
-                            key={page}
-                            className={`manage-btn page-btn ${currentPage === page ? "active" : ""
-                                }`}
-                            onClick={() => setCurrentPage(page)}
-                        >
-                            {page}
-                        </button>
-                    ))}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter(page =>
+                            page === 1 ||
+                            page === totalPages ||
+                            Math.abs(currentPage - page) <= 2
+                        )
+                        .reduce((acc, page, idx, arr) => {
+                            if (idx > 0 && page - arr[idx - 1] > 1) {
+                                acc.push("ellipsis");
+                            }
+                            acc.push(page);
+                            return acc;
+                        }, [])
+                        .map((item, idx) =>
+                            item === "ellipsis" ? (
+                                <span key={`ellipsis-${idx}`} className="ellipsis">...</span>
+                            ) : (
+                                <button
+                                    key={item}
+                                    className={`manage-btn page-btn ${currentPage === item ? "active" : ""}`}
+                                    onClick={() => setCurrentPage(item)}
+                                >
+                                    {item}
+                                </button>
+                            )
+                        )}
 
                     <button
                         className="btn"
                         onClick={() =>
-                            setCurrentPage(prev =>
-                                Math.min(prev + 1, totalPages)
-                            )
+                            setCurrentPage(prev => Math.min(prev + 1, totalPages))
                         }
                         disabled={currentPage === totalPages}
                     >
