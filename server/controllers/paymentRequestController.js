@@ -13,34 +13,26 @@ const CreatePaymentRequest = async (req, res, next) => {
             });
         }
 
-        const existingRequest = await PaymentRequest.findOne({
-            user: userId,
-            course: courseId,
-            part: partId,
-            status: "pending"
-        });
-
-        if (existingRequest) {
-            return res.status(409).json({
-                message: "You already have a pending request for this course and part."
-            });
-        }
-
         const request = await paymentRequestService.createPaymentRequest(
             userId,
             courseId,
             partId
         );
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "Payment request created successfully.",
             request,
         });
     } catch (error) {
+        if (error.code) {
+            return res.status(error.code).json({
+                message: error.message,
+            });
+        }
+
         next(error);
     }
 };
-
 
 const GetAllPaymentRequests = async (req, res, next) => {
     try {
