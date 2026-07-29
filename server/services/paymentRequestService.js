@@ -4,20 +4,37 @@ const payment = require("../models/paymentModel");
 
 const createPaymentRequest = async (userId, courseId, partId) => {
     const user = await User.findById(userId);
+
     if (!user) {
-        const error = new Error("User not found");
+        const error = new Error("User not found.");
         error.code = 404;
         throw error;
     }
 
-    const request = new PaymentRequest({
+
+    const existingRequest = await PaymentRequest.findOne({
         user: userId,
         course: courseId,
         part: partId,
         status: "pending",
     });
 
-    await request.save();
+    if (existingRequest) {
+        const error = new Error(
+            "You already have a pending payment request for this course and part."
+        );
+        error.code = 409;
+        throw error;
+    }
+
+
+    const request = await PaymentRequest.create({
+        user: userId,
+        course: courseId,
+        part: partId,
+        status: "pending",
+    });
+
     return request;
 };
 
