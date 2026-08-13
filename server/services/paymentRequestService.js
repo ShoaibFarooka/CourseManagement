@@ -29,9 +29,6 @@ const createPaymentRequest = async (userId, courseId, partId) => {
         if (existingRequest.status === "approved") {
             const payment = await Payment.findOne({
                 paymentRequest: existingRequest._id,
-                user: userId,
-                course: courseId,
-                part: partId,
             }).sort({ createdAt: -1 });
 
             if (payment && new Date(payment.expiryDate) > new Date()) {
