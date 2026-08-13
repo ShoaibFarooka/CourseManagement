@@ -11,22 +11,38 @@ const createPaymentRequest = async (userId, courseId, partId) => {
         throw error;
     }
 
-
     const existingRequest = await PaymentRequest.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        status: "pending",
+        status: { $in: ["pending", "approved"] },
     });
 
     if (existingRequest) {
-        const error = new Error(
-            "You already have a pending payment request for this course and part."
-        );
-        error.code = 409;
-        throw error;
-    }
+        if (existingRequest.status === "pending") {
+            const error = new Error(
+                "You already have a pending payment request for this course and part."
+            );
+            error.code = 409;
+            throw error;
+        }
+        if (existingRequest.status === "approved") {
+            const payment = await Payment.findOne({
+                paymentRequest: existingRequest._id,
+                user: userId,
+                course: courseId,
+                part: partId,
+            }).sort({ createdAt: -1 });
 
+            if (payment && new Date(payment.expiryDate) > new Date()) {
+                const error = new Error(
+                    "Your request has been approved, please refresh the page."
+                );
+                error.code = 409;
+                throw error;
+            }
+        }
+    }
 
     const request = await PaymentRequest.create({
         user: userId,
@@ -37,7 +53,6 @@ const createPaymentRequest = async (userId, courseId, partId) => {
 
     return request;
 };
-
 
 
 
