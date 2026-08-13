@@ -27,11 +27,14 @@ const createPaymentRequest = async (userId, courseId, partId) => {
             throw error;
         }
         if (existingRequest.status === "approved") {
-            const payment = await Payment.findOne({
+            const existpayment = await payment.findOne({
                 paymentRequest: existingRequest._id,
+                user: userId,
+                course: courseId,
+                part: partId,
             }).sort({ createdAt: -1 });
 
-            if (payment && new Date(payment.expiryDate) > new Date()) {
+            if (existpayment && new Date(existpayment.expiryDate) > new Date()) {
                 const error = new Error(
                     "Your request has been approved, please refresh the page."
                 );
