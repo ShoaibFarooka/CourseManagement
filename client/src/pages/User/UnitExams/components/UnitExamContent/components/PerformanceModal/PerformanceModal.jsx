@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./PerformanceModal.css";
-import progressService from "../../../../../services/progressService";
+import progressService from "../../../../../../../services/progressService";
 import { useSelector } from "react-redux";
 
 const StatCard = ({ label, value, colorClass }) => (

@@ -38,8 +38,7 @@ const Sidebar = forwardRef((props, ref) => {
         { label: "Dashboard", path: "/dashboard" },
         { label: "Unit Exams", path: "/dashboard/unit-exams" },
         { label: "Practice Exams", path: "/dashboard/practice-exams" },
-        { label: "Package Exams", path: "/dashboard/package-exams" },
-        { label: "Performance", path: "/dashboard/performance" }
+        { label: "Package Exams", path: "/dashboard/package-exams" }
     ];
 
     const hasAccess =
@@ -63,8 +62,7 @@ const Sidebar = forwardRef((props, ref) => {
                                 : location.pathname === item.path;
                         const isLocked =
                             (item.label === "Practice Exams" ||
-                                item.label === "Package Exams" ||
-                                item.label === "Performance") &&
+                                item.label === "Package Exams") &&
                             !hasAccess;
 
                         return (

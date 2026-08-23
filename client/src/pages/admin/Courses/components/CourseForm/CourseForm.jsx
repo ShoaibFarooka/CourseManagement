@@ -919,6 +919,15 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
         setUnsavedChanges(prev => ({ ...prev, subunit: true }));
     };
     // Drag and Drop
+    // keeps an index that points at a row in a reordered list pointing at the same row
+    const remapIndex = (index, from, to) => {
+        if (index === null || index === undefined) return index;
+        if (index === from) return to;
+        if (from < index && index <= to) return index - 1;
+        if (to <= index && index < from) return index + 1;
+        return index;
+    };
+
     const handleDragEnd = (result) => {
         const { source, destination, type } = result;
 
@@ -927,6 +936,55 @@ const CourseForm = forwardRef(({ onRequestClose, fetchAllCourses, initialCourseD
             source.index === destination.index &&
             source.droppableId === destination.droppableId
         ) return;
+
+        if (type === 'PART') {
+            const parts = [...courseData.parts];
+
+            const [moved] = parts.splice(source.index, 1);
+            parts.splice(destination.index, 0, moved);
+
+            setCourseData(prev => ({ ...prev, parts }));
+
+            // keep the currently opened part/publisher/unit sections pointing at the same rows
+            setManagedPartIndex(prev => remapIndex(prev, source.index, destination.index));
+            setSelectedPublisherIndexes(prev => ({
+                ...prev,
+                partIndex: remapIndex(prev.partIndex, source.index, destination.index)
+            }));
+            setSelectedUnitIndexes(prev => ({
+                ...prev,
+                partIndex: remapIndex(prev.partIndex, source.index, destination.index)
+            }));
+
+            setUnsavedChanges(prev => ({ ...prev, part: true }));
+        }
+
+        if (type === 'PUBLISHER') {
+            const [, partIndex] = source.droppableId.split('-').map(Number);
+
+            const updatedParts = [...courseData.parts];
+            const publishers = [...updatedParts[partIndex].publishers];
+
+            const [moved] = publishers.splice(source.index, 1);
+            publishers.splice(destination.index, 0, moved);
+
+            updatedParts[partIndex] = { ...updatedParts[partIndex], publishers };
+            setCourseData(prev => ({ ...prev, parts: updatedParts }));
+
+            // keep the currently opened publisher/unit sections pointing at the same rows
+            setSelectedPublisherIndexes(prev =>
+                prev.partIndex === partIndex
+                    ? { ...prev, publisherIndex: remapIndex(prev.publisherIndex, source.index, destination.index) }
+                    : prev
+            );
+            setSelectedUnitIndexes(prev =>
+                prev.partIndex === partIndex
+                    ? { ...prev, publisherIndex: remapIndex(prev.publisherIndex, source.index, destination.index) }
+                    : prev
+            );
+
+            setUnsavedChanges(prev => ({ ...prev, publisher: true }));
+        }
 
         if (type === 'UNIT') {
             const [, partIndex, publisherIndex] = source.droppableId.split('-').map(Number);

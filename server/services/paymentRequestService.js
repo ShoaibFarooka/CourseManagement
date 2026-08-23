@@ -11,47 +11,71 @@ const createPaymentRequest = async (userId, courseId, partId) => {
         throw error;
     }
 
-    const existingRequest = await PaymentRequest.findOne({
-        user: userId,
-        course: courseId,
-        part: partId,
-        status: { $in: ["pending", "approved"] },
-    });
-
-    if (existingRequest) {
-        if (existingRequest.status === "pending") {
-            const error = new Error(
-                "You already have a pending payment request for this course and part."
-            );
-            error.code = 409;
-            throw error;
-        }
-        if (existingRequest.status === "approved") {
-            const existpayment = await payment.findOne({
-                paymentRequest: existingRequest._id,
-                user: userId,
-                course: courseId,
-                part: partId,
-            }).sort({ createdAt: -1 });
-
-            if (existpayment && new Date(existpayment.expiryDate) > new Date()) {
-                const error = new Error(
-                    "Your request has been approved, please refresh the page."
-                );
-                error.code = 409;
-                throw error;
-            }
-        }
-    }
-
-    const request = await PaymentRequest.create({
+    // Pending is checked on its own, and first. Querying pending+approved together let
+    // findOne return an older approved request while a pending one also existed — the
+    // approved branch then fell through and created another pending request on every
+    // click. Two separate queries make the pending block unconditional.
+    const pendingRequest = await PaymentRequest.findOne({
         user: userId,
         course: courseId,
         part: partId,
         status: "pending",
     });
 
-    return request;
+    if (pendingRequest) {
+        const error = new Error(
+            "You already have a pending payment request for this course and part."
+        );
+        error.code = 409;
+        throw error;
+    }
+
+    const approvedRequest = await PaymentRequest.findOne({
+        user: userId,
+        course: courseId,
+        part: partId,
+        status: "approved",
+    }).sort({ createdAt: -1 });
+
+    if (approvedRequest) {
+        const existpayment = await payment.findOne({
+            paymentRequest: approvedRequest._id,
+            user: userId,
+            course: courseId,
+            part: partId,
+        }).sort({ createdAt: -1 });
+
+        if (existpayment && new Date(existpayment.expiryDate) > new Date()) {
+            const error = new Error(
+                "Your request has been approved, please refresh the page."
+            );
+            error.code = 409;
+            throw error;
+        }
+    }
+
+    try {
+        return await PaymentRequest.create({
+            user: userId,
+            course: courseId,
+            part: partId,
+            status: "pending",
+        });
+    } catch (err) {
+        // The partial unique index rejected a concurrent duplicate. Translate it into the
+        // same 409 the check above throws — note this MUST be remapped, since the
+        // controller passes error.code straight to res.status() and Mongo's 11000 is not
+        // a valid HTTP status.
+        if (err.code === 11000) {
+            const error = new Error(
+                "You already have a pending payment request for this course and part."
+            );
+            error.code = 409;
+            throw error;
+        }
+
+        throw err;
+    }
 };
 
 

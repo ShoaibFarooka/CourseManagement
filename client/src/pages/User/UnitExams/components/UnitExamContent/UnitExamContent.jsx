@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./UnitExamContent.css";
-import { FaPlus, FaMinus } from "react-icons/fa";
+import { FaPlus, FaMinus, FaEye } from "react-icons/fa";
 import arrow from '../../../../../assets/icons/arrow.png';
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,10 @@ import { message } from "antd";
 import { useNavigate } from 'react-router-dom';
 import CustomModal from "../../../../../components/CustomModal/CustomModal";
 import progressService from "../../../../../services/progressService";
+import paymentRequestService from "../../../../../services/paymentRequestService";
 import SessionModal from "../SessionModal/SessionModal";
+import DeviceVerification from "../../../Dashboard/components/DeviceVerification/DeviceVerification";
+import PerformanceModal from "./components/PerformanceModal/PerformanceModal";
 
 const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     const dispatch = useDispatch();
@@ -22,6 +25,10 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     const [sessionLoading, setSessionLoading] = useState(false);
     const [unitProgress, setUnitProgress] = useState(null);
     const [allUnitsProgress, setAllUnitsProgress] = useState({});
+    const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
+    const [requestingAccess, setRequestingAccess] = useState(false);
+    const [modalConfig, setModalConfig] = useState(null);
+    const [showPerformanceModal, setShowPerformanceModal] = useState(false);
     const language = useSelector(state => state.user?.user.language);
 
     const toggleAccordion = (id) => {
@@ -34,6 +41,39 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         p => p.courseId === courseId && p.partId === partId
             && new Date(p.expiryDate) > new Date()
     );
+
+    const handlePaymentRequest = async () => {
+        // Guards against a second click landing before the first request resolves.
+        if (requestingAccess) return;
+
+        try {
+            setRequestingAccess(true);
+            dispatch(ShowLoading());
+
+            const res = await paymentRequestService.createPaymentRequest(
+                courseId,
+                partId
+            );
+
+            message.success(
+                res?.message || "Payment Request Submitted Successfully!"
+            );
+        } catch (error) {
+            if (error?.response?.status === 409) {
+                message.warning(error.response.data.message);
+            } else {
+                message.error(
+                    error?.response?.data?.message || "Something went wrong"
+                );
+            }
+        } finally {
+            setRequestingAccess(false);
+            dispatch(HideLoading());
+            // Opens on every attempt, including a 409 — the toast carries the "already
+            // pending" wording while the modal still offers the contact shortcut.
+            setIsOpenDeviceRequestModal(true);
+        }
+    };
 
     const handleToggleUnit = (unitId, unlocked) => {
         if (!unlocked) {
@@ -274,6 +314,37 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         }
     };
 
+    const handleOpenUnitModal = (e, topic) => {
+        e.stopPropagation();
+        const subunitsMap = Object.fromEntries(
+            topic.subunits.map(s => [s._id, s.name])
+        );
+        setModalConfig({
+            unitId: topic.unitId,
+            unitName: topic.unitName,
+            subunitId: null,
+            subunitName: null,
+            subunitsMap,
+            isSubunit: false,
+            title: topic.unitName,
+        });
+        setShowPerformanceModal(true);
+    };
+
+    const handleOpenSubunitModal = (e, topic, sub) => {
+        e.stopPropagation();
+        setModalConfig({
+            unitId: topic.unitId,
+            unitName: topic.unitName,
+            subunitId: sub._id,
+            subunitName: sub.name,
+            subunitsMap: {},
+            isSubunit: true,
+            title: sub.name,
+        });
+        setShowPerformanceModal(true);
+    };
+
     const getAttemptedColor = (attempted, total) => {
         if (!attempted || !total || attempted === 0) return "inactive";
         const ratio = attempted / total;
@@ -312,8 +383,22 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
     return (
         <div className="unit-exams-container">
 
-            <div className="guideline">
-                Select the topics you wish to study, click on + icon to expand
+            <div className="unit-exams-heading">
+                <div className="guideline">
+                    Select the topics you wish to study, click on + icon to expand
+                </div>
+
+                {!isPurchased && (
+                    <div className="request-access">
+                        <button
+                            className="request-btn"
+                            disabled={requestingAccess}
+                            onClick={handlePaymentRequest}
+                        >
+                            Request Access
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div className="unit-table-header">
@@ -321,6 +406,7 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                 <span>Type <img src={arrow} alt="arrow" className="arrow" /></span>
                 <span>Status <img src={arrow} alt="arrow" className="arrow" /></span>
                 <span>Proficiency Score <img src={arrow} alt="arrow" className="arrow" /></span>
+                <span>Performance <img src={arrow} alt="arrow" className="arrow" /></span>
             </div>
 
             <div className="unit-topic-list">
@@ -381,6 +467,18 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                     </div>
                                     <span className="unit-progress-text">{proficiency}%</span>
                                 </div>
+
+                                <div className="performance-eye-cell">
+                                    {isUnitUnlocked && (
+                                        <button
+                                            className="performance-eye-btn"
+                                            onClick={(e) => handleOpenUnitModal(e, topic)}
+                                            title="View unit performance"
+                                        >
+                                            <FaEye />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {expandedUnit === topic.unitId && isUnitUnlocked && (
@@ -428,6 +526,16 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                                                     <span className="unit-progress-text">{proficiencySub}%</span>
                                                 </div>
 
+                                                <div className="performance-eye-cell">
+                                                    <button
+                                                        className="performance-eye-btn subunit-eye"
+                                                        onClick={(e) => handleOpenSubunitModal(e, topic, sub)}
+                                                        title="View subunit performance"
+                                                    >
+                                                        <FaEye />
+                                                    </button>
+                                                </div>
+
                                             </div>
                                         );
                                     })}
@@ -461,6 +569,35 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                     />
                 </CustomModal>
             }
+
+            <CustomModal
+                isOpen={isOpenDeviceRequestModal}
+                onRequestClose={() => setIsOpenDeviceRequestModal(false)}
+                contentLabel="Request Access"
+                width="60%"
+            >
+                <DeviceVerification />
+            </CustomModal>
+
+            {showPerformanceModal && modalConfig && (
+                <CustomModal
+                    isOpen={showPerformanceModal}
+                    onRequestClose={() => setShowPerformanceModal(false)}
+                    title={`Performance: ${modalConfig.title}`}
+                >
+                    <PerformanceModal
+                        courseId={courseId}
+                        partId={partId}
+                        publisherId={publisherId}
+                        unitId={modalConfig.unitId}
+                        unitName={modalConfig.unitName}
+                        subunitsMap={modalConfig.subunitsMap}
+                        subunitId={modalConfig.subunitId}
+                        subunitName={modalConfig.subunitName}
+                        isSubunit={modalConfig.isSubunit}
+                    />
+                </CustomModal>
+            )}
         </div>
     );
 };
