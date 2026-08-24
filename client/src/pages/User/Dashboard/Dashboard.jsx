@@ -24,6 +24,7 @@ const Dashboard = () => {
     const [allCourses, setAllCourses] = useState([]);
     const [selectedParts, setSelectedParts] = useState({});
     const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
+    const [requestingAccess, setRequestingAccess] = useState(false);
 
     useEffect(() => {
         fetchAllCourses();
@@ -154,7 +155,11 @@ const Dashboard = () => {
     };
 
     const handlePaymentRequest = async (courseId, partId) => {
+        // Guards against a second click landing before the first request resolves.
+        if (requestingAccess) return;
+
         try {
+            setRequestingAccess(true);
             dispatch(ShowLoading());
 
             const res = await paymentRequestService.createPaymentRequest(
@@ -163,7 +168,7 @@ const Dashboard = () => {
             );
 
             message.success(
-                res?.data?.message || "Payment Request Submitted Successfully!"
+                res?.message || "Payment Request Submitted Successfully!"
             );
         } catch (error) {
             if (error?.response?.status === 409) {
@@ -174,7 +179,10 @@ const Dashboard = () => {
                 );
             }
         } finally {
+            setRequestingAccess(false);
             dispatch(HideLoading());
+            // Opens on every attempt, including a 409 — the toast carries the "already
+            // pending" wording while the modal still offers the contact shortcut.
             setIsOpenDeviceRequestModal(true);
         }
     };
@@ -320,6 +328,7 @@ const Dashboard = () => {
                                 {actionText !== "-" ? (
                                     <button
                                         className="access-btn"
+                                        disabled={requestingAccess}
                                         onClick={() =>
                                             handlePaymentRequest(
                                                 course.id,

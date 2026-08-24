@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Router from './router/Router.jsx';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop.jsx';
 import Loader from './components/Loader/Loader.jsx';
+import WhatsAppButton from './components/WhatsAppButton/WhatsAppButton.jsx';
 const App = () => {
   const theme = useSelector((state) => state.theme.theme);
   const { counter } = useSelector((state) => state.loader);
@@ -18,6 +19,7 @@ const App = () => {
       {loading && <Loader />}
       <ScrollToTop />
       <Router />
+      <WhatsAppButton />
     </div>
   )
 }

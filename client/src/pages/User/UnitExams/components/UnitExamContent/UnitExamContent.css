@@ -9,18 +9,50 @@
     font-family: var(--font-family);
 }
 
+/* Guideline sits on the left, Request Access on the right of the same row.
+   The container is a flex column, so they need this wrapper to share a line. */
+.unit-exams-container .unit-exams-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
 /* Guideline */
 .unit-exams-container .guideline {
     font-size: 1.375rem;
     font-weight: 600;
     color: var(--text-color);
-    margin-bottom: 25px;
+}
+
+/* Request Access — mirrors the Device Verification button on the Dashboard */
+.unit-exams-container .request-access {
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.unit-exams-container .request-access .request-btn {
+    background-color: var(--secondary-color);
+    color: #000000;
+    font-family: var(--font-family);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 15px 30px;
+    border-radius: 14px;
+    border: none;
+}
+
+.unit-exams-container .request-access .request-btn:hover {
+    cursor: pointer;
+    opacity: 0.8;
 }
 
 /* Table Header */
 .unit-exams-container .unit-table-header {
     display: grid;
-    grid-template-columns: 0.9fr 0.2fr 0.4fr 0.4fr;
+    grid-template-columns: 0.9fr 0.2fr 0.4fr 0.4fr 0.3fr;
     justify-items: center;
     font-weight: 600;
     font-size: 0.9rem;
@@ -46,7 +78,7 @@
 /* Topic Row */
 .unit-exams-container .unit-topic-row {
     display: grid;
-    grid-template-columns: 0.9fr 0.2fr 0.4fr 0.4fr;
+    grid-template-columns: 0.9fr 0.2fr 0.4fr 0.4fr 0.3fr;
     align-items: center;
     justify-items: center;
     background: var(--table-values-bg);
@@ -163,6 +195,37 @@
 }
 
 
+/* Eye Icon Cell — opens the performance modal for a unit or subunit */
+.unit-exams-container .performance-eye-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.unit-exams-container .performance-eye-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.unit-exams-container .performance-eye-btn:hover {
+    transform: scale(1.08);
+}
+
+.unit-exams-container .performance-eye-btn.subunit-eye {
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+}
+
 /* Subunits */
 
 .unit-exams-container .unit-subunit-label {
@@ -180,7 +243,7 @@
 
 .unit-exams-container .unit-subunit-row {
     display: grid;
-    grid-template-columns: 1fr 0.2fr 0.3fr 0.4fr;
+    grid-template-columns: 1fr 0.2fr 0.3fr 0.4fr 0.3fr;
     align-items: center;
     padding: 5px;
 }
@@ -282,6 +345,11 @@
         padding: 100px 20px 120px 20px;
     }
 
+    .unit-exams-container .request-access .request-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+    }
+
     .unit-exams-container .unit-progress-bar {
         width: 60%;
         height: 13px;
@@ -298,8 +366,20 @@
         padding: 0.25rem 0.45rem;
     }
 
+    .unit-exams-container .performance-eye-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+    .unit-exams-container .performance-eye-btn.subunit-eye {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+    }
+
     .unit-exams-container .unit-subunit-row {
-        grid-template-columns: 1.2fr 0.6fr 0.4fr 0.7fr;
+        grid-template-columns: 1.2fr 0.6fr 0.4fr 0.7fr 0.4fr;
         padding: 0.5rem 0.4rem;
         gap: 5px;
     }
@@ -316,15 +396,30 @@
         padding: 100px 10px 100px 10px;
     }
 
+    .unit-exams-container .unit-exams-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Negative order, not 1 — every other item defaults to 0, so the button
+       has to sort before the guideline to stack above it. */
+    .unit-exams-container .unit-exams-heading .request-access {
+        order: -1;
+    }
+
+    .unit-exams-container .request-access .request-btn {
+        font-size: 0.85rem;
+    }
+
     .unit-exams-container .unit-table-header {
         font-size: 0.7rem;
-        grid-template-columns: 1.2fr 0.5fr 0.6fr 0.7fr;
+        grid-template-columns: 1.2fr 0.5fr 0.6fr 0.7fr 0.4fr;
         padding: 10px 5px;
         gap: 5px;
     }
 
     .unit-exams-container .unit-topic-row {
-        grid-template-columns: 1.2fr 0.5fr 0.6fr 0.7fr;
+        grid-template-columns: 1.2fr 0.5fr 0.6fr 0.7fr 0.4fr;
         padding: 0.6rem 0.4rem;
         gap: 5px;
     }
@@ -358,7 +453,7 @@
     }
 
     .unit-exams-container .unit-subunit-row {
-        grid-template-columns: 1.2fr 0.6fr 0.5fr 0.7fr;
+        grid-template-columns: 1.2fr 0.6fr 0.5fr 0.7fr 0.4fr;
         padding: 0.5rem 0.4rem;
         gap: 5px;
     }
@@ -379,15 +474,21 @@
         padding: 100px 5px 80px 5px;
     }
 
+    .unit-exams-container .request-access .request-btn {
+        font-size: 0.75rem;
+        padding: 8px 20px;
+        border-radius: 5px;
+    }
+
     .unit-exams-container .unit-table-header {
         font-size: 0.65rem;
-        grid-template-columns: 1.3fr 0.6fr 0.7fr 0.8fr;
+        grid-template-columns: 1.3fr 0.6fr 0.7fr 0.8fr 0.4fr;
         padding: 8px 3px;
         gap: 3px;
     }
 
     .unit-exams-container .unit-topic-row {
-        grid-template-columns: 1.3fr 0.6fr 0.7fr 0.8fr;
+        grid-template-columns: 1.3fr 0.6fr 0.7fr 0.8fr 0.4fr;
         padding: 0.5rem 0.3rem;
         gap: 3px;
     }
@@ -443,7 +544,7 @@
     }
 
     .unit-exams-container .unit-subunit-row {
-        grid-template-columns: 1.2fr 0.6fr 0.7fr 0.8fr;
+        grid-template-columns: 1.2fr 0.6fr 0.7fr 0.8fr 0.4fr;
         padding: 0.4rem 0.3rem;
         gap: 3px;
     }

@@ -25,6 +25,14 @@ const paymentRequestSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+paymentRequestSchema.index(
+    { user: 1, course: 1, part: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { status: "pending" },
+    }
+);
+
 const PaymentRequest = mongoose.model("payment_request", paymentRequestSchema);
 
 module.exports = PaymentRequest;
