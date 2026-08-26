@@ -1,9 +1,12 @@
 import './Login.css'
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { FcGoogle } from 'react-icons/fc';
 import Cookies from 'js-cookie';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../../configs/firebase.config';
 import userService from '../../../services/userServices'
 import { useDispatch } from 'react-redux';
 import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
@@ -11,7 +14,6 @@ import { ShowLoading, HideLoading } from '../../../redux/loaderSlice';
 const Login = () => {
 
     const navigate = useNavigate();
-    const location = useLocation();
     const dispatch = useDispatch();
 
     const [showPassword, setShowPassword] = useState(false);
@@ -61,6 +63,63 @@ const Login = () => {
         return !hasErrors;
     };
 
+    // Shared by the password form and the Google button — both receive the same
+    // { token, role } shape from the server.
+    const handleAuthSuccess = (response) => {
+        if (!response?.token) {
+            message.error(response?.error || "Login Failed");
+            return;
+        }
+
+        Cookies.set('course-managment-jwt-token', response.token, {
+            secure: true,
+            sameSite: 'Lax'
+        });
+
+        if (response.role === 'admin') {
+            navigate('/admin/courses');
+            message.success("Successfully Logged In");
+        } else if (response.role === 'user') {
+            navigate('/dashboard');
+            message.success("Successfully Logged In");
+        } else {
+            message.error("Unknown User!");
+        }
+    };
+
+    const handleClickGoogleLogin = async () => {
+        let idToken;
+
+        // The popup runs before the loader is shown — the user is interacting with the
+        // Google window, and a full-screen loader behind it only gets in the way.
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            idToken = await result.user.getIdToken();
+        } catch (error) {
+            // Closing the popup or clicking the button twice is a normal action, not an
+            // error worth surfacing.
+            const ignored = [
+                'auth/popup-closed-by-user',
+                'auth/cancelled-popup-request',
+                'auth/user-cancelled',
+            ];
+            if (!ignored.includes(error?.code)) {
+                message.error("Google sign in failed. Please try again.");
+            }
+            return;
+        }
+
+        try {
+            dispatch(ShowLoading());
+            const response = await userService.googleLogin(idToken);
+            handleAuthSuccess(response);
+        } catch (error) {
+            message.error(error?.response?.data?.error || "Something went wrong");
+        } finally {
+            dispatch(HideLoading());
+        }
+    };
+
     const handleClickLogin = async (e) => {
         e.preventDefault();
         if (!validateData()) {
@@ -69,25 +128,7 @@ const Login = () => {
         try {
             dispatch(ShowLoading());
             const response = await userService.loginUser(formData);
-            if (response.token) {
-                Cookies.set('course-managment-jwt-token', response.token, {
-                    secure: true,
-                    sameSite: 'Lax'
-                });
-                const from = location.state?.from?.pathname;
-                if (response.role === 'admin') {
-                    navigate('/admin/courses');
-                    message.success("Successfully Logged In");
-                } else if (response.role === 'user') {
-                    navigate('/dashboard');
-                    message.success("Successfully Logged In");
-                } else {
-                    message.error("Unknown User!");
-                }
-
-            } else {
-                message.error(response.error || "Login Failed");
-            }
+            handleAuthSuccess(response);
         } catch (error) {
             const errorMessage = error?.response?.data?.error;
             const status = error?.response?.status;
@@ -144,6 +185,18 @@ const Login = () => {
                         </div>
                     </div>
                     <button type='submit' className='login-btn'>Login</button>
+
+                    <div className="auth-divider"><span>or</span></div>
+
+                    <button
+                        type='button'
+                        className='google-login-btn'
+                        onClick={handleClickGoogleLogin}
+                    >
+                        <FcGoogle className='google-icon' />
+                        <span>Continue with Google</span>
+                    </button>
+
                     <div className="sign-up-now">
                         <p>Don’t have an account?</p>
                         <a href="/signup">

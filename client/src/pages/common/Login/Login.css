@@ -126,6 +126,53 @@
     opacity: 0.7;
 }
 
+/* Divider between the password form and the Google button */
+.login-form .form .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.login-form .form .auth-divider::before,
+.login-form .form .auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: var(--border, #cbd5e1);
+}
+
+/* Google sign in */
+.login-form .form .google-login-btn {
+    margin-top: 22px;
+    padding: 13px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #ffffff;
+    color: #1f1f1f;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 1px solid #dadce0;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.login-form .form .google-login-btn:hover {
+    background-color: #f7f8f8;
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+}
+
+.login-form .form .google-login-btn .google-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
 .login-form .form .sign-up-now {
     margin-top: 28px;
     margin-bottom: 139px;

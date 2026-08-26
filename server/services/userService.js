@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
+const firebaseAuthUtils = require("../utils/firebaseAuthUtils");
 const crypto = require("crypto");
 const emailService = require("./emailService");
 
@@ -161,6 +162,57 @@ const loginUser = async (loginData) => {
   user.refreshToken = refreshToken;
   await user.save();
   return { accessToken, refreshToken, role: user.role };
+};
+
+const googleLogin = async (idToken) => {
+  const payload = await firebaseAuthUtils.verifyFirebaseIdToken(idToken);
+
+  const email = payload.email?.trim().toLowerCase();
+
+  if (!email) {
+    const error = new Error("This Google account has no email address.");
+    error.code = 400;
+    throw error;
+  }
+
+  // Firebase reports whether Google itself verified the address. Trusting an
+  // unverified one would let someone sign in as the owner of an email they don't hold.
+  if (payload.email_verified === false) {
+    const error = new Error("This Google account's email is not verified.");
+    error.code = 403;
+    throw error;
+  }
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create({
+      name: payload.name?.trim() || email.split("@")[0],
+      email,
+      role: "user",
+      authProvider: "google",
+      // Google has already verified the address, so there is no OTP step here.
+      isEmailVerified: true,
+    });
+  } else if (!user.isEmailVerified) {
+    // An account that signed up locally but never confirmed its OTP is confirmed by
+    // Google vouching for the same address.
+    user.isEmailVerified = true;
+  }
+
+  const tokenPayload = {
+    id: user._id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = authUtils.createAccessToken(tokenPayload);
+  const newRefreshToken = authUtils.createRefreshToken(tokenPayload);
+
+  user.refreshToken = newRefreshToken;
+  await user.save();
+
+  return { accessToken, refreshToken: newRefreshToken, role: user.role };
 };
 
 const refreshToken = async (refreshToken) => {
@@ -493,6 +545,7 @@ module.exports = {
   verifyEmailOTP,
   resendOTP,
   loginUser,
+  googleLogin,
   refreshToken,
   logoutUser,
   fetchUser,
