@@ -20,6 +20,9 @@ const OtpVerification = () => {
 
     const email = location.state?.email;
     const password = location.state?.password;
+    // Present when the user arrived here from the Google button instead of the password
+    // form — it completes the sign in once the OTP is accepted.
+    const googleCredential = location.state?.googleCredential;
 
     const handleChange = (value, index) => {
         if (/^[0-9a-zA-Z]?$/.test(value)) {
@@ -50,7 +53,7 @@ const OtpVerification = () => {
 
         const otpCode = otp.join("");
 
-        if (!email || !password) {
+        if (!email || (!password && !googleCredential)) {
             setError("Email or password not found. Please go back to signup.");
             setLoading(false);
             return;
@@ -61,8 +64,10 @@ const OtpVerification = () => {
             await userService.verifyEmailOTP(email, otpCode);
             setMessage("Email verified successfully!");
 
-
-            const loginResponse = await userService.loginUser({ email, password });
+            // Finish through whichever method the user started with.
+            const loginResponse = googleCredential
+                ? await userService.googleLogin(googleCredential)
+                : await userService.loginUser({ email, password });
 
             if (loginResponse.token) {
                 Cookies.set("course-managment-jwt-token", loginResponse.token, {

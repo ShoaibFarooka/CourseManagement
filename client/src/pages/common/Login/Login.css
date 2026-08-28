@@ -144,33 +144,14 @@
     background-color: var(--border, #cbd5e1);
 }
 
-/* Google sign in */
-.login-form .form .google-login-btn {
+/* Google sign in. The button itself is rendered by Google Identity Services inside this
+   container and cannot be restyled — Google's branding rules require their own markup —
+   so only the wrapper is styled here. */
+.login-form .form .google-login {
     margin-top: 22px;
-    padding: 13px;
-    width: 100%;
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 10px;
-    background-color: #ffffff;
-    color: #1f1f1f;
-    font-size: 1rem;
-    font-weight: 600;
-    border: 1px solid #dadce0;
-    border-radius: 13px;
-    cursor: pointer;
-    transition: box-shadow 0.2s ease, background-color 0.2s ease;
-}
-
-.login-form .form .google-login-btn:hover {
-    background-color: #f7f8f8;
-    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
-}
-
-.login-form .form .google-login-btn .google-icon {
-    font-size: 1.25rem;
-    flex-shrink: 0;
+    min-height: 44px;
 }
 
 .login-form .form .sign-up-now {
