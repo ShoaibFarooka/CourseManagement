@@ -10,5 +10,5 @@
 error.log
 
 # uploads
-server/static/uploads/*
-!server/static/uploads/.gitkeep
+/static/uploads/*
+!/static/uploads/.gitkeep
