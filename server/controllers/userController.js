@@ -62,6 +62,28 @@ const Login = async (req, res, next) => {
   }
 };
 
+const GoogleLogin = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+    const { accessToken, refreshToken, role } = await userService.googleLogin(
+      idToken
+    );
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+    });
+    res.status(200).json({ token: accessToken, role });
+  } catch (error) {
+    // The unverified-email case needs to tell the client which address the OTP went to,
+    // and the shared error handler only forwards { error: message }.
+    if (error.code === 403 && error.email) {
+      return res.status(403).json({ error: error.message, email: error.email });
+    }
+    next(error);
+  }
+};
+
 const RefreshToken = async (req, res, next) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
@@ -245,6 +267,7 @@ module.exports = {
   VerifyEmailOTP,
   ResendOTP,
   Login,
+  GoogleLogin,
   RefreshToken,
   Logout,
   FetchUserInfo,

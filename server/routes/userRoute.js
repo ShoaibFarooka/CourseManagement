@@ -20,6 +20,12 @@ router.post(
 );
 
 router.post(
+  "/google-login",
+  validationMiddleware.validateBody(userSchemas.googleLoginSchema),
+  controller.GoogleLogin
+);
+
+router.post(
   "/refresh-token",
   controller.RefreshToken
 );

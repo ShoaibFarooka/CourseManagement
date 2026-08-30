@@ -14,6 +14,21 @@ const userService = {
             throw error;
         }
     },
+    googleLogin: async (idToken) => {
+        try {
+            const response = await axiosInstance.post(
+                `${BASE_URL}/google-login`,
+                { idToken },
+                {
+                    withCredentials: true,
+                    skipAuthRefresh: true,
+                }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
     registerUser: async (formData, userType) => {
         try {
             const response = await axiosInstance.post(

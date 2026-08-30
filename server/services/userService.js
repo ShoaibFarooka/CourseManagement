@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const authUtils = require("../utils/authUtils");
+const googleAuthUtils = require("../utils/googleAuthUtils");
 const crypto = require("crypto");
 const emailService = require("./emailService");
 
@@ -127,6 +128,18 @@ const loginUser = async (loginData) => {
     error.code = 404;
     throw error;
   }
+  // An account created through Google sign in has no password at all. Whether the
+  // password form can be used is derived from the stored password itself rather than
+  // from authProvider, because that flag would go stale the moment such a user sets a
+  // password via Forgot Password. Without this guard bcrypt throws on the undefined
+  // hash and the request fails as a 500.
+  if (!user.password) {
+    const error = new Error(
+      "This account uses Google sign in. Use the Google button, or set a password using Forgot Password."
+    );
+    error.code = 400;
+    throw error;
+  }
   let passwordMatched = await authUtils.comparePassword(
     user.password,
     password
@@ -161,6 +174,98 @@ const loginUser = async (loginData) => {
   user.refreshToken = refreshToken;
   await user.save();
   return { accessToken, refreshToken, role: user.role };
+};
+
+const googleLogin = async (idToken) => {
+  const payload = await googleAuthUtils.verifyGoogleIdToken(idToken);
+
+  const email = payload.email?.trim().toLowerCase();
+
+  if (!email) {
+    const error = new Error("This Google account has no email address.");
+    error.code = 400;
+    throw error;
+  }
+
+  // Google states whether it has verified the address. Require an explicit true rather
+  // than "not false": accepting an unverified address would let someone sign in as the
+  // owner of an email they do not control, and take over that user's existing account.
+  if (payload.email_verified !== true && payload.email_verified !== "true") {
+    const error = new Error("This Google account's email is not verified.");
+    error.code = 403;
+    throw error;
+  }
+
+  let user = await User.findOne({ email });
+
+  // Admin accounts are deliberately excluded: a compromised mailbox would otherwise be a
+  // compromised admin panel. Every admin is seeded with a password, so this locks nobody
+  // out — admins sign in through the normal form.
+  if (user && user.role !== "user") {
+    const error = new Error(
+      "Admin accounts must sign in with email and password."
+    );
+    error.code = 403;
+    throw error;
+  }
+
+  if (!user) {
+    // Created unverified: signing in with Google does not by itself grant access. The
+    // account has to clear the same OTP step every account goes through.
+    user = await User.create({
+      name: payload.name?.trim() || email.split("@")[0],
+      email,
+      role: "user",
+      authProvider: "google",
+      isEmailVerified: false,
+    });
+  } else if (!user.isEmailVerified) {
+    // The account exists but its email was never confirmed, which means whoever set its
+    // password never proved they own this mailbox. They could have registered it with
+    // someone else's address and be waiting for the real owner to arrive and verify it —
+    // at which point their password would start working against the victim's account.
+    //
+    // Google vouching for the address confirms the real owner is here now, so the
+    // unproven password is discarded. This has to happen here rather than after the OTP
+    // step, because verifyEmailOTP flips isEmailVerified without knowing a stale password
+    // is attached. The owner can set a password of their own through Forgot Password.
+    user.password = undefined;
+    user.authProvider = "google";
+  }
+  // An account whose email was already verified keeps its password untouched: the owner
+  // proved they hold this mailbox, so the password and Google are simply two independent
+  // ways into the same account.
+
+  // Same gate the password form applies: no access until the OTP mailed to this address
+  // has been entered. Mirrors the unverified branch of loginUser.
+  if (!user.isEmailVerified) {
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.emailVerificationOTP = newOtp;
+    user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+    await emailService.sendOTPEmail(user.email, newOtp);
+
+    const error = new Error("Email not verified. A new OTP has been sent.");
+    error.code = 403;
+    // Carried so the client can open the OTP screen for the right address; the global
+    // error handler only forwards the message.
+    error.email = user.email;
+    throw error;
+  }
+
+  const tokenPayload = {
+    id: user._id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = authUtils.createAccessToken(tokenPayload);
+  const newRefreshToken = authUtils.createRefreshToken(tokenPayload);
+
+  user.refreshToken = newRefreshToken;
+  await user.save();
+
+  return { accessToken, refreshToken: newRefreshToken, role: user.role };
 };
 
 const refreshToken = async (refreshToken) => {
@@ -493,6 +598,7 @@ module.exports = {
   verifyEmailOTP,
   resendOTP,
   loginUser,
+  googleLogin,
   refreshToken,
   logoutUser,
   fetchUser,

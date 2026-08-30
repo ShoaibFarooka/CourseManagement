@@ -18,6 +18,10 @@ const loginSchema = yup.object().shape({
   password: yup.string().trim().required("Password is required"),
 });
 
+const googleLoginSchema = yup.object().shape({
+  idToken: yup.string().trim().required("idToken is required"),
+});
+
 const forgotPasswordSchema = yup.object().shape({
   email: yup.string().email('Invalid email address').trim().required('Email is required'),
 });
@@ -63,6 +67,7 @@ const updateUserSchema = yup.object().shape({
 
 module.exports = {
   loginSchema,
+  googleLoginSchema,
   registerSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
