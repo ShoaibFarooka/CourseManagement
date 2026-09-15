@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: Number,
       trim: true,
-      unique: true,
+      unique: function () {
+        return this.authProvider !== "google";
+      },
       // Sparse so the several Google accounts that have no phone are simply left out of
       // the unique index. Without this, only one document could omit phone.
       sparse: true,

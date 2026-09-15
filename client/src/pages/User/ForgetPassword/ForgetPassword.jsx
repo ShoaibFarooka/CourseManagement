@@ -52,7 +52,7 @@ const ForgetPassword = () => {
             await userService.forgotPassword({ email });
             message.success("Password reset link sent to your email");
         } catch (error) {
-            message.error(error.response?.data?.message || "Something went wrong");
+            message.error(error.response?.data?.error || "Something went wrong");
         } finally {
             dispatch(HideLoading());
             setEmail("");
