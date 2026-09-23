@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@fingerprintjs/fingerprintjs": "^4.6.2",
+    "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@reduxjs/toolkit": "^2.8.2",
     "antd": "^5.26.1",
