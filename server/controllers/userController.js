@@ -75,11 +75,6 @@ const GoogleLogin = async (req, res, next) => {
     });
     res.status(200).json({ token: accessToken, role });
   } catch (error) {
-    // The unverified-email case needs to tell the client which address the OTP went to,
-    // and the shared error handler only forwards { error: message }.
-    if (error.code === 403 && error.email) {
-      return res.status(403).json({ error: error.message, email: error.email });
-    }
     next(error);
   }
 };

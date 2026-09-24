@@ -81,6 +81,35 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
+.custom-tooltip.sidebar-menu-tooltip .ant-tooltip-inner {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--modal-shadow);
+    max-width: 320px;
+}
+
+.tooltip-info-icon {
+    display: none;
+    align-items: center;
+    margin-left: 6px;
+    color: var(--text-color);
+    opacity: 0.6;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.tooltip-info-icon:hover {
+    opacity: 1;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .tooltip-info-icon {
+        display: inline-flex;
+    }
+}
+
 @media screen and (max-width: 835px) {
     .sidebar-container {
         position: absolute;

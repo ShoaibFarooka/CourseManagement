@@ -103,20 +103,6 @@ const Login = () => {
             handleAuthSuccess(response);
         } catch (error) {
             const errorMessage = error?.response?.data?.error;
-            const status = error?.response?.status;
-
-            // Same OTP gate as the password form. The credential is carried along so the
-            // OTP screen can finish the sign in once the code is accepted.
-            if (status === 403 && errorMessage?.includes("Email not verified")) {
-                navigate("/otp-verification", {
-                    state: {
-                        email: error?.response?.data?.email,
-                        googleCredential: credential,
-                    }
-                });
-                return;
-            }
-
             message.error(errorMessage || "Something went wrong");
         } finally {
             dispatch(HideLoading());
