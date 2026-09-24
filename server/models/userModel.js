@@ -13,9 +13,6 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    // Google only supplies name, email and a photo, so an account created through
-    // Google sign in has no country, phone or password. These stay required for normal
-    // signups — the condition only relaxes them for authProvider: "google".
     country: {
       type: String,
       trim: true,
@@ -26,11 +23,7 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: Number,
       trim: true,
-      unique: function () {
-        return this.authProvider !== "google";
-      },
-      // Sparse so the several Google accounts that have no phone are simply left out of
-      // the unique index. Without this, only one document could omit phone.
+      unique: true,
       sparse: true,
       required: function () {
         return this.authProvider !== "google";
