@@ -182,23 +182,6 @@ const rejectPaymentRequest = async (requestId, status) => {
     return request;
 };
 
-
-const deletePaymentRequest = async (requestId) => {
-    const request = await PaymentRequest.findById(requestId);
-    if (!request) {
-        const error = new Error("Payment request not found");
-        error.code = 404;
-        throw error;
-    }
-
-    await payment.findOneAndDelete({ paymentRequest: request._id });
-
-    await PaymentRequest.findByIdAndDelete(requestId);
-
-    return { message: "Payment request and related payments deleted successfully" };
-};
-
-
 const getUserPayments = async (userId) => {
     const user = await User.findById(userId);
     if (!user) {
@@ -227,6 +210,64 @@ const getPaymentDetails = async (requestId) => {
     return request;
 };
 
+const updatePayment = async (paymentId, { amount, startDate, expiryDate, comment }) => {
+    const paymentDoc = await payment.findById(paymentId);
+
+    if (!paymentDoc) {
+        const error = new Error("Payment not found");
+        error.code = 404;
+        throw error;
+    }
+
+    if (paymentDoc.isCancelled) {
+        const error = new Error("Cannot update a cancelled payment");
+        error.code = 400;
+        throw error;
+    }
+
+    paymentDoc.amount = amount;
+    paymentDoc.startDate = startDate;
+    paymentDoc.expiryDate = expiryDate;
+    paymentDoc.comment = comment ?? paymentDoc.comment;
+
+    await paymentDoc.save();
+
+    return paymentDoc;
+};
+
+const cancelPayment = async (paymentId) => {
+    const paymentDoc = await payment.findById(paymentId);
+
+    if (!paymentDoc) {
+        const error = new Error("Payment not found");
+        error.code = 404;
+        throw error;
+    }
+
+    paymentDoc.isCancelled = true;
+    paymentDoc.cancelledAt = new Date();
+
+    await paymentDoc.save();
+
+    return paymentDoc;
+};
+
+const uncancelPayment = async (paymentId) => {
+    const paymentDoc = await payment.findById(paymentId);
+
+    if (!paymentDoc) {
+        const error = new Error("Payment not found");
+        error.code = 404;
+        throw error;
+    }
+
+    paymentDoc.isCancelled = false;
+    paymentDoc.cancelledAt = null;
+
+    await paymentDoc.save();
+
+    return paymentDoc;
+};
 
 
 module.exports = {
@@ -234,7 +275,9 @@ module.exports = {
     getAllPaymentRequests,
     approvePaymentRequest,
     rejectPaymentRequest,
-    deletePaymentRequest,
     getUserPayments,
     getPaymentDetails,
+    updatePayment,
+    cancelPayment,
+    uncancelPayment
 };

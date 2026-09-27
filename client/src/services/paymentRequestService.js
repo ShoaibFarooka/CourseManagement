@@ -58,18 +58,6 @@ const paymentRequestService = {
         }
     },
 
-    deletepaymentRequest: async (requestId) => {
-        try {
-            const response = await axiosInstance.delete(
-                `${BASE_URL}/delete-payment-request/${requestId}`,
-                { withCredentials: true }
-            );
-            return response.data;
-        } catch (error) {
-            throw (error);
-        }
-    },
-
     getUserPayments: async () => {
         try {
             const response = await axiosInstance.get(
@@ -94,6 +82,46 @@ const paymentRequestService = {
             throw (error);
         }
     },
+
+    updatePaymentRequest: async (id, data) => {
+        try {
+            const response = await axiosInstance.put(
+                `${BASE_URL}/update-payment/${id}`,
+                data,
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    cancelPaymentRequest: async (id) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/cancel-payment/${id}`,
+                {},
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    uncancelPaymentRequest: async (id) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/uncancel-payment/${id}`,
+                {},
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
 };
 
 export default paymentRequestService;

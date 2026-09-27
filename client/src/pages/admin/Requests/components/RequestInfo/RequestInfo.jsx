@@ -4,16 +4,12 @@ import { message } from "antd";
 import { useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from "../../../../../redux/loaderSlice";
 import deviceRequestService from "../../../../../services/deviceRequestService";
-import DeviceInfo from "../DeviceInfo/DeviceInfo";
 
 const RequestInfo = ({ user, request, fetchRequests }) => {
     const dispatch = useDispatch();
-    const [showDevices, setShowDevices] = useState(false);
-    const [overwriteMode, setOverwriteMode] = useState(false);
 
     const [currentUser, setCurrentUser] = useState(user);
     const [currentRequest, setCurrentRequest] = useState(request);
-
 
     useEffect(() => {
         setCurrentUser(user);
@@ -29,6 +25,7 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             return "Mobile";
         return "Desktop";
     };
+
     const refreshRequestState = async () => {
         try {
             const updatedRequests = await fetchRequests();
@@ -58,8 +55,6 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             message.error("Failed to approve request");
         } finally {
             dispatch(HideLoading());
-            setShowDevices(false);
-            setOverwriteMode(false);
         }
     };
 
@@ -74,68 +69,8 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             message.error("Failed to reject request");
         } finally {
             dispatch(HideLoading());
-            setShowDevices(false);
-            setOverwriteMode(false);
         }
     };
-
-    const handleBlockToggle = async (userId, isBlocked) => {
-        try {
-            dispatch(ShowLoading());
-            if (isBlocked) {
-                await deviceRequestService.unblockUser(userId);
-                message.success("User unblocked successfully");
-            } else {
-                await deviceRequestService.blockUser(userId);
-                message.success("User blocked successfully");
-            }
-            await refreshRequestState();
-        } catch (err) {
-            message.error("Failed to change block status");
-        } finally {
-            dispatch(HideLoading());
-        }
-    };
-
-    const handleOverwriteDevice = async (targetDeviceId) => {
-        try {
-            dispatch(ShowLoading());
-            await deviceRequestService.overwriteDeviceRequest(currentRequest._id, { targetDeviceId });
-            message.success("Device overwritten successfully");
-            setCurrentRequest(prev => ({ ...prev, status: "approved" }));
-
-            await refreshRequestState();
-        } catch (err) {
-            console.log(err);
-            message.error(err.response?.data?.error || "Failed to overwrite device");
-        } finally {
-            dispatch(HideLoading());
-            setShowDevices(false);
-            setOverwriteMode(false);
-        }
-    };
-
-    const handleRemoveDevice = async (deviceId) => {
-        try {
-            dispatch(ShowLoading());
-            await deviceRequestService.removeUserDevice(currentUser._id, deviceId);
-            message.success("Device removed successfully");
-            await refreshRequestState();
-        } catch (err) {
-            message.error(err.message || "Failed to remove device");
-        } finally {
-            dispatch(HideLoading());
-            setShowDevices(false);
-            setOverwriteMode(false);
-        }
-    };
-
-    const toggleViewDevices = () => {
-        setShowDevices(prev => !prev);
-        setOverwriteMode(false);
-    };
-
-    const hasAllowedDevices = Array.isArray(currentUser.allowedDevices) && currentUser.allowedDevices.length > 0;
 
     return (
         <div className="request-info">
@@ -158,53 +93,17 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
             </div>
 
             <div className="action-buttons">
-                {/* Request action buttons */}
                 {(currentRequest.status === "pending" || currentRequest.status === "revoked") && (
                     <>
-                        {!hasAllowedDevices ? (
-                            <button className="btn" onClick={() => handleApprove(currentRequest._id)}>
-                                Approve
-                            </button>
-                        ) : (
-                            <button className="btn" onClick={() => handleApprove(currentRequest._id)}>
-                                Add New Device
-                            </button>
-                        )}
+                        <button className="btn" onClick={() => handleApprove(currentRequest._id)}>
+                            Approve
+                        </button>
                         <button className="btn" onClick={() => handleReject(currentRequest._id)}>
                             Reject
                         </button>
-                        {/* Overwrite button if user has allowed devices */}
-                        {hasAllowedDevices && (
-                            <button
-                                className="btn"
-                                onClick={() => {
-                                    setShowDevices(true);
-                                    setOverwriteMode(true);
-                                }}
-                            >
-                                Overwrite Existing Device
-                            </button>
-                        )}
                     </>
                 )}
-
-                {/* Block/Unblock buttons */}
-                {!currentUser.isBlocked ? (
-                    <button className="btn" onClick={() => handleBlockToggle(currentUser._id, false)}>
-                        Block User
-                    </button>
-                ) : (
-                    <button className="btn" onClick={() => handleBlockToggle(currentUser._id, true)}>
-                        Unblock User
-                    </button>
-                )}
-
-                {/* Always show View Devices */}
-                <button className="btn" onClick={toggleViewDevices}>
-                    {showDevices ? "Hide Devices" : "View Devices"}
-                </button>
             </div>
-
 
             <hr />
 
@@ -224,16 +123,6 @@ const RequestInfo = ({ user, request, fetchRequests }) => {
                     <span className="label">Request Status:</span> {currentRequest.status}
                 </div>
             </div>
-
-            {showDevices && (
-                <DeviceInfo
-                    user={currentUser}
-                    overwriteMode={overwriteMode}
-                    handleRemoveDevice={handleRemoveDevice}
-                    handleOverwriteDevice={handleOverwriteDevice}
-                    getDeviceType={getDeviceType}
-                />
-            )}
         </div>
     );
 };

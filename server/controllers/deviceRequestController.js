@@ -120,70 +120,19 @@ const GetAllDevicesRequests = async (req, res, next) => {
     }
 };
 
-const OverwriteDeviceRequest = async (req, res, next) => {
-    try {
-        const { requestId } = req.params;
-        const { targetDeviceId } = req.body;
-
-        if (!targetDeviceId) {
-            return res.status(400).json({ message: "targetDeviceId is required" });
-        }
-
-        const result = await deviceRequestService.overwriteDeviceRequest(requestId, targetDeviceId);
-
-        res.status(200).json({
-            message: "Device overwritten successfully.",
-            user: result.user,
-            request: result.request,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-
-const BlockUser = async (req, res, next) => {
-    try {
-        const { userId } = req.params;
-        const user = await deviceRequestService.blockUser(userId);
-
-        res.status(200).json({
-            message: "User blocked successfully.",
-            user,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-const UnblockUser = async (req, res, next) => {
-    try {
-        const { userId } = req.params;
-        const user = await deviceRequestService.unblockUser(userId);
-
-        res.status(200).json({
-            message: "User unblocked successfully.",
-            user,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-const getUserDevices = async (req, res, next) => {
+const checkDeviceStatus = async (req, res, next) => {
     try {
         const userId = req.user?.id;
-        const devices = await deviceRequestService.getUserDevices(userId);
-        res.status(200).json({
-            message: "Allowed devices fetched successfully.",
-            devices,
-        });
+        const { visitorId } = req.body;
+
+        const result = await deviceRequestService.checkDeviceStatus(userId, visitorId);
+
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }
 };
+
 
 const removeUserDevice = async (req, res, next) => {
     try {
@@ -198,20 +147,6 @@ const removeUserDevice = async (req, res, next) => {
         res.status(200).json({
             message: "Device removed successfully.",
             user,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-const DeleteRequest = async (req, res, next) => {
-    try {
-        const { requestId } = req.params;
-        const deletedRequest = await deviceRequestService.deleteRequest(requestId);
-
-        res.status(200).json({
-            message: "Request deleted successfully.",
-            deletedRequest,
         });
     } catch (error) {
         next(error);
@@ -239,11 +174,7 @@ module.exports = {
     ApproveDeviceRequest,
     RejectDeviceRequest,
     GetAllDevicesRequests,
-    OverwriteDeviceRequest,
-    BlockUser,
-    UnblockUser,
-    getUserDevices,
+    checkDeviceStatus,
     removeUserDevice,
-    DeleteRequest,
     fetchUserDevicesById,
 };

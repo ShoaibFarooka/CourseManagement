@@ -25,6 +25,7 @@
 .user-info-wrapper .user-info-header .user-info-row {
     display: flex;
     align-items: center;
+    gap: 10px;
     color: var(--btn-text);
     text-wrap: nowrap;
 }
@@ -58,6 +59,111 @@
     color: #c53030;
 }
 
+/* ===== Status Dropdown (Active = green, Blocked = red) ===== */
+/* Sized with clamp() so it scales smoothly across breakpoints instead of
+   jumping between fixed pixel widths */
+.user-info-wrapper .user-info-header .user-info-row .status-select {
+    box-sizing: border-box;
+    width: fit-content;
+    min-width: 88px;
+    max-width: clamp(90px, 28vw, 140px);
+    padding: 6px 28px 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    outline: none;
+    background-color: var(--select-bg);
+    color: var(--select-text);
+    font-size: 0.95rem;
+    cursor: pointer;
+    appearance: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    /* Hide default OS arrow */
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231e1e1e' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px 7px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .status-select:focus {
+    border-color: var(--select-border);
+    box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+}
+
+.user-info-wrapper .user-info-header .user-info-row .status-select.active {
+    background-color: #e6f7ee;
+    color: #1f8f4c;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231f8f4c' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.user-info-wrapper .user-info-header .user-info-row .status-select.blocked {
+    background-color: #fdeaea;
+    color: #c53030;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c53030' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.user-info-wrapper .user-info-header .user-info-row .status-select option {
+    background-color: var(--select-bg);
+    color: var(--select-text);
+}
+
+/* ===== Device Verification Bypass Toggle ===== */
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-left: 50px;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--select-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch .toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--select-text);
+    border-radius: 50%;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch input:checked+.toggle-slider {
+    background-color: var(--select-border);
+    border-color: var(--select-border);
+}
+
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch input:checked+.toggle-slider::before {
+    background-color: var(--select-bg);
+    transform: translateX(20px);
+}
+
+.user-info-wrapper .user-info-header .user-info-row .toggle-switch input:focus-visible+.toggle-slider {
+    box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+}
+
 /* ===== Sections ===== */
 .user-info-wrapper .section {
     display: flex;
@@ -71,9 +177,66 @@
     font-weight: 600;
 }
 
-@media only screen and (max-width:600px) {
+@media only screen and (max-width: 768px) {
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch {
+        width: 40px;
+        height: 22px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
     .user-info-wrapper {
         padding: 20px;
     }
 
+    .user-info-wrapper .user-info-header .user-info-row {
+        row-gap: 8px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .status-select {
+        font-size: 0.85rem;
+        padding: 5px 24px 5px 12px;
+        background-position: right 8px center;
+        background-size: 9px 6px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch {
+        width: 38px;
+        height: 20px;
+        margin-left: 0px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch .toggle-slider::before {
+        height: 14px;
+        width: 14px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch input:checked+.toggle-slider::before {
+        transform: translateX(18px);
+    }
+}
+
+@media only screen and (max-width: 380px) {
+    .user-info-wrapper .user-info-header .user-info-row .status-select {
+        min-width: 76px;
+        max-width: 96px;
+        font-size: 0.78rem;
+        padding: 4px 20px 4px 10px;
+        background-position: right 6px center;
+        background-size: 8px 5px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch {
+        width: 34px;
+        height: 18px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch .toggle-slider::before {
+        height: 12px;
+        width: 12px;
+    }
+
+    .user-info-wrapper .user-info-header .user-info-row .toggle-switch input:checked+.toggle-slider::before {
+        transform: translateX(16px);
+    }
 }

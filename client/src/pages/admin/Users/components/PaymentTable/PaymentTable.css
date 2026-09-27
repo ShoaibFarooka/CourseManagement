@@ -1,0 +1,76 @@
+.payment-part-select {
+    box-sizing: border-box;
+    max-width: 180px;
+    width: 100%;
+    padding: 5px 26px 5px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    outline: none;
+    background-color: var(--select-bg);
+    color: var(--select-text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231e1e1e' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px 7px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.payment-part-select:focus {
+    border-color: var(--select-border);
+    box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+}
+
+.payment-part-select option {
+    background-color: var(--select-bg);
+    color: var(--select-text);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+
+.action-btn-icon {
+    font-size: 1.2rem;
+}
+
+.action-btn-icon.cancel {
+    color: #c53030;
+}
+
+.action-btn-icon.reinstate {
+    color: #1f8f4c;
+}
+
+.action-btn:hover .action-btn-icon {
+    transform: scale(1.1);
+}
+
+.action-btn:hover .action-btn-icon.cancel {
+    color: #a72727;
+}
+
+.action-btn:hover .action-btn-icon.reinstate {
+    color: #167a3f;
+}
+
+@media only screen and (max-width: 600px) {
+    .action-btn-icon {
+        font-size: 1.05rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .payment-part-select {
+        max-width: 60px;
+        min-width: 50px;
+        font-size: 0.78rem;
+        padding: 4px 20px 4px 8px;
+        background-position: right 6px center;
+        background-size: 9px 6px;
+    }
+}

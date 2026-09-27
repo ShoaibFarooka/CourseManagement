@@ -34,28 +34,6 @@ router.patch(
     controller.RejectDeviceRequest
 );
 
-router.patch(
-    "/overwrite-device/:requestId",
-    authMiddleware.authenticateRequest,
-    authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(requestSchemas.deviceRequestActionSchema),
-    controller.OverwriteDeviceRequest
-);
-
-router.patch(
-    "/block-user/:userId",
-    authMiddleware.authenticateRequest,
-    authMiddleware.verifyRole(["admin"]),
-    controller.BlockUser
-);
-
-router.patch(
-    "/unblock-user/:userId",
-    authMiddleware.authenticateRequest,
-    authMiddleware.verifyRole(["admin"]),
-    controller.UnblockUser
-);
-
 router.delete(
     "/user-device/:userId/:deviceId",
     authMiddleware.authenticateRequest,
@@ -63,15 +41,10 @@ router.delete(
     controller.removeUserDevice
 );
 
-router.get(
-    "/user-devices",
+router.post(
+    "/check-device-status",
     authMiddleware.authenticateRequest,
-    controller.getUserDevices
-);
-
-router.delete(
-    "/delete-device-request/:requestId",
-    controller.DeleteRequest
+    controller.checkDeviceStatus
 );
 
 router.get(

@@ -1,7 +1,5 @@
 const paymentRequestService = require("../services/paymentRequestService");
 
-const PaymentRequest = require('../models/paymentRequestModel');
-
 const CreatePaymentRequest = async (req, res, next) => {
     try {
         const userId = req.user?.id;
@@ -108,22 +106,6 @@ const RejectPaymentRequest = async (req, res, next) => {
     }
 };
 
-const DeletePaymentRequest = async (req, res, next) => {
-    try {
-        const { requestId } = req.params;
-
-        const deletedRequest =
-            await paymentRequestService.deletePaymentRequest(requestId);
-
-        res.status(200).json({
-            message: "Payment request deleted successfully.",
-            request: deletedRequest,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
 
 const GetUserPayments = async (req, res, next) => {
     try {
@@ -159,13 +141,67 @@ const GetPaymentDetails = async (req, res, next) => {
     }
 };
 
+const updatePayment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { amount, startDate, expiryDate, comment } = req.body;
+
+        const payment = await paymentRequestService.updatePayment(id, {
+            amount,
+            startDate,
+            expiryDate,
+            comment,
+        });
+
+        res.status(200).json({
+            message: "Payment updated successfully",
+            payment,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const cancelPayment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const payment = await paymentRequestService.cancelPayment(id);
+
+        res.status(200).json({
+            message: "Payment cancelled successfully",
+            payment,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const uncancelPayment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const payment = await paymentRequestService.uncancelPayment(id);
+
+        res.status(200).json({
+            message: "Payment reinstated successfully",
+            payment,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 module.exports = {
     CreatePaymentRequest,
     GetAllPaymentRequests,
     ApprovePaymentRequest,
     RejectPaymentRequest,
-    DeletePaymentRequest,
     GetUserPayments,
     GetPaymentDetails,
+    updatePayment,
+    cancelPayment,
+    uncancelPayment
 };

@@ -37,14 +37,6 @@ router.patch(
     controller.RejectPaymentRequest
 );
 
-router.delete(
-    "/delete-payment-request/:requestId",
-    authMiddleware.authenticateRequest,
-    authMiddleware.verifyRole(["admin"]),
-    validationMiddleware.validateParams(paymentRequestSchemas.requestIdSchema),
-    controller.DeletePaymentRequest
-);
-
 router.get(
     "/fetch-payment-details/:requestId",
     authMiddleware.authenticateRequest,
@@ -58,6 +50,27 @@ router.get(
     "/fetch-user-payments",
     authMiddleware.authenticateRequest,
     controller.GetUserPayments
+);
+
+router.put(
+    "/update-payment/:id",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    controller.updatePayment
+);
+
+router.patch(
+    "/cancel-payment/:id",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    controller.cancelPayment
+);
+
+router.patch(
+    "/uncancel-payment/:id",
+    authMiddleware.authenticateRequest,
+    authMiddleware.verifyRole(["admin"]),
+    controller.uncancelPayment
 );
 
 module.exports = router;

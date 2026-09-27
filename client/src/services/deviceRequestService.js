@@ -54,46 +54,6 @@ const deviceRequestService = {
         }
     },
 
-    overwriteDeviceRequest: async (requestId, targetDeviceId) => {
-        try {
-            const response = await axiosInstance.patch(
-                `${BASE_URL}/overwrite-device/${requestId}`,
-                targetDeviceId,
-                { withCredentials: true }
-            );
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    blockUser: async (userId) => {
-        try {
-            const response = await axiosInstance.patch(
-                `${BASE_URL}/block-user/${userId}`,
-                {},
-                { withCredentials: true }
-            );
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    unblockUser: async (userId) => {
-        try {
-            const response = await axiosInstance.patch(
-                `${BASE_URL}/unblock-user/${userId}`,
-                {},
-                { withCredentials: true }
-            );
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
-
     removeUserDevice: async (userId, deviceId) => {
         try {
             const response = await axiosInstance.delete(
@@ -107,28 +67,18 @@ const deviceRequestService = {
     },
 
 
-    getUserDevices: async () => {
+    checkDeviceStatus: async (visitorId) => {
         try {
-            const response = await axiosInstance.get(`${BASE_URL}/user-devices`, {
-                withCredentials: true,
-            });
-            return { devices: response.data }
-        } catch (error) {
-            throw error;
-        }
-    },
-
-    deleteDeviceRequest: async (requestId) => {
-        try {
-            const response = await axiosInstance.delete(`${BASE_URL}/delete-device-request/${requestId}`, {
-                withCredentials: true,
-            });
+            const response = await axiosInstance.post(
+                `${BASE_URL}/check-device-status`,
+                { visitorId },
+                { withCredentials: true }
+            );
             return response.data;
         } catch (error) {
             throw error;
         }
     },
-
 
     fetchUserDevicesById: async (userId) => {
         try {
