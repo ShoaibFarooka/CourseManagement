@@ -194,6 +194,47 @@ const userService = {
             throw error;
         }
     },
+
+    blockUser: async (userId) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/block-user/${userId}`,
+                {},
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    unblockUser: async (userId) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/unblock-user/${userId}`,
+                {},
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+
+    toggleDeviceVerification: async (userId, enabled) => {
+        try {
+            const response = await axiosInstance.patch(
+                `${BASE_URL}/toggle-device-verification/${userId}`,
+                { enabled },
+                { withCredentials: true }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
 };
 
 

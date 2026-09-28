@@ -7,3 +7,8 @@
     color: var(--btn-text);
     font-size: 1.5rem;
 }
+
+.cont {
+    display: flex;
+    justify-content: center;
+}

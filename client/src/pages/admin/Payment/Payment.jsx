@@ -5,8 +5,7 @@ import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
 import CustomModal from "../../../components/CustomModal/CustomModal";
 import PaymentInfo from "./components/PaymentInfo/PaymentInfo"
-import del from '../../../assets/icons/del.png';
-import { message, Popconfirm } from "antd";
+import { message } from "antd";
 
 const Payment = () => {
     const [requests, setRequests] = useState([]);
@@ -70,35 +69,24 @@ const Payment = () => {
         setIsOpenModal(false);
     };
 
-    const handleDeletePaymentRequest = async (id) => {
-        try {
-            dispatch(ShowLoading());
-            await paymentRequestService.deletepaymentRequest(id);
-            fetchPaymentRequests(currentPage);
-            message.success("Request Deleted Successfully");
-        } catch (error) {
-            message.error(error.response?.data?.error || "Something went Wrong!");
-        } finally {
-            dispatch(HideLoading());
-        }
-    }
-
     return (
         <div style={{ padding: "20px" }}>
             <h1 className="heading-lg" style={{ marginBottom: "20px" }}>
                 Payment Requests
             </h1>
 
-            <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                {["all", "pending", "approved", "rejected"].map(status => (
-                    <button
-                        key={status}
-                        className={`btn ${filter === status ? "active" : ""}`}
-                        onClick={() => setFilter(status)}
-                    >
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </button>
-                ))}
+            <div style={{ marginBottom: "20px", width: "130px" }}>
+                <select
+                    className="global-select"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                >
+                    {["all", "pending", "approved", "rejected"].map(status => (
+                        <option key={status} value={status}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div className="search-container">
@@ -143,18 +131,6 @@ const Payment = () => {
                                             >
                                                 View
                                             </button>
-
-
-                                            <Popconfirm
-                                                title="Are you sure you want to Delete?"
-                                                onConfirm={() => handleDeletePaymentRequest(req._id)}
-                                                okText="Yes"
-                                                cancelText="No"
-                                            >
-                                                <button className="action-btn">
-                                                    <img src={del} alt="Delete" />
-                                                </button>
-                                            </Popconfirm>
                                         </div>
                                     </td>
                                 </tr>

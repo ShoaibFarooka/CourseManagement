@@ -29,13 +29,14 @@ const Users = () => {
                 PAGE_LIMIT,
                 search
             );
+            console.log("Fetched users:", res);
 
             setUsers(res.users || []);
             setCurrentPage(res.currentPage || 1);
             setTotalPages(res.totalPages || 1);
         } catch (error) {
             message.error(
-                error?.response?.data?.message ||
+                error?.response?.data?.error ||
                 "Something went wrong!"
             );
         } finally {
@@ -88,7 +89,10 @@ const Users = () => {
                 onRequestClose={handleClickCloseModal}
                 contentLabel="User Info"
             >
-                <UserInfo user={selectedUser} />
+                <UserInfo
+                    user={selectedUser}
+                    fetchUsers={() => fetchUsers(currentPage)}
+                />
             </CustomModal>
             {totalPages > 1 && (
                 <div className="pagination-controls">

@@ -257,6 +257,54 @@ const GetAllUsers = async (req, res, next) => {
   }
 };
 
+const BlockUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await userService.blockUser(userId);
+
+    res.status(200).json({
+      message: "User blocked successfully.",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const UnblockUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await userService.unblockUser(userId);
+
+    res.status(200).json({
+      message: "User unblocked successfully.",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const toggleDeviceVerificationBypass = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { enabled } = req.body;
+
+    const user = await userService.toggleDeviceVerificationBypass(userId, enabled);
+
+    res.status(200).json({
+      message: `Device verification ${enabled ? "bypass enabled" : "bypass disabled"} successfully`,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
 module.exports = {
   RegisterUser,
   VerifyEmailOTP,
@@ -272,5 +320,8 @@ module.exports = {
   Contact,
   updateUser,
   updateProfileImage,
-  GetAllUsers
+  GetAllUsers,
+  BlockUser,
+  UnblockUser,
+  toggleDeviceVerificationBypass
 };

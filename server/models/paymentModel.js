@@ -38,6 +38,14 @@ const paymentSchema = new mongoose.Schema(
             type: String,
             default: "",
             trim: true,
+        },
+        isCancelled: {
+            type: Boolean,
+            default: false,
+        },
+        cancelledAt: {
+            type: Date,
+            default: null,
         }
     },
     { timestamps: true }

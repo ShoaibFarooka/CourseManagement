@@ -542,6 +542,48 @@ const getAllUsers = async (
   };
 };
 
+const blockUser = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error("User not found");
+    error.code = 404;
+    throw error;
+  }
+
+  user.isBlocked = true;
+  await user.save();
+
+  return user;
+};
+
+const unblockUser = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error("User not found");
+    error.code = 404;
+    throw error;
+  }
+
+  user.isBlocked = false;
+  await user.save();
+
+  return user;
+};
+
+
+const toggleDeviceVerificationBypass = async (userId, enabled) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error("User not found");
+    error.code = 404;
+    throw error;
+  }
+
+  user.DeviceVerification = !!enabled;
+  await user.save();
+
+  return user;
+};
 
 
 
@@ -561,4 +603,7 @@ module.exports = {
   updateUser,
   updateProfileImage,
   getAllUsers,
+  blockUser,
+  unblockUser,
+  toggleDeviceVerificationBypass
 };

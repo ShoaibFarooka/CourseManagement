@@ -95,9 +95,18 @@ const verifyPayment = async (req, res, next) => {
 };
 
 
+
 const verifyDevice = (mode = "strict") => async (req, res, next) => {
   try {
     const userId = req.user?.id;
+
+    // Bypass device verification entirely if the user has it toggled on
+    const user = await User.findById(userId).select("DeviceVerification").lean();
+
+    if (user?.DeviceVerification) {
+      req.access.deviceVerified = true;
+      return next();
+    }
 
     // PREVIEW + UNPAID → skip device check completely
     if (mode === "preview" && !req.access?.isPaid) {
@@ -128,6 +137,8 @@ const verifyDevice = (mode = "strict") => async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports = verifyDevice;
 
 
 const verifyFreePreviewUnitAccess = async (req, res, next) => {

@@ -85,5 +85,28 @@ router.get(
   controller.GetAllUsers
 );
 
+router.patch(
+  "/block-user/:userId",
+  authMiddleware.authenticateRequest,
+  authMiddleware.verifyRole(["admin"]),
+  controller.BlockUser
+);
+
+router.patch(
+  "/unblock-user/:userId",
+  authMiddleware.authenticateRequest,
+  authMiddleware.verifyRole(["admin"]),
+  controller.UnblockUser
+);
+
+
+
+router.patch(
+  "/toggle-device-verification/:userId",
+  authMiddleware.authenticateRequest,
+  authMiddleware.verifyRole(["admin"]),
+  controller.toggleDeviceVerificationBypass
+);
+
 
 module.exports = router;

@@ -1,0 +1,108 @@
+.paymentForm-conteiner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px;
+    color: var(--btn-text);
+}
+
+.paymentForm-conteiner .title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.paymentForm-conteiner .payment-form-row {
+    display: flex;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.paymentForm-conteiner .payment-form-row .label {
+    font-weight: 600;
+}
+
+.paymentForm-conteiner .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.paymentForm-conteiner .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.paymentForm-conteiner .field label {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.paymentForm-conteiner .input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    outline: none;
+    background-color: var(--select-bg);
+    color: var(--select-text);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.paymentForm-conteiner .input:focus {
+    border-color: var(--select-border);
+    box-shadow: 0 0 0 2px rgba(13, 99, 175, 0.2);
+}
+
+.paymentForm-conteiner .error-text {
+    color: #c53030;
+    font-size: 0.8rem;
+}
+
+.paymentForm-conteiner .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.paymentForm-conteiner .btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.paymentForm-conteiner .btn:hover {
+    opacity: 0.85;
+}
+
+.paymentForm-conteiner .btn.save {
+    background-color: #1f8f4c;
+    color: #fff;
+}
+
+.paymentForm-conteiner .btn.cancel {
+    background-color: #fdeaea;
+    color: #c53030;
+}
+
+@media only screen and (max-width: 600px) {
+    .paymentForm-conteiner {
+        padding: 16px;
+    }
+
+    .paymentForm-conteiner .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .paymentForm-conteiner .btn {
+        width: 100%;
+    }
+}

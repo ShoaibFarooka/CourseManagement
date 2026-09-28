@@ -21,21 +21,6 @@ export const fetchUserInfo = createAsyncThunk(
     }
 );
 
-export const fetchAllowedDevices = createAsyncThunk(
-    'user/fetchAllowedDevices',
-    async (_, { dispatch, rejectWithValue }) => {
-        dispatch(ShowLoading());
-        try {
-            const res = await deviceRequestService.getUserDevices()
-            return res.devices.devices || [];
-        } catch (error) {
-            return rejectWithValue(error.response?.data || error.message);
-        } finally {
-            dispatch(HideLoading());
-        }
-    }
-);
-
 
 export const fetchPurchasedCourses = createAsyncThunk(
     'user/fetchPurchasedCourses',
@@ -61,26 +46,16 @@ export const fetchPurchasedCourses = createAsyncThunk(
     }
 );
 
+
 export const checkCurrentDeviceStatus = createAsyncThunk(
     'user/checkCurrentDeviceStatus',
-    async (_, { getState, dispatch, rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
-            const state = getState();
-            let allowedDevices = state.user.allowedDevices || [];
-
-            if (allowedDevices.length === 0) {
-                const result = await dispatch(fetchAllowedDevices()).unwrap()
-                allowedDevices = result || [];
-            }
-
             const deviceInfo = await getBasicDeviceInfo();
-            const isAllowed = allowedDevices.some(
-                d => String(d.deviceId).trim() === String(deviceInfo.visitorId).trim()
-            );
-
-            return isAllowed;
+            const res = await deviceRequestService.checkDeviceStatus(deviceInfo.visitorId);
+            return res.isAllowed;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response?.data || error.message);
         }
     }
 );
@@ -88,18 +63,15 @@ export const checkCurrentDeviceStatus = createAsyncThunk(
 
 const initialState = {
     user: null,
-    allowedDevices: [],
     purchasedCourses: [],
     currentDeviceStatus: false,
     loading: {
         user: false,
-        devices: false,
         courses: false,
         deviceCheck: false
     },
     errors: {
         user: null,
-        devices: null,
         courses: null,
         deviceCheck: null
     }
@@ -111,11 +83,10 @@ const userSlice = createSlice({
     reducers: {
         clearUser(state) {
             state.user = null;
-            state.allowedDevices = [];
             state.purchasedCourses = [];
             state.currentDeviceStatus = false;
-            state.loading = { user: false, devices: false, courses: false, deviceCheck: false };
-            state.errors = { user: null, devices: null, courses: null, deviceCheck: null };
+            state.loading = { user: false, courses: false, deviceCheck: false };
+            state.errors = { user: null, courses: null, deviceCheck: null };
         },
         setCurrentDeviceStatus(state, action) {
             state.currentDeviceStatus = action.payload;
@@ -138,20 +109,6 @@ const userSlice = createSlice({
             .addCase(fetchUserInfo.rejected, (state, action) => {
                 state.errors.user = action.payload || "Failed to fetch user info";
                 state.loading.user = false;
-            })
-
-            // Allowed devices
-            .addCase(fetchAllowedDevices.pending, (state) => {
-                state.loading.devices = true;
-                state.errors.devices = null;
-            })
-            .addCase(fetchAllowedDevices.fulfilled, (state, action) => {
-                state.allowedDevices = action.payload;
-                state.loading.devices = false;
-            })
-            .addCase(fetchAllowedDevices.rejected, (state, action) => {
-                state.errors.devices = action.payload || "Failed to fetch devices";
-                state.loading.devices = false;
             })
 
             // Purchased courses

@@ -157,8 +157,10 @@ const getAllDevicesRequests = async (
         const reqObj = req.toObject();
         const userIdStr = reqObj.user?._id?.toString();
 
-        reqObj.user.allowedDevices =
-            userDevicesMap[userIdStr] || [];
+        if (reqObj.user) {
+            reqObj.user.allowedDevices =
+                userDevicesMap[userIdStr] || [];
+        }
 
         if (reqObj.user?.isBlocked) {
             reqObj.status = "blocked";
@@ -175,85 +177,25 @@ const getAllDevicesRequests = async (
     };
 };
 
-
-const overwriteDeviceRequest = async (requestId, targetDeviceId) => {
-    const request = await Request.findById(requestId).populate("user");
-    if (!request) {
-        const error = new Error("Request not found");
-        error.code = 404;
-        throw error;
+const checkDeviceStatus = async (userId, visitorId) => {
+    const user = await User.findById(userId).select("DeviceVerification").lean();
+    if (user?.DeviceVerification) {
+        return { isAllowed: true, bypass: true };
     }
 
-    const userDevices = await UserAllowedDevice.findOne({ user: request.user._id });
-    if (!userDevices) {
-        const error = new Error("No devices found for user");
-        error.code = 404;
-        throw error;
+    if (!visitorId) {
+        return { isAllowed: false, bypass: false };
     }
 
-    const deviceIndex = userDevices.allowedDevices.findIndex(
-        d => String(d.deviceId) === String(targetDeviceId)
+    const userDevices = await UserAllowedDevice.findOne({ user: userId }).lean();
+    const isAllowed = !!userDevices?.allowedDevices?.some(
+        (d) => d.deviceId === visitorId
     );
 
-    if (deviceIndex === -1) {
-        console.log("Allowed devices:", userDevices.allowedDevices);
-        console.log("Target deviceId:", targetDeviceId);
-        const error = new Error("Device not found");
-        error.code = 404;
-        throw error;
-    }
-
-    userDevices.allowedDevices[deviceIndex] = {
-        deviceId: request.deviceInfo.visitorId,
-        userAgent: request.deviceInfo.userAgent,
-        location: request.deviceInfo.location
-    };
-
-    await userDevices.save();
-
-    request.status = "approved";
-    await request.save();
-
-    return { request };
+    return { isAllowed, bypass: false };
 };
 
-const blockUser = async (userId) => {
-    const user = await User.findById(userId);
-    if (!user) {
-        const error = new Error("User not found");
-        error.code = 404;
-        throw error;
-    }
 
-    user.isBlocked = true;
-    await user.save();
-
-    return user;
-};
-
-const unblockUser = async (userId) => {
-    const user = await User.findById(userId);
-    if (!user) {
-        const error = new Error("User not found");
-        error.code = 404;
-        throw error;
-    }
-
-    user.isBlocked = false;
-    await user.save();
-
-    return user;
-};
-
-// for user side aysnc thunk api call
-const getUserDevices = async (userId) => {
-    const devices = await UserAllowedDevice.findOne({ user: userId })
-        .populate("user", "name email");
-
-    if (!devices) return [];
-
-    return devices.allowedDevices;
-};
 
 //for admin request page to get particular user allowed devices
 const fetchUserDevicesById = async (userId) => {
@@ -295,16 +237,6 @@ const removeUserDevice = async (userId, deviceId) => {
     return userDevices;
 };
 
-const deleteRequest = async (requestId) => {
-    const request = await Request.findByIdAndDelete(requestId);
-    if (!request) {
-        const error = new Error("Request not found");
-        error.code = 404;
-        throw error;
-    }
-    return request;
-};
-
 
 
 module.exports = {
@@ -312,11 +244,7 @@ module.exports = {
     approveDeviceRequest,
     rejectDeviceRequest,
     getAllDevicesRequests,
-    overwriteDeviceRequest,
-    blockUser,
-    unblockUser,
-    getUserDevices,
+    checkDeviceStatus,
     removeUserDevice,
-    deleteRequest,
     fetchUserDevicesById,
 };

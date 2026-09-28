@@ -3,8 +3,7 @@ import './Requests.css';
 import deviceRequestService from "../../../services/deviceRequestService";
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { useDispatch } from "react-redux";
-import { message, Popconfirm } from "antd";
-import del from "../../../assets/icons/del.png";
+import { message } from "antd";
 import CustomModal from "../../../components/CustomModal/CustomModal";
 import RequestInfo from "./components/RequestInfo/RequestInfo";
 
@@ -38,7 +37,7 @@ const Requests = () => {
             setTotalPages(response.totalPages || 1);
 
         } catch (error) {
-            message.error(error?.response?.data?.message || "Something went wrong");
+            message.error(error?.response?.data?.error || "Something went wrong");
         } finally {
             dispatch(HideLoading());
         }
@@ -71,58 +70,23 @@ const Requests = () => {
         setIsOpenModal(false);
     };
 
-    const handleDeleteRequest = async (requestId) => {
-        try {
-            dispatch(ShowLoading());
-            await deviceRequestService.deleteDeviceRequest(requestId);
-
-            fetchRequests(currentPage);
-
-            message.success("Request deleted successfully");
-        } catch (error) {
-            message.error(error?.response?.data?.message || "Something went wrong");
-        } finally {
-            dispatch(HideLoading());
-        }
-    };
-
     return (
         <div style={{ padding: "20px" }}>
             <h1 className="heading-lg" style={{ marginBottom: "20px" }}>
                 Device Requests
             </h1>
 
-            <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                <button
-                    className={`btn ${filter === "all" ? "active" : ""}`}
-                    onClick={() => setFilter("all")}
+            <div style={{ marginBottom: "20px", width: "130px" }}>
+                <select
+                    className="global-select"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
                 >
-                    All
-                </button>
-                <button
-                    className={`btn ${filter === "pending" ? "active" : ""}`}
-                    onClick={() => setFilter("pending")}
-                >
-                    Pending
-                </button>
-                <button
-                    className={`btn ${filter === "approved" ? "active" : ""}`}
-                    onClick={() => setFilter("approved")}
-                >
-                    Approved
-                </button>
-                <button
-                    className={`btn ${filter === "rejected" ? "active" : ""}`}
-                    onClick={() => setFilter("rejected")}
-                >
-                    Rejected
-                </button>
-                <button
-                    className={`btn ${filter === "blocked" ? "active" : ""}`}
-                    onClick={() => setFilter("blocked")}
-                >
-                    Blocked
-                </button>
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
             </div>
 
             <div className="search-container">
@@ -170,17 +134,6 @@ const Requests = () => {
                                             >
                                                 View
                                             </button>
-
-                                            <Popconfirm
-                                                title="Are you sure you want to Delete?"
-                                                onConfirm={() => handleDeleteRequest(req._id)}
-                                                okText="Yes"
-                                                cancelText="No"
-                                            >
-                                                <button className="action-btn">
-                                                    <img src={del} alt="Delete" />
-                                                </button>
-                                            </Popconfirm>
                                         </div>
                                     </td>
                                 </tr>

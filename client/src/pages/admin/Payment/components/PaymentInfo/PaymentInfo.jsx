@@ -48,7 +48,7 @@ const PaymentInfo = ({ paymentRequest, onClose, fetchPaymentRequests }) => {
                     </>
                 );
             case "approved":
-                return <button className="reject-btn" onClick={() => handleRejectPaymentRequest("rejected")}>Reject</button>;
+                return null;
             case "rejected":
                 return <button className="approve-btn" onClick={() => handleApprovePaymentRequest("approved")}>Approve</button>;
             case "blocked":
