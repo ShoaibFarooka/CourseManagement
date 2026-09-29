@@ -40,6 +40,7 @@
 
 .dashboard-container .user-name:hover {
     opacity: 0.8;
+    cursor: pointer;
 }
 
 .dashboard-container .device-request {
@@ -264,6 +265,142 @@
     width: 100%;
 }
 
+/* ---------- Explore Demo Section ---------- */
+.dashboard-container .demo-section {
+    background: #eefafd;
+    border: 1px solid #b8e6ee;
+    border-radius: 14px;
+    padding: 18px 20px 14px 20px;
+    margin: 20px 0 24px 0;
+}
+
+.dashboard-container .demo-section .demo-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.dashboard-container .demo-section .demo-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #d5f1f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-container .demo-section .demo-text {
+    flex: 1;
+}
+
+.dashboard-container .demo-section .demo-title {
+    margin: 0 0 4px 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0b2a5b;
+}
+
+.dashboard-container .demo-section .demo-description {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #0b2a5b;
+}
+
+.dashboard-container .demo-section .demo-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0e9f77;
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.dashboard-container .demo-section .demo-btn:hover {
+    opacity: 0.85;
+}
+
+.dashboard-container .demo-section .demo-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #c9e9ef;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #4a6785;
+}
+
+.dashboard-container .demo-section .demo-note svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+@media only screen and (max-width: 835px) {
+    .dashboard-container .demo-section .demo-title {
+        font-size: 1.2rem;
+    }
+
+    .dashboard-container .demo-section .demo-description {
+        font-size: 0.9rem;
+    }
+
+    .dashboard-container .demo-section .demo-btn {
+        font-size: 0.9rem;
+        padding: 12px 18px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .dashboard-container .demo-section {
+        padding: 14px 12px 12px 12px;
+    }
+
+    .dashboard-container .demo-section .demo-main {
+        flex-wrap: wrap;
+    }
+
+    .dashboard-container .demo-section .demo-icon {
+        width: 46px;
+        height: 46px;
+    }
+
+    .dashboard-container .demo-section .demo-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .dashboard-container .demo-section .demo-text {
+        flex: 1 1 calc(100% - 70px);
+    }
+
+    .dashboard-container .demo-section .demo-title {
+        font-size: 1.05rem;
+    }
+
+    .dashboard-container .demo-section .demo-description {
+        font-size: 0.8rem;
+    }
+
+    .dashboard-container .demo-section .demo-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .dashboard-container .demo-section .demo-note {
+        font-size: 0.75rem;
+    }
+}
 
 @media only screen and (max-width: 1200px) {
     .dashboard-container {

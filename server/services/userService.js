@@ -128,6 +128,12 @@ const loginUser = async (loginData) => {
     error.code = 404;
     throw error;
   }
+
+  if (user.isBlocked === true) {
+    const error = new Error("Your account has been blocked. Please contact support.");
+    error.code = 403;
+    throw error;
+  }
   // An account created through Google sign in has no password at all. Whether the
   // password form can be used is derived from the stored password itself rather than
   // from authProvider, because that flag would go stale the moment such a user sets a
@@ -272,6 +278,7 @@ const fetchUser = async (userId) => {
     role: 1,
     image: 1,
     language: 1,
+    deviceVerificationBypass: 1,
   };
   const user = await User.findById(userId, userProjection);
   if (!user) {
@@ -452,6 +459,8 @@ const getAllUsers = async (
               startDate: "$$p.startDate",
               expiryDate: "$$p.expiryDate",
               comment: "$$p.comment",
+              isCancelled: "$$p.isCancelled",
+              cancelledAt: "$$p.cancelledAt",
               course: {
                 $let: {
                   vars: {
@@ -522,6 +531,7 @@ const getAllUsers = async (
         isBlocked: 1,
         payments: 1,
         allowedDevices: 1,
+        deviceVerificationBypass: 1,
       },
     },
     {
@@ -579,7 +589,7 @@ const toggleDeviceVerificationBypass = async (userId, enabled) => {
     throw error;
   }
 
-  user.DeviceVerification = !!enabled;
+  user.deviceVerificationBypass = !!enabled;
   await user.save();
 
   return user;
