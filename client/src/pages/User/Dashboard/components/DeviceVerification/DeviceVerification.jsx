@@ -3,18 +3,21 @@ import './DeviceVerification.css';
 import { FaFacebookF, FaInstagram, FaWhatsapp, FaLinkedin } from "react-icons/fa";
 import { NavLink } from 'react-router-dom';
 
-const DeviceVerification = () => {
+const DeviceVerification = ({ requestStatus = "sent" }) => {
     const whatsappNumber = "923254698122";
+    const isDuplicate = requestStatus === "duplicate";
     const handleClickContactNow = () => {
         window.open(`https://wa.me/${whatsappNumber}`, "_blank");
     };
     return (
         <div className='device-verification'>
             <div className='title'>
-                Request Sent
+                {isDuplicate ? "Request Already Pending" : "Request Sent"}
             </div>
             <div className='sub-title'>
-                Please Click on the button below for instant Access.
+                {isDuplicate
+                    ? "You have already sent a request. Please click the button below to contact us for instant access."
+                    : "Please Click on the button below for instant Access."}
             </div>
             <div className='contact-now'>
                 <button className='button' onClick={handleClickContactNow}>

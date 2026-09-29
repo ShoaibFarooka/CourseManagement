@@ -38,7 +38,7 @@ const routes = [
     { path: "/forgot-password", element: <ForgetPassword />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/reset-password", element: <ResetPassword />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
     { path: "/otp-verification", element: <OtpVerification />, protected: false, authRedirect: true, showHeader: true, showFooter: true },
-    { path: "/profile", element: <Profile />, protected: false, authRedirect: false, showHeader: true, showFooter: true },
+    { path: "/profile", element: <Profile />, protected: true, authRedirect: false, showHeader: true, showFooter: true },
     {
         path: "/dashboard",
         element: <CoursesLayout />,
