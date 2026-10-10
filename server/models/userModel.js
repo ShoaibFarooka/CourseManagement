@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    DeviceVerification: {
+    deviceVerificationBypass: {
       type: Boolean,
       default: false,
     },

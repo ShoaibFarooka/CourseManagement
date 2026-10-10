@@ -101,9 +101,9 @@ const verifyDevice = (mode = "strict") => async (req, res, next) => {
     const userId = req.user?.id;
 
     // Bypass device verification entirely if the user has it toggled on
-    const user = await User.findById(userId).select("DeviceVerification").lean();
+    const user = await User.findById(userId).select("deviceVerificationBypass").lean();
 
-    if (user?.DeviceVerification) {
+    if (user?.deviceVerificationBypass) {
       req.access.deviceVerified = true;
       return next();
     }

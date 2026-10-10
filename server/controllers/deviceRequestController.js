@@ -23,10 +23,6 @@ const RequestDeviceAccess = async (req, res, next) => {
             ip = ip.split("::ffff:")[1];
         }
 
-        console.log("x-forwarded-for:", req.headers["x-forwarded-for"]);
-        console.log("req.ip:", req.ip);
-        console.log("remoteAddress:", req.socket?.remoteAddress);
-
         const geo = (await getCountryFromIP(ip)) || {};
 
 
@@ -47,6 +43,7 @@ const RequestDeviceAccess = async (req, res, next) => {
         if (result.alreadyAllowed === true) {
             return res.status(200).json({
                 status: "allowed",
+                alreadyAllowed: true,
                 message: "Device already allowed"
             });
         }
@@ -54,6 +51,7 @@ const RequestDeviceAccess = async (req, res, next) => {
         if (result.alreadyRequested === true) {
             return res.status(200).json({
                 status: "pending",
+                alreadyRequested: true,
                 message: "Device request already pending approval",
                 requestId: result.requestId
             });
@@ -72,7 +70,6 @@ const RequestDeviceAccess = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error("RequestDeviceAccess Error:", error);
         next(error);
     }
 };

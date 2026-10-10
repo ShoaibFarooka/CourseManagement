@@ -25,6 +25,7 @@ const Dashboard = () => {
     const [selectedParts, setSelectedParts] = useState({});
     const [isOpenDeviceRequestModal, setIsOpenDeviceRequestModal] = useState(false);
     const [requestingAccess, setRequestingAccess] = useState(false);
+    const [requestStatus, setRequestStatus] = useState("sent");
 
     useEffect(() => {
         fetchAllCourses();
@@ -83,10 +84,10 @@ const Dashboard = () => {
         return purchasedCourses.find(
             pc =>
                 String(pc.courseId) === String(courseId) &&
-                String(pc.partId) === String(partId)
-        );
+                String(pc.partId) === String(partId) &&
+                pc.isCancelled !== true
+        ) || null;
     };
-
     const getDaysLeft = (startDate, expiryDate) => {
         if (!expiryDate || !startDate) return null;
 
@@ -129,6 +130,7 @@ const Dashboard = () => {
     const handleDeviceRequestAccess = async () => {
         try {
             dispatch(ShowLoading());
+            setRequestStatus("sent");
 
             const deviceInfo = await getBasicDeviceInfo();
             const res = await deviceRequestService.createDeviceRequest(deviceInfo);
@@ -139,6 +141,7 @@ const Dashboard = () => {
             }
 
             if (res.alreadyRequested) {
+                setRequestStatus("duplicate");
                 message.info("Your device request is already pending approval.");
                 return;
             }
@@ -159,6 +162,7 @@ const Dashboard = () => {
         if (requestingAccess) return;
 
         try {
+            setRequestStatus("sent");
             setRequestingAccess(true);
             dispatch(ShowLoading());
 
@@ -172,6 +176,7 @@ const Dashboard = () => {
             );
         } catch (error) {
             if (error?.response?.status === 409) {
+                setRequestStatus("duplicate");
                 message.warning(error.response.data.message);
             } else {
                 message.error(
@@ -191,6 +196,10 @@ const Dashboard = () => {
         navigate('/profile');
     }
 
+    const handleExploreDemo = () => {
+        navigate('/dashboard/unit-exams');
+    };
+
     return (
         <div className="dashboard-container">
             <div
@@ -207,6 +216,56 @@ const Dashboard = () => {
                 {user?.name}
             </div>
 
+            <CustomModal
+                isOpen={isOpenDeviceRequestModal}
+                onRequestClose={() => setIsOpenDeviceRequestModal(false)}
+                contentLabel="Device Verification"
+                width="60%"
+            >
+                <DeviceVerification
+                    requestStatus={requestStatus}
+                />
+            </CustomModal>
+
+            <div className="demo-section">
+                <div className="demo-main">
+                    <div className="demo-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 18h6" />
+                            <path d="M10 21h4" />
+                            <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" />
+                        </svg>
+                    </div>
+
+                    <div className="demo-text">
+                        <h3 className="demo-title">Explore Your Free Demo</h3>
+                        <p className="demo-description">
+                            Choose Course → Part → Publisher to explore the platform.
+                            The first unit is unlocked automatically for each selection.
+                        </p>
+                    </div>
+
+                    <button className="demo-btn" onClick={handleExploreDemo}>
+                        Explore Demo
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M5 12h14" />
+                            <path d="M13 6l6 6-6 6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div className="demo-note">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5b7fa6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                    </svg>
+                    <span>
+                        Practice Exams, Proficiency, Performance Reports and other premium
+                        features require full course access.
+                    </span>
+                </div>
+            </div>
 
             <div className="device-request">
                 {currentDeviceStatus ? (
@@ -220,15 +279,6 @@ const Dashboard = () => {
                     </button>
                 )}
             </div>
-
-            <CustomModal
-                isOpen={isOpenDeviceRequestModal}
-                onRequestClose={() => setIsOpenDeviceRequestModal(false)}
-                contentLabel="Device Verification"
-                width="60%"
-            >
-                <DeviceVerification />
-            </CustomModal>
 
             <div className="table-header">
                 <span className="header">Course <img src={arrow} alt="" /></span>

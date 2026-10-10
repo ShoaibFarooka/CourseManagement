@@ -23,7 +23,7 @@ const UserInfo = ({ user, fetchUsers }) => {
         email,
         country,
         isBlocked,
-        DeviceVerification,
+        deviceVerificationBypass,
         payments = [],
         allowedDevices = []
     } = currentUser;
@@ -61,7 +61,7 @@ const UserInfo = ({ user, fetchUsers }) => {
                     ? "Device verification bypass enabled"
                     : "Device verification bypass disabled"
             );
-            setCurrentUser(prev => ({ ...prev, DeviceVerification: enabled }));
+            setCurrentUser(prev => ({ ...prev, deviceVerificationBypass: enabled }));
             await fetchUsers?.();
         } catch (error) {
             message.error(
@@ -114,7 +114,7 @@ const UserInfo = ({ user, fetchUsers }) => {
                     <label className="toggle-switch">
                         <input
                             type="checkbox"
-                            checked={!!DeviceVerification}
+                            checked={!!deviceVerificationBypass}
                             onChange={handleDeviceVerificationToggle}
                         />
                         <span className="toggle-slider" />

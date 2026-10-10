@@ -12,9 +12,17 @@ export const fetchUserInfo = createAsyncThunk(
         dispatch(ShowLoading());
         try {
             const res = await userService.getUserInfo();
+
+            if (res.user?.isBlocked === true) {
+                return rejectWithValue({
+                    message: "Your account has been blocked. Please contact support."
+                });
+            }
             return res.user;
         } catch (error) {
-            return rejectWithValue(error.response?.data || error.message);
+            return rejectWithValue(
+                error.response?.data || error.message
+            );
         } finally {
             dispatch(HideLoading());
         }
@@ -35,7 +43,9 @@ export const fetchPurchasedCourses = createAsyncThunk(
                 partId: payment.part,
                 startDate: payment.startDate,
                 expiryDate: payment.expiryDate,
-                amount: payment.amount
+                amount: payment.amount,
+                isCancelled: payment.isCancelled,
+                cancelledAt: payment.cancelledAt
             }));
             return courses;
         } catch (error) {
@@ -49,8 +59,16 @@ export const fetchPurchasedCourses = createAsyncThunk(
 
 export const checkCurrentDeviceStatus = createAsyncThunk(
     'user/checkCurrentDeviceStatus',
-    async (_, { rejectWithValue }) => {
+    async (_, { getState, dispatch, rejectWithValue }) => {
         try {
+            let { user } = getState().user;
+            if (!user) {
+                const userResult = await dispatch(fetchUserInfo()).unwrap();
+                user = userResult;
+            }
+            if (user?.deviceVerificationBypass) {
+                return true;
+            }
             const deviceInfo = await getBasicDeviceInfo();
             const res = await deviceRequestService.checkDeviceStatus(deviceInfo.visitorId);
             return res.isAllowed;
