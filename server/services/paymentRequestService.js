@@ -22,51 +22,21 @@ const createPaymentRequest = async (userId, courseId, partId) => {
         status: "pending",
     });
 
-    if (pendingRequest) {
-        const error = new Error(
-            "You already have a pending payment request for this course and part."
-        );
-        error.code = 409;
-        throw error;
-    }
-
-    const approvedRequest = await PaymentRequest.findOne({
+    const latestPayment = await payment.findOne({
         user: userId,
         course: courseId,
         part: partId,
-        status: "approved",
     }).sort({ createdAt: -1 });
 
-    if (approvedRequest) {
-        const existpayment = await payment.findOne({
-            paymentRequest: approvedRequest._id,
-            user: userId,
-            course: courseId,
-            part: partId,
-        }).sort({ createdAt: -1 });
+    if (pendingRequest) {
+        // A pending request filed before the latest payment was granted is stale: access
+        // was given after it, so it was never meant to stay open (e.g. a duplicate left
+        // over when the admin approved a sibling request). Leaving it pending would block
+        // every renewal, so close it and let the renewal through.
+        const isStale =
+            latestPayment && pendingRequest.createdAt < latestPayment.createdAt;
 
-        if (existpayment && new Date(existpayment.expiryDate) > new Date()) {
-            const error = new Error(
-                "Your request has been approved, please refresh the page."
-            );
-            error.code = 409;
-            throw error;
-        }
-    }
-
-    try {
-        return await PaymentRequest.create({
-            user: userId,
-            course: courseId,
-            part: partId,
-            status: "pending",
-        });
-    } catch (err) {
-        // The partial unique index rejected a concurrent duplicate. Translate it into the
-        // same 409 the check above throws — note this MUST be remapped, since the
-        // controller passes error.code straight to res.status() and Mongo's 11000 is not
-        // a valid HTTP status.
-        if (err.code === 11000) {
+        if (!isStale) {
             const error = new Error(
                 "You already have a pending payment request for this course and part."
             );
@@ -74,7 +44,67 @@ const createPaymentRequest = async (userId, courseId, partId) => {
             throw error;
         }
 
-        throw err;
+        await PaymentRequest.updateMany(
+            {
+                user: userId,
+                course: courseId,
+                part: partId,
+                status: "pending",
+                createdAt: { $lt: latestPayment.createdAt },
+            },
+            { $set: { status: "rejected" } }
+        );
+    }
+
+    if (
+        latestPayment &&
+        !latestPayment.isCancelled &&
+        new Date(latestPayment.expiryDate) > new Date()
+    ) {
+        const error = new Error(
+            "Your request has been approved, please refresh the page."
+        );
+        error.code = 409;
+        throw error;
+    }
+
+    const newRequest = {
+        user: userId,
+        course: courseId,
+        part: partId,
+        status: "pending",
+    };
+
+    try {
+        return await PaymentRequest.create(newRequest);
+    } catch (err) {
+        if (err.code !== 11000) throw err;
+
+        // The unique index rejected the insert. If a pending request really exists, a
+        // concurrent click beat us — report it as a 409 (this MUST be remapped, since the
+        // controller passes error.code straight to res.status() and Mongo's 11000 is not
+        // a valid HTTP status).
+        const concurrentPending = await PaymentRequest.exists({
+            user: userId,
+            course: courseId,
+            part: partId,
+            status: "pending",
+        });
+
+        if (concurrentPending) {
+            const error = new Error(
+                "You already have a pending payment request for this course and part."
+            );
+            error.code = 409;
+            throw error;
+        }
+
+        // No pending request exists, so the database holds an outdated unique index on
+        // user+course+part that also covers approved/rejected requests. Mongoose never
+        // replaces an existing index on its own; sync it to the schema's partial index
+        // (pending only) and retry once.
+        await PaymentRequest.syncIndexes();
+        return await PaymentRequest.create(newRequest);
     }
 };
 
@@ -162,6 +192,19 @@ const approvePaymentRequest = async (requestId, userId, courseId, partId, amount
     request.status = status;
     await request.save();
     await newPayment.save();
+
+    // Close any duplicate pending requests for the same course part. They are covered by
+    // this approval, and left open they would block the user's renewal once it expires.
+    await PaymentRequest.updateMany(
+        {
+            _id: { $ne: request._id },
+            user: request.user,
+            course: request.course,
+            part: request.part,
+            status: "pending",
+        },
+        { $set: { status: "rejected" } }
+    );
 
     return request;
 };

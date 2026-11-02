@@ -129,6 +129,27 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
         }
     };
 
+    // Locked units can't be checked individually, so Select All skips them too.
+    const unlockedUnits = units.filter((_, index) => isPurchased || index === 0);
+    const allUnitsSelected =
+        unlockedUnits.length > 0 &&
+        unlockedUnits.every(u => selectedUnits.includes(u.unitId));
+
+    const handleSelectAll = () => {
+        if (allUnitsSelected) {
+            setSelectedUnits([]);
+            setSelectedSubunits({});
+            return;
+        }
+
+        setSelectedUnits(unlockedUnits.map(u => u.unitId));
+        setSelectedSubunits(
+            Object.fromEntries(
+                unlockedUnits.map(u => [u.unitId, u.subunits.map(s => s._id)])
+            )
+        );
+    };
+
     const handleSubunitCheck = (unitId, subunitId) => {
         const otherUnitSelected = selectedUnits.some(id => id !== unitId);
         if (otherUnitSelected) return;
@@ -398,6 +419,22 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                             Request Access
                         </button>
                     </div>
+                )}
+
+                {/* Hidden in demo mode — only the first unit is unlocked there. */}
+                {isPurchased && (
+                    <label
+                        className={`select-all ${unlockedUnits.length === 0 ? "disabled" : ""}`}
+                    >
+                        <input
+                            type="checkbox"
+                            className="unit-topic-checkbox"
+                            checked={allUnitsSelected}
+                            disabled={unlockedUnits.length === 0}
+                            onChange={handleSelectAll}
+                        />
+                        Select All
+                    </label>
                 )}
             </div>
 

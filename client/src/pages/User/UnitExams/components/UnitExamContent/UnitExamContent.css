@@ -19,11 +19,38 @@
     margin-bottom: 25px;
 }
 
-/* Guideline */
+/* Guideline — auto margin pushes Request Access and Select All to the right edge */
 .unit-exams-container .guideline {
     font-size: 1.375rem;
     font-weight: 600;
     color: var(--text-color);
+    margin-right: auto;
+}
+
+/* Select All checkbox — reuses the unit row checkbox style */
+.unit-exams-container .select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-wrap: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+
+.unit-exams-container .select-all .unit-topic-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.unit-exams-container .select-all.disabled,
+.unit-exams-container .select-all.disabled .unit-topic-checkbox {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Request Access — mirrors the Device Verification button on the Dashboard */
@@ -68,11 +95,30 @@
 }
 
 
-/* Topic List */
+/* Topic List — capped at roughly five rows and scrolls on its own, so the Next
+   button stays in view even when a part has many units. */
 .unit-exams-container .unit-topic-list {
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
+    max-height: 330px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.unit-exams-container .unit-topic-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.unit-exams-container .unit-topic-list::-webkit-scrollbar-thumb {
+    background: var(--table-header-border);
+    border-radius: 6px;
+}
+
+/* Rows are flex children of the scrolling list — without this they shrink to fit
+   max-height instead of overflowing it. */
+.unit-exams-container .unit-topic-list > * {
+    flex-shrink: 0;
 }
 
 /* Topic Row */
@@ -411,6 +457,22 @@
         font-size: 0.85rem;
     }
 
+    /* Stacks Select All above the guideline, same as Request Access. */
+    .unit-exams-container .select-all {
+        order: -1;
+        gap: 6px;
+        font-size: 0.85rem;
+    }
+
+    .unit-exams-container .select-all .unit-topic-checkbox {
+        width: 14px;
+        height: 14px;
+    }
+
+    .unit-exams-container .unit-topic-list {
+        max-height: 280px;
+    }
+
     .unit-exams-container .unit-table-header {
         font-size: 0.7rem;
         grid-template-columns: 1.2fr 0.5fr 0.6fr 0.7fr 0.4fr;
@@ -480,6 +542,10 @@
         border-radius: 5px;
     }
 
+    .unit-exams-container .unit-topic-list {
+        max-height: 240px;
+    }
+
     .unit-exams-container .unit-table-header {
         font-size: 0.65rem;
         grid-template-columns: 1.3fr 0.6fr 0.7fr 0.8fr 0.4fr;
@@ -497,9 +563,15 @@
         gap: 4px;
     }
 
-    .unit-exams-container .unit-topic-checkbox {
+    .unit-exams-container .unit-topic-checkbox,
+    .unit-exams-container .select-all .unit-topic-checkbox {
         width: 12px;
         height: 12px;
+    }
+
+    .unit-exams-container .select-all {
+        gap: 4px;
+        font-size: 0.75rem;
     }
 
     .unit-exams-container .unit-topic-icon {
