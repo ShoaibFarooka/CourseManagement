@@ -383,7 +383,8 @@ const getAllUsers = async (
   page = Number(page);
   limit = Number(limit);
 
-  const matchStage = {};
+  // Admin accounts are not managed from the Users page, so never return them.
+  const matchStage = { role: { $ne: "admin" } };
 
   if (search.trim()) {
     matchStage.$or = [

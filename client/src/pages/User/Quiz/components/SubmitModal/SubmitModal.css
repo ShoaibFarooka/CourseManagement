@@ -1,0 +1,51 @@
+.submit-modal-content {
+    text-align: center;
+    padding: 20px;
+    font-family: var(--font-family);
+    background-color: var(--unit-exams-bg);
+}
+
+.submit-modal-content .submit-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.submit-modal-content .submit-count {
+    font-weight: 700;
+    color: #f44336;
+}
+
+.submit-modal-content .submit-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.submit-modal-content .submit-buttons .submit-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: black;
+    font-weight: 600;
+}
+
+.submit-modal-content .submit-buttons .submit-confirm {
+    background-color: var(--secondary-color);
+}
+
+.submit-modal-content .submit-buttons .submit-cancel {
+    background-color: #e0e0e0;
+}
+
+.submit-modal-content .submit-buttons .submit-btn:hover {
+    opacity: 0.8;
+}
+
+@media only screen and (max-width:500px) {
+    .submit-modal-content .submit-buttons {
+        flex-direction: column;
+    }
+}

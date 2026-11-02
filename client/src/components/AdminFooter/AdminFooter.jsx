@@ -10,7 +10,8 @@ const AdminFooter = () => {
         { name: "Courses", to: "/admin/courses" },
         { name: "Questions", to: "/admin/questions" },
         { name: "Requests", to: "/admin/requests" },
-        { name: "Payments", to: "/admin/payments" }
+        { name: "Payments", to: "/admin/payments" },
+        { name: "Users", to: "/admin/users" }
     ];
 
 
@@ -45,7 +46,7 @@ const AdminFooter = () => {
                     </div>
 
                     <div className='text-sm copyright'>
-                        &copy; copyright {new Date().getFullYear()}. by Name.
+                        &copy; copyright {new Date().getFullYear()}. | All rights reserved.
                     </div>
 
                 </div>

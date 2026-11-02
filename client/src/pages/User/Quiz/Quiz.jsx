@@ -11,6 +11,7 @@ import QuestionNavigator from "./components/QuestionNavigator/QuestionNavigator"
 import QuizStatus from "./components/QuizStatus/QuizStatus";
 import CustomModal from "../../../components/CustomModal/CustomModal";
 import ExitModal from "./components/ExitModal/ExitModal";
+import SubmitModal from "./components/SubmitModal/SubmitModal";
 import TimeUpModal from './components/TimeUpModal/TimeUpModal';
 import { ShowLoading, HideLoading } from "../../../redux/loaderSlice";
 import { message } from "antd";
@@ -54,6 +55,7 @@ const Quiz = () => {
     const [time, setTime] = useState(QUIZ_TIME);
     const [showTimeUpModal, setShowTimeUpModal] = useState(false);
     const [showExitModal, setShowExitModal] = useState(false);
+    const [showSubmitModal, setShowSubmitModal] = useState(false);
     const PAGE_SIZE = 20;
 
     const pendingProgressRef = useRef([]);
@@ -627,6 +629,21 @@ const Quiz = () => {
     };
 
 
+    // The question components' Submit buttons open this confirmation first; the
+    // time-up flow still submits directly.
+    const handleSubmitClick = () => {
+        setShowSubmitModal(true);
+    };
+
+    const handleSubmitConfirm = () => {
+        setShowSubmitModal(false);
+        handleQuizSubmit();
+    };
+
+    const handleSubmitCancel = () => {
+        setShowSubmitModal(false);
+    };
+
     const handleTimeUpSubmit = () => {
         setShowTimeUpModal(false);
         handleQuizSubmit();
@@ -709,7 +726,7 @@ const Quiz = () => {
                             onBack={prevQuestion}
                             isFirstQuestion={isFirstQuestion}
                             isLastQuestion={isLastQuestion}
-                            handleQuizSubmit={handleQuizSubmit}
+                            handleQuizSubmit={handleSubmitClick}
                             isMarked={markedQuestions.has(currentQuestion._id)}
                             onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
                             source={source}
@@ -726,7 +743,7 @@ const Quiz = () => {
                             onBack={prevQuestion}
                             isFirstQuestion={isFirstQuestion}
                             isLastQuestion={isLastQuestion}
-                            handleQuizSubmit={handleQuizSubmit}
+                            handleQuizSubmit={handleSubmitClick}
                             isMarked={markedQuestions.has(currentQuestion._id)}
                             onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
                             source={source}
@@ -742,7 +759,7 @@ const Quiz = () => {
                             onBack={prevQuestion}
                             isFirstQuestion={isFirstQuestion}
                             isLastQuestion={isLastQuestion}
-                            handleQuizSubmit={handleQuizSubmit}
+                            handleQuizSubmit={handleSubmitClick}
                             isMarked={markedQuestions.has(currentQuestion._id)}
                             onToggleMark={() => toggleMarkQuestion(currentQuestion._id)}
                             source={source}
@@ -772,6 +789,21 @@ const Quiz = () => {
                         show={true}
                         onSubmit={handleTimeUpSubmit}
                         onContinue={handleTimeUpContinue}
+                    />
+                </CustomModal>
+
+                {/* Submit Confirmation Modal */}
+                <CustomModal
+                    isOpen={showSubmitModal}
+                    onRequestClose={handleSubmitCancel}
+                    title="Submit Quiz?"
+                    width="60%"
+                >
+                    <SubmitModal
+                        show={showSubmitModal}
+                        unansweredCount={unansweredCount}
+                        onConfirm={handleSubmitConfirm}
+                        onCancel={handleSubmitCancel}
                     />
                 </CustomModal>
 
