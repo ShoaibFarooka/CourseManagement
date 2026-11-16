@@ -22,6 +22,7 @@ export const menuItems = {
         { path: '/dashboard/unit-exams' },
         { path: '/dashboard/practice-exams' },
         { path: '/dashboard/package-exams' },
+        { path: '/dashboard/planner' },
         { path: '/quiz' },
         { path: '/progress-report' },
         { path: '/guide' }

@@ -1,13 +1,18 @@
 import React from "react";
 import "./ExitModal.css";
 
-const ExitModal = ({ show, onConfirm, onCancel }) => {
+const ExitModal = ({
+    show,
+    onConfirm,
+    onCancel,
+    text = "All your progress will be lost. Do you really want to exit right now?",
+}) => {
     if (!show) return null;
 
     return (
         <div className="exit-modal-content">
             <div className="exit-text">
-                All your progress will be lost. Do you really want to exit right now?
+                {text}
             </div>
             <div className="exit-buttons">
                 <button className="exit-btn exit-confirm" onClick={onConfirm}>

@@ -1,0 +1,274 @@
+.planner-container {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 75px 140px 120px 72px;
+    background: var(--unit-exams-bg);
+    color: var(--text-color);
+    font-family: var(--font-family);
+}
+
+/* Header */
+.planner-container .planner-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.planner-container .planner-heading .title {
+    font-size: 1.375rem;
+    font-weight: 600;
+}
+
+.planner-container .planner-heading .meta {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+.planner-container .planner-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.planner-container .action-btn {
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.planner-container .action-btn.secondary {
+    color: var(--text-color);
+    border: 1.5px solid var(--table-header-border);
+}
+
+.planner-container .action-btn.danger {
+    color: #d32f2f;
+    border: 1.5px solid #d32f2f;
+}
+
+.planner-container .action-btn:hover {
+    opacity: 0.8;
+}
+
+/* Summary cards */
+.planner-container .planner-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.planner-container .summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px 24px;
+    border-radius: 14px;
+    background: var(--table-values-bg);
+    border: 1px solid var(--table-header-border);
+}
+
+.planner-container .summary-card.focus {
+    border: 2px solid #218C95;
+}
+
+.planner-container .summary-card.focus.done {
+    border-color: #19a974;
+}
+
+.planner-container .summary-card .label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.planner-container .summary-card .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.planner-container .summary-card .hint {
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+
+.planner-container .summary-card .start-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    align-self: flex-end;
+    margin-top: 4px;
+    font-size: 1rem;
+    padding: 12px 28px;
+    max-width: none;
+    width: auto;
+}
+
+/* Progress bars — same palette as the Unit Exams proficiency bar */
+.planner-container .planner-progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #218D9521;
+    border-radius: 29px;
+    overflow: hidden;
+}
+
+.planner-container .planner-progress-bar.small {
+    height: 6px;
+}
+
+.planner-container .planner-progress-fill {
+    height: 100%;
+    background: #218C95;
+    border-radius: 29px;
+    transition: width 0.4s ease;
+}
+
+/* Calendar */
+.planner-container .planner-calendar-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: -12px;
+}
+
+.planner-container .planner-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.planner-container .planner-day {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    min-height: 104px;
+    text-align: left;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    background: var(--table-values-bg);
+    border: 1px solid var(--table-header-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.planner-container .planner-day:hover:not(.locked) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.planner-container .planner-day .day-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.planner-container .planner-day .day-number {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.planner-container .planner-day .day-icon {
+    font-size: 0.75rem;
+}
+
+.planner-container .planner-day .day-date {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.planner-container .planner-day .day-count {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.planner-container .planner-day.current {
+    border: 2px solid #218C95;
+}
+
+.planner-container .planner-day.completed {
+    background: #4DC4CE2B;
+    border-color: #19a974;
+}
+
+.planner-container .planner-day.completed .day-icon {
+    color: #19a974;
+}
+
+.planner-container .planner-day.completed .planner-progress-fill {
+    background: #19a974;
+}
+
+.planner-container .planner-day.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+@media only screen and (max-width: 1200px) {
+    .planner-container {
+        padding: 50px 80px 100px 50px;
+    }
+}
+
+@media only screen and (max-width: 992px) {
+    .planner-container {
+        padding: 40px 30px 100px 20px;
+    }
+
+    .planner-container .planner-calendar {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+@media only screen and (max-width: 835px) {
+    .planner-container {
+        padding: 100px 20px 80px 20px;
+    }
+
+    .planner-container .planner-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    .planner-container {
+        padding: 100px 10px 60px 10px;
+        gap: 20px;
+    }
+
+    .planner-container .planner-header {
+        flex-direction: column;
+    }
+
+    .planner-container .planner-calendar {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .planner-container .planner-day {
+        min-height: 88px;
+        padding: 10px;
+    }
+
+    .planner-container .summary-card {
+        padding: 16px;
+    }
+
+    .planner-container .summary-card .value {
+        font-size: 1.4rem;
+    }
+
+    .planner-container .summary-card .start-btn {
+        align-self: stretch;
+    }
+}

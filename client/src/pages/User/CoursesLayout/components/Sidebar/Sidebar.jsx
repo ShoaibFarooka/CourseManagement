@@ -49,13 +49,15 @@ const Sidebar = forwardRef((props, ref) => {
         { label: "Dashboard", path: "/dashboard" },
         { label: "Unit Exams", path: "/dashboard/unit-exams" },
         { label: "Practice Exams", path: "/dashboard/practice-exams" },
-        { label: "Package Exams", path: "/dashboard/package-exams" }
+        { label: "Package Exams", path: "/dashboard/package-exams" },
+        { label: "Planner", path: "/dashboard/planner" }
     ];
 
     const menuTooltips = {
         "Unit Exams": "Unit Exams let you select your course, exam part, and publisher. Start new sessions, resume previous attempts, or practise wrong answers with instant feedback and detailed explanations for every option.",
         "Practice Exams": "Practice Exam simulates the real exam with randomized questions from all publishers. Choose a 125-question full exam or 50-question quick practice. Get your score, detailed review, explanations, and performance analysis after submission.",
-        "Package Exams": "Package Exams offers Standard Review with 125 selected questions from one publisher and Mega Review with customizable question counts. Both provide instant results and detailed explanations for every answer option to strengthen your preparation."
+        "Package Exams": "Package Exams offers Standard Review with 125 selected questions from one publisher and Mega Review with customizable question counts. Both provide instant results and detailed explanations for every answer option to strengthen your preparation.",
+        "Planner": "Planner builds a day-by-day study plan for a course you have purchased. Choose your course, part, publisher and a period of 15 days to 2 months. Each day unlocks once you have attempted every question of the previous day."
     };
 
     const hasAccess =
@@ -79,7 +81,8 @@ const Sidebar = forwardRef((props, ref) => {
                                 : location.pathname === item.path;
                         const isLocked =
                             (item.label === "Practice Exams" ||
-                                item.label === "Package Exams") &&
+                                item.label === "Package Exams" ||
+                                item.label === "Planner") &&
                             !hasAccess;
 
                         const tooltipText = menuTooltips[item.label];

@@ -66,11 +66,12 @@ const verifyPayment = async (req, res, next) => {
       return res.status(400).json({ message: "Course ID and Part ID are required" });
     }
 
-    // Find active payment (not expired)
+    // Find active payment (not expired, not cancelled by the admin)
     const activePayment = await Payment.findOne({
       user: userId,
       course: courseId,
       part: partId,
+      isCancelled: { $ne: true },
       expiryDate: { $gte: new Date() }
     }).lean();
 
@@ -220,6 +221,31 @@ const requirePayment = async (req, res, next) => {
 };
 
 
+// For routes not tied to one course (e.g. listing the planner's courses): the user
+// must hold at least one active, non-cancelled purchase. Sets req.access so
+// verifyDevice can run after it.
+const requireAnyActivePayment = async (req, res, next) => {
+  try {
+    const activePayment = await Payment.exists({
+      user: req.user?.id,
+      isCancelled: { $ne: true },
+      expiryDate: { $gte: new Date() }
+    });
+
+    if (!activePayment) {
+      return res.status(403).json({
+        message: "This feature requires an active subscription. Please purchase a course to continue."
+      });
+    }
+
+    req.access = { isPaid: true, isPreview: false, hadExpiredPayment: false };
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 module.exports = {
   authenticateRequest,
   verifyRole,
@@ -227,4 +253,5 @@ module.exports = {
   verifyPayment,
   verifyFreePreviewUnitAccess,
   requirePayment,
+  requireAnyActivePayment,
 };

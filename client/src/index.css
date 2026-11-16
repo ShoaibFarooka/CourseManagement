@@ -12,6 +12,20 @@ html {
   font-size: 16px;
 }
 
+/* Hide the page-level scrollbar while keeping the page scrollable (wheel, touch,
+   keyboard). Inner scroll areas — the units list, modals, the question navigator —
+   keep their own scrollbars. */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
 @media only screen and (max-width:768px) {
   html {
     font-size: 12px;

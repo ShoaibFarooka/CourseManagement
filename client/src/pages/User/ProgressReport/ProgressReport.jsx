@@ -18,7 +18,8 @@ const ProgressReport = () => {
         incorrectAnswers = 0,
         mcqScore = 0,
         rapidScore = 0,
-        essayScore = 0
+        essayScore = 0,
+        plannerSelection
     } = state || {};
 
 
@@ -31,6 +32,11 @@ const ProgressReport = () => {
 
 
     const handleClickRetake = () => {
+        // Planner goes back to the same plan's calendar instead of the selector.
+        if (source === 'planner') {
+            navigate('/dashboard/planner', { state: { plannerSelection } });
+            return;
+        }
         navigate(`/dashboard/${source}s`);
     }
 
@@ -74,7 +80,7 @@ const ProgressReport = () => {
                             <button
                                 className='retake-btn'
                                 onClick={handleClickRetake}
-                            >Retake Assessment
+                            >{source === 'planner' ? 'Back to Planner' : 'Retake Assessment'}
                             </button>
                         </div>
                     </div>

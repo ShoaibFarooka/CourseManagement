@@ -3,7 +3,7 @@ import "./QuizStatus.css";
 
 const QuizStatus = ({ correct = 0, marked = 0, incorrect = 0, unanswered = 0, source }) => {
 
-    const showCorrectAndIncorrectCount = source === "unit-exam" || source === "package-exam";
+    const showCorrectAndIncorrectCount = source === "unit-exam" || source === "package-exam" || source === "planner";
     return (
         <div className="quiz-status">
             {

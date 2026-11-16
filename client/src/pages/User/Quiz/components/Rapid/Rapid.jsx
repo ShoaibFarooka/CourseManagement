@@ -66,7 +66,7 @@ const Rapid = ({
 
     // Reset localSelection to firstSelectedAnswer when activeSubIndex changes (for unit/package exams)
     useEffect(() => {
-        const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
+        const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam" || source === "planner";
         if (isUnitOrPackageExam && firstSelectedAnswers[answerKey]) {
             setLocalSelections(prev => ({
                 ...prev,
@@ -77,8 +77,8 @@ const Rapid = ({
 
     const localSelection = localSelections[answerKey] || "";
     const firstSelection = firstSelectedAnswers[answerKey];
-    const showExplanations = source === "unit-exam" || source === "package-exam";
-    const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
+    const showExplanations = source === "unit-exam" || source === "package-exam" || source === "planner";
+    const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam" || source === "planner";
 
     const optionKeys = Object.keys(subquestion.options || {});
 

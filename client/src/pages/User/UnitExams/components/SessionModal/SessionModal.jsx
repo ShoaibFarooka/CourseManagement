@@ -90,6 +90,17 @@ const SessionModal = ({ unitProgress, sessionLoading, navigateToQuiz }) => {
                 </button>
 
                 <button
+                    className="session-btn marked"
+                    disabled={sessionLoading || !unitProgress?.marked}
+                    onClick={() => navigateToQuiz("marked")}
+                >
+                    Marked Questions
+                    <span className="session-btn-badge">
+                        {unitProgress?.marked || 0} questions
+                    </span>
+                </button>
+
+                <button
                     className="session-btn start-over"
                     disabled={sessionLoading}
                     onClick={() => navigateToQuiz("start-over")}

@@ -13,6 +13,9 @@ const CoursePartSelector = ({
     onCourseChange,
     onPartChange,
     onPublisherChange,
+    periods = [],
+    selectedPeriod,
+    onPeriodChange,
     onNext,
 }) => {
     return (
@@ -48,7 +51,7 @@ const CoursePartSelector = ({
                 </select>
             </div>
 
-            {(examType === "unit") && (
+            {(examType === "unit" || examType === "planner") && (
                 <div className="field">
                     <label>Select Publihser</label>
                     <select
@@ -60,6 +63,24 @@ const CoursePartSelector = ({
                         {publishers.map(publisher => (
                             <option key={publisher._id} value={publisher._id}>
                                 {publisher.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
+            {examType === "planner" && (
+                <div className="field">
+                    <label>Select Study Period</label>
+                    <select
+                        value={selectedPeriod || ""}
+                        onChange={onPeriodChange}
+                        disabled={!selectedPublisher}
+                    >
+                        <option value="">Select Period</option>
+                        {periods.map(period => (
+                            <option key={period.value} value={period.value}>
+                                {period.label}
                             </option>
                         ))}
                     </select>

@@ -1,5 +1,6 @@
 const UserProgress = require("../models/userProgressModel");
 const Question = require('../models/questionModel');
+const MarkedQuestion = require("../models/markedQuestionModel");
 const mongoose = require("mongoose");
 const { Types } = mongoose;
 
@@ -14,6 +15,29 @@ const buildLanguageFilter = (language = "eng") => {
         };
     }
     return { language };
+};
+
+// Filter for the user's marked questions inside the selected units, narrowed to the
+// chosen subunits of a unit when there are any.
+// $and because both the unit list and the English language filter use $or.
+const buildMarkedFilter = (userId, selectedUnits = [], selectedSubunits = {}, language = "eng") => ({
+    user: userId,
+    $and: [
+        {
+            $or: selectedUnits.map(unitId => {
+                const subs = selectedSubunits?.[unitId] || [];
+                return subs.length ? { unit: unitId, subunit: { $in: subs } } : { unit: unitId };
+            }),
+        },
+        buildLanguageFilter(language),
+    ],
+});
+
+const countMarked = (userId, selectedUnits, selectedSubunits, language) => {
+    if (!selectedUnits?.length) return 0;
+    return MarkedQuestion.countDocuments(
+        buildMarkedFilter(userId, selectedUnits, selectedSubunits, language)
+    );
 };
 
 const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId, language = "eng") => {
@@ -69,7 +93,37 @@ const initializeUnitStat = async (userId, courseId, partId, publisherId, unitId,
     );
 };
 
-const recordAnswer = async (userId, answers, language = "eng") => {
+// Attempting a marked question moves it out of "marked": it now counts as correct or
+// incorrect instead. Only marks made before the answer are removed, so a user who
+// answers and then marks the question again (answers reach us in batches, marks
+// immediately) keeps the new mark.
+//
+// answeredAt comes from the client's clock. sentAt (the client's clock when the batch
+// was sent) lets us shift it onto the server clock, so a wrong device clock can't make
+// a mark survive or vanish incorrectly.
+const clearMarksForAnswers = async (userId, answers, sentAt) => {
+    const serverNow = Date.now();
+    const clockOffset = sentAt ? serverNow - new Date(sentAt).getTime() : 0;
+
+    const answeredAtByQuestion = new Map();
+    for (const ans of answers) {
+        const answeredAt = ans.answeredAt
+            ? Math.min(new Date(ans.answeredAt).getTime() + clockOffset, serverNow)
+            : serverNow;
+        const key = ans.questionId.toString();
+        answeredAtByQuestion.set(key, Math.max(answeredAtByQuestion.get(key) ?? 0, answeredAt));
+    }
+
+    const ops = [...answeredAtByQuestion].map(([questionId, answeredAt]) => ({
+        deleteOne: {
+            filter: { user: userId, question: questionId, createdAt: { $lte: new Date(answeredAt) } },
+        },
+    }));
+
+    if (ops.length) await MarkedQuestion.bulkWrite(ops, { ordered: false });
+};
+
+const recordAnswer = async (userId, answers, language = "eng", sentAt = null) => {
     const groupMap = new Map();
     for (const ans of answers) {
         const key = `${ans.courseId}|${ans.partId}|${ans.publisherId}`;
@@ -88,6 +142,8 @@ const recordAnswer = async (userId, answers, language = "eng") => {
         failed.forEach(f => console.error("processBatchGroup failed:", f.reason));
         throw new Error("One or more progress groups failed to save");
     }
+
+    await clearMarksForAnswers(userId, answers, sentAt);
 };
 
 const processBatchGroup = async (userId, answers, language = "eng") => {
@@ -345,6 +401,13 @@ const getUnitProgress = async (
         Array.isArray(selectedSubunits) &&
         selectedSubunits.length > 0;
 
+    const marked = await countMarked(
+        userId,
+        [unitId],
+        hasSubunitFilter ? { [unitId]: selectedSubunits } : {},
+        language
+    );
+
     if (hasSubunitFilter) {
 
         const query = {
@@ -385,7 +448,8 @@ const getUnitProgress = async (
             correct,
             wrong,
             unattempted: totalQuestions - attempted,
-            lastAttemptedQ
+            lastAttemptedQ,
+            marked
         };
     }
 
@@ -404,6 +468,7 @@ const getUnitProgress = async (
             wrong: 0,
             unattempted: fallbackTotal,
             lastAttemptedQ: null,
+            marked,
         };
     }
 
@@ -419,6 +484,7 @@ const getUnitProgress = async (
             (statObj.totalQuestions || fallbackTotal) -
             (statObj.attempted || 0),
         lastAttemptedQ: statObj.lastAttemptedQ || null,
+        marked,
     };
 };
 
@@ -520,12 +586,15 @@ const getSelectedUnitsProgress = async (
         }
     }
 
+    const marked = await countMarked(userId, selectedUnits, selectedSubunits, language);
+
     return {
         totalQuestions,
         attempted,
         correct,
         wrong,
-        unattempted: totalQuestions - attempted
+        unattempted: totalQuestions - attempted,
+        marked
     };
 };
 
@@ -1054,6 +1123,91 @@ const getWrongOnlySession = async ({
 };
 
 
+// Marks or unmarks a question for the user. Idempotent: marking twice or unmarking an
+// unmarked question is not an error.
+const setQuestionMarked = async (userId, questionId, marked) => {
+    if (!marked) {
+        await MarkedQuestion.deleteOne({ user: userId, question: questionId });
+        return { questionId, marked: false };
+    }
+
+    const question = await Question.findById(questionId, {
+        course: 1, part: 1, publisher: 1, unit: 1, subunit: 1, language: 1,
+    }).lean();
+
+    if (!question) {
+        throw Object.assign(new Error("Question not found"), { code: 404 });
+    }
+
+    await MarkedQuestion.updateOne(
+        { user: userId, question: questionId },
+        {
+            $setOnInsert: {
+                user: userId,
+                question: questionId,
+                course: question.course,
+                part: question.part,
+                publisher: question.publisher,
+                unit: question.unit,
+                subunit: question.subunit,
+                language: question.language,
+            },
+        },
+        { upsert: true }
+    );
+
+    return { questionId, marked: true };
+};
+
+// Which of the given questions the user has marked — lets the quiz show the saved
+// state of the Mark button.
+const getMarkedQuestionIds = async (userId, questionIds = []) => {
+    if (!questionIds.length) return [];
+
+    const marked = await MarkedQuestion.find(
+        { user: userId, question: { $in: questionIds } },
+        { question: 1 }
+    ).lean();
+
+    return marked.map(m => m.question.toString());
+};
+
+const getMarkedSession = async ({
+    userId,
+    selectedUnits = [],
+    selectedSubunits = {},
+    language = "eng",
+    questionLimit = null,
+}) => {
+    if (!selectedUnits.length) {
+        throw Object.assign(new Error("No marked questions found!"), { code: 404 });
+    }
+
+    // Oldest mark first, so questions come back in the order they were marked.
+    let markedQuery = MarkedQuestion.find(
+        buildMarkedFilter(userId, selectedUnits, selectedSubunits, language),
+        { question: 1 }
+    ).sort({ createdAt: 1 });
+
+    if (questionLimit) markedQuery = markedQuery.limit(questionLimit);
+
+    const marked = await markedQuery.lean();
+    const ids = marked.map(m => m.question);
+
+    const questions = await Question.find({ _id: { $in: ids } }).lean();
+
+    // $in does not keep order; restore the marked order. A question deleted by the
+    // admin after being marked simply drops out.
+    const byId = new Map(questions.map(q => [q._id.toString(), q]));
+    const ordered = ids.map(id => byId.get(id.toString())).filter(Boolean);
+
+    if (!ordered.length) {
+        throw Object.assign(new Error("No marked questions found!"), { code: 404 });
+    }
+
+    return ordered;
+};
+
 const buildStatSummary = (stat) => {
     const attempted = stat.attempted ?? 0;
     const correct = stat.correct ?? 0;
@@ -1113,6 +1267,7 @@ const getUnitPerformance = async (userId, courseId, partId, publisherId, unitId,
 
 
 module.exports = {
+    buildLanguageFilter,
     recordAnswer,
     getAllUnitsProgress,
     getUnitProgress,
@@ -1123,4 +1278,7 @@ module.exports = {
     getWrongOnlySession,
     getLimitedSession,
     getUnitPerformance,
+    setQuestionMarked,
+    getMarkedQuestionIds,
+    getMarkedSession,
 };

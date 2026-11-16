@@ -7,7 +7,9 @@ const progressService = {
     recordAnswerBatch: async (answers, language) => {
         const response = await axiosInstance.post(`${BASE_URL}/record-answer`, {
             answers,
-            language
+            language,
+            // Lets the server line each answeredAt up with its own clock.
+            sentAt: new Date().toISOString()
         });
 
         return response.data;
@@ -197,6 +199,33 @@ const progressService = {
         return response.data;
     },
 
+
+    getMarkedSession: async ({ selectedUnits, selectedSubunits, language, questionLimit }) => {
+        const response = await axiosInstance.get(`${BASE_URL}/session/marked`, {
+            params: {
+                selectedUnits: JSON.stringify(selectedUnits || []),
+                selectedSubunits: JSON.stringify(selectedSubunits || {}),
+                language,
+                questionLimit: questionLimit || undefined,
+            },
+        });
+        return response.data;
+    },
+
+    markQuestion: async (questionId, marked) => {
+        const response = await axiosInstance.post(`${BASE_URL}/mark-question`, {
+            questionId,
+            marked,
+        });
+        return response.data;
+    },
+
+    getMarkedStatus: async (questionIds) => {
+        const response = await axiosInstance.post(`${BASE_URL}/marked-status`, {
+            questionIds,
+        });
+        return response.data;
+    },
 
     getUnitPerformance: async ({
         courseId,
