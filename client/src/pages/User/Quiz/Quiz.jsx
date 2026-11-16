@@ -19,6 +19,7 @@ import questionService from "../../../services/questionServices";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import progressService from '../../../services/progressService';
+import plannerService from '../../../services/plannerService';
 
 const QUIZ_TIME = 300;
 
@@ -40,10 +41,17 @@ const Quiz = () => {
         timeRatio,
         prefetchedQuestions,
         questionLimit,
+        plannerDay,
     } = state || {};
 
     const isPrefetched = prefetchedQuestions && prefetchedQuestions.length > 0;
     const language = useSelector(state => state.user?.user.language);
+
+    // A planner day is a practice session, so it behaves like a unit exam: the first
+    // answer is the one scored, and answers feed the unit progress stats.
+    const usesFirstAnswers = source === "unit-exam" || source === "package-exam" || source === "planner";
+    const tracksUnitProgress = source === "unit-exam" || source === "planner";
+    const plannerSelection = source === "planner" ? { courseId, partId, publisherId } : null;
 
     const [questions, setQuestions] = useState([]);
     const [loadedPages, setLoadedPages] = useState(new Set());
@@ -59,6 +67,9 @@ const Quiz = () => {
     const PAGE_SIZE = 20;
 
     const pendingProgressRef = useRef([]);
+    // Planner: questions fully attempted this session, and those not yet sent.
+    const plannerReportedRef = useRef(new Set());
+    const plannerPendingRef = useRef([]);
 
     const fetchQuestions = async (pageToFetch = 1) => {
         try {
@@ -249,12 +260,12 @@ const Quiz = () => {
 
 
     const handleAnswerSelect = (key, value) => {
-        if ((source === "unit-exam" || source === "package-exam") && !firstAnswers[key]) {
+        if (usesFirstAnswers && !firstAnswers[key]) {
             setFirstAnswers((prev) => ({ ...prev, [key]: value }));
         }
         setAnswers((prev) => ({ ...prev, [key]: value }));
 
-        if (source !== "unit-exam") return;
+        if (!tracksUnitProgress) return;
 
         const question = currentQuestion;
         if (!question) return;
@@ -271,27 +282,57 @@ const Quiz = () => {
             unitId: question.unit,
             questionId: question._id,
             isCorrect,
+            answeredAt: new Date().toISOString(),
         });
+
+        // Attempting a marked question unmarks it: it now counts as correct/incorrect.
+        // The server removes the saved mark when this answer is recorded.
+        if (markedQuestions.has(question._id)) {
+            setQuestionMarkedLocally(question._id, false);
+        }
     };
 
+    const flushProgress = async () => {
+        if (pendingProgressRef.current.length === 0) return;
+
+        const batch = [...pendingProgressRef.current];
+        pendingProgressRef.current = [];
+
+        try {
+            await progressService.recordAnswerBatch(batch, language);
+        } catch (err) {
+            pendingProgressRef.current = [...batch, ...pendingProgressRef.current];
+            console.error("Batch progress sync failed:", err);
+        }
+    };
+
+    const flushPlannerProgress = async () => {
+        if (source !== "planner" || plannerPendingRef.current.length === 0) return;
+
+        const batch = [...plannerPendingRef.current];
+        plannerPendingRef.current = [];
+
+        try {
+            await plannerService.recordDayProgress({
+                ...plannerSelection,
+                dayNumber: plannerDay,
+                questionIds: batch,
+                language,
+            });
+        } catch (err) {
+            plannerPendingRef.current = [...batch, ...plannerPendingRef.current];
+            console.error("Planner progress sync failed:", err);
+        }
+    };
+
+    // Kept in a ref so the interval below always calls the latest closures.
+    const flushAllRef = useRef(null);
+    flushAllRef.current = () => Promise.all([flushProgress(), flushPlannerProgress()]);
+
     useEffect(() => {
-        if (source !== "unit-exam") return;
+        if (!tracksUnitProgress) return;
 
-        const flushProgress = async () => {
-            if (pendingProgressRef.current.length === 0) return;
-
-            const batch = [...pendingProgressRef.current];
-            pendingProgressRef.current = [];
-
-            try {
-                await progressService.recordAnswerBatch(batch, language);
-            } catch (err) {
-                pendingProgressRef.current = [...batch, ...pendingProgressRef.current];
-                console.error("Batch progress sync failed:", err);
-            }
-        };
-
-        const interval = setInterval(flushProgress, 30000);
+        const interval = setInterval(() => flushAllRef.current(), 30000);
         return () => clearInterval(interval);
     }, [source]);
 
@@ -339,17 +380,75 @@ const Quiz = () => {
         return false;
     };
 
-    const toggleMarkQuestion = (questionId) => {
+    // Planner: queue each question once it is fully attempted (every subquestion of a
+    // rapid/essay question), which is what counts towards completing the day.
+    useEffect(() => {
+        if (source !== "planner") return;
+
+        questions.forEach(q => {
+            if (!q || plannerReportedRef.current.has(q._id)) return;
+            if (!isQuestionAnswered(q)) return;
+
+            plannerReportedRef.current.add(q._id);
+            plannerPendingRef.current.push(q._id);
+        });
+    }, [answers, questions]);
+
+    const setQuestionMarkedLocally = (questionId, marked) => {
         setMarkedQuestions(prev => {
             const newSet = new Set(prev);
-            if (newSet.has(questionId)) {
-                newSet.delete(questionId);
-            } else {
+            if (marked) {
                 newSet.add(questionId);
+            } else {
+                newSet.delete(questionId);
             }
             return newSet;
         });
     };
+
+    // Marks are saved to the database. The button flips straight away and is put back
+    // if the save fails.
+    const toggleMarkQuestion = async (questionId) => {
+        const marked = !markedQuestions.has(questionId);
+        setQuestionMarkedLocally(questionId, marked);
+
+        try {
+            await progressService.markQuestion(questionId, marked);
+        } catch (error) {
+            setQuestionMarkedLocally(questionId, !marked);
+            message.error(error?.response?.data?.error || "Failed to save the mark. Please try again.");
+        }
+    };
+
+    // Load the saved mark state for questions as they are loaded (pages arrive lazily),
+    // asking about each question only once.
+    const markStatusCheckedRef = useRef(new Set());
+
+    useEffect(() => {
+        const unchecked = questions
+            .filter(q => q && !markStatusCheckedRef.current.has(q._id))
+            .map(q => q._id);
+
+        if (!unchecked.length) return;
+        unchecked.forEach(id => markStatusCheckedRef.current.add(id));
+
+        // The endpoint takes at most 500 ids; prefetched sessions can be larger.
+        const STATUS_BATCH = 500;
+        for (let i = 0; i < unchecked.length; i += STATUS_BATCH) {
+            const batch = unchecked.slice(i, i + STATUS_BATCH);
+
+            progressService.getMarkedStatus(batch)
+                .then(({ markedIds = [] }) => {
+                    if (!markedIds.length) return;
+                    setMarkedQuestions(prev => new Set([...prev, ...markedIds]));
+                })
+                .catch(err => {
+                    // Allow a retry the next time questions change.
+                    batch.forEach(id => markStatusCheckedRef.current.delete(id));
+                    console.error("Failed to load marked questions:", err);
+                });
+        }
+    }, [questions]);
 
     const markedCount = markedQuestions.size;
 
@@ -440,8 +539,8 @@ const Quiz = () => {
     const correctCount = useMemo(() => {
         let totalCorrect = 0;
 
-        // Use firstAnswers for unit-exam and package-exam, otherwise use answers
-        const scoreAnswers = (source === 'unit-exam' || source === 'package-exam') ? firstAnswers : answers;
+        // Use firstAnswers for unit-exam, package-exam and planner, otherwise use answers
+        const scoreAnswers = usesFirstAnswers ? firstAnswers : answers;
 
         questions.forEach(q => {
             if (!q) return;
@@ -489,7 +588,7 @@ const Quiz = () => {
 
     const incorrectCount = useMemo(() => {
         let totalIncorrect = 0;
-        const scoreAnswers = (source === 'unit-exam' || source === 'package-exam') ? firstAnswers : answers;
+        const scoreAnswers = usesFirstAnswers ? firstAnswers : answers;
 
         questions.forEach(q => {
             if (!q) return;
@@ -601,14 +700,8 @@ const Quiz = () => {
 
 
     const handleQuizSubmit = async () => {
-        if (source === "unit-exam" && pendingProgressRef.current.length > 0) {
-            const batch = [...pendingProgressRef.current];
-            pendingProgressRef.current = [];
-            try {
-                await progressService.recordAnswerBatch(batch, language);
-            } catch (err) {
-                console.error("Final batch sync failed:", err);
-            }
+        if (tracksUnitProgress) {
+            await flushAllRef.current();
         }
 
         const mcqScore = calculateMCQScore();
@@ -624,6 +717,7 @@ const Quiz = () => {
                 mcqScore,
                 rapidScore,
                 essayScore,
+                plannerSelection,
             },
         });
     };
@@ -657,9 +751,15 @@ const Quiz = () => {
         setShowExitModal(true);
     };
 
-    const handleExitConfirm = () => {
+    const handleExitConfirm = async () => {
         setShowExitModal(false);
-        if (source === 'unit-exam') {
+        if (source === 'planner') {
+            // Keep what the user finished before leaving, so the day resumes from there.
+            await flushAllRef.current();
+            navigate("/dashboard/planner", { state: { plannerSelection } });
+        } else if (source === 'unit-exam') {
+            // Save answers given since the last 30-second sync before leaving.
+            await flushAllRef.current();
             navigate("/dashboard/unit-exams");
         } else if (source === 'practice-exam') {
             navigate("/dashboard/practice-exams");
@@ -698,7 +798,10 @@ const Quiz = () => {
                     </div>
 
                     <div className="quiz-header">
-                        <div className="title">{toUpperCase(source)}</div>
+                        <div className="title">
+                            {toUpperCase(source)}
+                            {source === "planner" && plannerDay && ` - Day ${plannerDay}`}
+                        </div>
                         <div className="quiz-timer">
                             <TiStopwatch className="timer-icon" />
                             <span>{formatTime(time)}</span>
@@ -818,6 +921,12 @@ const Quiz = () => {
                         show={showExitModal}
                         onConfirm={handleExitConfirm}
                         onCancel={handleExitCancel}
+                        {...(source === "planner" && {
+                            text: "Questions you have fully attempted are saved to your plan. Do you want to exit and continue this day later?",
+                        })}
+                        {...(source === "unit-exam" && {
+                            text: "The answers you have given so far will be saved to your progress. Do you want to exit right now?",
+                        })}
                     />
                 </CustomModal>
             </div>

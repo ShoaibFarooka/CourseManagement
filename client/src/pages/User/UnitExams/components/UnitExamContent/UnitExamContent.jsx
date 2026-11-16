@@ -251,6 +251,11 @@ const UnitExamContent = ({ courseId, partId, publisherId, timeRatio }) => {
                 prefetchedQuestions = res.questions;
             }
 
+            else if (mode === "marked") {
+                const res = await progressService.getMarkedSession(payload);
+                prefetchedQuestions = res.questions;
+            }
+
             else if (mode === "limited") {
                 const res = await progressService.getLimitedSession(payload);
                 prefetchedQuestions = res.questions;

@@ -1,0 +1,33 @@
+/* Shown when the user has no active purchase or an unverified device. */
+.planner-locked {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 75px 40px;
+    text-align: center;
+    background: var(--unit-exams-bg);
+    color: var(--text-color);
+    font-family: var(--font-family);
+}
+
+.planner-locked .lock {
+    font-size: 2.5rem;
+}
+
+.planner-locked .heading {
+    font-size: 1.375rem;
+    font-weight: 600;
+}
+
+.planner-locked .text {
+    max-width: 420px;
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+.planner-locked .button {
+    margin-top: 10px;
+}

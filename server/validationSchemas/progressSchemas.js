@@ -8,6 +8,7 @@ const recordAnswerSchema = yup.object().shape({
     questionId: yup.string().required(),
     isCorrect: yup.boolean().required(),
     language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
+    answeredAt: yup.date().optional(),
 });
 
 const unitSessionSchema = yup.object().shape({
@@ -39,6 +40,7 @@ const recordAnswerBatchSchema = yup.object().shape({
         .min(1, "answers must contain at least one item")
         .required(),
     language: yup.string().oneOf(["eng", "ar", "fr"]).optional(),
+    sentAt: yup.date().optional(),
 });
 
 const getUnitPerformanceSchema = yup.object().shape({
@@ -51,7 +53,20 @@ const getUnitPerformanceSchema = yup.object().shape({
 
 
 
+const objectIdString = yup.string().matches(/^[a-f\d]{24}$/i, "Invalid id");
+
+const markQuestionSchema = yup.object().shape({
+    questionId: objectIdString.required("questionId is required"),
+    marked: yup.boolean().required("marked is required"),
+});
+
+const markedStatusSchema = yup.object().shape({
+    questionIds: yup.array().of(objectIdString).max(500).required("questionIds is required"),
+});
+
 module.exports = {
+    markQuestionSchema,
+    markedStatusSchema,
     recordAnswerSchema,
     recordAnswerBatchSchema,
     unitSessionSchema,

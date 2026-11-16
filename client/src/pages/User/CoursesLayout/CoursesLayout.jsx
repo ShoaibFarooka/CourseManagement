@@ -28,6 +28,7 @@ const CoursesLayout = () => {
         if (location.pathname.includes("unit-exams")) return "Unit Exams";
         if (location.pathname.includes("practice-exams")) return "Practice Exams";
         if (location.pathname.includes("package-exams")) return "Package Exams";
+        if (location.pathname.includes("planner")) return "Planner";
         return "Dashboard";
     };
 
@@ -38,6 +39,8 @@ const CoursesLayout = () => {
             return "Practice before the exam.";
         if (location.pathname.includes("package-exams"))
             return "Complete packages, full prep.";
+        if (location.pathname.includes("planner"))
+            return "Your prep, one day at a time.";
         return "Join millions who passed.";
     };
 

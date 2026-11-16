@@ -6,6 +6,7 @@ const courseRoute = require('./courseRoute');
 const deviceRequestRoute = require('./deviceRequestRoute');
 const paymentRequestRoute = require('./paymentRequestRoute');
 const progressRoute = require("./progressRoute");
+const plannerRoute = require("./plannerRoute");
 
 // Set up routes
 router.use('/user', userRoute);
@@ -14,4 +15,5 @@ router.use('/course', courseRoute);
 router.use('/device-request', deviceRequestRoute);
 router.use('/payment-request', paymentRequestRoute);
 router.use('/progress', progressRoute);
+router.use('/planner', plannerRoute);
 module.exports = router;

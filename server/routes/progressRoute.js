@@ -67,6 +67,29 @@ router.get(
     controller.GetWrongOnlySession
 );
 
+// Session: questions the user marked for later
+router.get(
+    "/session/marked",
+    authMiddleware.authenticateRequest,
+    controller.GetMarkedSession
+);
+
+// Mark / unmark a question for a later attempt
+router.post(
+    "/mark-question",
+    authMiddleware.authenticateRequest,
+    validationMiddleware.validateBody(progressSchemas.markQuestionSchema),
+    controller.MarkQuestion
+);
+
+// Which of the given questions are marked (for the quiz's Mark button state)
+router.post(
+    "/marked-status",
+    authMiddleware.authenticateRequest,
+    validationMiddleware.validateBody(progressSchemas.markedStatusSchema),
+    controller.GetMarkedStatus
+);
+
 router.get(
     "/unit-performance",
     authMiddleware.authenticateRequest,

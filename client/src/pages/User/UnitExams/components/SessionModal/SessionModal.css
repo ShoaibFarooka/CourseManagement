@@ -121,6 +121,18 @@
     opacity: 0.8;
 }
 
+.session-modal .session-modal-buttons .session-btn.marked {
+    background-color: var(--unit-exams-bg);
+    border-color: var(--table-header-border);
+    color: var(--text-color);
+}
+
+.session-modal .session-modal-buttons .session-btn.marked:hover:not(:disabled) {
+    background-color: var(--questions-option-bg);
+    border-color: var(--table-header-border);
+    opacity: 0.8;
+}
+
 .session-modal .session-modal-buttons .session-btn.start-over {
     background-color: var(--unit-exams-bg);
     border-color: #bbf7d0;

@@ -22,6 +22,7 @@ const HIDDEN_PATHS = [
     "/dashboard/unit-exams",
     "/dashboard/practice-exams",
     "/dashboard/package-exams",
+    "/dashboard/planner",
 ];
 
 // Whole sections that stay hidden, including any route nested under them.

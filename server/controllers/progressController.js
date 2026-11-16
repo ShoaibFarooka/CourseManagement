@@ -2,13 +2,13 @@ const progressService = require("../services/progressService");
 const RecordAnswer = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { answers, language } = req.body;
+        const { answers, language, sentAt } = req.body;
 
         if (!Array.isArray(answers) || answers.length === 0) {
             return res.status(400).json({ error: "answers must be a non-empty array" });
         }
 
-        await progressService.recordAnswer(userId, answers, language);
+        await progressService.recordAnswer(userId, answers, language, sentAt);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -229,6 +229,48 @@ const GetWrongOnlySession = async (req, res, next) => {
 };
 
 
+const MarkQuestion = async (req, res, next) => {
+    try {
+        const { questionId, marked } = req.body;
+
+        const result = await progressService.setQuestionMarked(req.user.id, questionId, marked);
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const GetMarkedStatus = async (req, res, next) => {
+    try {
+        const { questionIds } = req.body;
+
+        const markedIds = await progressService.getMarkedQuestionIds(req.user.id, questionIds);
+
+        res.status(200).json({ markedIds });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const GetMarkedSession = async (req, res, next) => {
+    try {
+        const { selectedUnits, selectedSubunits, language, questionLimit } = req.query;
+
+        const questions = await progressService.getMarkedSession({
+            userId: req.user.id,
+            selectedUnits: JSON.parse(selectedUnits || "[]"),
+            selectedSubunits: JSON.parse(selectedSubunits || "{}"),
+            language,
+            questionLimit: questionLimit ? Number(questionLimit) : null,
+        });
+
+        res.status(200).json({ questions });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const GetUnitPerformance = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -260,4 +302,7 @@ module.exports = {
     GetStartOverSession,
     limitedSession,
     GetWrongOnlySession,
+    MarkQuestion,
+    GetMarkedStatus,
+    GetMarkedSession,
 };

@@ -25,7 +25,7 @@ const MCQs = ({
 
 
     useEffect(() => {
-        const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
+        const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam" || source === "planner";
         if (isUnitOrPackageExam && firstSelectedAnswer) {
             setLocalSelection(firstSelectedAnswer);
         }
@@ -41,8 +41,8 @@ const MCQs = ({
     };
 
     const optionKeys = question.options ? Object.keys(question.options) : [];
-    const showExplanations = source === "unit-exam" || source === "package-exam";
-    const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam";
+    const showExplanations = source === "unit-exam" || source === "package-exam" || source === "planner";
+    const isUnitOrPackageExam = source === "unit-exam" || source === "package-exam" || source === "planner";
 
     const getOptionClass = (optKey) => {
         if (isUnitOrPackageExam) {
